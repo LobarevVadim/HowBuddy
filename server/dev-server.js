@@ -95,6 +95,11 @@ const server = createServer(async (request, response) => {
     return;
   }
 
+  if (url.pathname === '/notepad/tree' && request.method === 'GET') {
+    send(response, 200, {tree: buildNotepadTree()});
+    return;
+  }
+
   if (url.pathname === '/auth/login' && request.method === 'POST') {
     const body = await readJson(request);
     const identifier = String(body.identifier ?? '').trim().toLowerCase();
@@ -188,6 +193,26 @@ function buildLessonLevels(topic) {
       title: `Lesson ${level}`,
     };
   });
+}
+
+function buildNotepadTree() {
+  return {
+    id: 'main-tree',
+    title: 'Main Tree',
+    children: topics.map((topic) => ({
+      id: topic.id,
+      title: topic.question,
+      children: (nextQuestionsByTopic[topic.id] ?? []).map((question) => ({
+        id: question,
+        title: question,
+        children: [1, 2, 3].map((index) => ({
+          id: `${question}-${index}`,
+          title: `${question}.${index}`,
+          children: [],
+        })),
+      })),
+    })),
+  };
 }
 
 async function readJson(request) {

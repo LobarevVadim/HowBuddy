@@ -98,6 +98,10 @@ app.get('/lessons/tree', (request, response) => {
   });
 });
 
+app.get('/notepad/tree', (_request, response) => {
+  response.json({tree: buildNotepadTree()});
+});
+
 app.post('/auth/login', async (request, response) => {
   const identifier = String(request.body.identifier ?? '').trim().toLowerCase();
   const password = String(request.body.password ?? '');
@@ -184,6 +188,26 @@ function buildLessonLevels(topic) {
       title: `Lesson ${level}`,
     };
   });
+}
+
+function buildNotepadTree() {
+  return {
+    id: 'main-tree',
+    title: 'Main Tree',
+    children: topics.map((topic) => ({
+      id: topic.id,
+      title: topic.question,
+      children: (nextQuestionsByTopic[topic.id] ?? []).map((question) => ({
+        id: question,
+        title: question,
+        children: [1, 2, 3].map((index) => ({
+          id: `${question}-${index}`,
+          title: `${question}.${index}`,
+          children: [],
+        })),
+      })),
+    })),
+  };
 }
 
 app.listen(port, () => {
