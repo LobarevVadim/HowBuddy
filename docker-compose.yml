@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: howbuddy-postgres
+    environment:
+      POSTGRES_DB: howbuddy
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - howbuddy-postgres-data:/var/lib/postgresql/data
+      - ./server/schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
+
+volumes:
+  howbuddy-postgres-data:
