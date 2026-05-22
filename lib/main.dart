@@ -136,6 +136,45 @@ class AuthApi {
         .toList();
   }
 
+  Future<TreeData> fetchTreeData(String topicId) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/lessons/tree?topic=$topicId'),
+    );
+    final Map<String, dynamic> body = jsonDecode(response.body);
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw AuthException(
+        body['message']?.toString() ?? 'Could not load lessons.',
+      );
+    }
+
+    final levels = (body['levels'] as List<dynamic>)
+        .map((level) => LessonLevel.fromJson(level as Map<String, dynamic>))
+        .toList();
+    final nextQuestions = (body['nextQuestions'] as List<dynamic>)
+        .map((question) => question.toString())
+        .toList();
+    final topic = LessonTopic.fromJson(body['topic'] as Map<String, dynamic>);
+
+    return TreeData(topic: topic, levels: levels, nextQuestions: nextQuestions);
+  }
+
+  Future<List<LessonTopic>> fetchOnboardingTopics() async {
+    final response = await http.get(Uri.parse('$baseUrl/onboarding/topics'));
+    final Map<String, dynamic> body = jsonDecode(response.body);
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw AuthException(
+        body['message']?.toString() ?? 'Could not load onboarding.',
+      );
+    }
+
+    final topics = body['topics'] as List<dynamic>;
+    return topics
+        .map((topic) => LessonTopic.fromJson(topic as Map<String, dynamic>))
+        .toList();
+  }
+
   Account _readAccount(http.Response response) {
     final Map<String, dynamic> body = jsonDecode(response.body);
 
@@ -192,6 +231,38 @@ class LessonLevel {
   }
 }
 
+class LessonTopic {
+  const LessonTopic({
+    required this.id,
+    required this.question,
+    required this.lessonCount,
+  });
+
+  final String id;
+  final String question;
+  final int lessonCount;
+
+  factory LessonTopic.fromJson(Map<String, dynamic> json) {
+    return LessonTopic(
+      id: json['id'].toString(),
+      question: json['question'].toString(),
+      lessonCount: int.parse(json['lessonCount'].toString()),
+    );
+  }
+}
+
+class TreeData {
+  const TreeData({
+    required this.topic,
+    required this.levels,
+    required this.nextQuestions,
+  });
+
+  final LessonTopic topic;
+  final List<LessonLevel> levels;
+  final List<String> nextQuestions;
+}
+
 class AuthException implements Exception {
   AuthException(this.message);
 
@@ -244,7 +315,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         return;
       }
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => HomePage(account: account)),
+        MaterialPageRoute(builder: (_) => OnboardingPage(account: account)),
       );
     } on AuthException catch (error) {
       _showMessage(error.message);
@@ -278,7 +349,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         return;
       }
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => HomePage(account: account)),
+        MaterialPageRoute(builder: (_) => OnboardingPage(account: account)),
       );
     } on AuthException catch (error) {
       _showMessage(error.message);
@@ -376,6 +447,168 @@ class _RegistrationPageState extends State<RegistrationPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class OnboardingPage extends StatefulWidget {
+  const OnboardingPage({required this.account, super.key});
+
+  final Account account;
+
+  @override
+  State<OnboardingPage> createState() => _OnboardingPageState();
+}
+
+class _OnboardingPageState extends State<OnboardingPage> {
+  late final Future<List<LessonTopic>> _topics = AuthApi()
+      .fetchOnboardingTopics();
+
+  void _openTopic(LessonTopic topic) {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => HomePage(account: widget.account, topicId: topic.id),
+      ),
+    );
+  }
+
+  void _skipToNotepad() {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => HomePage(account: widget.account, initialIndex: 1),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(AppSpacing.tabPagePadding),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 520),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const AuthHeroImage(),
+                  const SizedBox(height: AppSpacing.heroGap),
+                  Text(
+                    'Where do we want to start?',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      color: AppColors.primaryDark,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.contentGap),
+                  FutureBuilder<List<LessonTopic>>(
+                    future: _topics,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState != ConnectionState.done) {
+                        return const TreePanel(
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+
+                      if (snapshot.hasError) {
+                        return Text(
+                          'Could not load questions.',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(color: AppColors.mutedText),
+                        );
+                      }
+
+                      final topics = snapshot.data ?? [];
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          for (final topic in topics) ...[
+                            OnboardingOptionButton(
+                              title: topic.question,
+                              subtitle: '${topic.lessonCount} lessons',
+                              onPressed: () => _openTopic(topic),
+                            ),
+                            const SizedBox(height: AppSpacing.socialButtonGap),
+                          ],
+                          OutlinedButton.icon(
+                            onPressed: _skipToNotepad,
+                            icon: const Icon(Icons.note_alt_outlined),
+                            label: const Text('Skip to the main tree'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppColors.primaryDark,
+                              side: const BorderSide(color: AppColors.border),
+                              padding: const EdgeInsets.symmetric(vertical: 18),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                  AppRadii.button,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class OnboardingOptionButton extends StatelessWidget {
+  const OnboardingOptionButton({
+    required this.title,
+    required this.subtitle,
+    required this.onPressed,
+    super.key,
+  });
+
+  final String title;
+  final String subtitle;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return FilledButton(
+      onPressed: onPressed,
+      style: FilledButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadii.button),
+        ),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.eco_rounded, color: AppColors.success),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -488,16 +721,23 @@ class _LoginPageState extends State<LoginPage> {
 }
 
 class HomePage extends StatefulWidget {
-  const HomePage({required this.account, super.key});
+  const HomePage({
+    required this.account,
+    this.initialIndex = 0,
+    this.topicId = 'immortal',
+    super.key,
+  });
 
   final Account account;
+  final int initialIndex;
+  final String topicId;
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 0;
+  late int _selectedIndex = widget.initialIndex;
 
   void _selectTab(int index) {
     setState(() => _selectedIndex = index);
@@ -506,7 +746,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final pages = [
-      const TreeLessonsPage(),
+      TreeLessonsPage(topicId: widget.topicId),
       const SignedInTabPage(
         icon: Icons.note_alt_outlined,
         title: 'Notepad',
@@ -553,14 +793,18 @@ class _HomePageState extends State<HomePage> {
 }
 
 class TreeLessonsPage extends StatefulWidget {
-  const TreeLessonsPage({super.key});
+  const TreeLessonsPage({required this.topicId, super.key});
+
+  final String topicId;
 
   @override
   State<TreeLessonsPage> createState() => _TreeLessonsPageState();
 }
 
 class _TreeLessonsPageState extends State<TreeLessonsPage> {
-  late final Future<List<LessonLevel>> _levels = AuthApi().fetchLessonLevels();
+  late final Future<TreeData> _treeData = AuthApi().fetchTreeData(
+    widget.topicId,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -593,20 +837,28 @@ class _TreeLessonsPageState extends State<TreeLessonsPage> {
                       ),
                     ),
                     const SizedBox(height: AppSpacing.titleGap),
-                    Text(
-                      'Could we be immortal?',
-                      style: Theme.of(context).textTheme.headlineMedium
-                          ?.copyWith(
-                            color: AppColors.primaryDark,
-                            fontWeight: FontWeight.w900,
-                          ),
+                    FutureBuilder<TreeData>(
+                      future: _treeData,
+                      builder: (context, snapshot) {
+                        final question =
+                            snapshot.data?.topic.question ??
+                            'Could we be immortal?';
+                        return Text(
+                          question,
+                          style: Theme.of(context).textTheme.headlineMedium
+                              ?.copyWith(
+                                color: AppColors.primaryDark,
+                                fontWeight: FontWeight.w900,
+                              ),
+                        );
+                      },
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: AppSpacing.sectionGap),
-              FutureBuilder<List<LessonLevel>>(
-                future: _levels,
+              FutureBuilder<TreeData>(
+                future: _treeData,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState != ConnectionState.done) {
                     return const TreePanel(
@@ -626,8 +878,15 @@ class _TreeLessonsPageState extends State<TreeLessonsPage> {
                     );
                   }
 
-                  final levels = snapshot.data ?? [];
-                  return TreePanel(child: LessonTree(levels: levels));
+                  final treeData = snapshot.data!;
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      TreePanel(child: LessonTree(levels: treeData.levels)),
+                      const SizedBox(height: AppSpacing.sectionGap),
+                      NextQuestionPanel(questions: treeData.nextQuestions),
+                    ],
+                  );
                 },
               ),
             ],
@@ -653,6 +912,59 @@ class TreePanel extends StatelessWidget {
         border: Border.all(color: AppColors.border),
       ),
       child: child,
+    );
+  }
+}
+
+class NextQuestionPanel extends StatelessWidget {
+  const NextQuestionPanel({required this.questions, super.key});
+
+  final List<String> questions;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
+      decoration: BoxDecoration(
+        color: AppColors.authPanelBackground,
+        borderRadius: BorderRadius.circular(AppRadii.heroImage),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            'What do you want to know next?',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              color: AppColors.primaryDark,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sectionGap),
+          for (final question in questions) ...[
+            OutlinedButton(
+              onPressed: () {},
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.primaryDark,
+                alignment: Alignment.centerLeft,
+                side: const BorderSide(color: AppColors.border),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 16,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadii.button),
+                ),
+              ),
+              child: Text(
+                question,
+                style: const TextStyle(fontWeight: FontWeight.w800),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.socialButtonGap),
+          ],
+        ],
+      ),
     );
   }
 }

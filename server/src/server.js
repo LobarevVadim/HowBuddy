@@ -19,6 +19,10 @@ app.get('/health', (_request, response) => {
   response.json({ok: true});
 });
 
+app.get('/onboarding/topics', (_request, response) => {
+  response.json({topics});
+});
+
 app.post('/auth/register', async (request, response) => {
   const fullName = String(request.body.fullName ?? '').trim();
   const email = String(request.body.email ?? '').trim().toLowerCase();
@@ -85,8 +89,13 @@ app.post('/auth/social-signup', async (request, response) => {
   }
 });
 
-app.get('/lessons/tree', (_request, response) => {
-  response.json({levels: buildLessonLevels(20)});
+app.get('/lessons/tree', (request, response) => {
+  const topic = findTopic(String(request.query.topic ?? 'immortal'));
+  response.json({
+    topic,
+    levels: buildLessonLevels(topic),
+    nextQuestions: nextQuestionsByTopic[topic.id],
+  });
 });
 
 app.post('/auth/login', async (request, response) => {
@@ -121,9 +130,37 @@ function toAccount(row) {
   };
 }
 
-function buildLessonLevels(limit) {
+const topics = [
+  {
+    id: 'immortal',
+    question: 'Could we be immortal?',
+    lessonCount: 20,
+  },
+  {
+    id: 'poop-smell',
+    question: 'Who poop smells bad?',
+    lessonCount: 15,
+  },
+  {
+    id: 'monkeys-evolve',
+    question: 'Why do monkeys not eveoleve?',
+    lessonCount: 10,
+  },
+];
+
+const nextQuestionsByTopic = {
+  'poop-smell': ['Question1', 'Question2', 'Question3'],
+  'monkeys-evolve': ['Question4', 'Question5', 'Question6'],
+  immortal: ['Question7', 'Question8', 'Question9'],
+};
+
+function findTopic(topicId) {
+  return topics.find((topic) => topic.id === topicId) ?? topics[0];
+}
+
+function buildLessonLevels(topic) {
   const shapes = ['star', 'triangle', 'hexagon', 'square', 'circle'];
-  const count = Math.min(limit, 20);
+  const count = Math.min(topic.lessonCount, 20);
 
   return Array.from({length: count}, (_item, index) => {
     const level = index + 1;

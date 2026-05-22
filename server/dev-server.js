@@ -5,6 +5,7 @@ const port = Number(process.env.PORT ?? 3000);
 const accounts = new Map();
 
 const server = createServer(async (request, response) => {
+  const url = new URL(request.url, `http://localhost:${port}`);
   response.setHeader('Access-Control-Allow-Origin', '*');
   response.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
   response.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -16,12 +17,12 @@ const server = createServer(async (request, response) => {
     return;
   }
 
-  if (request.url === '/health' && request.method === 'GET') {
+  if (url.pathname === '/health' && request.method === 'GET') {
     send(response, 200, {ok: true});
     return;
   }
 
-  if (request.url === '/auth/register' && request.method === 'POST') {
+  if (url.pathname === '/auth/register' && request.method === 'POST') {
     const body = await readJson(request);
     const fullName = String(body.fullName ?? '').trim();
     const email = String(body.email ?? '').trim().toLowerCase();
@@ -48,7 +49,7 @@ const server = createServer(async (request, response) => {
     return;
   }
 
-  if (request.url === '/auth/social-signup' && request.method === 'POST') {
+  if (url.pathname === '/auth/social-signup' && request.method === 'POST') {
     const body = await readJson(request);
     const provider = String(body.provider ?? '').trim().toLowerCase();
     const fullName = String(body.displayName ?? '').trim();
@@ -78,12 +79,23 @@ const server = createServer(async (request, response) => {
     return;
   }
 
-  if (request.url === '/lessons/tree' && request.method === 'GET') {
-    send(response, 200, {levels: buildLessonLevels(20)});
+  if (url.pathname === '/onboarding/topics' && request.method === 'GET') {
+    send(response, 200, {topics});
     return;
   }
 
-  if (request.url === '/auth/login' && request.method === 'POST') {
+  if (url.pathname === '/lessons/tree' && request.method === 'GET') {
+    const topicId = url.searchParams.get('topic') ?? 'immortal';
+    const topic = findTopic(topicId);
+    send(response, 200, {
+      topic,
+      levels: buildLessonLevels(topic),
+      nextQuestions: nextQuestionsByTopic[topic.id],
+    });
+    return;
+  }
+
+  if (url.pathname === '/auth/login' && request.method === 'POST') {
     const body = await readJson(request);
     const identifier = String(body.identifier ?? '').trim().toLowerCase();
     const password = String(body.password ?? '');
@@ -122,9 +134,37 @@ function send(response, statusCode, body) {
   response.end(JSON.stringify(body));
 }
 
-function buildLessonLevels(limit) {
+const topics = [
+  {
+    id: 'immortal',
+    question: 'Could we be immortal?',
+    lessonCount: 20,
+  },
+  {
+    id: 'poop-smell',
+    question: 'Who poop smells bad?',
+    lessonCount: 15,
+  },
+  {
+    id: 'monkeys-evolve',
+    question: 'Why do monkeys not eveoleve?',
+    lessonCount: 10,
+  },
+];
+
+const nextQuestionsByTopic = {
+  'poop-smell': ['Question1', 'Question2', 'Question3'],
+  'monkeys-evolve': ['Question4', 'Question5', 'Question6'],
+  immortal: ['Question7', 'Question8', 'Question9'],
+};
+
+function findTopic(topicId) {
+  return topics.find((topic) => topic.id === topicId) ?? topics[0];
+}
+
+function buildLessonLevels(topic) {
   const shapes = ['star', 'triangle', 'hexagon', 'square', 'circle'];
-  const count = Math.min(limit, 20);
+  const count = Math.min(topic.lessonCount, 20);
 
   return Array.from({length: count}, (_item, index) => {
     const level = index + 1;
