@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import 'app_style.dart';
+
 void main() {
   runApp(const HowBuddyApp());
 }
@@ -15,29 +17,7 @@ class HowBuddyApp extends StatelessWidget {
     return MaterialApp(
       title: 'HowBuddy',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF2563EB),
-          brightness: Brightness.light,
-        ),
-        fontFamily: 'Arial',
-        inputDecorationTheme: InputDecorationTheme(
-          filled: true,
-          fillColor: const Color(0xFFF8FAFC),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
-            borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
-            borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
-            borderSide: const BorderSide(color: Color(0xFF2563EB), width: 1.5),
-          ),
-        ),
-      ),
+      theme: AppTheme.light(),
       home: const LoginPage(),
     );
   }
@@ -253,7 +233,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   ? 'Enter your full name.'
                   : null,
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: AppSpacing.fieldGap),
             AppTextField(
               controller: _emailController,
               label: 'Email Address',
@@ -261,7 +241,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
               keyboardType: TextInputType.emailAddress,
               validator: _validateEmail,
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: AppSpacing.fieldGap),
             AppTextField(
               controller: _passwordController,
               label: 'Password',
@@ -269,7 +249,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
               obscureText: true,
               validator: _validatePassword,
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: AppSpacing.fieldGap),
             AppTextField(
               controller: _confirmPasswordController,
               label: 'Confirm Password',
@@ -282,7 +262,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 return null;
               },
             ),
-            const SizedBox(height: 22),
+            const SizedBox(height: AppSpacing.sectionGap),
             PrimaryButton(
               text: 'Sign up',
               isLoading: _isLoading,
@@ -295,14 +275,14 @@ class _RegistrationPageState extends State<RegistrationPage> {
               isLoading: _socialProviderLoading == 'google',
               onPressed: () => _socialSignUp('google'),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppSpacing.socialButtonGap),
             SocialButton(
               text: 'Sign up with Apple',
               icon: Icons.apple,
               isLoading: _socialProviderLoading == 'apple',
               onPressed: () => _socialSignUp('apple'),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: AppSpacing.authSwitchGap),
             AuthSwitchText(
               text: 'Already have an account?',
               linkText: 'Login',
@@ -394,7 +374,7 @@ class _LoginPageState extends State<LoginPage> {
                   ? 'Enter your email or username.'
                   : null,
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: AppSpacing.fieldGap),
             AppTextField(
               controller: _passwordController,
               label: 'Password',
@@ -402,13 +382,13 @@ class _LoginPageState extends State<LoginPage> {
               obscureText: true,
               validator: _validatePassword,
             ),
-            const SizedBox(height: 22),
+            const SizedBox(height: AppSpacing.sectionGap),
             PrimaryButton(
               text: 'Login',
               isLoading: _isLoading,
               onPressed: _submit,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: AppSpacing.authSwitchGap),
             AuthSwitchText(
               text: 'Don\'t have an account?',
               linkText: 'Sign Up',
@@ -436,16 +416,16 @@ class HomePage extends StatelessWidget {
       body: SafeArea(
         child: Center(
           child: Padding(
-            padding: const EdgeInsets.all(28),
+            padding: const EdgeInsets.all(AppSpacing.homePadding),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Icon(
                   Icons.check_circle,
-                  color: Color(0xFF16A34A),
-                  size: 68,
+                  color: AppColors.success,
+                  size: AppSizes.successIcon,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppSpacing.homeIconGap),
                 Text(
                   'Hi, ${account.fullName}',
                   textAlign: TextAlign.center,
@@ -453,14 +433,14 @@ class HomePage extends StatelessWidget {
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: AppSpacing.homeTextGap),
                 Text(
                   account.email,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: const Color(0xFF64748B),
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyLarge?.copyWith(color: AppColors.mutedText),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: AppSpacing.homeButtonGap),
                 PrimaryButton(
                   text: 'Logout',
                   onPressed: () {
@@ -495,39 +475,47 @@ class AuthScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.pageBackground,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final isWide = constraints.maxWidth >= 780;
+            final isWide =
+                constraints.maxWidth >= AppSizes.wideLayoutBreakpoint;
             final content = ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 460),
+              constraints: const BoxConstraints(
+                maxWidth: AppSizes.authContentMaxWidth,
+              ),
               child: Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal: isWide ? 32 : 24,
-                  vertical: 28,
+                  horizontal: isWide
+                      ? AppSpacing.pageHorizontalWide
+                      : AppSpacing.pageHorizontal,
+                  vertical: AppSpacing.pageVertical,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (!isWide) ...[image, const SizedBox(height: 26)],
+                    if (!isWide) ...[
+                      image,
+                      const SizedBox(height: AppSpacing.heroGap),
+                    ],
                     Text(
                       title,
                       style: Theme.of(context).textTheme.headlineMedium
                           ?.copyWith(
-                            color: const Color(0xFF0F172A),
+                            color: AppColors.text,
                             fontWeight: FontWeight.w800,
                           ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: AppSpacing.titleGap),
                     Text(
                       subtitle,
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: const Color(0xFF64748B),
+                        color: AppColors.mutedText,
                       ),
                     ),
-                    const SizedBox(height: 28),
+                    const SizedBox(height: AppSpacing.contentGap),
                     child,
                   ],
                 ),
@@ -543,7 +531,7 @@ class AuthScaffold extends StatelessWidget {
                 Expanded(
                   child: Container(
                     height: double.infinity,
-                    color: const Color(0xFFEFF6FF),
+                    color: AppColors.authPanelBackground,
                     child: Center(child: image),
                   ),
                 ),
@@ -569,32 +557,42 @@ class AuthHeroImage extends StatelessWidget {
     return AspectRatio(
       aspectRatio: 1.55,
       child: Container(
-        constraints: const BoxConstraints(maxHeight: 320),
+        constraints: const BoxConstraints(maxHeight: AppSizes.heroMaxHeight),
         decoration: BoxDecoration(
-          color: const Color(0xFFDBEAFE),
-          borderRadius: BorderRadius.circular(28),
+          color: AppColors.heroBackground,
+          borderRadius: BorderRadius.circular(AppRadii.heroImage),
         ),
         child: Stack(
           alignment: Alignment.center,
           children: [
             Positioned(
-              left: 28,
-              top: 26,
-              child: _Bubble(size: 58, color: const Color(0xFFBFDBFE)),
+              left: AppPositions.heroBubbleOneLeft,
+              top: AppPositions.heroBubbleOneTop,
+              child: _Bubble(
+                size: AppSizes.heroBubbleOne,
+                color: AppColors.heroBubbleOne,
+              ),
             ),
             Positioned(
-              right: 34,
-              bottom: 28,
-              child: _Bubble(size: 76, color: const Color(0xFFBAE6FD)),
+              right: AppPositions.heroBubbleTwoRight,
+              bottom: AppPositions.heroBubbleTwoBottom,
+              child: _Bubble(
+                size: AppSizes.heroBubbleTwo,
+                color: AppColors.heroBubbleTwo,
+              ),
             ),
             Container(
-              width: 150,
-              height: 150,
+              width: AppSizes.heroIconCircle,
+              height: AppSizes.heroIconCircle,
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white,
+                color: AppColors.pageBackground,
               ),
-              child: Icon(icon, size: 76, color: const Color(0xFF2563EB)),
+              child: Icon(
+                icon,
+                size: AppSizes.heroIcon,
+                color: AppColors.primary,
+              ),
             ),
           ],
         ),
@@ -664,18 +662,18 @@ class PrimaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 54,
+      height: AppSizes.primaryButtonHeight,
       child: FilledButton(
         onPressed: isLoading ? null : onPressed,
         style: FilledButton.styleFrom(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(AppRadii.button),
           ),
         ),
         child: isLoading
             ? const SizedBox(
-                width: 22,
-                height: 22,
+                width: AppSizes.loadingIndicator,
+                height: AppSizes.loadingIndicator,
                 child: CircularProgressIndicator(strokeWidth: 2.4),
               )
             : Text(text, style: const TextStyle(fontWeight: FontWeight.w700)),
@@ -701,22 +699,22 @@ class SocialButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 52,
+      height: AppSizes.socialButtonHeight,
       child: OutlinedButton.icon(
         onPressed: isLoading ? null : onPressed,
         icon: isLoading
             ? const SizedBox(
-                width: 20,
-                height: 20,
+                width: AppSizes.socialLoadingIndicator,
+                height: AppSizes.socialLoadingIndicator,
                 child: CircularProgressIndicator(strokeWidth: 2.2),
               )
             : Icon(icon),
         label: Text(text, style: const TextStyle(fontWeight: FontWeight.w700)),
         style: OutlinedButton.styleFrom(
-          foregroundColor: const Color(0xFF0F172A),
-          side: const BorderSide(color: Color(0xFFE2E8F0)),
+          foregroundColor: AppColors.text,
+          side: const BorderSide(color: AppColors.border),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(AppRadii.button),
           ),
         ),
       ),
@@ -736,7 +734,7 @@ class AuthDivider extends StatelessWidget {
           Expanded(child: Divider()),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 14),
-            child: Text('or', style: TextStyle(color: Color(0xFF64748B))),
+            child: Text('or', style: TextStyle(color: AppColors.mutedText)),
           ),
           Expanded(child: Divider()),
         ],
@@ -763,7 +761,7 @@ class AuthSwitchText extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Flexible(
-          child: Text(text, style: const TextStyle(color: Color(0xFF64748B))),
+          child: Text(text, style: const TextStyle(color: AppColors.mutedText)),
         ),
         TextButton(onPressed: onPressed, child: Text(linkText)),
       ],
