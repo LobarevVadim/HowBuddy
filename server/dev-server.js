@@ -78,6 +78,11 @@ const server = createServer(async (request, response) => {
     return;
   }
 
+  if (request.url === '/lessons/tree' && request.method === 'GET') {
+    send(response, 200, {levels: buildLessonLevels(20)});
+    return;
+  }
+
   if (request.url === '/auth/login' && request.method === 'POST') {
     const body = await readJson(request);
     const identifier = String(body.identifier ?? '').trim().toLowerCase();
@@ -115,6 +120,21 @@ function publicAccount(account) {
 function send(response, statusCode, body) {
   response.writeHead(statusCode);
   response.end(JSON.stringify(body));
+}
+
+function buildLessonLevels(limit) {
+  const shapes = ['star', 'triangle', 'hexagon', 'square', 'circle'];
+  const count = Math.min(limit, 20);
+
+  return Array.from({length: count}, (_item, index) => {
+    const level = index + 1;
+    return {
+      id: `lesson-${level}`,
+      level,
+      shape: shapes[index % shapes.length],
+      title: `Lesson ${level}`,
+    };
+  });
 }
 
 async function readJson(request) {

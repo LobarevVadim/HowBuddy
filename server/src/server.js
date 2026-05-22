@@ -85,6 +85,10 @@ app.post('/auth/social-signup', async (request, response) => {
   }
 });
 
+app.get('/lessons/tree', (_request, response) => {
+  response.json({levels: buildLessonLevels(20)});
+});
+
 app.post('/auth/login', async (request, response) => {
   const identifier = String(request.body.identifier ?? '').trim().toLowerCase();
   const password = String(request.body.password ?? '');
@@ -115,6 +119,21 @@ function toAccount(row) {
     fullName: row.full_name,
     email: row.email,
   };
+}
+
+function buildLessonLevels(limit) {
+  const shapes = ['star', 'triangle', 'hexagon', 'square', 'circle'];
+  const count = Math.min(limit, 20);
+
+  return Array.from({length: count}, (_item, index) => {
+    const level = index + 1;
+    return {
+      id: `lesson-${level}`,
+      level,
+      shape: shapes[index % shapes.length],
+      title: `Lesson ${level}`,
+    };
+  });
 }
 
 app.listen(port, () => {

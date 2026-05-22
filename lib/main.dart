@@ -120,6 +120,22 @@ class AuthApi {
     return _readAccount(response);
   }
 
+  Future<List<LessonLevel>> fetchLessonLevels() async {
+    final response = await http.get(Uri.parse('$baseUrl/lessons/tree'));
+    final Map<String, dynamic> body = jsonDecode(response.body);
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw AuthException(
+        body['message']?.toString() ?? 'Could not load lessons.',
+      );
+    }
+
+    final levels = body['levels'] as List<dynamic>;
+    return levels
+        .map((level) => LessonLevel.fromJson(level as Map<String, dynamic>))
+        .toList();
+  }
+
   Account _readAccount(http.Response response) {
     final Map<String, dynamic> body = jsonDecode(response.body);
 
@@ -149,6 +165,29 @@ class Account {
       id: json['id'].toString(),
       fullName: json['fullName'].toString(),
       email: json['email'].toString(),
+    );
+  }
+}
+
+class LessonLevel {
+  const LessonLevel({
+    required this.id,
+    required this.level,
+    required this.shape,
+    required this.title,
+  });
+
+  final String id;
+  final int level;
+  final String shape;
+  final String title;
+
+  factory LessonLevel.fromJson(Map<String, dynamic> json) {
+    return LessonLevel(
+      id: json['id'].toString(),
+      level: int.parse(json['level'].toString()),
+      shape: json['shape'].toString(),
+      title: json['title'].toString(),
     );
   }
 }
@@ -513,8 +552,15 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class TreeLessonsPage extends StatelessWidget {
+class TreeLessonsPage extends StatefulWidget {
   const TreeLessonsPage({super.key});
+
+  @override
+  State<TreeLessonsPage> createState() => _TreeLessonsPageState();
+}
+
+class _TreeLessonsPageState extends State<TreeLessonsPage> {
+  late final Future<List<LessonLevel>> _levels = AuthApi().fetchLessonLevels();
 
   @override
   Widget build(BuildContext context) {
@@ -559,52 +605,30 @@ class TreeLessonsPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: AppSpacing.sectionGap),
-              Container(
-                height: 620,
-                decoration: BoxDecoration(
-                  color: AppColors.authPanelBackground,
-                  borderRadius: BorderRadius.circular(AppRadii.heroImage),
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: const Stack(
-                  children: [
-                    Positioned.fill(child: LessonTree()),
-                    Positioned(
-                      left: 26,
-                      top: 28,
-                      child: LessonMascot(size: 108),
-                    ),
-                    Positioned(
-                      right: 34,
-                      bottom: 46,
-                      child: LessonMascot(size: 104),
-                    ),
-                    LessonNode(
-                      alignment: Alignment(0.10, -0.88),
-                      icon: Icons.star_border_rounded,
-                    ),
-                    LessonNode(
-                      alignment: Alignment(-0.43, -0.50),
-                      icon: Icons.change_history_rounded,
-                    ),
-                    LessonNode(
-                      alignment: Alignment(0.46, -0.36),
-                      icon: Icons.hexagon_outlined,
-                    ),
-                    LessonNode(
-                      alignment: Alignment(-0.50, 0.06),
-                      icon: Icons.crop_square_rounded,
-                    ),
-                    LessonNode(
-                      alignment: Alignment(0.56, 0.32),
-                      icon: Icons.circle_outlined,
-                    ),
-                    LessonNode(
-                      alignment: Alignment(-0.43, 0.58),
-                      icon: Icons.star_border_rounded,
-                    ),
-                  ],
-                ),
+              FutureBuilder<List<LessonLevel>>(
+                future: _levels,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState != ConnectionState.done) {
+                    return const TreePanel(
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+
+                  if (snapshot.hasError) {
+                    return TreePanel(
+                      child: Center(
+                        child: Text(
+                          'Could not load lessons.',
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(color: AppColors.mutedText),
+                        ),
+                      ),
+                    );
+                  }
+
+                  final levels = snapshot.data ?? [];
+                  return TreePanel(child: LessonTree(levels: levels));
+                },
               ),
             ],
           ),
@@ -614,16 +638,75 @@ class TreeLessonsPage extends StatelessWidget {
   }
 }
 
-class LessonTree extends StatelessWidget {
-  const LessonTree({super.key});
+class TreePanel extends StatelessWidget {
+  const TreePanel({required this.child, super.key});
+
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(painter: LessonTreePainter());
+    return Container(
+      constraints: const BoxConstraints(minHeight: 620),
+      decoration: BoxDecoration(
+        color: AppColors.authPanelBackground,
+        borderRadius: BorderRadius.circular(AppRadii.heroImage),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: child,
+    );
+  }
+}
+
+class LessonTree extends StatelessWidget {
+  const LessonTree({required this.levels, super.key});
+
+  final List<LessonLevel> levels;
+
+  static const double _topPadding = 84;
+  static const double _bottomPadding = 110;
+  static const double _levelGap = 118;
+
+  @override
+  Widget build(BuildContext context) {
+    final treeHeight =
+        _topPadding + _bottomPadding + ((levels.length - 1) * _levelGap);
+
+    return SizedBox(
+      height: treeHeight.clamp(620, double.infinity),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: CustomPaint(
+              painter: LessonTreePainter(
+                levels: levels,
+                topPadding: _topPadding,
+                levelGap: _levelGap,
+              ),
+            ),
+          ),
+          for (var index = 0; index < levels.length; index++)
+            LessonNode(
+              level: levels[index],
+              top: _topPadding + (index * _levelGap) - 38,
+              isLeft: index.isOdd,
+            ),
+        ],
+      ),
+    );
   }
 }
 
 class LessonTreePainter extends CustomPainter {
+  const LessonTreePainter({
+    required this.levels,
+    required this.topPadding,
+    required this.levelGap,
+  });
+
+  final List<LessonLevel> levels;
+  final double topPadding;
+  final double levelGap;
+
   @override
   void paint(Canvas canvas, Size size) {
     final branchPaint = Paint()
@@ -635,53 +718,33 @@ class LessonTreePainter extends CustomPainter {
       ..color = AppColors.success
       ..style = PaintingStyle.fill;
     final trunkX = size.width * 0.50;
-    final topY = size.height * 0.16;
-    final bottomY = size.height * 0.96;
+    final topY = topPadding - 42;
+    final bottomY = topPadding + ((levels.length - 1) * levelGap) + 76;
 
     canvas.drawLine(Offset(trunkX, topY), Offset(trunkX, bottomY), branchPaint);
-    _drawBranch(
-      canvas,
-      branchPaint,
-      Offset(trunkX, size.height * 0.26),
-      Offset(size.width * 0.31, size.height * 0.32),
-    );
-    _drawBranch(
-      canvas,
-      branchPaint,
-      Offset(trunkX, size.height * 0.39),
-      Offset(size.width * 0.67, size.height * 0.43),
-    );
-    _drawBranch(
-      canvas,
-      branchPaint,
-      Offset(trunkX, size.height * 0.58),
-      Offset(size.width * 0.29, size.height * 0.55),
-    );
-    _drawBranch(
-      canvas,
-      branchPaint,
-      Offset(trunkX, size.height * 0.72),
-      Offset(size.width * 0.74, size.height * 0.65),
-    );
-    _drawBranch(
-      canvas,
-      branchPaint,
-      Offset(trunkX, size.height * 0.82),
-      Offset(size.width * 0.31, size.height * 0.77),
-    );
 
-    for (final leaf in [
-      Offset(size.width * 0.45, size.height * 0.20),
-      Offset(size.width * 0.57, size.height * 0.27),
-      Offset(size.width * 0.37, size.height * 0.39),
-      Offset(size.width * 0.73, size.height * 0.46),
-      Offset(size.width * 0.46, size.height * 0.53),
-      Offset(size.width * 0.34, size.height * 0.65),
-      Offset(size.width * 0.57, size.height * 0.77),
-    ]) {
+    for (var index = 0; index < levels.length; index++) {
+      final nodeY = topPadding + (index * levelGap);
+      final isLeft = index.isOdd;
+      final nodeX = isLeft ? size.width * 0.30 : size.width * 0.70;
+      _drawBranch(
+        canvas,
+        branchPaint,
+        Offset(trunkX, nodeY),
+        Offset(nodeX, nodeY + 12),
+      );
+    }
+
+    for (var index = 0; index < levels.length; index++) {
+      final nodeY = topPadding + (index * levelGap);
+      final isLeft = index.isOdd;
+      final leaf = Offset(
+        isLeft ? size.width * 0.56 : size.width * 0.44,
+        nodeY + 38,
+      );
       canvas.save();
       canvas.translate(leaf.dx, leaf.dy);
-      canvas.rotate(-0.6);
+      canvas.rotate(isLeft ? 0.6 : -0.6);
       canvas.drawOval(
         Rect.fromCenter(center: Offset.zero, width: 18, height: 28),
         leafPaint,
@@ -702,49 +765,116 @@ class LessonTreePainter extends CustomPainter {
 }
 
 class LessonNode extends StatelessWidget {
-  const LessonNode({required this.alignment, required this.icon, super.key});
+  const LessonNode({
+    required this.level,
+    required this.top,
+    required this.isLeft,
+    super.key,
+  });
 
-  final Alignment alignment;
-  final IconData icon;
+  final LessonLevel level;
+  final double top;
+  final bool isLeft;
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: alignment,
-      child: Container(
-        width: 76,
-        height: 76,
-        decoration: BoxDecoration(
-          color: AppColors.inputBackground,
+    return Positioned(
+      top: top,
+      left: isLeft ? 88 : null,
+      right: isLeft ? null : 88,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
           borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: AppColors.primaryLight, width: 4),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x1F6F482C),
-              blurRadius: 8,
-              offset: Offset(0, 4),
+          onTap: () {
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => LessonPage(level: level)));
+          },
+          child: Container(
+            width: 76,
+            height: 76,
+            decoration: BoxDecoration(
+              color: AppColors.inputBackground,
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(color: AppColors.primaryLight, width: 4),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x1F6F482C),
+                  blurRadius: 8,
+                  offset: Offset(0, 4),
+                ),
+              ],
             ),
-          ],
+            child: Icon(
+              _shapeIcon(level.shape),
+              color: AppColors.primary,
+              size: 42,
+            ),
+          ),
         ),
-        child: Icon(icon, color: AppColors.primary, size: 42),
       ),
     );
   }
 }
 
-class LessonMascot extends StatelessWidget {
-  const LessonMascot({required this.size, super.key});
+class LessonPage extends StatelessWidget {
+  const LessonPage({required this.level, super.key});
 
-  final double size;
+  final LessonLevel level;
 
   @override
   Widget build(BuildContext context) {
-    return Image.asset(
-      'assets/images/howbuddy_mascot.jpg',
-      width: size,
-      height: size,
-      fit: BoxFit.cover,
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(level.title),
+        backgroundColor: AppColors.pageBackground,
+        foregroundColor: AppColors.primaryDark,
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.tabPagePadding),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(_shapeIcon(level.shape), color: AppColors.primary, size: 76),
+              const SizedBox(height: AppSpacing.tabIconGap),
+              Text(
+                level.title,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  color: AppColors.primaryDark,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.tabTextGap),
+              Text(
+                'Lesson page',
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(color: AppColors.mutedText),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
+  }
+}
+
+IconData _shapeIcon(String shape) {
+  switch (shape) {
+    case 'triangle':
+      return Icons.change_history_rounded;
+    case 'hexagon':
+      return Icons.hexagon_outlined;
+    case 'square':
+      return Icons.crop_square_rounded;
+    case 'circle':
+      return Icons.circle_outlined;
+    case 'star':
+    default:
+      return Icons.star_border_rounded;
   }
 }
 
