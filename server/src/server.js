@@ -32,8 +32,8 @@ app.post('/auth/register', async (request, response) => {
 
   try {
     const result = await pool.query(
-      `INSERT INTO accounts (full_name, email, password_hash)
-       VALUES ($1, $2, $3)
+      `INSERT INTO accounts (full_name, email, password_hash, auth_provider)
+       VALUES ($1, $2, $3, 'password')
        RETURNING id, full_name, email`,
       [fullName, email, passwordHash],
     );
@@ -46,6 +46,42 @@ app.post('/auth/register', async (request, response) => {
 
     console.error(error);
     return response.status(500).json({message: 'Could not create account.'});
+  }
+});
+
+app.post('/auth/social-signup', async (request, response) => {
+  const provider = String(request.body.provider ?? '').trim().toLowerCase();
+  const fullName = String(request.body.displayName ?? '').trim();
+  const email = String(request.body.email ?? '').trim().toLowerCase();
+
+  if (!['google', 'apple'].includes(provider) || fullName.length < 2 || !email.includes('@')) {
+    return response.status(400).json({message: 'Social sign up details are invalid.'});
+  }
+
+  try {
+    const existing = await pool.query(
+      `SELECT id, full_name, email
+       FROM accounts
+       WHERE email = $1
+       LIMIT 1`,
+      [email],
+    );
+
+    if (existing.rows[0]) {
+      return response.json({account: toAccount(existing.rows[0])});
+    }
+
+    const result = await pool.query(
+      `INSERT INTO accounts (full_name, email, auth_provider, provider_subject)
+       VALUES ($1, $2, $3, $4)
+       RETURNING id, full_name, email`,
+      [fullName, email, provider, `${provider}:${email}`],
+    );
+
+    return response.status(201).json({account: toAccount(result.rows[0])});
+  } catch (error) {
+    console.error(error);
+    return response.status(500).json({message: 'Could not create social account.'});
   }
 });
 
@@ -66,7 +102,7 @@ app.post('/auth/login', async (request, response) => {
   );
 
   const account = result.rows[0];
-  if (!account || !(await bcrypt.compare(password, account.password_hash))) {
+  if (!account || !account.password_hash || !(await bcrypt.compare(password, account.password_hash))) {
     return response.status(401).json({message: 'Invalid email, username, or password.'});
   }
 

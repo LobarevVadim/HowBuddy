@@ -48,13 +48,43 @@ const server = createServer(async (request, response) => {
     return;
   }
 
+  if (request.url === '/auth/social-signup' && request.method === 'POST') {
+    const body = await readJson(request);
+    const provider = String(body.provider ?? '').trim().toLowerCase();
+    const fullName = String(body.displayName ?? '').trim();
+    const email = String(body.email ?? '').trim().toLowerCase();
+
+    if (!['google', 'apple'].includes(provider) || fullName.length < 2 || !email.includes('@')) {
+      send(response, 400, {message: 'Social sign up details are invalid.'});
+      return;
+    }
+
+    const existingAccount = accounts.get(email);
+    if (existingAccount) {
+      send(response, 200, {account: publicAccount(existingAccount)});
+      return;
+    }
+
+    const account = {
+      id: randomUUID(),
+      fullName,
+      email,
+      provider,
+      providerSubject: `${provider}:${email}`,
+      passwordHash: null,
+    };
+    accounts.set(email, account);
+    send(response, 201, {account: publicAccount(account)});
+    return;
+  }
+
   if (request.url === '/auth/login' && request.method === 'POST') {
     const body = await readJson(request);
     const identifier = String(body.identifier ?? '').trim().toLowerCase();
     const password = String(body.password ?? '');
     const account = accounts.get(identifier);
 
-    if (!account || account.passwordHash !== hash(password)) {
+    if (!account || !account.passwordHash || account.passwordHash !== hash(password)) {
       send(response, 401, {message: 'Invalid email, username, or password.'});
       return;
     }

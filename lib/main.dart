@@ -84,6 +84,24 @@ class AuthApi {
     return _readAccount(response);
   }
 
+  Future<Account> socialSignUp({
+    required String provider,
+    required String displayName,
+    required String email,
+  }) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/social-signup'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'provider': provider,
+        'displayName': displayName,
+        'email': email,
+      }),
+    );
+
+    return _readAccount(response);
+  }
+
   Account _readAccount(http.Response response) {
     final Map<String, dynamic> body = jsonDecode(response.body);
 
@@ -141,6 +159,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   bool _isLoading = false;
+  String? _socialProviderLoading;
 
   @override
   void dispose() {
@@ -185,6 +204,34 @@ class _RegistrationPageState extends State<RegistrationPage> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> _socialSignUp(String provider) async {
+    setState(() => _socialProviderLoading = provider);
+    try {
+      final account = await _authApi.socialSignUp(
+        provider: provider,
+        displayName: provider == 'google' ? 'Google User' : 'Apple User',
+        email: provider == 'google'
+            ? 'google.user@howbuddy.local'
+            : 'apple.user@howbuddy.local',
+      );
+
+      if (!mounted) {
+        return;
+      }
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => HomePage(account: account)),
+      );
+    } on AuthException catch (error) {
+      _showMessage(error.message);
+    } catch (_) {
+      _showMessage('Could not reach the account server.');
+    } finally {
+      if (mounted) {
+        setState(() => _socialProviderLoading = null);
+      }
+    }
   }
 
   @override
@@ -245,15 +292,15 @@ class _RegistrationPageState extends State<RegistrationPage> {
             SocialButton(
               text: 'Sign up with Google',
               icon: Icons.g_mobiledata_rounded,
-              onPressed: () =>
-                  _showMessage('Google sign up is ready for OAuth setup.'),
+              isLoading: _socialProviderLoading == 'google',
+              onPressed: () => _socialSignUp('google'),
             ),
             const SizedBox(height: 12),
             SocialButton(
               text: 'Sign up with Apple',
               icon: Icons.apple,
-              onPressed: () =>
-                  _showMessage('Apple sign up is ready for OAuth setup.'),
+              isLoading: _socialProviderLoading == 'apple',
+              onPressed: () => _socialSignUp('apple'),
             ),
             const SizedBox(height: 20),
             AuthSwitchText(
@@ -642,20 +689,28 @@ class SocialButton extends StatelessWidget {
     required this.text,
     required this.icon,
     required this.onPressed,
+    this.isLoading = false,
     super.key,
   });
 
   final String text;
   final IconData icon;
   final VoidCallback onPressed;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: 52,
       child: OutlinedButton.icon(
-        onPressed: onPressed,
-        icon: Icon(icon),
+        onPressed: isLoading ? null : onPressed,
+        icon: isLoading
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2.2),
+              )
+            : Icon(icon),
         label: Text(text, style: const TextStyle(fontWeight: FontWeight.w700)),
         style: OutlinedButton.styleFrom(
           foregroundColor: const Color(0xFF0F172A),
