@@ -8,6 +8,7 @@ class AppColors {
   static const text = Color(0xFF0F172A);
   static const mutedText = Color(0xFF64748B);
   static const pageBackground = Colors.white;
+  static const loadingBackground = Color(0xFFFCF5EF);
   static const inputBackground = Color(0xFFF8FAFC);
   static const border = Color(0xFFE2E8F0);
   static const authPanelBackground = Color(0xFFEFF6FF);
