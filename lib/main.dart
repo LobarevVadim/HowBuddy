@@ -405,53 +405,162 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({required this.account, super.key});
 
   final Account account;
 
   @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  int _selectedIndex = 0;
+
+  void _selectTab(int index) {
+    setState(() => _selectedIndex = index);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final pages = [
+      const SignedInTabPage(
+        icon: Icons.park_rounded,
+        title: 'Tree',
+        subtitle: 'Your growth space is ready.',
+      ),
+      const SignedInTabPage(
+        icon: Icons.note_alt_outlined,
+        title: 'Notepad',
+        subtitle: 'Capture thoughts, plans, and ideas.',
+      ),
+      const SignedInTabPage(
+        icon: Icons.workspace_premium_outlined,
+        title: 'XP',
+        subtitle: 'Track progress and keep building momentum.',
+      ),
+      ProfileTabPage(account: widget.account),
+    ];
+
     return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.homePadding),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.check_circle,
-                  color: AppColors.success,
-                  size: AppSizes.successIcon,
-                ),
-                const SizedBox(height: AppSpacing.homeIconGap),
-                Text(
-                  'Hi, ${account.fullName}',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.homeTextGap),
-                Text(
-                  account.email,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyLarge?.copyWith(color: AppColors.mutedText),
-                ),
-                const SizedBox(height: AppSpacing.homeButtonGap),
-                PrimaryButton(
-                  text: 'Logout',
-                  onPressed: () {
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (_) => const LoginPage()),
-                    );
-                  },
-                ),
-              ],
-            ),
+      body: SafeArea(child: pages[_selectedIndex]),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _selectedIndex,
+        onDestinationSelected: _selectTab,
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.park_outlined),
+            selectedIcon: Icon(Icons.park_rounded),
+            label: 'Tree',
           ),
+          NavigationDestination(
+            icon: Icon(Icons.note_alt_outlined),
+            selectedIcon: Icon(Icons.note_alt_rounded),
+            label: 'Notepad',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.workspace_premium_outlined),
+            selectedIcon: Icon(Icons.workspace_premium_rounded),
+            label: 'XP',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline),
+            selectedIcon: Icon(Icons.person_rounded),
+            label: 'Profile',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class SignedInTabPage extends StatelessWidget {
+  const SignedInTabPage({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    super.key,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.tabPagePadding),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: AppColors.primary, size: AppSizes.tabHeroIcon),
+            const SizedBox(height: AppSpacing.tabIconGap),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: AppSpacing.tabTextGap),
+            Text(
+              subtitle,
+              textAlign: TextAlign.center,
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: AppColors.mutedText),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ProfileTabPage extends StatelessWidget {
+  const ProfileTabPage({required this.account, super.key});
+
+  final Account account;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.tabPagePadding),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.person_rounded,
+              color: AppColors.success,
+              size: AppSizes.tabHeroIcon,
+            ),
+            const SizedBox(height: AppSpacing.tabIconGap),
+            Text(
+              'Hi, ${account.fullName}',
+              textAlign: TextAlign.center,
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: AppSpacing.tabTextGap),
+            Text(
+              account.email,
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: AppColors.mutedText),
+            ),
+            const SizedBox(height: AppSpacing.profileLogoutGap),
+            PrimaryButton(
+              text: 'Logout',
+              onPressed: () {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (_) => const LoginPage()),
+                );
+              },
+            ),
+          ],
         ),
       ),
     );

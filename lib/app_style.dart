@@ -47,6 +47,10 @@ class AppSpacing {
   static const homeIconGap = 16.0;
   static const homeTextGap = 8.0;
   static const homeButtonGap = 24.0;
+  static const tabPagePadding = 28.0;
+  static const tabIconGap = 16.0;
+  static const tabTextGap = 8.0;
+  static const profileLogoutGap = 24.0;
 }
 
 class AppSizes {
@@ -64,6 +68,7 @@ class AppSizes {
   static const heroBubbleOne = 58.0;
   static const heroBubbleTwo = 76.0;
   static const successIcon = 68.0;
+  static const tabHeroIcon = 64.0;
 }
 
 class AppPositions {
