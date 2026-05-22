@@ -3,18 +3,21 @@ import 'package:flutter/material.dart';
 class AppColors {
   const AppColors._();
 
-  static const primary = Color(0xFF2563EB);
-  static const success = Color(0xFF16A34A);
-  static const text = Color(0xFF0F172A);
-  static const mutedText = Color(0xFF64748B);
-  static const pageBackground = Colors.white;
+  static const primary = Color(0xFFB6753A);
+  static const primaryDark = Color(0xFF6F482C);
+  static const primaryLight = Color(0xFFD29A63);
+  static const success = Color(0xFF8DB84A);
+  static const text = Color(0xFF65462F);
+  static const mutedText = Color(0xFF9A826A);
+  static const pageBackground = Color(0xFFFFF8F2);
   static const loadingBackground = Color(0xFFFCF5EF);
-  static const inputBackground = Color(0xFFF8FAFC);
-  static const border = Color(0xFFE2E8F0);
-  static const authPanelBackground = Color(0xFFEFF6FF);
-  static const heroBackground = Color(0xFFDBEAFE);
-  static const heroBubbleOne = Color(0xFFBFDBFE);
-  static const heroBubbleTwo = Color(0xFFBAE6FD);
+  static const inputBackground = Color(0xFFFFFCF8);
+  static const border = Color(0xFFEEDFD3);
+  static const authPanelBackground = Color(0xFFFFF3E8);
+  static const heroBackground = Color(0xFFFFF8F2);
+  static const infoBackground = Color(0xFFFFF7EC);
+  static const google = Color(0xFF4285F4);
+  static const apple = Color(0xFF8B5CF6);
 }
 
 class AppFonts {
@@ -26,8 +29,8 @@ class AppFonts {
 class AppRadii {
   const AppRadii._();
 
-  static const input = 14.0;
-  static const button = 14.0;
+  static const input = 18.0;
+  static const button = 18.0;
   static const heroImage = 28.0;
 }
 
@@ -52,6 +55,7 @@ class AppSpacing {
   static const tabIconGap = 16.0;
   static const tabTextGap = 8.0;
   static const profileLogoutGap = 24.0;
+  static const passwordTipGap = 14.0;
 }
 
 class AppSizes {
@@ -59,11 +63,12 @@ class AppSizes {
 
   static const authContentMaxWidth = 460.0;
   static const wideLayoutBreakpoint = 780.0;
-  static const primaryButtonHeight = 54.0;
-  static const socialButtonHeight = 52.0;
+  static const primaryButtonHeight = 62.0;
+  static const socialButtonHeight = 58.0;
   static const loadingIndicator = 22.0;
   static const socialLoadingIndicator = 20.0;
-  static const heroMaxHeight = 320.0;
+  static const heroMaxHeight = 310.0;
+  static const heroImageHeight = 250.0;
   static const heroIconCircle = 150.0;
   static const heroIcon = 76.0;
   static const heroBubbleOne = 58.0;
@@ -95,15 +100,37 @@ class AppTheme {
         seedColor: AppColors.primary,
         brightness: Brightness.light,
       ),
+      scaffoldBackgroundColor: AppColors.pageBackground,
       fontFamily: AppFonts.primary,
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.inputBackground,
+        labelStyle: const TextStyle(
+          color: AppColors.mutedText,
+          fontWeight: FontWeight.w600,
+        ),
+        prefixIconColor: AppColors.primary,
+        suffixIconColor: AppColors.mutedText,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 18,
+          vertical: 20,
+        ),
         border: inputBorder,
         enabledBorder: inputBorder,
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadii.input),
           borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(foregroundColor: AppColors.primaryDark),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+          disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.55),
+          disabledForegroundColor: Colors.white,
         ),
       ),
     );

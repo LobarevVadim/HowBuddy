@@ -255,7 +255,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
   @override
   Widget build(BuildContext context) {
     return AuthScaffold(
-      image: const AuthHeroImage(icon: Icons.person_add_alt_1_rounded),
       title: 'Create your account',
       subtitle: 'Join HowBuddy and start your journey!',
       child: Form(
@@ -285,6 +284,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
               label: 'Password',
               icon: Icons.lock_outline,
               obscureText: true,
+              showPasswordToggle: true,
               validator: _validatePassword,
             ),
             const SizedBox(height: AppSpacing.fieldGap),
@@ -293,6 +293,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
               label: 'Confirm Password',
               icon: Icons.verified_user_outlined,
               obscureText: true,
+              showPasswordToggle: true,
               validator: (value) {
                 if (value != _passwordController.text) {
                   return 'Passwords do not match.';
@@ -300,6 +301,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 return null;
               },
             ),
+            const SizedBox(height: AppSpacing.passwordTipGap),
+            const PasswordTipCard(),
             const SizedBox(height: AppSpacing.sectionGap),
             PrimaryButton(
               text: 'Sign up',
@@ -310,6 +313,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
             SocialButton(
               text: 'Sign up with Google',
               icon: Icons.g_mobiledata_rounded,
+              iconColor: AppColors.google,
               isLoading: _socialProviderLoading == 'google',
               onPressed: () => _socialSignUp('google'),
             ),
@@ -317,6 +321,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
             SocialButton(
               text: 'Sign up with Apple',
               icon: Icons.apple,
+              iconColor: AppColors.apple,
               isLoading: _socialProviderLoading == 'apple',
               onPressed: () => _socialSignUp('apple'),
             ),
@@ -396,7 +401,6 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return AuthScaffold(
-      image: const AuthHeroImage(icon: Icons.waving_hand_rounded),
       title: 'Welcome back!',
       subtitle: 'Login to continue your journey',
       child: Form(
@@ -418,6 +422,7 @@ class _LoginPageState extends State<LoginPage> {
               label: 'Password',
               icon: Icons.lock_outline,
               obscureText: true,
+              showPasswordToggle: true,
               validator: _validatePassword,
             ),
             const SizedBox(height: AppSpacing.sectionGap),
@@ -607,14 +612,12 @@ class ProfileTabPage extends StatelessWidget {
 
 class AuthScaffold extends StatelessWidget {
   const AuthScaffold({
-    required this.image,
     required this.title,
     required this.subtitle,
     required this.child,
     super.key,
   });
 
-  final Widget image;
   final String title;
   final String subtitle;
   final Widget child;
@@ -622,7 +625,6 @@ class AuthScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.pageBackground,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -643,12 +645,11 @@ class AuthScaffold extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (!isWide) ...[
-                      image,
-                      const SizedBox(height: AppSpacing.heroGap),
-                    ],
+                    const AuthHeroImage(),
+                    const SizedBox(height: AppSpacing.heroGap),
                     Text(
                       title,
+                      textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.headlineMedium
                           ?.copyWith(
                             color: AppColors.text,
@@ -658,6 +659,7 @@ class AuthScaffold extends StatelessWidget {
                     const SizedBox(height: AppSpacing.titleGap),
                     Text(
                       subtitle,
+                      textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: AppColors.mutedText,
                       ),
@@ -669,23 +671,15 @@ class AuthScaffold extends StatelessWidget {
               ),
             );
 
-            if (!isWide) {
-              return SingleChildScrollView(child: content);
-            }
-
-            return Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    height: double.infinity,
-                    color: AppColors.authPanelBackground,
-                    child: Center(child: image),
+            return SingleChildScrollView(
+              child: Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    vertical: isWide ? AppSpacing.pageVertical : 0,
                   ),
+                  child: content,
                 ),
-                Expanded(
-                  child: SingleChildScrollView(child: Center(child: content)),
-                ),
-              ],
+              ),
             );
           },
         ),
@@ -695,82 +689,32 @@ class AuthScaffold extends StatelessWidget {
 }
 
 class AuthHeroImage extends StatelessWidget {
-  const AuthHeroImage({required this.icon, super.key});
-
-  final IconData icon;
+  const AuthHeroImage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return AspectRatio(
-      aspectRatio: 1.55,
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(AppRadii.heroImage),
       child: Container(
-        constraints: const BoxConstraints(maxHeight: AppSizes.heroMaxHeight),
-        decoration: BoxDecoration(
-          color: AppColors.heroBackground,
-          borderRadius: BorderRadius.circular(AppRadii.heroImage),
-        ),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Positioned(
-              left: AppPositions.heroBubbleOneLeft,
-              top: AppPositions.heroBubbleOneTop,
-              child: _Bubble(
-                size: AppSizes.heroBubbleOne,
-                color: AppColors.heroBubbleOne,
-              ),
-            ),
-            Positioned(
-              right: AppPositions.heroBubbleTwoRight,
-              bottom: AppPositions.heroBubbleTwoBottom,
-              child: _Bubble(
-                size: AppSizes.heroBubbleTwo,
-                color: AppColors.heroBubbleTwo,
-              ),
-            ),
-            Container(
-              width: AppSizes.heroIconCircle,
-              height: AppSizes.heroIconCircle,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.pageBackground,
-              ),
-              child: Icon(
-                icon,
-                size: AppSizes.heroIcon,
-                color: AppColors.primary,
-              ),
-            ),
-          ],
+        height: AppSizes.heroImageHeight,
+        color: AppColors.heroBackground,
+        child: Image.asset(
+          'assets/images/howbuddy_mascot.jpg',
+          fit: BoxFit.contain,
         ),
       ),
     );
   }
 }
 
-class _Bubble extends StatelessWidget {
-  const _Bubble({required this.size, required this.color});
-
-  final double size;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(shape: BoxShape.circle, color: color),
-    );
-  }
-}
-
-class AppTextField extends StatelessWidget {
+class AppTextField extends StatefulWidget {
   const AppTextField({
     required this.controller,
     required this.label,
     required this.icon,
     this.keyboardType,
     this.obscureText = false,
+    this.showPasswordToggle = false,
     this.validator,
     super.key,
   });
@@ -780,16 +724,80 @@ class AppTextField extends StatelessWidget {
   final IconData icon;
   final TextInputType? keyboardType;
   final bool obscureText;
+  final bool showPasswordToggle;
   final String? Function(String?)? validator;
+
+  @override
+  State<AppTextField> createState() => _AppTextFieldState();
+}
+
+class _AppTextFieldState extends State<AppTextField> {
+  late bool _isObscured;
+
+  @override
+  void initState() {
+    super.initState();
+    _isObscured = widget.obscureText;
+  }
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      obscureText: obscureText,
-      validator: validator,
-      decoration: InputDecoration(labelText: label, prefixIcon: Icon(icon)),
+      controller: widget.controller,
+      keyboardType: widget.keyboardType,
+      obscureText: _isObscured,
+      validator: widget.validator,
+      style: const TextStyle(
+        color: AppColors.text,
+        fontWeight: FontWeight.w600,
+      ),
+      decoration: InputDecoration(
+        labelText: widget.label,
+        prefixIcon: Icon(widget.icon, color: AppColors.primary),
+        suffixIcon: widget.showPasswordToggle
+            ? IconButton(
+                onPressed: () => setState(() => _isObscured = !_isObscured),
+                icon: Icon(
+                  _isObscured ? Icons.visibility : Icons.visibility_off,
+                  color: AppColors.mutedText,
+                ),
+              )
+            : null,
+      ),
+    );
+  }
+}
+
+class PasswordTipCard extends StatelessWidget {
+  const PasswordTipCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: AppColors.infoBackground,
+        borderRadius: BorderRadius.circular(AppRadii.input),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: const Row(
+        children: [
+          CircleAvatar(
+            backgroundColor: AppColors.pageBackground,
+            child: Icon(Icons.eco_rounded, color: AppColors.success),
+          ),
+          SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Password must be at least 8 characters.',
+              style: TextStyle(
+                color: AppColors.text,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -813,6 +821,7 @@ class PrimaryButton extends StatelessWidget {
       child: FilledButton(
         onPressed: isLoading ? null : onPressed,
         style: FilledButton.styleFrom(
+          textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadii.button),
           ),
@@ -823,7 +832,16 @@ class PrimaryButton extends StatelessWidget {
                 height: AppSizes.loadingIndicator,
                 child: CircularProgressIndicator(strokeWidth: 2.4),
               )
-            : Text(text, style: const TextStyle(fontWeight: FontWeight.w700)),
+            : Stack(
+                alignment: Alignment.center,
+                children: [
+                  Center(child: Text(text)),
+                  const Positioned(
+                    right: 20,
+                    child: Icon(Icons.eco_rounded, color: AppColors.success),
+                  ),
+                ],
+              ),
       ),
     );
   }
@@ -834,6 +852,7 @@ class SocialButton extends StatelessWidget {
     required this.text,
     required this.icon,
     required this.onPressed,
+    this.iconColor,
     this.isLoading = false,
     super.key,
   });
@@ -841,6 +860,7 @@ class SocialButton extends StatelessWidget {
   final String text;
   final IconData icon;
   final VoidCallback onPressed;
+  final Color? iconColor;
   final bool isLoading;
 
   @override
@@ -855,8 +875,11 @@ class SocialButton extends StatelessWidget {
                 height: AppSizes.socialLoadingIndicator,
                 child: CircularProgressIndicator(strokeWidth: 2.2),
               )
-            : Icon(icon),
-        label: Text(text, style: const TextStyle(fontWeight: FontWeight.w700)),
+            : Icon(icon, color: iconColor ?? AppColors.primary),
+        label: Text(
+          text,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+        ),
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.text,
           side: const BorderSide(color: AppColors.border),
