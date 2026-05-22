@@ -467,11 +467,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final pages = [
-      const SignedInTabPage(
-        icon: Icons.park_rounded,
-        title: 'Tree',
-        subtitle: 'Your growth space is ready.',
-      ),
+      const TreeLessonsPage(),
       const SignedInTabPage(
         icon: Icons.note_alt_outlined,
         title: 'Notepad',
@@ -513,6 +509,241 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class TreeLessonsPage extends StatelessWidget {
+  const TreeLessonsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(AppSpacing.tabPagePadding),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 520),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 28,
+                  vertical: 24,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.authPanelBackground,
+                  borderRadius: BorderRadius.circular(AppRadii.heroImage),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'SECTION 1, UNIT 1',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: AppColors.mutedText,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.titleGap),
+                    Text(
+                      'Could we be immortal?',
+                      style: Theme.of(context).textTheme.headlineMedium
+                          ?.copyWith(
+                            color: AppColors.primaryDark,
+                            fontWeight: FontWeight.w900,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppSpacing.sectionGap),
+              Container(
+                height: 620,
+                decoration: BoxDecoration(
+                  color: AppColors.authPanelBackground,
+                  borderRadius: BorderRadius.circular(AppRadii.heroImage),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: const Stack(
+                  children: [
+                    Positioned.fill(child: LessonTree()),
+                    Positioned(
+                      left: 26,
+                      top: 28,
+                      child: LessonMascot(size: 108),
+                    ),
+                    Positioned(
+                      right: 34,
+                      bottom: 46,
+                      child: LessonMascot(size: 104),
+                    ),
+                    LessonNode(
+                      alignment: Alignment(0.10, -0.88),
+                      icon: Icons.star_border_rounded,
+                    ),
+                    LessonNode(
+                      alignment: Alignment(-0.43, -0.50),
+                      icon: Icons.change_history_rounded,
+                    ),
+                    LessonNode(
+                      alignment: Alignment(0.46, -0.36),
+                      icon: Icons.hexagon_outlined,
+                    ),
+                    LessonNode(
+                      alignment: Alignment(-0.50, 0.06),
+                      icon: Icons.crop_square_rounded,
+                    ),
+                    LessonNode(
+                      alignment: Alignment(0.56, 0.32),
+                      icon: Icons.circle_outlined,
+                    ),
+                    LessonNode(
+                      alignment: Alignment(-0.43, 0.58),
+                      icon: Icons.star_border_rounded,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class LessonTree extends StatelessWidget {
+  const LessonTree({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(painter: LessonTreePainter());
+  }
+}
+
+class LessonTreePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final branchPaint = Paint()
+      ..color = AppColors.primaryLight
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 10;
+    final leafPaint = Paint()
+      ..color = AppColors.success
+      ..style = PaintingStyle.fill;
+    final trunkX = size.width * 0.50;
+    final topY = size.height * 0.16;
+    final bottomY = size.height * 0.96;
+
+    canvas.drawLine(Offset(trunkX, topY), Offset(trunkX, bottomY), branchPaint);
+    _drawBranch(
+      canvas,
+      branchPaint,
+      Offset(trunkX, size.height * 0.26),
+      Offset(size.width * 0.31, size.height * 0.32),
+    );
+    _drawBranch(
+      canvas,
+      branchPaint,
+      Offset(trunkX, size.height * 0.39),
+      Offset(size.width * 0.67, size.height * 0.43),
+    );
+    _drawBranch(
+      canvas,
+      branchPaint,
+      Offset(trunkX, size.height * 0.58),
+      Offset(size.width * 0.29, size.height * 0.55),
+    );
+    _drawBranch(
+      canvas,
+      branchPaint,
+      Offset(trunkX, size.height * 0.72),
+      Offset(size.width * 0.74, size.height * 0.65),
+    );
+    _drawBranch(
+      canvas,
+      branchPaint,
+      Offset(trunkX, size.height * 0.82),
+      Offset(size.width * 0.31, size.height * 0.77),
+    );
+
+    for (final leaf in [
+      Offset(size.width * 0.45, size.height * 0.20),
+      Offset(size.width * 0.57, size.height * 0.27),
+      Offset(size.width * 0.37, size.height * 0.39),
+      Offset(size.width * 0.73, size.height * 0.46),
+      Offset(size.width * 0.46, size.height * 0.53),
+      Offset(size.width * 0.34, size.height * 0.65),
+      Offset(size.width * 0.57, size.height * 0.77),
+    ]) {
+      canvas.save();
+      canvas.translate(leaf.dx, leaf.dy);
+      canvas.rotate(-0.6);
+      canvas.drawOval(
+        Rect.fromCenter(center: Offset.zero, width: 18, height: 28),
+        leafPaint,
+      );
+      canvas.restore();
+    }
+  }
+
+  void _drawBranch(Canvas canvas, Paint paint, Offset start, Offset end) {
+    final path = Path()
+      ..moveTo(start.dx, start.dy)
+      ..quadraticBezierTo((start.dx + end.dx) / 2, start.dy, end.dx, end.dy);
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class LessonNode extends StatelessWidget {
+  const LessonNode({required this.alignment, required this.icon, super.key});
+
+  final Alignment alignment;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: alignment,
+      child: Container(
+        width: 76,
+        height: 76,
+        decoration: BoxDecoration(
+          color: AppColors.inputBackground,
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: AppColors.primaryLight, width: 4),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x1F6F482C),
+              blurRadius: 8,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Icon(icon, color: AppColors.primary, size: 42),
+      ),
+    );
+  }
+}
+
+class LessonMascot extends StatelessWidget {
+  const LessonMascot({required this.size, super.key});
+
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.asset(
+      'assets/images/howbuddy_mascot.jpg',
+      width: size,
+      height: size,
+      fit: BoxFit.cover,
     );
   }
 }
