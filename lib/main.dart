@@ -138,7 +138,9 @@ class AuthApi {
 
   Future<TreeData> fetchTreeData(String topicId) async {
     final response = await http.get(
-      Uri.parse('$baseUrl/lessons/tree?topic=$topicId'),
+      Uri.parse(
+        '$baseUrl/lessons/tree',
+      ).replace(queryParameters: {'topic': topicId}),
     );
     final Map<String, dynamic> body = jsonDecode(response.body);
 
@@ -802,9 +804,15 @@ class TreeLessonsPage extends StatefulWidget {
 }
 
 class _TreeLessonsPageState extends State<TreeLessonsPage> {
-  late final Future<TreeData> _treeData = AuthApi().fetchTreeData(
-    widget.topicId,
-  );
+  late String _topicId = widget.topicId;
+  late Future<TreeData> _treeData = AuthApi().fetchTreeData(_topicId);
+
+  void _openQuestion(String question) {
+    setState(() {
+      _topicId = question;
+      _treeData = AuthApi().fetchTreeData(question);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -884,7 +892,10 @@ class _TreeLessonsPageState extends State<TreeLessonsPage> {
                     children: [
                       TreePanel(child: LessonTree(levels: treeData.levels)),
                       const SizedBox(height: AppSpacing.sectionGap),
-                      NextQuestionPanel(questions: treeData.nextQuestions),
+                      NextQuestionPanel(
+                        questions: treeData.nextQuestions,
+                        onQuestionSelected: _openQuestion,
+                      ),
                     ],
                   );
                 },
@@ -917,12 +928,21 @@ class TreePanel extends StatelessWidget {
 }
 
 class NextQuestionPanel extends StatelessWidget {
-  const NextQuestionPanel({required this.questions, super.key});
+  const NextQuestionPanel({
+    required this.questions,
+    required this.onQuestionSelected,
+    super.key,
+  });
 
   final List<String> questions;
+  final ValueChanged<String> onQuestionSelected;
 
   @override
   Widget build(BuildContext context) {
+    if (questions.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
       decoration: BoxDecoration(
@@ -943,7 +963,7 @@ class NextQuestionPanel extends StatelessWidget {
           const SizedBox(height: AppSpacing.sectionGap),
           for (final question in questions) ...[
             OutlinedButton(
-              onPressed: () {},
+              onPressed: () => onQuestionSelected(question),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.primaryDark,
                 alignment: Alignment.centerLeft,

@@ -94,7 +94,7 @@ app.get('/lessons/tree', (request, response) => {
   response.json({
     topic,
     levels: buildLessonLevels(topic),
-    nextQuestions: nextQuestionsByTopic[topic.id],
+    nextQuestions: nextQuestionsByTopic[topic.id] ?? [],
   });
 });
 
@@ -155,7 +155,20 @@ const nextQuestionsByTopic = {
 };
 
 function findTopic(topicId) {
-  return topics.find((topic) => topic.id === topicId) ?? topics[0];
+  const topic = topics.find((item) => item.id === topicId);
+  if (topic) {
+    return topic;
+  }
+
+  if (/^Question[1-9]$/.test(topicId)) {
+    return {
+      id: topicId,
+      question: topicId,
+      lessonCount: 10,
+    };
+  }
+
+  return topics[0];
 }
 
 function buildLessonLevels(topic) {
