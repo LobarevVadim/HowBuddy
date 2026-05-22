@@ -161,6 +161,26 @@ class AuthApi {
     return TreeData(topic: topic, levels: levels, nextQuestions: nextQuestions);
   }
 
+  Future<LessonCompletion> completeLesson({
+    required String topicId,
+    required String lessonId,
+  }) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/lessons/complete'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'topicId': topicId, 'lessonId': lessonId}),
+    );
+    final Map<String, dynamic> body = jsonDecode(response.body);
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw AuthException(
+        body['message']?.toString() ?? 'Could not complete lesson.',
+      );
+    }
+
+    return LessonCompletion.fromJson(body);
+  }
+
   Future<List<LessonTopic>> fetchOnboardingTopics() async {
     final response = await http.get(Uri.parse('$baseUrl/onboarding/topics'));
     final Map<String, dynamic> body = jsonDecode(response.body);
@@ -229,12 +249,16 @@ class LessonLevel {
     required this.level,
     required this.shape,
     required this.title,
+    required this.isCompleted,
+    required this.isUnlocked,
   });
 
   final String id;
   final int level;
   final String shape;
   final String title;
+  final bool isCompleted;
+  final bool isUnlocked;
 
   factory LessonLevel.fromJson(Map<String, dynamic> json) {
     return LessonLevel(
@@ -242,7 +266,19 @@ class LessonLevel {
       level: int.parse(json['level'].toString()),
       shape: json['shape'].toString(),
       title: json['title'].toString(),
+      isCompleted: json['isCompleted'] == true,
+      isUnlocked: json['isUnlocked'] == true,
     );
+  }
+}
+
+class LessonCompletion {
+  const LessonCompletion({required this.topicCompleted});
+
+  final bool topicCompleted;
+
+  factory LessonCompletion.fromJson(Map<String, dynamic> json) {
+    return LessonCompletion(topicCompleted: json['topicCompleted'] == true);
   }
 }
 
@@ -283,11 +319,13 @@ class NotepadTreeNode {
     required this.id,
     required this.title,
     required this.children,
+    required this.isCompleted,
   });
 
   final String id;
   final String title;
   final List<NotepadTreeNode> children;
+  final bool isCompleted;
 
   factory NotepadTreeNode.fromJson(Map<String, dynamic> json) {
     final children = (json['children'] as List<dynamic>? ?? [])
@@ -298,6 +336,7 @@ class NotepadTreeNode {
       id: json['id'].toString(),
       title: json['title'].toString(),
       children: children,
+      isCompleted: json['isCompleted'] == true,
     );
   }
 }
@@ -777,16 +816,36 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late int _selectedIndex = widget.initialIndex;
+  late String _topicId = widget.topicId;
+  int _notepadRefreshKey = 0;
 
   void _selectTab(int index) {
     setState(() => _selectedIndex = index);
   }
 
+  void _openTopicFromNotepad(String topicId) {
+    setState(() {
+      _topicId = topicId;
+      _selectedIndex = 0;
+    });
+  }
+
+  void _refreshNotepadProgress() {
+    setState(() => _notepadRefreshKey++);
+  }
+
   @override
   Widget build(BuildContext context) {
     final pages = [
-      TreeLessonsPage(topicId: widget.topicId),
-      const NotepadTreePage(),
+      TreeLessonsPage(
+        key: ValueKey(_topicId),
+        topicId: _topicId,
+        onTopicCompleted: _refreshNotepadProgress,
+      ),
+      NotepadTreePage(
+        key: ValueKey(_notepadRefreshKey),
+        onTopicSelected: _openTopicFromNotepad,
+      ),
       const SignedInTabPage(
         icon: Icons.workspace_premium_outlined,
         title: 'XP',
@@ -828,9 +887,14 @@ class _HomePageState extends State<HomePage> {
 }
 
 class TreeLessonsPage extends StatefulWidget {
-  const TreeLessonsPage({required this.topicId, super.key});
+  const TreeLessonsPage({
+    required this.topicId,
+    required this.onTopicCompleted,
+    super.key,
+  });
 
   final String topicId;
+  final VoidCallback onTopicCompleted;
 
   @override
   State<TreeLessonsPage> createState() => _TreeLessonsPageState();
@@ -841,10 +905,21 @@ class _TreeLessonsPageState extends State<TreeLessonsPage> {
   late Future<TreeData> _treeData = AuthApi().fetchTreeData(_topicId);
 
   void _openQuestion(String question) {
+    if (question.contains('.')) {
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => DevelopmentPage(title: question)),
+      );
+      return;
+    }
+
     setState(() {
       _topicId = question;
       _treeData = AuthApi().fetchTreeData(question);
     });
+  }
+
+  void _reloadTree() {
+    setState(() => _treeData = AuthApi().fetchTreeData(_topicId));
   }
 
   @override
@@ -923,7 +998,16 @@ class _TreeLessonsPageState extends State<TreeLessonsPage> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      TreePanel(child: LessonTree(levels: treeData.levels)),
+                      TreePanel(
+                        child: LessonTree(
+                          topicId: _topicId,
+                          levels: treeData.levels,
+                          onLessonCompleted: () {
+                            _reloadTree();
+                            widget.onTopicCompleted();
+                          },
+                        ),
+                      ),
                       const SizedBox(height: AppSpacing.sectionGap),
                       NextQuestionPanel(
                         questions: treeData.nextQuestions,
@@ -1023,9 +1107,16 @@ class NextQuestionPanel extends StatelessWidget {
 }
 
 class LessonTree extends StatelessWidget {
-  const LessonTree({required this.levels, super.key});
+  const LessonTree({
+    required this.topicId,
+    required this.levels,
+    required this.onLessonCompleted,
+    super.key,
+  });
 
+  final String topicId;
   final List<LessonLevel> levels;
+  final VoidCallback onLessonCompleted;
 
   static const double _topPadding = 84;
   static const double _bottomPadding = 110;
@@ -1051,9 +1142,11 @@ class LessonTree extends StatelessWidget {
           ),
           for (var index = 0; index < levels.length; index++)
             LessonNode(
+              topicId: topicId,
               level: levels[index],
               top: _topPadding + (index * _levelGap) - 38,
               isLeft: index.isOdd,
+              onLessonCompleted: onLessonCompleted,
             ),
         ],
       ),
@@ -1131,18 +1224,33 @@ class LessonTreePainter extends CustomPainter {
 
 class LessonNode extends StatelessWidget {
   const LessonNode({
+    required this.topicId,
     required this.level,
     required this.top,
     required this.isLeft,
+    required this.onLessonCompleted,
     super.key,
   });
 
+  final String topicId;
   final LessonLevel level;
   final double top;
   final bool isLeft;
+  final VoidCallback onLessonCompleted;
 
   @override
   Widget build(BuildContext context) {
+    final borderColor = level.isCompleted
+        ? AppColors.success
+        : level.isUnlocked
+        ? AppColors.primaryLight
+        : AppColors.border;
+    final iconColor = level.isCompleted
+        ? AppColors.success
+        : level.isUnlocked
+        ? AppColors.primary
+        : AppColors.mutedText;
+
     return Positioned(
       top: top,
       left: isLeft ? 88 : null,
@@ -1151,18 +1259,26 @@ class LessonNode extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(22),
-          onTap: () {
-            Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (_) => LessonPage(level: level)));
-          },
+          onTap: level.isUnlocked
+              ? () async {
+                  final wasCompleted = await Navigator.of(context).push<bool>(
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          LessonPage(topicId: topicId, level: level),
+                    ),
+                  );
+                  if (wasCompleted == true) {
+                    onLessonCompleted();
+                  }
+                }
+              : null,
           child: Container(
             width: 76,
             height: 76,
             decoration: BoxDecoration(
               color: AppColors.inputBackground,
               borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: AppColors.primaryLight, width: 4),
+              border: Border.all(color: borderColor, width: 4),
               boxShadow: const [
                 BoxShadow(
                   color: Color(0x1F6F482C),
@@ -1172,8 +1288,8 @@ class LessonNode extends StatelessWidget {
               ],
             ),
             child: Icon(
-              _shapeIcon(level.shape),
-              color: AppColors.primary,
+              level.isCompleted ? Icons.check_rounded : _shapeIcon(level.shape),
+              color: iconColor,
               size: 42,
             ),
           ),
@@ -1183,16 +1299,52 @@ class LessonNode extends StatelessWidget {
   }
 }
 
-class LessonPage extends StatelessWidget {
-  const LessonPage({required this.level, super.key});
+class LessonPage extends StatefulWidget {
+  const LessonPage({required this.topicId, required this.level, super.key});
 
+  final String topicId;
   final LessonLevel level;
+
+  @override
+  State<LessonPage> createState() => _LessonPageState();
+}
+
+class _LessonPageState extends State<LessonPage> {
+  bool _isCompleting = false;
+
+  Future<void> _completeLesson() async {
+    setState(() => _isCompleting = true);
+    try {
+      await AuthApi().completeLesson(
+        topicId: widget.topicId,
+        lessonId: widget.level.id,
+      );
+      if (!mounted) {
+        return;
+      }
+      Navigator.of(context).pop(true);
+    } on AuthException catch (error) {
+      _showMessage(error.message);
+    } catch (_) {
+      _showMessage('Could not complete lesson.');
+    } finally {
+      if (mounted) {
+        setState(() => _isCompleting = false);
+      }
+    }
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(level.title),
+        title: Text(widget.level.title),
         backgroundColor: AppColors.pageBackground,
         foregroundColor: AppColors.primaryDark,
       ),
@@ -1202,10 +1354,14 @@ class LessonPage extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(_shapeIcon(level.shape), color: AppColors.primary, size: 76),
+              Icon(
+                _shapeIcon(widget.level.shape),
+                color: AppColors.primary,
+                size: 76,
+              ),
               const SizedBox(height: AppSpacing.tabIconGap),
               Text(
-                level.title,
+                widget.level.title,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   color: AppColors.primaryDark,
@@ -1219,6 +1375,12 @@ class LessonPage extends StatelessWidget {
                   context,
                 ).textTheme.bodyLarge?.copyWith(color: AppColors.mutedText),
               ),
+              const SizedBox(height: AppSpacing.profileLogoutGap),
+              PrimaryButton(
+                text: 'Complete',
+                isLoading: _isCompleting,
+                onPressed: _completeLesson,
+              ),
             ],
           ),
         ),
@@ -1227,8 +1389,40 @@ class LessonPage extends StatelessWidget {
   }
 }
 
+class DevelopmentPage extends StatelessWidget {
+  const DevelopmentPage({required this.title, super.key});
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+        backgroundColor: AppColors.pageBackground,
+        foregroundColor: AppColors.primaryDark,
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.tabPagePadding),
+          child: Text(
+            'More content is in development.',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              color: AppColors.primaryDark,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class NotepadTreePage extends StatefulWidget {
-  const NotepadTreePage({super.key});
+  const NotepadTreePage({required this.onTopicSelected, super.key});
+
+  final ValueChanged<String> onTopicSelected;
 
   @override
   State<NotepadTreePage> createState() => _NotepadTreePageState();
@@ -1257,16 +1451,24 @@ class _NotepadTreePageState extends State<NotepadTreePage> {
           );
         }
 
-        return NotepadTreeCanvas(root: snapshot.data!);
+        return NotepadTreeCanvas(
+          root: snapshot.data!,
+          onTopicSelected: widget.onTopicSelected,
+        );
       },
     );
   }
 }
 
 class NotepadTreeCanvas extends StatelessWidget {
-  const NotepadTreeCanvas({required this.root, super.key});
+  const NotepadTreeCanvas({
+    required this.root,
+    required this.onTopicSelected,
+    super.key,
+  });
 
   final NotepadTreeNode root;
+  final ValueChanged<String> onTopicSelected;
 
   static const Size canvasSize = Size(3800, 1320);
 
@@ -1294,12 +1496,30 @@ class NotepadTreeCanvas extends StatelessWidget {
                 left: node.offset.dx - (node.width / 2),
                 top: node.offset.dy - 35,
                 width: node.width,
-                child: NotepadTreeCard(node: node.node),
+                child: NotepadTreeCard(
+                  node: node.node,
+                  onPressed: () => _openNode(context, node.node),
+                ),
               ),
           ],
         ),
       ),
     );
+  }
+
+  void _openNode(BuildContext context, NotepadTreeNode node) {
+    if (node.id == 'main-tree') {
+      return;
+    }
+
+    if (node.children.isEmpty) {
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => DevelopmentPage(title: node.title)),
+      );
+      return;
+    }
+
+    onTopicSelected(node.id);
   }
 
   List<PositionedNotepadNode> _layoutTree(NotepadTreeNode root) {
@@ -1428,32 +1648,51 @@ class NotepadTreePainter extends CustomPainter {
 }
 
 class NotepadTreeCard extends StatelessWidget {
-  const NotepadTreeCard({required this.node, super.key});
+  const NotepadTreeCard({
+    required this.node,
+    required this.onPressed,
+    super.key,
+  });
 
   final NotepadTreeNode node;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-      decoration: BoxDecoration(
-        color: AppColors.inputBackground,
+    final background = node.isCompleted
+        ? AppColors.success.withValues(alpha: 0.18)
+        : AppColors.inputBackground;
+    final border = node.isCompleted
+        ? AppColors.success
+        : AppColors.primaryLight;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onPressed,
         borderRadius: BorderRadius.circular(AppRadii.button),
-        border: Border.all(color: AppColors.primaryLight, width: 3),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x1F6F482C),
-            blurRadius: 8,
-            offset: Offset(0, 4),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+          decoration: BoxDecoration(
+            color: background,
+            borderRadius: BorderRadius.circular(AppRadii.button),
+            border: Border.all(color: border, width: 3),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x1F6F482C),
+                blurRadius: 8,
+                offset: Offset(0, 4),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Text(
-        node.title,
-        textAlign: TextAlign.center,
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          color: AppColors.primaryDark,
-          fontWeight: FontWeight.w900,
+          child: Text(
+            node.title,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: AppColors.primaryDark,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
         ),
       ),
     );
