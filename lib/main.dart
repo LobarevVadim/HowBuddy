@@ -840,6 +840,7 @@ class _HomePageState extends State<HomePage> {
       TreeLessonsPage(
         key: ValueKey(_topicId),
         topicId: _topicId,
+        onTopicSelected: _openTopicFromNotepad,
         onTopicCompleted: _refreshNotepadProgress,
       ),
       NotepadTreePage(
@@ -889,11 +890,13 @@ class _HomePageState extends State<HomePage> {
 class TreeLessonsPage extends StatefulWidget {
   const TreeLessonsPage({
     required this.topicId,
+    required this.onTopicSelected,
     required this.onTopicCompleted,
     super.key,
   });
 
   final String topicId;
+  final ValueChanged<String> onTopicSelected;
   final VoidCallback onTopicCompleted;
 
   @override
@@ -901,8 +904,15 @@ class TreeLessonsPage extends StatefulWidget {
 }
 
 class _TreeLessonsPageState extends State<TreeLessonsPage> {
-  late String _topicId = widget.topicId;
-  late Future<TreeData> _treeData = AuthApi().fetchTreeData(_topicId);
+  late Future<TreeData> _treeData = AuthApi().fetchTreeData(widget.topicId);
+
+  @override
+  void didUpdateWidget(covariant TreeLessonsPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.topicId != widget.topicId) {
+      _treeData = AuthApi().fetchTreeData(widget.topicId);
+    }
+  }
 
   void _openQuestion(String question) {
     if (question.contains('.')) {
@@ -912,14 +922,11 @@ class _TreeLessonsPageState extends State<TreeLessonsPage> {
       return;
     }
 
-    setState(() {
-      _topicId = question;
-      _treeData = AuthApi().fetchTreeData(question);
-    });
+    widget.onTopicSelected(question);
   }
 
   void _reloadTree() {
-    setState(() => _treeData = AuthApi().fetchTreeData(_topicId));
+    setState(() => _treeData = AuthApi().fetchTreeData(widget.topicId));
   }
 
   @override
@@ -1000,7 +1007,7 @@ class _TreeLessonsPageState extends State<TreeLessonsPage> {
                     children: [
                       TreePanel(
                         child: LessonTree(
-                          topicId: _topicId,
+                          topicId: widget.topicId,
                           levels: treeData.levels,
                           onLessonCompleted: () {
                             _reloadTree();
