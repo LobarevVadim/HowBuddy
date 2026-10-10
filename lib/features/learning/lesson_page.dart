@@ -6,8 +6,14 @@ import '../../services/auth_api.dart';
 import 'lesson_exercises.dart';
 
 class LessonPage extends StatefulWidget {
-  const LessonPage({required this.topicId, required this.level, super.key});
+  const LessonPage({
+    required this.accountId,
+    required this.topicId,
+    required this.level,
+    super.key,
+  });
 
+  final String accountId;
   final String topicId;
   final LessonLevel level;
 
@@ -110,8 +116,11 @@ class _LessonPageState extends State<LessonPage> {
     setState(() => _isCompleting = true);
     try {
       await AuthApi().completeLesson(
+        accountId: widget.accountId,
         topicId: widget.topicId,
         lessonId: widget.level.id,
+        correctAnswers: _correctAnswers,
+        exerciseCount: _exercises.length,
       );
       if (!mounted) {
         return;
@@ -313,6 +322,7 @@ class _LessonPageState extends State<LessonPage> {
 
   Widget _buildSummary() {
     final accuracy = (_correctAnswers * 100 / _exercises.length).round();
+    final estimatedXp = 25 + (10 * _correctAnswers / _exercises.length).round();
     final elapsedSeconds = DateTime.now().difference(_startedAt).inSeconds;
     final elapsed =
         '${elapsedSeconds ~/ 60}:${(elapsedSeconds % 60).toString().padLeft(2, '0')}';
@@ -366,6 +376,8 @@ class _LessonPageState extends State<LessonPage> {
                     ),
                     const Divider(height: 24),
                     _statRow('Accuracy', '$accuracy%'),
+                    const Divider(height: 24),
+                    _statRow('First completion XP', '$estimatedXp XP'),
                     const Divider(height: 24),
                     _statRow('Time', elapsed),
                   ],

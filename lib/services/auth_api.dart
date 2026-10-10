@@ -105,13 +105,22 @@ class AuthApi {
   }
 
   Future<LessonCompletion> completeLesson({
+    required String accountId,
     required String topicId,
     required String lessonId,
+    required int correctAnswers,
+    required int exerciseCount,
   }) async {
     final response = await http.post(
       Uri.parse('$baseUrl/lessons/complete'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'topicId': topicId, 'lessonId': lessonId}),
+      body: jsonEncode({
+        'accountId': accountId,
+        'topicId': topicId,
+        'lessonId': lessonId,
+        'correctAnswers': correctAnswers,
+        'exerciseCount': exerciseCount,
+      }),
     );
     final Map<String, dynamic> body = jsonDecode(response.body);
 
@@ -122,6 +131,23 @@ class AuthApi {
     }
 
     return LessonCompletion.fromJson(body);
+  }
+
+  Future<XpWeeklySummary> fetchWeeklyXp(String accountId) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/xp/weekly').replace(
+        queryParameters: {'accountId': accountId},
+      ),
+    );
+    final Map<String, dynamic> body = jsonDecode(response.body);
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw AuthException(
+        body['message']?.toString() ?? 'Could not load your XP.',
+      );
+    }
+
+    return XpWeeklySummary.fromJson(body);
   }
 
   Future<List<LessonTopic>> fetchOnboardingTopics() async {

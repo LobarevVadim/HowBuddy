@@ -3,18 +3,25 @@ import 'package:flutter/material.dart';
 import '../../app_style.dart';
 import '../../models/app_models.dart';
 import '../../services/auth_api.dart';
+import '../../services/gamification_api.dart';
 import '../../shared/app_widgets.dart';
 import 'lesson_page.dart';
 
 class TreeLessonsPage extends StatefulWidget {
   const TreeLessonsPage({
+    required this.accountId,
     required this.topicId,
+    required this.onGameStateChanged,
+    required this.onNoHearts,
     required this.onTopicSelected,
     required this.onTopicCompleted,
     super.key,
   });
 
+  final String accountId;
   final String topicId;
+  final ValueChanged<GameState> onGameStateChanged;
+  final VoidCallback onNoHearts;
   final ValueChanged<String> onTopicSelected;
   final VoidCallback onTopicCompleted;
 
@@ -52,6 +59,12 @@ class _TreeLessonsPageState extends State<TreeLessonsPage> {
       _treeData = AuthApi().fetchTreeData(widget.topicId);
     });
     widget.onTopicCompleted();
+  }
+
+  Future<bool> _startLesson() async {
+    final result = await GamificationApi().startLesson(widget.accountId);
+    widget.onGameStateChanged(result.state);
+    return result.lessonAllowed;
   }
 
   List<LessonLevel> _levelsWithLocalCompletions(List<LessonLevel> levels) {
@@ -100,14 +113,6 @@ class _TreeLessonsPageState extends State<TreeLessonsPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'SECTION 1, UNIT 1',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: AppColors.mutedText,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.titleGap),
                     FutureBuilder<TreeData>(
                       future: _treeData,
                       builder: (context, snapshot) {
@@ -155,8 +160,11 @@ class _TreeLessonsPageState extends State<TreeLessonsPage> {
                     children: [
                       TreePanel(
                         child: LessonTree(
+                          accountId: widget.accountId,
                           topicId: widget.topicId,
                           levels: _levelsWithLocalCompletions(treeData.levels),
+                          onLessonStarting: _startLesson,
+                          onNoHearts: widget.onNoHearts,
                           onLessonCompleted: _handleLessonCompleted,
                         ),
                       ),
@@ -241,14 +249,20 @@ class NextQuestionPanel extends StatelessWidget {
 
 class LessonTree extends StatelessWidget {
   const LessonTree({
+    required this.accountId,
     required this.topicId,
     required this.levels,
+    required this.onLessonStarting,
+    required this.onNoHearts,
     required this.onLessonCompleted,
     super.key,
   });
 
+  final String accountId;
   final String topicId;
   final List<LessonLevel> levels;
+  final Future<bool> Function() onLessonStarting;
+  final VoidCallback onNoHearts;
   final ValueChanged<String> onLessonCompleted;
 
   static const double _topPadding = 84;
@@ -275,8 +289,11 @@ class LessonTree extends StatelessWidget {
           ),
           for (var index = 0; index < levels.length; index++)
             LessonNode(
+              accountId: accountId,
               topicId: topicId,
               level: levels[index],
+              onLessonStarting: onLessonStarting,
+              onNoHearts: onNoHearts,
               top: _topPadding + (index * _levelGap) - 38,
               isLeft: index.isOdd,
               onLessonCompleted: onLessonCompleted,
@@ -357,16 +374,22 @@ class LessonTreePainter extends CustomPainter {
 
 class LessonNode extends StatelessWidget {
   const LessonNode({
+    required this.accountId,
     required this.topicId,
     required this.level,
+    required this.onLessonStarting,
+    required this.onNoHearts,
     required this.top,
     required this.isLeft,
     required this.onLessonCompleted,
     super.key,
   });
 
+  final String accountId;
   final String topicId;
   final LessonLevel level;
+  final Future<bool> Function() onLessonStarting;
+  final VoidCallback onNoHearts;
   final double top;
   final bool isLeft;
   final ValueChanged<String> onLessonCompleted;
@@ -394,11 +417,21 @@ class LessonNode extends StatelessWidget {
           borderRadius: BorderRadius.circular(22),
           onTap: level.isUnlocked
               ? () async {
+                  final hasHeart = await onLessonStarting();
+                  if (!context.mounted) return;
+                  if (!hasHeart) {
+                    onNoHearts();
+                    return;
+                  }
                   final completedLessonId = await Navigator.of(context)
                       .push<String>(
                         MaterialPageRoute(
                           builder: (_) =>
-                              LessonPage(topicId: topicId, level: level),
+                              LessonPage(
+                                accountId: accountId,
+                                topicId: topicId,
+                                level: level,
+                              ),
                         ),
                       );
                   if (completedLessonId != null) {

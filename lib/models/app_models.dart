@@ -48,13 +48,94 @@ class LessonLevel {
 }
 
 class LessonCompletion {
-  const LessonCompletion({required this.topicCompleted});
+  const LessonCompletion({
+    required this.topicCompleted,
+    required this.earnedXp,
+    required this.totalXp,
+  });
 
   final bool topicCompleted;
+  final int earnedXp;
+  final int totalXp;
 
   factory LessonCompletion.fromJson(Map<String, dynamic> json) {
-    return LessonCompletion(topicCompleted: json['topicCompleted'] == true);
+    return LessonCompletion(
+      topicCompleted: json['topicCompleted'] == true,
+      earnedXp: int.tryParse(json['earnedXp'].toString()) ?? 0,
+      totalXp: int.tryParse(json['totalXp'].toString()) ?? 0,
+    );
   }
+}
+
+class XpDay {
+  const XpDay({required this.date, required this.xp});
+
+  final DateTime date;
+  final int xp;
+
+  factory XpDay.fromJson(Map<String, dynamic> json) {
+    return XpDay(
+      date: DateTime.parse(json['date'].toString()),
+      xp: int.tryParse(json['xp'].toString()) ?? 0,
+    );
+  }
+}
+
+class XpWeeklySummary {
+  const XpWeeklySummary({required this.totalXp, required this.days});
+
+  final int totalXp;
+  final List<XpDay> days;
+
+  factory XpWeeklySummary.fromJson(Map<String, dynamic> json) {
+    return XpWeeklySummary(
+      totalXp: int.tryParse(json['totalXp'].toString()) ?? 0,
+      days: (json['days'] as List<dynamic>? ?? [])
+          .map((day) => XpDay.fromJson(day as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+}
+
+class GameState {
+  const GameState({
+    required this.hearts,
+    required this.emeralds,
+    required this.streakCount,
+    required this.studyDays,
+    required this.xpBoostUntil,
+  });
+
+  final int hearts;
+  final int emeralds;
+  final int streakCount;
+  final Set<String> studyDays;
+  final DateTime? xpBoostUntil;
+
+  bool get hasActiveXpBoost =>
+      xpBoostUntil != null && xpBoostUntil!.isAfter(DateTime.now());
+
+  factory GameState.fromJson(Map<String, dynamic> json) {
+    final rawBoostEnd = json['xpBoostUntil']?.toString();
+    return GameState(
+      hearts: int.tryParse(json['hearts'].toString()) ?? 5,
+      emeralds: int.tryParse(json['emeralds'].toString()) ?? 100,
+      streakCount: int.tryParse(json['streakCount'].toString()) ?? 0,
+      studyDays: (json['studyDays'] as List<dynamic>? ?? [])
+          .map((day) => day.toString())
+          .toSet(),
+      xpBoostUntil: rawBoostEnd == null || rawBoostEnd == 'null'
+          ? null
+          : DateTime.tryParse(rawBoostEnd),
+    );
+  }
+}
+
+class LessonStartResult {
+  const LessonStartResult({required this.lessonAllowed, required this.state});
+
+  final bool lessonAllowed;
+  final GameState state;
 }
 
 class LessonTopic {

@@ -10,3 +10,28 @@ CREATE TABLE IF NOT EXISTS accounts (
   provider_subject TEXT UNIQUE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+CREATE TABLE IF NOT EXISTS lesson_xp (
+  account_id UUID NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+  topic_id TEXT NOT NULL,
+  lesson_id TEXT NOT NULL,
+  xp INTEGER NOT NULL CHECK (xp BETWEEN 25 AND 70),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (account_id, topic_id, lesson_id)
+);
+
+ALTER TABLE lesson_xp DROP CONSTRAINT IF EXISTS lesson_xp_xp_check;
+ALTER TABLE lesson_xp ADD CONSTRAINT lesson_xp_xp_check CHECK (xp BETWEEN 25 AND 70);
+
+CREATE TABLE IF NOT EXISTS study_days (
+  account_id UUID NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+  study_date DATE NOT NULL,
+  PRIMARY KEY (account_id, study_date)
+);
+
+CREATE TABLE IF NOT EXISTS account_gamification (
+  account_id UUID PRIMARY KEY REFERENCES accounts(id) ON DELETE CASCADE,
+  hearts INTEGER NOT NULL DEFAULT 5 CHECK (hearts BETWEEN 0 AND 5),
+  emeralds INTEGER NOT NULL DEFAULT 100 CHECK (emeralds >= 0),
+  xp_boost_until TIMESTAMPTZ
+);

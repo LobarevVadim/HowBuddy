@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../app_style.dart';
 import '../../models/app_models.dart';
+import '../../services/auth_api.dart';
+import '../../services/gamification_api.dart';
 import '../../shared/app_widgets.dart';
+import '../gamification/gamification_pages.dart';
 import '../learning/lesson_tree.dart';
 import '../notepad/notepad_tree_page.dart';
 
@@ -28,9 +31,72 @@ class _HomePageState extends State<HomePage> {
   late int _selectedIndex = widget.initialIndex;
   late String _topicId = widget.topicId;
   int _notepadRefreshKey = 0;
+  int _xpRefreshKey = 0;
+  late Future<GameState> _gameStateFuture;
+  GameState? _currentGameState;
+
+  @override
+  void initState() {
+    super.initState();
+    _gameStateFuture = GamificationApi().fetchState(widget.account.id).then((state) {
+      _currentGameState = state;
+      return state;
+    });
+  }
+
+  void _setGameState(GameState state) {
+    if (!mounted) return;
+    setState(() {
+      _currentGameState = state;
+      _gameStateFuture = Future.value(state);
+    });
+  }
+
+  Future<void> _refreshGameState() async {
+    try {
+      final state = await GamificationApi().fetchState(widget.account.id);
+      _setGameState(state);
+    } catch (_) {
+      // Keep the last displayed game state if a refresh is temporarily unavailable.
+    }
+  }
+
+  Future<void> _openStreak(GameState state) async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(builder: (_) => StreakCalendarPage(state: state)),
+    );
+    await _refreshGameState();
+  }
+
+  Future<void> _openHearts(GameState state) async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => HeartsPage(
+          accountId: widget.account.id,
+          initialState: state,
+        ),
+      ),
+    );
+    await _refreshGameState();
+  }
+
+  Future<void> _openEmeraldShop(GameState state) async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => EmeraldShopPage(
+          accountId: widget.account.id,
+          initialState: state,
+        ),
+      ),
+    );
+    await _refreshGameState();
+  }
 
   void _selectTab(int index) {
-    setState(() => _selectedIndex = index);
+    setState(() {
+      _selectedIndex = index;
+      if (index == 2) _xpRefreshKey++;
+    });
   }
 
   void _openTopicFromNotepad(String topicId) {
@@ -49,24 +115,39 @@ class _HomePageState extends State<HomePage> {
     final pages = [
       TreeLessonsPage(
         key: ValueKey(_topicId),
+        accountId: widget.account.id,
         topicId: _topicId,
+        onGameStateChanged: _setGameState,
+        onNoHearts: () {
+          final state = _currentGameState;
+          if (state != null) _openHearts(state);
+        },
         onTopicSelected: _openTopicFromNotepad,
-        onTopicCompleted: _refreshNotepadProgress,
+        onTopicCompleted: () {
+          _refreshNotepadProgress();
+          _refreshGameState();
+        },
       ),
       NotepadTreePage(
         key: ValueKey(_notepadRefreshKey),
         onTopicSelected: _openTopicFromNotepad,
       ),
-      const SignedInTabPage(
-        icon: Icons.workspace_premium_outlined,
-        title: 'XP',
-        subtitle: 'Track progress and keep building momentum.',
+      XpTabPage(
+        key: ValueKey(_xpRefreshKey),
+        accountId: widget.account.id,
       ),
       ProfileTabPage(account: widget.account, onLogout: widget.onLogout),
     ];
 
     return Scaffold(
-      body: SafeArea(child: pages[_selectedIndex]),
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildGameBar(),
+            Expanded(child: pages[_selectedIndex]),
+          ],
+        ),
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: _selectTab,
@@ -95,48 +176,237 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
+  Widget _buildGameBar() {
+    return FutureBuilder<GameState>(
+      future: _gameStateFuture,
+      builder: (context, snapshot) {
+        final state = snapshot.data ?? _currentGameState;
+        if (state == null) {
+          return const SizedBox(
+            height: 54,
+            child: Center(child: LinearProgressIndicator(minHeight: 2)),
+          );
+        }
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+          child: Row(
+            children: [
+              Expanded(
+                child: _resourceButton(
+                  icon: Icons.local_fire_department_rounded,
+                  color: Colors.orange,
+                  label: '${state.streakCount} days',
+                  onTap: () => _openStreak(state),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _resourceButton(
+                  icon: Icons.diamond_rounded,
+                  color: Colors.green,
+                  label: '${state.emeralds}',
+                  onTap: () => _openEmeraldShop(state),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _resourceButton(
+                  icon: Icons.favorite_rounded,
+                  color: Colors.redAccent,
+                  label: '${state.hearts}/5',
+                  onTap: () => _openHearts(state),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _resourceButton({
+    required IconData icon,
+    required Color color,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: AppColors.authPanelBackground,
+      borderRadius: BorderRadius.circular(22),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(22),
+        onTap: onTap,
+        child: Container(
+          height: 40,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: color, size: 19),
+              const SizedBox(width: 5),
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    label,
+                    style: const TextStyle(fontWeight: FontWeight.w800),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
-class SignedInTabPage extends StatelessWidget {
-  const SignedInTabPage({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    super.key,
-  });
+class XpTabPage extends StatelessWidget {
+  const XpTabPage({required this.accountId, super.key});
 
-  final IconData icon;
-  final String title;
-  final String subtitle;
+  final String accountId;
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.tabPagePadding),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: AppColors.primary, size: AppSizes.tabHeroIcon),
-            const SizedBox(height: AppSpacing.tabIconGap),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: Theme.of(
-                context,
-              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
+    return FutureBuilder<XpWeeklySummary>(
+      future: AuthApi().fetchWeeklyXp(accountId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.tabPagePadding),
+              child: Text(
+                'Could not load your XP. Please check your connection and try again.',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: AppColors.mutedText,
+                ),
+              ),
             ),
-            const SizedBox(height: AppSpacing.tabTextGap),
-            Text(
-              subtitle,
-              textAlign: TextAlign.center,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyLarge?.copyWith(color: AppColors.mutedText),
+          );
+        }
+
+        final summary = snapshot.data!;
+        final maxXp = summary.days.fold<int>(
+          1,
+          (maximum, day) => day.xp > maximum ? day.xp : maximum,
+        );
+        return Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(AppSpacing.tabPagePadding),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 560),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'Your XP',
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      color: AppColors.primaryDark,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '${summary.totalXp} total XP',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+                  Text(
+                    'This week',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  Container(
+                    height: 240,
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                    decoration: BoxDecoration(
+                      color: AppColors.authPanelBackground,
+                      borderRadius: BorderRadius.circular(AppRadii.heroImage),
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: summary.days.map((day) {
+                        final fraction = day.xp / maxXp;
+                        final weekday = const [
+                          'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun',
+                        ][day.date.weekday - 1];
+                        return Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: Column(
+                              children: [
+                                SizedBox(
+                                  height: 22,
+                                  child: FittedBox(
+                                    child: Text(
+                                      '${day.xp}',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Expanded(
+                                  child: Align(
+                                    alignment: Alignment.bottomCenter,
+                                    child: FractionallySizedBox(
+                                      heightFactor: fraction,
+                                      child: Container(
+                                        width: double.infinity,
+                                        decoration: BoxDecoration(
+                                          color: day.xp == 0
+                                              ? AppColors.border
+                                              : AppColors.success,
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  weekday,
+                                  style: const TextStyle(
+                                    color: AppColors.mutedText,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'XP earned each day over the last 7 days',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: AppColors.mutedText),
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
@@ -153,35 +423,43 @@ class ProfileTabPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
+    return LayoutBuilder(
+      builder: (context, constraints) => SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.tabPagePadding),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              Icons.person_rounded,
-              color: AppColors.success,
-              size: AppSizes.tabHeroIcon,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: constraints.maxHeight),
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.person_rounded,
+                  color: AppColors.success,
+                  size: AppSizes.tabHeroIcon,
+                ),
+                const SizedBox(height: AppSpacing.tabIconGap),
+                Text(
+                  'Hi, ${account.fullName}',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context)
+                      .textTheme
+                      .headlineSmall
+                      ?.copyWith(fontWeight: FontWeight.w800),
+                ),
+                const SizedBox(height: AppSpacing.tabTextGap),
+                Text(
+                  account.email,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyLarge
+                      ?.copyWith(color: AppColors.mutedText),
+                ),
+                const SizedBox(height: AppSpacing.profileLogoutGap),
+                PrimaryButton(text: 'Logout', onPressed: onLogout),
+              ],
             ),
-            const SizedBox(height: AppSpacing.tabIconGap),
-            Text(
-              'Hi, ${account.fullName}',
-              textAlign: TextAlign.center,
-              style: Theme.of(
-                context,
-              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: AppSpacing.tabTextGap),
-            Text(
-              account.email,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyLarge?.copyWith(color: AppColors.mutedText),
-            ),
-            const SizedBox(height: AppSpacing.profileLogoutGap),
-            PrimaryButton(text: 'Logout', onPressed: onLogout),
-          ],
+          ),
         ),
       ),
     );
