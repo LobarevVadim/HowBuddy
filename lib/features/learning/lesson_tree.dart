@@ -1,0 +1,436 @@
+import 'package:flutter/material.dart';
+
+import '../../app_style.dart';
+import '../../models/app_models.dart';
+import '../../services/auth_api.dart';
+import '../../shared/app_widgets.dart';
+import 'lesson_page.dart';
+
+class TreeLessonsPage extends StatefulWidget {
+  const TreeLessonsPage({
+    required this.topicId,
+    required this.onTopicSelected,
+    required this.onTopicCompleted,
+    super.key,
+  });
+
+  final String topicId;
+  final ValueChanged<String> onTopicSelected;
+  final VoidCallback onTopicCompleted;
+
+  @override
+  State<TreeLessonsPage> createState() => _TreeLessonsPageState();
+}
+
+class _TreeLessonsPageState extends State<TreeLessonsPage> {
+  late Future<TreeData> _treeData = AuthApi().fetchTreeData(widget.topicId);
+  final Set<String> _completedLessonIds = <String>{};
+
+  @override
+  void didUpdateWidget(covariant TreeLessonsPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.topicId != widget.topicId) {
+      _completedLessonIds.clear();
+      _treeData = AuthApi().fetchTreeData(widget.topicId);
+    }
+  }
+
+  void _openQuestion(String question) {
+    if (question.contains('.')) {
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => DevelopmentPage(title: question)),
+      );
+      return;
+    }
+
+    widget.onTopicSelected(question);
+  }
+
+  void _handleLessonCompleted(String lessonId) {
+    setState(() {
+      _completedLessonIds.add(lessonId);
+      _treeData = AuthApi().fetchTreeData(widget.topicId);
+    });
+    widget.onTopicCompleted();
+  }
+
+  List<LessonLevel> _levelsWithLocalCompletions(List<LessonLevel> levels) {
+    return levels.map((level) {
+      final locallyCompleted = _completedLessonIds.contains(level.id);
+      final previousLessonCompleted =
+          level.level > 1 &&
+          _completedLessonIds.contains('lesson-${level.level - 1}');
+
+      if (!locallyCompleted && !previousLessonCompleted) {
+        return level;
+      }
+
+      return LessonLevel(
+        id: level.id,
+        level: level.level,
+        shape: level.shape,
+        title: level.title,
+        isCompleted: level.isCompleted || locallyCompleted,
+        isUnlocked:
+            level.isUnlocked || locallyCompleted || previousLessonCompleted,
+      );
+    }).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(AppSpacing.tabPagePadding),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 520),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 28,
+                  vertical: 24,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.authPanelBackground,
+                  borderRadius: BorderRadius.circular(AppRadii.heroImage),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'SECTION 1, UNIT 1',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: AppColors.mutedText,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.titleGap),
+                    FutureBuilder<TreeData>(
+                      future: _treeData,
+                      builder: (context, snapshot) {
+                        final question =
+                            snapshot.data?.topic.question ??
+                            'Could we be immortal?';
+                        return Text(
+                          question,
+                          style: Theme.of(context).textTheme.headlineMedium
+                              ?.copyWith(
+                                color: AppColors.primaryDark,
+                                fontWeight: FontWeight.w900,
+                              ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppSpacing.sectionGap),
+              FutureBuilder<TreeData>(
+                future: _treeData,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState != ConnectionState.done) {
+                    return const TreePanel(
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+
+                  if (snapshot.hasError) {
+                    return TreePanel(
+                      child: Center(
+                        child: Text(
+                          'Could not load lessons.',
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(color: AppColors.mutedText),
+                        ),
+                      ),
+                    );
+                  }
+
+                  final treeData = snapshot.data!;
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      TreePanel(
+                        child: LessonTree(
+                          topicId: widget.topicId,
+                          levels: _levelsWithLocalCompletions(treeData.levels),
+                          onLessonCompleted: _handleLessonCompleted,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.sectionGap),
+                      NextQuestionPanel(
+                        questions: treeData.nextQuestions,
+                        onQuestionSelected: _openQuestion,
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class NextQuestionPanel extends StatelessWidget {
+  const NextQuestionPanel({
+    required this.questions,
+    required this.onQuestionSelected,
+    super.key,
+  });
+
+  final List<String> questions;
+  final ValueChanged<String> onQuestionSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    if (questions.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
+      decoration: BoxDecoration(
+        color: AppColors.authPanelBackground,
+        borderRadius: BorderRadius.circular(AppRadii.heroImage),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            'What do you want to know next?',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              color: AppColors.primaryDark,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sectionGap),
+          for (final question in questions) ...[
+            OutlinedButton(
+              onPressed: () => onQuestionSelected(question),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.primaryDark,
+                alignment: Alignment.centerLeft,
+                side: const BorderSide(color: AppColors.border),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 16,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadii.button),
+                ),
+              ),
+              child: Text(
+                question,
+                style: const TextStyle(fontWeight: FontWeight.w800),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.socialButtonGap),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class LessonTree extends StatelessWidget {
+  const LessonTree({
+    required this.topicId,
+    required this.levels,
+    required this.onLessonCompleted,
+    super.key,
+  });
+
+  final String topicId;
+  final List<LessonLevel> levels;
+  final ValueChanged<String> onLessonCompleted;
+
+  static const double _topPadding = 84;
+  static const double _bottomPadding = 110;
+  static const double _levelGap = 118;
+
+  @override
+  Widget build(BuildContext context) {
+    final treeHeight =
+        _topPadding + _bottomPadding + ((levels.length - 1) * _levelGap);
+
+    return SizedBox(
+      height: treeHeight.clamp(620, double.infinity),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: CustomPaint(
+              painter: LessonTreePainter(
+                levels: levels,
+                topPadding: _topPadding,
+                levelGap: _levelGap,
+              ),
+            ),
+          ),
+          for (var index = 0; index < levels.length; index++)
+            LessonNode(
+              topicId: topicId,
+              level: levels[index],
+              top: _topPadding + (index * _levelGap) - 38,
+              isLeft: index.isOdd,
+              onLessonCompleted: onLessonCompleted,
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class LessonTreePainter extends CustomPainter {
+  const LessonTreePainter({
+    required this.levels,
+    required this.topPadding,
+    required this.levelGap,
+  });
+
+  final List<LessonLevel> levels;
+  final double topPadding;
+  final double levelGap;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final branchPaint = Paint()
+      ..color = AppColors.primaryLight
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 10;
+    final leafPaint = Paint()
+      ..color = AppColors.success
+      ..style = PaintingStyle.fill;
+    final trunkX = size.width * 0.50;
+    final topY = topPadding - 42;
+    final bottomY = topPadding + ((levels.length - 1) * levelGap) + 76;
+
+    canvas.drawLine(Offset(trunkX, topY), Offset(trunkX, bottomY), branchPaint);
+
+    for (var index = 0; index < levels.length; index++) {
+      final nodeY = topPadding + (index * levelGap);
+      final isLeft = index.isOdd;
+      final nodeX = isLeft ? size.width * 0.30 : size.width * 0.70;
+      _drawBranch(
+        canvas,
+        branchPaint,
+        Offset(trunkX, nodeY),
+        Offset(nodeX, nodeY + 12),
+      );
+    }
+
+    for (var index = 0; index < levels.length; index++) {
+      final nodeY = topPadding + (index * levelGap);
+      final isLeft = index.isOdd;
+      final leaf = Offset(
+        isLeft ? size.width * 0.56 : size.width * 0.44,
+        nodeY + 38,
+      );
+      canvas.save();
+      canvas.translate(leaf.dx, leaf.dy);
+      canvas.rotate(isLeft ? 0.6 : -0.6);
+      canvas.drawOval(
+        Rect.fromCenter(center: Offset.zero, width: 18, height: 28),
+        leafPaint,
+      );
+      canvas.restore();
+    }
+  }
+
+  void _drawBranch(Canvas canvas, Paint paint, Offset start, Offset end) {
+    final path = Path()
+      ..moveTo(start.dx, start.dy)
+      ..quadraticBezierTo((start.dx + end.dx) / 2, start.dy, end.dx, end.dy);
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class LessonNode extends StatelessWidget {
+  const LessonNode({
+    required this.topicId,
+    required this.level,
+    required this.top,
+    required this.isLeft,
+    required this.onLessonCompleted,
+    super.key,
+  });
+
+  final String topicId;
+  final LessonLevel level;
+  final double top;
+  final bool isLeft;
+  final ValueChanged<String> onLessonCompleted;
+
+  @override
+  Widget build(BuildContext context) {
+    final borderColor = level.isCompleted
+        ? AppColors.success
+        : level.isUnlocked
+        ? AppColors.primaryLight
+        : AppColors.border;
+    final iconColor = level.isCompleted
+        ? AppColors.success
+        : level.isUnlocked
+        ? AppColors.primary
+        : AppColors.mutedText;
+
+    return Positioned(
+      top: top,
+      left: isLeft ? 88 : null,
+      right: isLeft ? null : 88,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(22),
+          onTap: level.isUnlocked
+              ? () async {
+                  final completedLessonId = await Navigator.of(context)
+                      .push<String>(
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              LessonPage(topicId: topicId, level: level),
+                        ),
+                      );
+                  if (completedLessonId != null) {
+                    onLessonCompleted(completedLessonId);
+                  }
+                }
+              : null,
+          child: Container(
+            width: 76,
+            height: 76,
+            decoration: BoxDecoration(
+              color: AppColors.inputBackground,
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(color: borderColor, width: 4),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x1F6F482C),
+                  blurRadius: 8,
+                  offset: Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Icon(
+              level.isCompleted
+                  ? Icons.check_rounded
+                  : lessonShapeIcon(level.shape),
+              color: iconColor,
+              size: 42,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
