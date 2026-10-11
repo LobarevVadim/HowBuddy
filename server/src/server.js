@@ -380,7 +380,7 @@ app.get('/xp/weekly', requireAuth, async (request, response) => {
   const localDateSql = "((created_at AT TIME ZONE 'UTC') + ($2::int * interval '1 minute'))::date";
 
   try {
-    const [totals, daily] = await Promise.all([
+    const [totals, daily, leaderboardRows] = await Promise.all([
       pool.query(
         'SELECT COALESCE(SUM(xp), 0)::int AS total_xp FROM lesson_xp WHERE account_id = $1',
         [accountId],
@@ -395,6 +395,26 @@ app.get('/xp/weekly', requireAuth, async (request, response) => {
          ORDER BY date`,
         [accountId, offsetMinutes, today],
       ),
+      pool.query(
+        `WITH account_totals AS (
+           SELECT accounts.id, accounts.full_name, accounts.created_at,
+                  COALESCE(SUM(lesson_xp.xp), 0)::int AS xp
+           FROM accounts
+           LEFT JOIN lesson_xp ON lesson_xp.account_id = accounts.id
+           GROUP BY accounts.id
+         ), ranked AS (
+           SELECT id, full_name, xp,
+                  ROW_NUMBER() OVER (
+                    ORDER BY xp DESC, created_at ASC, lower(full_name), id
+                  )::int AS place
+           FROM account_totals
+         )
+         SELECT id, full_name AS name, xp, place
+         FROM ranked
+         WHERE place <= 10 OR id = $1
+         ORDER BY place`,
+        [accountId],
+      ),
     ]);
     const xpByDate = new Map(daily.rows.map((row) => [row.date, row.xp]));
     const todayDate = new Date(`${today}T00:00:00.000Z`);
@@ -403,7 +423,14 @@ app.get('/xp/weekly', requireAuth, async (request, response) => {
         .toISOString().slice(0, 10);
       return {date, xp: xpByDate.get(date) ?? 0};
     });
-    return response.json({totalXp: totals.rows[0].total_xp, days});
+    const currentUser = leaderboardRows.rows.find((row) => row.id === accountId);
+    const leaderboard = leaderboardRows.rows
+      .filter((row) => row.place <= 10)
+      .map(({id, name, xp, place}) => ({name, xp, place, isYou: id === accountId}));
+    const yourPlace = currentUser?.place > 10
+      ? {name: currentUser.name, xp: currentUser.xp, place: currentUser.place, isYou: true}
+      : null;
+    return response.json({totalXp: totals.rows[0].total_xp, days, leaderboard, yourPlace});
   } catch (error) {
     console.error(error);
     return response.status(500).json({message: 'Could not load weekly XP.'});

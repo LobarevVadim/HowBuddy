@@ -320,6 +320,34 @@ class XpTabPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 28),
                   Text(
+                    'Leaderboard',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: AppColors.authPanelBackground,
+                      borderRadius: BorderRadius.circular(AppRadii.heroImage),
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: Column(
+                      children: [
+                        ...summary.leaderboard.map(_leaderboardRow),
+                        if (summary.yourPlace case final yourPlace?) ...[
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10),
+                            child: Divider(height: 18),
+                          ),
+                          _leaderboardRow(yourPlace),
+                        ],
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+                  Text(
                     'This week',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w800,
@@ -411,6 +439,46 @@ class XpTabPage extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  Widget _leaderboardRow(LeaderboardEntry entry) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+      decoration: BoxDecoration(
+        color: entry.isYou ? AppColors.primary.withOpacity(0.09) : null,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 42,
+            child: Text(
+              '#${entry.place}',
+              style: TextStyle(
+                color: entry.place <= 3 ? AppColors.primary : AppColors.mutedText,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              entry.isYou ? '${entry.name} (you)' : entry.name,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Text(
+            '${entry.xp} XP',
+            style: const TextStyle(
+              color: AppColors.primaryDark,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

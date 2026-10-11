@@ -82,10 +82,17 @@ class XpDay {
 }
 
 class XpWeeklySummary {
-  const XpWeeklySummary({required this.totalXp, required this.days});
+  const XpWeeklySummary({
+    required this.totalXp,
+    required this.days,
+    required this.leaderboard,
+    required this.yourPlace,
+  });
 
   final int totalXp;
   final List<XpDay> days;
+  final List<LeaderboardEntry> leaderboard;
+  final LeaderboardEntry? yourPlace;
 
   factory XpWeeklySummary.fromJson(Map<String, dynamic> json) {
     return XpWeeklySummary(
@@ -93,6 +100,35 @@ class XpWeeklySummary {
       days: (json['days'] as List<dynamic>? ?? [])
           .map((day) => XpDay.fromJson(day as Map<String, dynamic>))
           .toList(),
+      leaderboard: (json['leaderboard'] as List<dynamic>? ?? [])
+          .map((entry) => LeaderboardEntry.fromJson(entry as Map<String, dynamic>))
+          .toList(),
+      yourPlace: json['yourPlace'] is Map<String, dynamic>
+          ? LeaderboardEntry.fromJson(json['yourPlace'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+}
+
+class LeaderboardEntry {
+  const LeaderboardEntry({
+    required this.name,
+    required this.xp,
+    required this.place,
+    required this.isYou,
+  });
+
+  final String name;
+  final int xp;
+  final int place;
+  final bool isYou;
+
+  factory LeaderboardEntry.fromJson(Map<String, dynamic> json) {
+    return LeaderboardEntry(
+      name: json['name'].toString(),
+      xp: int.tryParse(json['xp'].toString()) ?? 0,
+      place: int.tryParse(json['place'].toString()) ?? 0,
+      isYou: json['isYou'] == true,
     );
   }
 }

@@ -289,7 +289,26 @@ const server = createServer(async (request, response) => {
     const totalXp = [...xpEvents.values()]
       .filter((event) => event.accountId === accountId)
       .reduce((sum, event) => sum + event.earnedXp, 0);
-    send(response, 200, {totalXp, days});
+    const totalsByAccount = new Map([...accounts.values()].map((account) => [
+      account.id,
+      {name: account.fullName, xp: 0},
+    ]));
+    for (const event of xpEvents.values()) {
+      const user = totalsByAccount.get(event.accountId);
+      if (user) user.xp += event.earnedXp;
+    }
+    const ranked = [...totalsByAccount.entries()]
+      .sort((left, right) => right[1].xp - left[1].xp ||
+        left[1].name.localeCompare(right[1].name) || left[0].localeCompare(right[0]))
+      .map(([id, user], index) => ({id, ...user, place: index + 1}));
+    const leaderboard = ranked
+      .filter((user) => user.place <= 10)
+      .map(({id, name, xp, place}) => ({name, xp, place, isYou: id === accountId}));
+    const currentUser = ranked.find((user) => user.id === accountId);
+    const yourPlace = currentUser?.place > 10
+      ? {name: currentUser.name, xp: currentUser.xp, place: currentUser.place, isYou: true}
+      : null;
+    send(response, 200, {totalXp, days, leaderboard, yourPlace});
     return;
   }
 
