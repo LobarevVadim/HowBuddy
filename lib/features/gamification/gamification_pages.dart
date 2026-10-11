@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app_style.dart';
 import '../../models/app_models.dart';
 import '../../services/gamification_api.dart';
+import '../../services/rewarded_ads.dart';
 
 class HeartsPage extends StatefulWidget {
   const HeartsPage({
@@ -26,6 +27,8 @@ class _HeartsPageState extends State<HeartsPage> {
     if (_busy || _state.hearts >= 5) return;
     setState(() => _busy = true);
     try {
+      final completed = await RewardedAds.show(context);
+      if (!completed || !mounted) return;
       _state = await GamificationApi().watchHeartVideo(widget.accountId);
       if (mounted) setState(() {});
     } on AuthException catch (error) {
@@ -97,13 +100,15 @@ class _HeartsPageState extends State<HeartsPage> {
                     label: Text(
                       _state.hearts >= 5
                           ? 'Hearts are full'
-                          : 'Video has been watched · +1 heart',
+                          : 'Watch ad · +1 heart',
                     ),
                   ),
                 ),
                 const SizedBox(height: 10),
-                const Text(
-                  'Video rewards are placeholders until video ads are connected.',
+                Text(
+                  RewardedAds.isWebDemo
+                      ? 'SIMULATED AD · WEB DEMO. No real advertisement is shown.'
+                      : 'TEST AD · ADMOB. Test ads do not generate revenue.',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: AppColors.mutedText, fontSize: 12),
                 ),
@@ -156,6 +161,8 @@ class _EmeraldShopPageState extends State<EmeraldShopPage> {
     if (_busy) return;
     setState(() => _busy = true);
     try {
+      final completed = await RewardedAds.show(context);
+      if (!completed || !mounted) return;
       _state = await GamificationApi().watchEmeraldVideo(widget.accountId);
       if (mounted) setState(() {});
     } on AuthException catch (error) {
@@ -247,11 +254,13 @@ class _EmeraldShopPageState extends State<EmeraldShopPage> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.play_circle_outline_rounded),
-                  label: const Text('Video has been watched · +25 emeralds'),
+                  label: const Text('Watch ad · +25 emeralds'),
                 ),
                 const SizedBox(height: 10),
-                const Text(
-                  'Video rewards are placeholders until video ads are connected.',
+                Text(
+                  RewardedAds.isWebDemo
+                      ? 'SIMULATED AD · WEB DEMO. No real advertisement is shown.'
+                      : 'TEST AD · ADMOB. Test ads do not generate revenue.',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: AppColors.mutedText, fontSize: 12),
                 ),
