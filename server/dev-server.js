@@ -99,7 +99,7 @@ const server = createServer(async (request, response) => {
       send(response, 400, {message: 'Account is required.'});
       return;
     }
-    send(response, 200, publicGameState(accountId));
+    send(response, 200, publicGameState(accountId, clientStudyDate(request)));
     return;
   }
 
@@ -113,7 +113,7 @@ const server = createServer(async (request, response) => {
     const game = getGameAccount(accountId);
     const lessonAllowed = game.hearts > 0;
     if (lessonAllowed) game.hearts--;
-    send(response, 200, {lessonAllowed, ...publicGameState(accountId)});
+    send(response, 200, {lessonAllowed, ...publicGameState(accountId, clientStudyDate(request))});
     return;
   }
 
@@ -126,7 +126,7 @@ const server = createServer(async (request, response) => {
     }
     const game = getGameAccount(accountId);
     game.hearts = Math.min(5, game.hearts + 1);
-    send(response, 200, publicGameState(accountId));
+    send(response, 200, publicGameState(accountId, clientStudyDate(request)));
     return;
   }
 
@@ -138,7 +138,7 @@ const server = createServer(async (request, response) => {
       return;
     }
     getGameAccount(accountId).emeralds += 25;
-    send(response, 200, publicGameState(accountId));
+    send(response, 200, publicGameState(accountId, clientStudyDate(request)));
     return;
   }
 
@@ -162,7 +162,7 @@ const server = createServer(async (request, response) => {
       ? game.xpBoostUntil
       : now;
     game.xpBoostUntil = new Date(boostStart.getTime() + durationMinutes * 60_000);
-    send(response, 200, publicGameState(accountId));
+    send(response, 200, publicGameState(accountId, clientStudyDate(request)));
     return;
   }
 
@@ -233,7 +233,7 @@ const server = createServer(async (request, response) => {
     const key = `${accountId}:${topic.id}:${lessonId}`;
     let earnedXp = 0;
     const game = getGameAccount(accountId);
-    game.studyDays.add(new Date().toISOString().slice(0, 10));
+    game.studyDays.add(clientStudyDate(request));
     if (!xpEvents.has(key)) {
       const baseXp = 25 + Math.round(10 * Math.max(0, Math.min(correctAnswers, exerciseCount)) / exerciseCount);
       const boostIsActive = game.xpBoostUntil && game.xpBoostUntil > new Date();
@@ -395,11 +395,13 @@ function getGameAccount(accountId) {
   return gameAccounts.get(accountId);
 }
 
-function publicGameState(accountId) {
+function publicGameState(accountId, today = new Date().toISOString().slice(0, 10)) {
   const game = getGameAccount(accountId);
-  const days = game.studyDays;
-  const now = new Date();
-  let cursor = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  for (const day of game.studyDays) {
+    if (day > today) game.studyDays.delete(day);
+  }
+  const days = new Set([...game.studyDays].filter((day) => day <= today));
+  let cursor = new Date(`${today}T00:00:00.000Z`);
   if (!days.has(cursor.toISOString().slice(0, 10))) {
     cursor.setUTCDate(cursor.getUTCDate() - 1);
   }
@@ -417,6 +419,20 @@ function publicGameState(accountId) {
     studyDays: [...days],
     xpBoostUntil: game.xpBoostUntil?.toISOString() ?? null,
   };
+}
+
+function clientStudyDate(request) {
+  const candidate = request.headers['x-client-date'];
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(candidate ?? '')) {
+    return new Date().toISOString().slice(0, 10);
+  }
+  const parsed = new Date(`${candidate}T00:00:00.000Z`);
+  if (Number.isNaN(parsed.valueOf()) || parsed.toISOString().slice(0, 10) !== candidate) {
+    return new Date().toISOString().slice(0, 10);
+  }
+  const utcToday = new Date().toISOString().slice(0, 10);
+  const dayDelta = (parsed.valueOf() - new Date(`${utcToday}T00:00:00.000Z`).valueOf()) / 86400000;
+  return Math.abs(dayDelta) <= 1 ? candidate : utcToday;
 }
 
 async function readJson(request) {

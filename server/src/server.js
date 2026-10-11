@@ -40,7 +40,7 @@ app.get('/onboarding/topics', (_request, response) => {
 app.get('/gamification', requireAuth, async (request, response) => {
   const accountId = request.accountId;
   try {
-    return response.json(await getGameState(accountId));
+    return response.json(await getGameState(accountId, clientStudyDate(request)));
   } catch (error) {
     console.error(error);
     return response.status(500).json({message: 'Could not load game progress.'});
@@ -55,7 +55,10 @@ app.post('/gamification/lesson-start', requireAuth, async (request, response) =>
       'UPDATE account_gamification SET hearts = hearts - 1 WHERE account_id = $1 AND hearts > 0 RETURNING hearts',
       [accountId],
     );
-    return response.json({lessonAllowed: result.rowCount === 1, ...await getGameState(accountId)});
+    return response.json({
+      lessonAllowed: result.rowCount === 1,
+      ...await getGameState(accountId, clientStudyDate(request)),
+    });
   } catch (error) {
     console.error(error);
     return response.status(500).json({message: 'Could not use a lesson heart.'});
@@ -70,7 +73,7 @@ app.post('/gamification/heart-video', requireAuth, async (request, response) => 
       'UPDATE account_gamification SET hearts = LEAST(5, hearts + 1) WHERE account_id = $1',
       [accountId],
     );
-    return response.json(await getGameState(accountId));
+    return response.json(await getGameState(accountId, clientStudyDate(request)));
   } catch (error) {
     console.error(error);
     return response.status(500).json({message: 'Could not restore a heart.'});
@@ -85,7 +88,7 @@ app.post('/gamification/emerald-video', requireAuth, async (request, response) =
       'UPDATE account_gamification SET emeralds = emeralds + 25 WHERE account_id = $1',
       [accountId],
     );
-    return response.json(await getGameState(accountId));
+    return response.json(await getGameState(accountId, clientStudyDate(request)));
   } catch (error) {
     console.error(error);
     return response.status(500).json({message: 'Could not add emeralds.'});
@@ -112,7 +115,7 @@ app.post('/gamification/xp-boost', requireAuth, async (request, response) => {
     if (result.rowCount !== 1) {
       return response.status(400).json({message: 'You do not have enough emeralds.'});
     }
-    return response.json(await getGameState(accountId));
+    return response.json(await getGameState(accountId, clientStudyDate(request)));
   } catch (error) {
     console.error(error);
     return response.status(500).json({message: 'Could not buy the XP boost.'});
@@ -318,8 +321,8 @@ app.post('/lessons/complete', requireAuth, async (request, response) => {
     );
     const topicCompleted = completionCount.rows[0].count >= Math.min(topic.lessonCount, 20);
     await pool.query(
-      'INSERT INTO study_days (account_id, study_date) VALUES ($1, (now() AT TIME ZONE \'UTC\')::date) ON CONFLICT DO NOTHING',
-      [accountId],
+      'INSERT INTO study_days (account_id, study_date) VALUES ($1, $2::date) ON CONFLICT DO NOTHING',
+      [accountId, clientStudyDate(request)],
     );
     const game = await pool.query(
       'SELECT xp_boost_until > now() AS boost_active FROM account_gamification WHERE account_id = $1',
@@ -557,8 +560,12 @@ async function ensureGameRow(accountId) {
   );
 }
 
-async function getGameState(accountId) {
+async function getGameState(accountId, today = new Date().toISOString().slice(0, 10)) {
   await ensureGameRow(accountId);
+  await pool.query(
+    'DELETE FROM study_days WHERE account_id = $1 AND study_date = $2::date + 1',
+    [accountId, today],
+  );
   const [result, studyResult] = await Promise.all([
     pool.query(
       'SELECT hearts, emeralds, xp_boost_until FROM account_gamification WHERE account_id = $1',
@@ -569,10 +576,11 @@ async function getGameState(accountId) {
       [accountId],
     ),
   ]);
-  const studyDays = studyResult.rows.map((row) => row.day);
+  const studyDays = studyResult.rows
+    .map((row) => row.day)
+    .filter((day) => day <= today);
   const studied = new Set(studyDays);
-  const now = new Date();
-  let cursor = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  let cursor = new Date(`${today}T00:00:00.000Z`);
   if (!studied.has(cursor.toISOString().slice(0, 10))) {
     cursor.setUTCDate(cursor.getUTCDate() - 1);
   }
@@ -589,6 +597,20 @@ async function getGameState(accountId) {
     studyDays,
     xpBoostUntil: game.xp_boost_until?.toISOString() ?? null,
   };
+}
+
+function clientStudyDate(request) {
+  const candidate = request.get('X-Client-Date');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(candidate ?? '')) {
+    return new Date().toISOString().slice(0, 10);
+  }
+  const parsed = new Date(`${candidate}T00:00:00.000Z`);
+  if (Number.isNaN(parsed.valueOf()) || parsed.toISOString().slice(0, 10) !== candidate) {
+    return new Date().toISOString().slice(0, 10);
+  }
+  const utcToday = new Date().toISOString().slice(0, 10);
+  const dayDelta = (parsed.valueOf() - new Date(`${utcToday}T00:00:00.000Z`).valueOf()) / 86400000;
+  return Math.abs(dayDelta) <= 1 ? candidate : utcToday;
 }
 
 pool.query(readFileSync(new URL('../schema.sql', import.meta.url), 'utf8')).then(() => {
