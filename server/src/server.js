@@ -277,6 +277,36 @@ app.get('/lessons/tree', requireAuth, async (request, response) => {
   }
 });
 
+app.get('/account/last-topic', requireAuth, async (request, response) => {
+  try {
+    const result = await pool.query(
+      'SELECT last_topic_id FROM accounts WHERE id = $1',
+      [request.accountId],
+    );
+    return response.json({topicId: result.rows[0]?.last_topic_id ?? null});
+  } catch (error) {
+    console.error(error);
+    return response.status(500).json({message: 'Could not load your last lesson topic.'});
+  }
+});
+
+app.put('/account/last-topic', requireAuth, async (request, response) => {
+  const topicId = String(request.body.topicId ?? '').trim();
+  if (!findTopic(topicId)) {
+    return response.status(400).json({message: 'This lesson topic was not found.'});
+  }
+  try {
+    await pool.query(
+      'UPDATE accounts SET last_topic_id = $1 WHERE id = $2',
+      [topicId, request.accountId],
+    );
+    return response.json({ok: true});
+  } catch (error) {
+    console.error(error);
+    return response.status(500).json({message: 'Could not save your last lesson topic.'});
+  }
+});
+
 app.get('/lessons/exercises', (request, response) => {
   const topicId = String(request.query.topic ?? '').trim();
   const lessonId = String(request.query.lesson ?? 'lesson-1').trim();

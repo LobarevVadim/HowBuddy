@@ -336,6 +336,7 @@ class _LessonPageState extends State<LessonPage> {
                 ReorderableListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
+                  buildDefaultDragHandles: false,
                   itemCount: _orderedAnswers.length,
                   onReorder: (oldIndex, newIndex) {
                     if (_answerWasCorrect != null) return;
@@ -345,11 +346,14 @@ class _LessonPageState extends State<LessonPage> {
                       _orderedAnswers.insert(newIndex, item);
                     });
                   },
-                  itemBuilder: (context, index) => Card(
+                  itemBuilder: (context, index) => ReorderableDragStartListener(
                     key: ValueKey(_orderedAnswers[index]),
-                    child: ListTile(
-                      leading: const Icon(Icons.drag_handle_rounded),
-                      title: Text(_orderedAnswers[index]),
+                    index: index,
+                    child: Card(
+                      child: ListTile(
+                        leading: const Icon(Icons.drag_handle_rounded),
+                        title: Text(_orderedAnswers[index]),
+                      ),
                     ),
                   ),
                 )

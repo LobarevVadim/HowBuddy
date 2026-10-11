@@ -16,6 +16,24 @@ class AuthApi {
 
   final String baseUrl;
 
+  Future<String?> fetchLastTopicId() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/account/last-topic'),
+      headers: ApiSession.authenticatedHeaders,
+    );
+    final body = _readBody(response);
+    return body['topicId']?.toString();
+  }
+
+  Future<void> saveLastTopicId(String topicId) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/account/last-topic'),
+      headers: ApiSession.authenticatedHeaders,
+      body: jsonEncode({'topicId': topicId}),
+    );
+    _readBody(response);
+  }
+
   Future<Account> register({
     required String fullName,
     required String email,

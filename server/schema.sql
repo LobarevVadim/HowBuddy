@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS accounts (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+ALTER TABLE accounts ADD COLUMN IF NOT EXISTS last_topic_id TEXT;
+
 CREATE TABLE IF NOT EXISTS lesson_xp (
   account_id UUID NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
   topic_id TEXT NOT NULL,

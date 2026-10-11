@@ -34,6 +34,7 @@ class _HomePageState extends State<HomePage> {
   int _xpRefreshKey = 0;
   late Future<GameState> _gameStateFuture;
   GameState? _currentGameState;
+  bool _topicReady = false;
 
   @override
   void initState() {
@@ -44,6 +45,23 @@ class _HomePageState extends State<HomePage> {
       _currentGameState = state;
       return state;
     });
+    _restoreLastTopic();
+  }
+
+  Future<void> _restoreLastTopic() async {
+    try {
+      final savedTopicId = await AuthApi().fetchLastTopicId();
+      if (!mounted) return;
+      if (savedTopicId != null && savedTopicId.isNotEmpty) {
+        setState(() => _topicId = savedTopicId);
+      } else {
+        await AuthApi().saveLastTopicId(_topicId);
+      }
+    } catch (_) {
+      // Keep the starting topic if the preference request is temporarily unavailable.
+    } finally {
+      if (mounted) setState(() => _topicReady = true);
+    }
   }
 
   void _setGameState(GameState state) {
@@ -102,6 +120,7 @@ class _HomePageState extends State<HomePage> {
       _topicId = topicId;
       _selectedIndex = 0;
     });
+    AuthApi().saveLastTopicId(topicId).catchError((_) {});
   }
 
   void _refreshNotepadProgress() {
@@ -140,7 +159,11 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           children: [
             _buildGameBar(),
-            Expanded(child: pages[_selectedIndex]),
+            Expanded(
+              child: _selectedIndex == 0 && !_topicReady
+                  ? const Center(child: CircularProgressIndicator())
+                  : pages[_selectedIndex],
+            ),
           ],
         ),
       ),
