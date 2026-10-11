@@ -29,3 +29,5 @@ services:
         generateValue: true
       - key: NODE_ENV
         value: production
+      - key: GOOGLE_WEB_CLIENT_ID
+        value: 533985639406-lpjq93u5eos638fc0rsf1tjkhq1157o0.apps.googleusercontent.com

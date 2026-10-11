@@ -65,6 +65,30 @@ class AuthApi {
     return _readAccount(response);
   }
 
+  Future<GoogleAuthResult> googleSignIn({
+    required String idToken,
+    required bool allowRegistration,
+  }) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/google'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'idToken': idToken,
+        'allowRegistration': allowRegistration,
+      }),
+    );
+    final body = _readBody(response);
+    final sessionToken = body['sessionToken']?.toString();
+    if (sessionToken == null || sessionToken.isEmpty) {
+      throw AuthException('The server did not create a sign-in session.');
+    }
+    ApiSession.setToken(sessionToken);
+    return GoogleAuthResult(
+      account: Account.fromJson(body['account'] as Map<String, dynamic>),
+      isNewUser: body['isNewUser'] == true,
+    );
+  }
+
   Future<List<LessonLevel>> fetchLessonLevels() async {
     final response = await http.get(
       Uri.parse('$baseUrl/lessons/tree'),
@@ -227,13 +251,7 @@ class AuthApi {
   }
 
   Account _readAccount(http.Response response) {
-    final Map<String, dynamic> body = jsonDecode(response.body);
-
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw AuthException(
-        body['message']?.toString() ?? 'Something went wrong.',
-      );
-    }
+    final body = _readBody(response);
 
     final sessionToken = body['sessionToken']?.toString();
     if (sessionToken == null || sessionToken.isEmpty) {
@@ -245,4 +263,21 @@ class AuthApi {
     ApiSession.setToken(sessionToken);
     return Account.fromJson(body['account'] as Map<String, dynamic>);
   }
+
+  Map<String, dynamic> _readBody(http.Response response) {
+    final Map<String, dynamic> body = jsonDecode(response.body);
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw AuthException(
+        body['message']?.toString() ?? 'Something went wrong.',
+      );
+    }
+    return body;
+  }
+}
+
+class GoogleAuthResult {
+  const GoogleAuthResult({required this.account, required this.isNewUser});
+
+  final Account account;
+  final bool isNewUser;
 }

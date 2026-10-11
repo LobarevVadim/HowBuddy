@@ -41,4 +41,4 @@ Render static sites are free with no trial period, subject to Render's included 
 - Android: share the APK directly for sideloading.
 - iOS: either install from Xcode on each device or use a paid Apple Developer account to distribute through TestFlight.
 
-Google/Apple OAuth is not configured by this demo's email/password backend. Enabling those providers requires a Firebase project plus provider setup; Apple app distribution also requires Apple signing. Do not share service secrets in chat or commit them to this repository.
+Google sign-in on the web uses Google Identity Services, and the API verifies each Google ID token before creating or opening an account. Add the deployed web origin to the web OAuth client's authorized JavaScript origins, and add invited Google accounts as test users while the consent screen is in testing mode. Native Android Google sign-in also needs an Android OAuth client registered with the app package name and signing certificate SHA-1; native iOS needs an iOS OAuth client and URL scheme. Apple sign-in is not configured. Never share or commit OAuth client secrets.

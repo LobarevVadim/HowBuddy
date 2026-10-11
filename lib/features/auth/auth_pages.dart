@@ -5,6 +5,7 @@ import '../../models/app_models.dart';
 import '../../services/auth_api.dart';
 import '../../services/api_session.dart';
 import '../../shared/app_widgets.dart';
+import 'google_auth_button.dart';
 import '../home/home_page.dart';
 
 void _returnToLogin(NavigatorState navigator) {
@@ -82,6 +83,41 @@ class _RegistrationPageState extends State<RegistrationPage> {
     );
   }
 
+  Future<void> _signUpWithGoogle(String idToken) async {
+    if (_isLoading) return;
+    setState(() => _isLoading = true);
+    try {
+      final result = await _authApi.googleSignIn(
+        idToken: idToken,
+        allowRegistration: true,
+      );
+      if (!mounted) return;
+      final navigator = Navigator.of(context);
+      if (result.isNewUser) {
+        navigator.pushReplacement(
+          MaterialPageRoute(
+            builder: (_) => OnboardingPage(account: result.account),
+          ),
+        );
+      } else {
+        navigator.pushReplacement(
+          MaterialPageRoute(
+            builder: (_) => HomePage(
+              account: result.account,
+              onLogout: () => _returnToLogin(navigator),
+            ),
+          ),
+        );
+      }
+    } on AuthException catch (error) {
+      _showMessage(error.message);
+    } catch (_) {
+      _showMessage('Could not reach the account server.');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return AuthScaffold(
@@ -140,11 +176,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
               onPressed: _submit,
             ),
             const AuthDivider(),
-            SocialButton(
-              text: 'Sign up with Google',
-              icon: Icons.g_mobiledata_rounded,
-              iconColor: AppColors.google,
-              onPressed: () => _socialSignUp('google'),
+            GoogleAuthButton(
+              isSignup: true,
+              isLoading: _isLoading,
+              onIdToken: _signUpWithGoogle,
+              onError: _showMessage,
             ),
             const SizedBox(height: AppSpacing.socialButtonGap),
             SocialButton(
@@ -404,6 +440,33 @@ class _LoginPageState extends State<LoginPage> {
     ).showSnackBar(SnackBar(content: Text(message)));
   }
 
+  Future<void> _signInWithGoogle(String idToken) async {
+    if (_isLoading) return;
+    setState(() => _isLoading = true);
+    try {
+      final result = await _authApi.googleSignIn(
+        idToken: idToken,
+        allowRegistration: false,
+      );
+      if (!mounted) return;
+      final navigator = Navigator.of(context);
+      navigator.pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => HomePage(
+            account: result.account,
+            onLogout: () => _returnToLogin(navigator),
+          ),
+        ),
+      );
+    } on AuthException catch (error) {
+      _showMessage(error.message);
+    } catch (_) {
+      _showMessage('Could not reach the account server.');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return AuthScaffold(
@@ -436,6 +499,13 @@ class _LoginPageState extends State<LoginPage> {
               text: 'Login',
               isLoading: _isLoading,
               onPressed: _submit,
+            ),
+            const AuthDivider(),
+            GoogleAuthButton(
+              isSignup: false,
+              isLoading: _isLoading,
+              onIdToken: _signInWithGoogle,
+              onError: _showMessage,
             ),
             const SizedBox(height: AppSpacing.authSwitchGap),
             AuthSwitchText(

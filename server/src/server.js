@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
+import {OAuth2Client} from 'google-auth-library';
 import pg from 'pg';
 import {createHmac, timingSafeEqual} from 'node:crypto';
 import {readFileSync} from 'node:fs';
@@ -11,6 +12,8 @@ dotenv.config();
 const app = express();
 const port = Number(process.env.PORT ?? 3000);
 const sessionSecret = process.env.SESSION_SECRET ?? '';
+const googleWebClientId = process.env.GOOGLE_WEB_CLIENT_ID ?? '';
+const googleOAuthClient = new OAuth2Client();
 const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
 });
@@ -149,10 +152,100 @@ app.post('/auth/register', async (request, response) => {
   }
 });
 
-app.post('/auth/social-signup', (_request, response) => {
-  return response.status(501).json({
-    message: 'Google and Apple sign-in are not configured for this demo.',
-  });
+app.post('/auth/google', async (request, response) => {
+  if (!googleWebClientId) {
+    return response.status(503).json({message: 'Google sign-in is not configured on the server.'});
+  }
+
+  const idToken = String(request.body.idToken ?? '').trim();
+  const allowRegistration = request.body.allowRegistration === true;
+  if (!idToken || idToken.length > 10000) {
+    return response.status(400).json({message: 'A valid Google sign-in token is required.'});
+  }
+
+  let googleUser;
+  try {
+    const ticket = await googleOAuthClient.verifyIdToken({
+      idToken,
+      audience: googleWebClientId,
+    });
+    googleUser = ticket.getPayload();
+  } catch (_error) {
+    return response.status(401).json({message: 'Google sign-in could not be verified.'});
+  }
+  if (!googleUser?.sub || !googleUser.email || googleUser.email_verified !== true) {
+    return response.status(401).json({message: 'Google did not verify this email address.'});
+  }
+
+  try {
+    const email = googleUser.email.toLowerCase();
+    const existing = await pool.query(
+      `SELECT id, full_name, email, provider_subject
+       FROM accounts WHERE provider_subject = $1 OR email = $2 LIMIT 1`,
+      [googleUser.sub, email],
+    );
+
+    let account = existing.rows[0];
+    let isNewUser = false;
+    if (account) {
+      if (account.provider_subject && account.provider_subject !== googleUser.sub) {
+        return response.status(409).json({message: 'This email is connected to a different sign-in method.'});
+      }
+      if (!account.provider_subject) {
+        const linked = await pool.query(
+          `UPDATE accounts SET provider_subject = $1
+           WHERE id = $2 AND provider_subject IS NULL
+           RETURNING id, full_name, email, provider_subject`,
+          [googleUser.sub, account.id],
+        );
+        account = linked.rows[0] ?? account;
+      }
+    } else {
+      if (!allowRegistration) {
+        return response.status(404).json({message: 'No HowBuddy account uses this Google account. Sign up first.'});
+      }
+      const name = String(googleUser.name ?? '').trim() || email.split('@')[0];
+      try {
+        const created = await pool.query(
+          `INSERT INTO accounts (full_name, email, auth_provider, provider_subject)
+           VALUES ($1, $2, 'google', $3)
+           RETURNING id, full_name, email, provider_subject`,
+          [name, email, googleUser.sub],
+        );
+        account = created.rows[0];
+        isNewUser = true;
+      } catch (error) {
+        if (error.code !== '23505') throw error;
+        const raced = await pool.query(
+          `SELECT id, full_name, email, provider_subject
+           FROM accounts WHERE provider_subject = $1 OR email = $2 LIMIT 1`,
+          [googleUser.sub, email],
+        );
+        account = raced.rows[0];
+        if (!account || (account.provider_subject && account.provider_subject !== googleUser.sub)) {
+          return response.status(409).json({message: 'An account already exists for this email.'});
+        }
+        if (!account.provider_subject) {
+          const linked = await pool.query(
+            `UPDATE accounts SET provider_subject = $1
+             WHERE id = $2 AND provider_subject IS NULL
+             RETURNING id, full_name, email, provider_subject`,
+            [googleUser.sub, account.id],
+          );
+          account = linked.rows[0] ?? account;
+        }
+      }
+    }
+
+    return response.status(isNewUser ? 201 : 200).json({
+      account: toAccount(account),
+      sessionToken: issueSession(account.id),
+      isNewUser,
+    });
+  } catch (error) {
+    console.error('Google sign-in failed:', error.message);
+    return response.status(500).json({message: 'Could not complete Google sign-in.'});
+  }
 });
 
 app.get('/lessons/tree', requireAuth, async (request, response) => {
