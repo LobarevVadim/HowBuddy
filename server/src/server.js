@@ -660,5 +660,30 @@ async function applyStudyDayBackfill() {
      ON CONFLICT DO NOTHING`,
     [email, endDate],
   );
+  const xpResult = await pool.query(
+    `WITH target_account AS (
+       SELECT id FROM accounts WHERE lower(email) = $1
+     ), backfill_days AS (
+       SELECT target_account.id AS account_id,
+              ($2::date - days.day_offset)::date AS xp_date
+       FROM target_account
+       CROSS JOIN generate_series(1, 4) AS days(day_offset)
+     )
+     INSERT INTO lesson_xp (account_id, topic_id, lesson_id, xp, created_at)
+     SELECT account_id,
+            '__history_backfill__',
+            'day-' || xp_date::text,
+            floor(random() * 95)::int + 9,
+            (xp_date + time '12:00') AT TIME ZONE 'UTC'
+     FROM backfill_days
+     ON CONFLICT DO NOTHING
+     RETURNING xp, (created_at AT TIME ZONE 'UTC')::date::text AS date`,
+    [email, endDate],
+  );
   console.log(`Historical study-day backfill inserted ${result.rowCount} rows.`);
+  console.log(
+    `Historical XP backfill inserted ${xpResult.rowCount} rows: ${xpResult.rows
+      .map((row) => `${row.date}=${row.xp}`)
+      .join(', ')}`,
+  );
 }
