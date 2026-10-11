@@ -217,7 +217,18 @@ const server = createServer(async (request, response) => {
     }
     const correctAnswers = Number(body.correctAnswers);
     const exerciseCount = Number(body.exerciseCount);
-    if (!Number.isInteger(correctAnswers) || !Number.isInteger(exerciseCount) || exerciseCount < 1) {
+    const durationSeconds = Number(body.durationSeconds ?? 0);
+    if (
+      !Number.isInteger(correctAnswers) ||
+      !Number.isInteger(exerciseCount) ||
+      !Number.isInteger(durationSeconds) ||
+      exerciseCount < 1 ||
+      exerciseCount > 100 ||
+      correctAnswers < 0 ||
+      correctAnswers > exerciseCount ||
+      durationSeconds < 0 ||
+      durationSeconds > 604800
+    ) {
       send(response, 400, {message: 'Lesson score is invalid.'});
       return;
     }
@@ -235,9 +246,10 @@ const server = createServer(async (request, response) => {
     const game = getGameAccount(accountId);
     game.studyDays.add(clientStudyDate(request));
     if (!xpEvents.has(key)) {
-      const baseXp = 25 + Math.round(10 * Math.max(0, Math.min(correctAnswers, exerciseCount)) / exerciseCount);
+      const answerXp = (correctAnswers * 5) + ((exerciseCount - correctAnswers) * 2);
       const boostIsActive = game.xpBoostUntil && game.xpBoostUntil > new Date();
-      earnedXp = baseXp * (boostIsActive ? 2 : 1);
+      const timeMultiplier = durationSeconds > 180 ? 0.8 : 1;
+      earnedXp = Math.round(answerXp * timeMultiplier * (boostIsActive ? 2 : 1));
       xpEvents.set(key, {accountId, earnedXp, at: new Date()});
     }
 

@@ -175,6 +175,7 @@ class AuthApi {
     required String lessonId,
     required int correctAnswers,
     required int exerciseCount,
+    required int durationSeconds,
   }) async {
     final response = await http.post(
       Uri.parse('$baseUrl/lessons/complete'),
@@ -185,6 +186,7 @@ class AuthApi {
         'lessonId': lessonId,
         'correctAnswers': correctAnswers,
         'exerciseCount': exerciseCount,
+        'durationSeconds': durationSeconds,
       }),
     );
     final Map<String, dynamic> body = jsonDecode(response.body);

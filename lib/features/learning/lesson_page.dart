@@ -23,7 +23,7 @@ class LessonPage extends StatefulWidget {
 
 class _LessonPageState extends State<LessonPage> {
   final _answerController = TextEditingController();
-  final _startedAt = DateTime.now();
+  late DateTime _startedAt;
   List<LessonExercise> _exercises = <LessonExercise>[];
   String _lessonContent = '';
   final Set<String> _selectedAnswers = <String>{};
@@ -31,6 +31,7 @@ class _LessonPageState extends State<LessonPage> {
   int _correctAnswers = 0;
   bool? _answerWasCorrect;
   bool _isCompleting = false;
+  int? _earnedXp;
   bool _isLoadingExercises = true;
   String? _exerciseLoadError;
 
@@ -56,6 +57,7 @@ class _LessonPageState extends State<LessonPage> {
         throw AuthException('No exercises are available for this lesson yet.');
       }
       if (!mounted) return;
+      _startedAt = DateTime.now();
       setState(() {
         _exercises = lesson.exercises;
         _lessonContent = lesson.content;
@@ -158,19 +160,24 @@ class _LessonPageState extends State<LessonPage> {
   }
 
   Future<void> _finishLesson() async {
+    if (_earnedXp != null) {
+      Navigator.of(context).pop(widget.level.id);
+      return;
+    }
     setState(() => _isCompleting = true);
     try {
-      await AuthApi().completeLesson(
+      final completion = await AuthApi().completeLesson(
         accountId: widget.accountId,
         topicId: widget.topicId,
         lessonId: widget.level.id,
         correctAnswers: _correctAnswers,
         exerciseCount: _exercises.length,
+        durationSeconds: DateTime.now().difference(_startedAt).inSeconds,
       );
       if (!mounted) {
         return;
       }
-      Navigator.of(context).pop(widget.level.id);
+      setState(() => _earnedXp = completion.earnedXp);
     } on AuthException catch (error) {
       _showMessage(error.message);
     } catch (_) {
@@ -390,8 +397,9 @@ class _LessonPageState extends State<LessonPage> {
 
   Widget _buildSummary() {
     final accuracy = (_correctAnswers * 100 / _exercises.length).round();
-    final estimatedXp = 25 + (10 * _correctAnswers / _exercises.length).round();
     final elapsedSeconds = DateTime.now().difference(_startedAt).inSeconds;
+    final rawXp = (_correctAnswers * 5) + ((_exercises.length - _correctAnswers) * 2);
+    final estimatedXp = (rawXp * (elapsedSeconds > 180 ? 0.8 : 1)).round();
     final elapsed =
         '${elapsedSeconds ~/ 60}:${(elapsedSeconds % 60).toString().padLeft(2, '0')}';
 
@@ -445,7 +453,12 @@ class _LessonPageState extends State<LessonPage> {
                     const Divider(height: 24),
                     _statRow('Accuracy', '$accuracy%'),
                     const Divider(height: 24),
-                    _statRow('First completion XP', '$estimatedXp XP'),
+                    _statRow(
+                      _earnedXp == null
+                          ? 'XP estimate (without potion)'
+                          : 'XP earned',
+                      '${_earnedXp ?? estimatedXp} XP',
+                    ),
                     const Divider(height: 24),
                     _statRow('Time', elapsed),
                   ],
@@ -464,7 +477,11 @@ class _LessonPageState extends State<LessonPage> {
                         )
                       : const Icon(Icons.check_circle_outline_rounded),
                   label: Text(
-                    _isCompleting ? 'Saving progress…' : 'Finish lesson',
+                    _isCompleting
+                        ? 'Saving progress…'
+                        : _earnedXp == null
+                        ? 'Finish lesson'
+                        : 'Back to lessons',
                   ),
                 ),
               ),

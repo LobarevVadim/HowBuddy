@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../app_style.dart';
@@ -138,6 +140,21 @@ class EmeraldShopPage extends StatefulWidget {
 class _EmeraldShopPageState extends State<EmeraldShopPage> {
   late GameState _state = widget.initialState;
   bool _busy = false;
+  late final Timer _countdownTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _countdownTimer.cancel();
+    super.dispose();
+  }
 
   Future<void> _purchase(int minutes) async {
     if (_busy) return;

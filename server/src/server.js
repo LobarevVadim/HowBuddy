@@ -285,6 +285,7 @@ app.post('/lessons/complete', requireAuth, async (request, response) => {
   const accountId = request.accountId;
   const correctAnswers = Number(request.body.correctAnswers);
   const exerciseCount = Number(request.body.exerciseCount);
+  const durationSeconds = Number(request.body.durationSeconds ?? 0);
   const topic = findTopic(topicId);
 
   if (!topic) return response.status(404).json({message: 'This lesson topic was not found.'});
@@ -294,7 +295,13 @@ app.post('/lessons/complete', requireAuth, async (request, response) => {
   if (
     !Number.isInteger(correctAnswers) ||
     !Number.isInteger(exerciseCount) ||
-    exerciseCount < 1
+    !Number.isInteger(durationSeconds) ||
+    exerciseCount < 1 ||
+    exerciseCount > 100 ||
+    correctAnswers < 0 ||
+    correctAnswers > exerciseCount ||
+    durationSeconds < 0 ||
+    durationSeconds > 604800
   ) {
     return response.status(400).json({message: 'Lesson score is invalid.'});
   }
@@ -304,9 +311,7 @@ app.post('/lessons/complete', requireAuth, async (request, response) => {
     return response.status(400).json({message: 'This lesson is not available.'});
   }
 
-  const baseXp = 25 + Math.round(
-    10 * Math.max(0, Math.min(correctAnswers, exerciseCount)) / exerciseCount,
-  );
+  const answerXp = (correctAnswers * 5) + ((exerciseCount - correctAnswers) * 2);
 
   try {
     await ensureGameRow(accountId);
@@ -328,7 +333,9 @@ app.post('/lessons/complete', requireAuth, async (request, response) => {
       'SELECT xp_boost_until > now() AS boost_active FROM account_gamification WHERE account_id = $1',
       [accountId],
     );
-    const earnedXp = baseXp * (game.rows[0].boost_active ? 2 : 1);
+    const timeMultiplier = durationSeconds > 180 ? 0.8 : 1;
+    const potionMultiplier = game.rows[0].boost_active ? 2 : 1;
+    const earnedXp = Math.round(answerXp * timeMultiplier * potionMultiplier);
     const insertResult = await pool.query(
       `INSERT INTO lesson_xp (account_id, topic_id, lesson_id, xp)
        VALUES ($1, $2, $3, $4)
