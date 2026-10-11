@@ -397,9 +397,10 @@ function getGameAccount(accountId) {
 
 function publicGameState(accountId, today = new Date().toISOString().slice(0, 10)) {
   const game = getGameAccount(accountId);
-  for (const day of game.studyDays) {
-    if (day > today) game.studyDays.delete(day);
-  }
+  const nextDay = new Date(`${today}T00:00:00.000Z`);
+  nextDay.setUTCDate(nextDay.getUTCDate() + 1);
+  const incorrectlyRecordedTomorrow = nextDay.toISOString().slice(0, 10);
+  if (game.studyDays.delete(incorrectlyRecordedTomorrow)) game.studyDays.add(today);
   const days = new Set([...game.studyDays].filter((day) => day <= today));
   let cursor = new Date(`${today}T00:00:00.000Z`);
   if (!days.has(cursor.toISOString().slice(0, 10))) {

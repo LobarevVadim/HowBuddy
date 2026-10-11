@@ -563,7 +563,14 @@ async function ensureGameRow(accountId) {
 async function getGameState(accountId, today = new Date().toISOString().slice(0, 10)) {
   await ensureGameRow(accountId);
   await pool.query(
-    'DELETE FROM study_days WHERE account_id = $1 AND study_date = $2::date + 1',
+    `WITH moved AS (
+       DELETE FROM study_days
+       WHERE account_id = $1 AND study_date = $2::date + 1
+       RETURNING account_id
+     )
+     INSERT INTO study_days (account_id, study_date)
+     SELECT account_id, $2::date FROM moved
+     ON CONFLICT DO NOTHING`,
     [accountId, today],
   );
   const [result, studyResult] = await Promise.all([
