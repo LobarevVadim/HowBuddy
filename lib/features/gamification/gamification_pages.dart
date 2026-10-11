@@ -24,6 +24,52 @@ class HeartsPage extends StatefulWidget {
 class _HeartsPageState extends State<HeartsPage> {
   late GameState _state = widget.initialState;
   bool _busy = false;
+  bool _refreshingRecharge = false;
+  Timer? _countdownTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!mounted) return;
+      final rechargeAt = _state.heartRechargeAt;
+      if (rechargeAt != null && !rechargeAt.isAfter(DateTime.now())) {
+        _refreshAfterRecharge();
+      }
+      setState(() {});
+    });
+    _refreshAfterRecharge();
+  }
+
+  @override
+  void dispose() {
+    _countdownTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _refreshAfterRecharge() async {
+    if (_refreshingRecharge) return;
+    _refreshingRecharge = true;
+    try {
+      final state = await GamificationApi().fetchState(widget.accountId);
+      if (mounted) setState(() => _state = state);
+    } catch (_) {
+      // Keep the countdown visible and retry on the next tick.
+    } finally {
+      _refreshingRecharge = false;
+    }
+  }
+
+  String _rechargeCountdown() {
+    final rechargeAt = _state.heartRechargeAt;
+    if (rechargeAt == null) return 'A heart will recharge in 3:00:00';
+    final remaining = rechargeAt.difference(DateTime.now());
+    final seconds = remaining.isNegative ? 0 : remaining.inSeconds;
+    final hours = (seconds ~/ 3600).toString().padLeft(2, '0');
+    final minutes = ((seconds % 3600) ~/ 60).toString().padLeft(2, '0');
+    final secs = (seconds % 60).toString().padLeft(2, '0');
+    return 'Next heart in $hours:$minutes:$secs';
+  }
 
   Future<void> _watchVideo() async {
     if (_busy || _state.hearts >= 5) return;
@@ -74,6 +120,16 @@ class _HeartsPageState extends State<HeartsPage> {
                   style: TextStyle(color: AppColors.mutedText),
                 ),
                 const SizedBox(height: 24),
+                if (_state.hearts < 5) ...[
+                  Text(
+                    _rechargeCountdown(),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: AppColors.primaryDark,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 22),
+                ],
                 Wrap(
                   spacing: 10,
                   children: List.generate(

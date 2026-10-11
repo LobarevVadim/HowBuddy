@@ -111,8 +111,13 @@ const server = createServer(async (request, response) => {
       return;
     }
     const game = getGameAccount(accountId);
+    refreshHearts(game);
     const lessonAllowed = game.hearts > 0;
-    if (lessonAllowed) game.hearts--;
+    if (lessonAllowed) {
+      if (game.hearts === 5) game.heartRechargeAt = new Date(Date.now() + 3 * 60 * 60 * 1000);
+      else if (!game.heartRechargeAt) game.heartRechargeAt = new Date(Date.now() + 3 * 60 * 60 * 1000);
+      game.hearts--;
+    }
     send(response, 200, {lessonAllowed, ...publicGameState(accountId, clientStudyDate(request))});
     return;
   }
@@ -125,7 +130,10 @@ const server = createServer(async (request, response) => {
       return;
     }
     const game = getGameAccount(accountId);
+    refreshHearts(game);
     game.hearts = Math.min(5, game.hearts + 1);
+    if (game.hearts >= 5) game.heartRechargeAt = null;
+    else if (!game.heartRechargeAt) game.heartRechargeAt = new Date(Date.now() + 3 * 60 * 60 * 1000);
     send(response, 200, publicGameState(accountId, clientStudyDate(request)));
     return;
   }
@@ -402,6 +410,7 @@ function getGameAccount(accountId) {
   if (!gameAccounts.has(accountId)) {
     gameAccounts.set(accountId, {
       hearts: 5,
+      heartRechargeAt: null,
       emeralds: 100,
       xpBoostUntil: null,
       studyDays: new Set(),
@@ -412,6 +421,7 @@ function getGameAccount(accountId) {
 
 function publicGameState(accountId, today = new Date().toISOString().slice(0, 10)) {
   const game = getGameAccount(accountId);
+  refreshHearts(game);
   const nextDay = new Date(`${today}T00:00:00.000Z`);
   nextDay.setUTCDate(nextDay.getUTCDate() + 1);
   const incorrectlyRecordedTomorrow = nextDay.toISOString().slice(0, 10);
@@ -430,11 +440,22 @@ function publicGameState(accountId, today = new Date().toISOString().slice(0, 10
 
   return {
     hearts: game.hearts,
+    heartRechargeAt: game.heartRechargeAt?.toISOString() ?? null,
     emeralds: game.emeralds,
     streakCount,
     studyDays: [...days],
     xpBoostUntil: game.xpBoostUntil?.toISOString() ?? null,
   };
+}
+
+function refreshHearts(game) {
+  if (game.hearts >= 5 || !game.heartRechargeAt || game.heartRechargeAt > new Date()) return;
+  const elapsedIntervals = Math.floor((Date.now() - game.heartRechargeAt.valueOf()) / (3 * 60 * 60 * 1000)) + 1;
+  const added = Math.min(elapsedIntervals, 5 - game.hearts);
+  game.hearts += added;
+  game.heartRechargeAt = game.hearts >= 5
+    ? null
+    : new Date(game.heartRechargeAt.valueOf() + added * 3 * 60 * 60 * 1000);
 }
 
 function clientStudyDate(request) {

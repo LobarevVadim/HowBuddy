@@ -51,8 +51,15 @@ app.post('/gamification/lesson-start', requireAuth, async (request, response) =>
   const accountId = request.accountId;
   try {
     await ensureGameRow(accountId);
+    await refreshHearts(accountId);
     const result = await pool.query(
-      'UPDATE account_gamification SET hearts = hearts - 1 WHERE account_id = $1 AND hearts > 0 RETURNING hearts',
+      `UPDATE account_gamification
+       SET hearts = hearts - 1,
+           heart_recharge_at = CASE
+             WHEN hearts = 5 THEN now() + interval '3 hours'
+             ELSE COALESCE(heart_recharge_at, now() + interval '3 hours')
+           END
+       WHERE account_id = $1 AND hearts > 0 RETURNING hearts`,
       [accountId],
     );
     return response.json({
@@ -69,8 +76,15 @@ app.post('/gamification/heart-video', requireAuth, async (request, response) => 
   const accountId = request.accountId;
   try {
     await ensureGameRow(accountId);
+    await refreshHearts(accountId);
     await pool.query(
-      'UPDATE account_gamification SET hearts = LEAST(5, hearts + 1) WHERE account_id = $1',
+      `UPDATE account_gamification
+       SET hearts = LEAST(5, hearts + 1),
+           heart_recharge_at = CASE
+             WHEN hearts + 1 >= 5 THEN NULL
+             ELSE COALESCE(heart_recharge_at, now() + interval '3 hours')
+           END
+       WHERE account_id = $1`,
       [accountId],
     );
     return response.json(await getGameState(accountId, clientStudyDate(request)));
@@ -571,6 +585,7 @@ async function ensureGameRow(accountId) {
 
 async function getGameState(accountId, today = new Date().toISOString().slice(0, 10)) {
   await ensureGameRow(accountId);
+  await refreshHearts(accountId);
   await pool.query(
     `WITH moved AS (
        DELETE FROM study_days
@@ -584,7 +599,7 @@ async function getGameState(accountId, today = new Date().toISOString().slice(0,
   );
   const [result, studyResult] = await Promise.all([
     pool.query(
-      'SELECT hearts, emeralds, xp_boost_until FROM account_gamification WHERE account_id = $1',
+      'SELECT hearts, heart_recharge_at, emeralds, xp_boost_until FROM account_gamification WHERE account_id = $1',
       [accountId],
     ),
     pool.query(
@@ -608,11 +623,28 @@ async function getGameState(accountId, today = new Date().toISOString().slice(0,
   const game = result.rows[0];
   return {
     hearts: game.hearts,
+    heartRechargeAt: game.heart_recharge_at?.toISOString() ?? null,
     emeralds: game.emeralds,
     streakCount,
     studyDays,
     xpBoostUntil: game.xp_boost_until?.toISOString() ?? null,
   };
+}
+
+async function refreshHearts(accountId) {
+  await pool.query(
+    `UPDATE account_gamification
+     SET hearts = LEAST(5, hearts + 1 + FLOOR(EXTRACT(EPOCH FROM (now() - heart_recharge_at)) / 10800)::int),
+         heart_recharge_at = CASE
+           WHEN hearts + 1 + FLOOR(EXTRACT(EPOCH FROM (now() - heart_recharge_at)) / 10800)::int >= 5
+             THEN NULL
+           ELSE heart_recharge_at +
+             (1 + FLOOR(EXTRACT(EPOCH FROM (now() - heart_recharge_at)) / 10800)::int) * interval '3 hours'
+         END
+     WHERE account_id = $1 AND hearts < 5 AND heart_recharge_at IS NOT NULL
+       AND heart_recharge_at <= now()`,
+    [accountId],
+  );
 }
 
 function clientStudyDate(request) {

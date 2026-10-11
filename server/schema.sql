@@ -40,6 +40,14 @@ CREATE TABLE IF NOT EXISTS study_days (
 CREATE TABLE IF NOT EXISTS account_gamification (
   account_id UUID PRIMARY KEY REFERENCES accounts(id) ON DELETE CASCADE,
   hearts INTEGER NOT NULL DEFAULT 5 CHECK (hearts BETWEEN 0 AND 5),
+  heart_recharge_at TIMESTAMPTZ,
   emeralds INTEGER NOT NULL DEFAULT 100 CHECK (emeralds >= 0),
   xp_boost_until TIMESTAMPTZ
 );
+
+ALTER TABLE account_gamification
+  ADD COLUMN IF NOT EXISTS heart_recharge_at TIMESTAMPTZ;
+
+UPDATE account_gamification
+SET heart_recharge_at = now() + interval '3 hours'
+WHERE hearts < 5 AND heart_recharge_at IS NULL;

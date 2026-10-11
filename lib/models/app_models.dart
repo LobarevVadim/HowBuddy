@@ -100,6 +100,7 @@ class XpWeeklySummary {
 class GameState {
   const GameState({
     required this.hearts,
+    required this.heartRechargeAt,
     required this.emeralds,
     required this.streakCount,
     required this.studyDays,
@@ -107,6 +108,7 @@ class GameState {
   });
 
   final int hearts;
+  final DateTime? heartRechargeAt;
   final int emeralds;
   final int streakCount;
   final Set<String> studyDays;
@@ -119,6 +121,9 @@ class GameState {
     final rawBoostEnd = json['xpBoostUntil']?.toString();
     return GameState(
       hearts: int.tryParse(json['hearts'].toString()) ?? 5,
+      heartRechargeAt: json['heartRechargeAt'] == null
+          ? null
+          : DateTime.tryParse(json['heartRechargeAt'].toString()),
       emeralds: int.tryParse(json['emeralds'].toString()) ?? 100,
       streakCount: int.tryParse(json['streakCount'].toString()) ?? 0,
       studyDays: (json['studyDays'] as List<dynamic>? ?? [])
