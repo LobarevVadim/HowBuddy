@@ -694,6 +694,7 @@ function clientTimezoneOffset(request) {
 }
 
 pool.query(readFileSync(new URL('../schema.sql', import.meta.url), 'utf8')).then(async () => {
+  await seedLeaderboardDemoUsers();
   await applyStudyDayBackfill();
   if (sessionSecret.length < 32) {
     throw new Error('SESSION_SECRET must contain at least 32 characters.');
@@ -705,6 +706,33 @@ pool.query(readFileSync(new URL('../schema.sql', import.meta.url), 'utf8')).then
   console.error('Could not initialize the XP table.', error);
   process.exitCode = 1;
 });
+
+async function seedLeaderboardDemoUsers() {
+  const xpAmounts = [9, 11, 21, 43, 55, 77, 89, 121, 165, 197, 233, 271, 319, 371, 424];
+  for (const [index, xp] of xpAmounts.entries()) {
+    const number = String(index + 1).padStart(2, '0');
+    const email = `leaderboard-demo-${number}@demo.howbuddy.invalid`;
+    const name = `Demo Learner ${number}`;
+    const account = await pool.query(
+      `INSERT INTO accounts (full_name, email, auth_provider, provider_subject)
+       VALUES ($1, $2, 'demo', $3)
+       ON CONFLICT (email) DO UPDATE
+       SET full_name = EXCLUDED.full_name,
+           auth_provider = 'demo', password_hash = NULL,
+           provider_subject = EXCLUDED.provider_subject
+       RETURNING id`,
+      [name, email, `leaderboard-demo-${number}`],
+    );
+    await pool.query(
+      `INSERT INTO lesson_xp (account_id, topic_id, lesson_id, xp)
+       VALUES ($1, '__leaderboard_demo__', 'seeded-total', $2)
+       ON CONFLICT (account_id, topic_id, lesson_id)
+       DO UPDATE SET xp = EXCLUDED.xp`,
+      [account.rows[0].id, xp],
+    );
+  }
+  console.log('Leaderboard demo users are seeded.');
+}
 
 async function applyStudyDayBackfill() {
   const email = String(process.env.STUDY_HISTORY_BACKFILL_EMAIL ?? '').trim().toLowerCase();

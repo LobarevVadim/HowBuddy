@@ -8,6 +8,23 @@ const completedLessons = new Map();
 const completedTopics = new Set();
 const xpEvents = new Map();
 const gameAccounts = new Map();
+const demoXpAmounts = [9, 11, 21, 43, 55, 77, 89, 121, 165, 197, 233, 271, 319, 371, 424];
+demoXpAmounts.forEach((earnedXp, index) => {
+  const number = String(index + 1).padStart(2, '0');
+  const email = `leaderboard-demo-${number}@demo.howbuddy.invalid`;
+  const accountId = `leaderboard-demo-${number}`;
+  accounts.set(email, {
+    id: accountId,
+    fullName: `Demo Learner ${number}`,
+    email,
+    passwordHash: null,
+  });
+  xpEvents.set(`${accountId}:__leaderboard_demo__:seeded-total`, {
+    accountId,
+    earnedXp,
+    at: new Date(),
+  });
+});
 const lessonContentPath = ['server/data/lesson_exercises.json', 'data/lesson_exercises.json']
   .find((path) => existsSync(path));
 if (!lessonContentPath) throw new Error('Lesson exercise JSON database was not found.');
