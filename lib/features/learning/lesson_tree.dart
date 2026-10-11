@@ -30,7 +30,7 @@ class TreeLessonsPage extends StatefulWidget {
 }
 
 class _TreeLessonsPageState extends State<TreeLessonsPage> {
-  late Future<TreeData> _treeData = AuthApi().fetchTreeData(widget.topicId);
+  late Future<TreeData> _treeData = _loadTreeData();
   final Set<String> _completedLessonIds = <String>{};
 
   @override
@@ -38,25 +38,18 @@ class _TreeLessonsPageState extends State<TreeLessonsPage> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.topicId != widget.topicId) {
       _completedLessonIds.clear();
-      _treeData = AuthApi().fetchTreeData(widget.topicId);
+      _treeData = _loadTreeData();
     }
   }
 
-  void _openQuestion(String question) {
-    if (question.contains('.')) {
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => DevelopmentPage(title: question)),
-      );
-      return;
-    }
-
-    widget.onTopicSelected(question);
+  void _openQuestion(LessonQuestion question) {
+    widget.onTopicSelected(question.id);
   }
 
   void _handleLessonCompleted(String lessonId) {
     setState(() {
       _completedLessonIds.add(lessonId);
-      _treeData = AuthApi().fetchTreeData(widget.topicId);
+      _treeData = _loadTreeData();
     });
     widget.onTopicCompleted();
   }
@@ -66,6 +59,11 @@ class _TreeLessonsPageState extends State<TreeLessonsPage> {
     widget.onGameStateChanged(result.state);
     return result.lessonAllowed;
   }
+
+  Future<TreeData> _loadTreeData() => AuthApi().fetchTreeData(
+    topicId: widget.topicId,
+    accountId: widget.accountId,
+  );
 
   List<LessonLevel> _levelsWithLocalCompletions(List<LessonLevel> levels) {
     return levels.map((level) {
@@ -118,7 +116,7 @@ class _TreeLessonsPageState extends State<TreeLessonsPage> {
                       builder: (context, snapshot) {
                         final question =
                             snapshot.data?.topic.question ??
-                            'Could we be immortal?';
+                            'Explore the human body';
                         return Text(
                           question,
                           style: Theme.of(context).textTheme.headlineMedium
@@ -192,8 +190,8 @@ class NextQuestionPanel extends StatelessWidget {
     super.key,
   });
 
-  final List<String> questions;
-  final ValueChanged<String> onQuestionSelected;
+  final List<LessonQuestion> questions;
+  final ValueChanged<LessonQuestion> onQuestionSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -235,7 +233,7 @@ class NextQuestionPanel extends StatelessWidget {
                 ),
               ),
               child: Text(
-                question,
+                question.question,
                 style: const TextStyle(fontWeight: FontWeight.w800),
               ),
             ),
@@ -426,12 +424,11 @@ class LessonNode extends StatelessWidget {
                   final completedLessonId = await Navigator.of(context)
                       .push<String>(
                         MaterialPageRoute(
-                          builder: (_) =>
-                              LessonPage(
-                                accountId: accountId,
-                                topicId: topicId,
-                                level: level,
-                              ),
+                          builder: (_) => LessonPage(
+                            accountId: accountId,
+                            topicId: topicId,
+                            level: level,
+                          ),
                         ),
                       );
                   if (completedLessonId != null) {

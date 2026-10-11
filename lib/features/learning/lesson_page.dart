@@ -22,18 +22,23 @@ class LessonPage extends StatefulWidget {
 }
 
 class _LessonPageState extends State<LessonPage> {
-  static const int _exerciseCount = 10;
-
   final _answerController = TextEditingController();
   final _startedAt = DateTime.now();
-  late final List<LessonExercise> _exercises = buildExercisesForTopic(
-    widget.topicId,
-  );
+  List<LessonExercise> _exercises = <LessonExercise>[];
+  String _lessonContent = '';
   final Set<String> _selectedAnswers = <String>{};
   int _exerciseIndex = 0;
   int _correctAnswers = 0;
   bool? _answerWasCorrect;
   bool _isCompleting = false;
+  bool _isLoadingExercises = true;
+  String? _exerciseLoadError;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchExercises();
+  }
 
   @override
   void dispose() {
@@ -41,7 +46,47 @@ class _LessonPageState extends State<LessonPage> {
     super.dispose();
   }
 
-  bool get _isSummary => _exerciseIndex >= _exercises.length;
+  Future<void> _fetchExercises() async {
+    try {
+      final lesson = await AuthApi().fetchLessonExercises(
+        topicId: widget.topicId,
+        lessonId: widget.level.id,
+      );
+      if (lesson.exercises.isEmpty) {
+        throw AuthException('No exercises are available for this lesson yet.');
+      }
+      if (!mounted) return;
+      setState(() {
+        _exercises = lesson.exercises;
+        _lessonContent = lesson.content;
+        _isLoadingExercises = false;
+        _exerciseLoadError = null;
+      });
+    } on AuthException catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _isLoadingExercises = false;
+        _exerciseLoadError = error.message;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _isLoadingExercises = false;
+        _exerciseLoadError = 'Could not load lesson exercises.';
+      });
+    }
+  }
+
+  void _retryLoadingExercises() {
+    setState(() {
+      _isLoadingExercises = true;
+      _exerciseLoadError = null;
+    });
+    _fetchExercises();
+  }
+
+  bool get _isSummary =>
+      _exercises.isNotEmpty && _exerciseIndex >= _exercises.length;
 
   bool get _hasAnswer {
     if (_isSummary) {
@@ -144,7 +189,9 @@ class _LessonPageState extends State<LessonPage> {
   }
 
   Widget _buildProgress() {
-    final progress = (_exerciseIndex / _exercises.length).clamp(0.0, 1.0);
+    final progress = _exercises.isEmpty
+        ? 0.0
+        : (_exerciseIndex / _exercises.length).clamp(0.0, 1.0);
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
       child: Column(
@@ -153,9 +200,13 @@ class _LessonPageState extends State<LessonPage> {
           Row(
             children: [
               Text(
-                _isSummary
+                _isLoadingExercises
+                    ? 'Loading lesson'
+                    : _exerciseLoadError != null
+                    ? 'Lesson unavailable'
+                    : _isSummary
                     ? 'Lesson complete'
-                    : 'Exercise ${_exerciseIndex + 1} of $_exerciseCount',
+                    : 'Exercise ${_exerciseIndex + 1} of ${_exercises.length}',
                 style: const TextStyle(fontWeight: FontWeight.w700),
               ),
               const Spacer(),
@@ -209,6 +260,23 @@ class _LessonPageState extends State<LessonPage> {
                 ],
               ),
               const SizedBox(height: 22),
+              if (_exerciseIndex == 0 && _lessonContent.isNotEmpty) ...[
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.infoBackground,
+                    borderRadius: BorderRadius.circular(AppRadii.input),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Text(
+                    _lessonContent,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      height: 1.45,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 22),
+              ],
               Text(
                 exercise.prompt,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -372,7 +440,7 @@ class _LessonPageState extends State<LessonPage> {
                     const Divider(height: 24),
                     _statRow(
                       'Answers correct',
-                      '$_correctAnswers / $_exerciseCount',
+                      '$_correctAnswers / ${_exercises.length}',
                     ),
                     const Divider(height: 24),
                     _statRow('Accuracy', '$accuracy%'),
@@ -433,17 +501,28 @@ class _LessonPageState extends State<LessonPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.level.title),
-        backgroundColor: AppColors.pageBackground,
-        foregroundColor: AppColors.primaryDark,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(48),
-          child: _buildProgress(),
+    final Widget lessonBody;
+    if (_isLoadingExercises) {
+      lessonBody = const Center(child: CircularProgressIndicator());
+    } else if (_exerciseLoadError != null) {
+      lessonBody = Center(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.tabPagePadding),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(_exerciseLoadError!, textAlign: TextAlign.center),
+              const SizedBox(height: 16),
+              FilledButton(
+                onPressed: _retryLoadingExercises,
+                child: const Text('Try again'),
+              ),
+            ],
+          ),
         ),
-      ),
-      body: AnimatedSwitcher(
+      );
+    } else {
+      lessonBody = AnimatedSwitcher(
         duration: const Duration(milliseconds: 180),
         child: _isSummary
             ? KeyedSubtree(
@@ -454,7 +533,20 @@ class _LessonPageState extends State<LessonPage> {
                 key: ValueKey(_exerciseIndex),
                 child: _buildExercise(_exercises[_exerciseIndex]),
               ),
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.level.title),
+        backgroundColor: AppColors.pageBackground,
+        foregroundColor: AppColors.primaryDark,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48),
+          child: _buildProgress(),
+        ),
       ),
+      body: lessonBody,
     );
   }
 }

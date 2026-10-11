@@ -1,5 +1,6 @@
 import {createHash, randomUUID} from 'node:crypto';
 import {createServer} from 'node:http';
+import {existsSync, readFileSync} from 'node:fs';
 
 const port = Number(process.env.PORT ?? 3000);
 const accounts = new Map();
@@ -7,6 +8,10 @@ const completedLessons = new Map();
 const completedTopics = new Set();
 const xpEvents = new Map();
 const gameAccounts = new Map();
+const lessonContentPath = ['server/data/lesson_exercises.json', 'data/lesson_exercises.json']
+  .find((path) => existsSync(path));
+if (!lessonContentPath) throw new Error('Lesson exercise JSON database was not found.');
+const lessonContent = JSON.parse(readFileSync(lessonContentPath, 'utf8'));
 
 const server = createServer(async (request, response) => {
   const url = new URL(request.url, `http://localhost:${port}`);
@@ -84,7 +89,7 @@ const server = createServer(async (request, response) => {
   }
 
   if (url.pathname === '/onboarding/topics' && request.method === 'GET') {
-    send(response, 200, {topics});
+    send(response, 200, {topics: rootTopics()});
     return;
   }
 
@@ -162,13 +167,36 @@ const server = createServer(async (request, response) => {
   }
 
   if (url.pathname === '/lessons/tree' && request.method === 'GET') {
-    const topicId = url.searchParams.get('topic') ?? 'immortal';
+    const topicId = url.searchParams.get('topic') ?? lessonContent.roots[0];
     const topic = findTopic(topicId);
+    if (!topic) {
+      send(response, 404, {message: 'This lesson topic was not found.'});
+      return;
+    }
     send(response, 200, {
       topic,
       levels: buildLessonLevels(topic),
       nextQuestions: getNextQuestions(topic.id),
     });
+    return;
+  }
+
+  if (url.pathname === '/lessons/exercises' && request.method === 'GET') {
+    const topicId = String(url.searchParams.get('topic') ?? '').trim();
+    const lessonId = String(url.searchParams.get('lesson') ?? 'lesson-1').trim();
+    const topicContent = lessonContent.nodes[topicId];
+    if (!topicContent) {
+      send(response, 404, {message: 'No exercises are available for this topic.'});
+      return;
+    }
+    const lessonNumber = Number(lessonId.replace('lesson-', ''));
+    const extraNodeId = topicContent.extraLessons[lessonNumber - 2];
+    const lesson = lessonNumber === 1 ? topicContent : lessonContent.nodes[extraNodeId];
+    if (!lesson || !Number.isInteger(lessonNumber)) {
+      send(response, 404, {message: 'This lesson is not available.'});
+      return;
+    }
+    send(response, 200, {topic: topicId, content: lesson.content, exercises: lesson.exercises});
     return;
   }
 
@@ -179,6 +207,10 @@ const server = createServer(async (request, response) => {
     const accountId = String(body.accountId ?? '').trim();
     const topic = findTopic(topicId);
 
+    if (!topic) {
+      send(response, 404, {message: 'This lesson topic was not found.'});
+      return;
+    }
     if (!lessonId || !accountId) {
       send(response, 400, {message: 'Lesson and account are required.'});
       return;
@@ -282,57 +314,20 @@ function send(response, statusCode, body) {
   response.end(JSON.stringify(body));
 }
 
-const topics = [
-  {
-    id: 'immortal',
-    question: 'Could we be immortal?',
-    lessonCount: 20,
-  },
-  {
-    id: 'poop-smell',
-    question: 'Who poop smells bad?',
-    lessonCount: 15,
-  },
-  {
-    id: 'monkeys-evolve',
-    question: 'Why do monkeys not eveoleve?',
-    lessonCount: 10,
-  },
-];
-
-const nextQuestionsByTopic = {
-  'poop-smell': ['Question1', 'Question2', 'Question3'],
-  'monkeys-evolve': ['Question4', 'Question5', 'Question6'],
-  immortal: ['Question7', 'Question8', 'Question9'],
-};
-
 function findTopic(topicId) {
-  const topic = topics.find((item) => item.id === topicId);
-  if (topic) {
-    return topic;
-  }
+  const node = lessonContent.nodes[topicId];
+  return node ? {id: node.id, question: node.question, lessonCount: node.lessonCount} : null;
+}
 
-  if (/^Question[1-9]$/.test(topicId)) {
-    return {
-      id: topicId,
-      question: topicId,
-      lessonCount: 10,
-    };
-  }
-
-  return topics[0];
+function rootTopics() {
+  return lessonContent.roots.map((id) => findTopic(id));
 }
 
 function getNextQuestions(topicId) {
-  if (nextQuestionsByTopic[topicId]) {
-    return nextQuestionsByTopic[topicId];
-  }
-
-  if (/^Question[1-9]$/.test(topicId)) {
-    return [1, 2, 3].map((index) => `${topicId}.${index}`);
-  }
-
-  return [];
+  return (lessonContent.nodes[topicId]?.children ?? []).map((id) => ({
+    id,
+    question: lessonContent.nodes[id].question,
+  }));
 }
 
 function buildLessonLevels(topic) {
@@ -351,7 +346,11 @@ function buildLessonLevels(topic) {
       id,
       level,
       shape: shapes[index % shapes.length],
-      title: `Lesson ${level}`,
+      title: level === 1
+        ? 'Core lesson'
+        : lessonContent.nodes[
+            lessonContent.nodes[topic.id].extraLessons[level - 2]
+          ].question,
       isCompleted,
       isUnlocked,
     };
@@ -359,26 +358,20 @@ function buildLessonLevels(topic) {
 }
 
 function buildNotepadTree() {
+  const buildNode = (id) => {
+    const node = lessonContent.nodes[id];
+    return {
+      id,
+      title: node.question,
+      isCompleted: completedTopics.has(id),
+      children: node.children.map(buildNode),
+    };
+  };
   return {
     id: 'main-tree',
     title: 'Main Tree',
-    isCompleted: topics.every((topic) => completedTopics.has(topic.id)),
-    children: topics.map((topic) => ({
-      id: topic.id,
-      title: topic.question,
-      isCompleted: completedTopics.has(topic.id),
-      children: (nextQuestionsByTopic[topic.id] ?? []).map((question) => ({
-        id: question,
-        title: question,
-        isCompleted: completedTopics.has(question),
-        children: [1, 2, 3].map((index) => ({
-          id: `${question}.${index}`,
-          title: `${question}.${index}`,
-          isCompleted: completedTopics.has(question),
-          children: [],
-        })),
-      })),
-    })),
+    isCompleted: lessonContent.roots.every((id) => completedTopics.has(id)),
+    children: lessonContent.roots.map(buildNode),
   };
 }
 

@@ -167,7 +167,21 @@ class TreeData {
 
   final LessonTopic topic;
   final List<LessonLevel> levels;
-  final List<String> nextQuestions;
+  final List<LessonQuestion> nextQuestions;
+}
+
+class LessonQuestion {
+  const LessonQuestion({required this.id, required this.question});
+
+  final String id;
+  final String question;
+
+  factory LessonQuestion.fromJson(Map<String, dynamic> json) {
+    return LessonQuestion(
+      id: json['id'].toString(),
+      question: json['question'].toString(),
+    );
+  }
 }
 
 class NotepadTreeNode {

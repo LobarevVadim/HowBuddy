@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+import '../features/learning/lesson_exercises.dart';
 import '../models/app_models.dart';
+import 'api_session.dart';
 
 class AuthApi {
   AuthApi({
@@ -64,7 +66,10 @@ class AuthApi {
   }
 
   Future<List<LessonLevel>> fetchLessonLevels() async {
-    final response = await http.get(Uri.parse('$baseUrl/lessons/tree'));
+    final response = await http.get(
+      Uri.parse('$baseUrl/lessons/tree'),
+      headers: ApiSession.authenticatedHeaders,
+    );
     final Map<String, dynamic> body = jsonDecode(response.body);
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
@@ -79,11 +84,15 @@ class AuthApi {
         .toList();
   }
 
-  Future<TreeData> fetchTreeData(String topicId) async {
+  Future<TreeData> fetchTreeData({
+    required String topicId,
+    required String accountId,
+  }) async {
     final response = await http.get(
       Uri.parse(
         '$baseUrl/lessons/tree',
-      ).replace(queryParameters: {'topic': topicId}),
+      ).replace(queryParameters: {'topic': topicId, 'accountId': accountId}),
+      headers: ApiSession.authenticatedHeaders,
     );
     final Map<String, dynamic> body = jsonDecode(response.body);
 
@@ -97,11 +106,43 @@ class AuthApi {
         .map((level) => LessonLevel.fromJson(level as Map<String, dynamic>))
         .toList();
     final nextQuestions = (body['nextQuestions'] as List<dynamic>)
-        .map((question) => question.toString())
+        .map(
+          (question) =>
+              LessonQuestion.fromJson(question as Map<String, dynamic>),
+        )
         .toList();
     final topic = LessonTopic.fromJson(body['topic'] as Map<String, dynamic>);
 
     return TreeData(topic: topic, levels: levels, nextQuestions: nextQuestions);
+  }
+
+  Future<LessonContent> fetchLessonExercises({
+    required String topicId,
+    required String lessonId,
+  }) async {
+    final response = await http.get(
+      Uri.parse(
+        '$baseUrl/lessons/exercises',
+      ).replace(queryParameters: {'topic': topicId, 'lesson': lessonId}),
+    );
+    final Map<String, dynamic> body = jsonDecode(response.body);
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw AuthException(
+        body['message']?.toString() ?? 'Could not load lesson exercises.',
+      );
+    }
+
+    final exercises = (body['exercises'] as List<dynamic>)
+        .map(
+          (exercise) =>
+              LessonExercise.fromJson(exercise as Map<String, dynamic>),
+        )
+        .toList();
+    return LessonContent(
+      content: body['content']?.toString() ?? '',
+      exercises: exercises,
+    );
   }
 
   Future<LessonCompletion> completeLesson({
@@ -113,7 +154,7 @@ class AuthApi {
   }) async {
     final response = await http.post(
       Uri.parse('$baseUrl/lessons/complete'),
-      headers: {'Content-Type': 'application/json'},
+      headers: ApiSession.authenticatedHeaders,
       body: jsonEncode({
         'accountId': accountId,
         'topicId': topicId,
@@ -135,9 +176,10 @@ class AuthApi {
 
   Future<XpWeeklySummary> fetchWeeklyXp(String accountId) async {
     final response = await http.get(
-      Uri.parse('$baseUrl/xp/weekly').replace(
-        queryParameters: {'accountId': accountId},
-      ),
+      Uri.parse(
+        '$baseUrl/xp/weekly',
+      ).replace(queryParameters: {'accountId': accountId}),
+      headers: ApiSession.authenticatedHeaders,
     );
     final Map<String, dynamic> body = jsonDecode(response.body);
 
@@ -166,8 +208,13 @@ class AuthApi {
         .toList();
   }
 
-  Future<NotepadTreeNode> fetchNotepadTree() async {
-    final response = await http.get(Uri.parse('$baseUrl/notepad/tree'));
+  Future<NotepadTreeNode> fetchNotepadTree(String accountId) async {
+    final response = await http.get(
+      Uri.parse(
+        '$baseUrl/notepad/tree',
+      ).replace(queryParameters: {'accountId': accountId}),
+      headers: ApiSession.authenticatedHeaders,
+    );
     final Map<String, dynamic> body = jsonDecode(response.body);
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
@@ -188,6 +235,14 @@ class AuthApi {
       );
     }
 
+    final sessionToken = body['sessionToken']?.toString();
+    if (sessionToken == null || sessionToken.isEmpty) {
+      throw AuthException(
+        body['message']?.toString() ??
+            'This sign-in method is not configured yet.',
+      );
+    }
+    ApiSession.setToken(sessionToken);
     return Account.fromJson(body['account'] as Map<String, dynamic>);
   }
 }

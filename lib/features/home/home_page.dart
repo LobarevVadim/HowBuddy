@@ -14,7 +14,7 @@ class HomePage extends StatefulWidget {
     required this.account,
     required this.onLogout,
     this.initialIndex = 0,
-    this.topicId = 'immortal',
+    this.topicId = 'heart',
     super.key,
   });
 
@@ -38,7 +38,9 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _gameStateFuture = GamificationApi().fetchState(widget.account.id).then((state) {
+    _gameStateFuture = GamificationApi().fetchState(widget.account.id).then((
+      state,
+    ) {
       _currentGameState = state;
       return state;
     });
@@ -71,10 +73,8 @@ class _HomePageState extends State<HomePage> {
   Future<void> _openHearts(GameState state) async {
     await Navigator.of(context).push<void>(
       MaterialPageRoute(
-        builder: (_) => HeartsPage(
-          accountId: widget.account.id,
-          initialState: state,
-        ),
+        builder: (_) =>
+            HeartsPage(accountId: widget.account.id, initialState: state),
       ),
     );
     await _refreshGameState();
@@ -83,10 +83,8 @@ class _HomePageState extends State<HomePage> {
   Future<void> _openEmeraldShop(GameState state) async {
     await Navigator.of(context).push<void>(
       MaterialPageRoute(
-        builder: (_) => EmeraldShopPage(
-          accountId: widget.account.id,
-          initialState: state,
-        ),
+        builder: (_) =>
+            EmeraldShopPage(accountId: widget.account.id, initialState: state),
       ),
     );
     await _refreshGameState();
@@ -130,12 +128,10 @@ class _HomePageState extends State<HomePage> {
       ),
       NotepadTreePage(
         key: ValueKey(_notepadRefreshKey),
+        accountId: widget.account.id,
         onTopicSelected: _openTopicFromNotepad,
       ),
-      XpTabPage(
-        key: ValueKey(_xpRefreshKey),
-        accountId: widget.account.id,
-      ),
+      XpTabPage(key: ValueKey(_xpRefreshKey), accountId: widget.account.id),
       ProfileTabPage(account: widget.account, onLogout: widget.onLogout),
     ];
 
@@ -286,9 +282,9 @@ class XpTabPage extends StatelessWidget {
               child: Text(
                 'Could not load your XP. Please check your connection and try again.',
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: AppColors.mutedText,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(color: AppColors.mutedText),
               ),
             ),
           );
@@ -343,7 +339,13 @@ class XpTabPage extends StatelessWidget {
                       children: summary.days.map((day) {
                         final fraction = day.xp / maxXp;
                         final weekday = const [
-                          'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun',
+                          'Mon',
+                          'Tue',
+                          'Wed',
+                          'Thu',
+                          'Fri',
+                          'Sat',
+                          'Sun',
                         ][day.date.weekday - 1];
                         return Expanded(
                           child: Padding(
@@ -373,7 +375,9 @@ class XpTabPage extends StatelessWidget {
                                           color: day.xp == 0
                                               ? AppColors.border
                                               : AppColors.success,
-                                          borderRadius: BorderRadius.circular(8),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -441,19 +445,17 @@ class ProfileTabPage extends StatelessWidget {
                 Text(
                   'Hi, ${account.fullName}',
                   textAlign: TextAlign.center,
-                  style: Theme.of(context)
-                      .textTheme
-                      .headlineSmall
-                      ?.copyWith(fontWeight: FontWeight.w800),
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.tabTextGap),
                 Text(
                   account.email,
                   textAlign: TextAlign.center,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyLarge
-                      ?.copyWith(color: AppColors.mutedText),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyLarge?.copyWith(color: AppColors.mutedText),
                 ),
                 const SizedBox(height: AppSpacing.profileLogoutGap),
                 PrimaryButton(text: 'Logout', onPressed: onLogout),

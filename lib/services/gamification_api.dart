@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../models/app_models.dart';
+import 'api_session.dart';
 
 class GamificationApi {
   GamificationApi({
@@ -15,14 +16,17 @@ class GamificationApi {
   final String baseUrl;
 
   Future<GameState> fetchState(String accountId) async {
-    final response = await http.get(_uri('/gamification', accountId));
+    final response = await http.get(
+      _uri('/gamification', accountId),
+      headers: ApiSession.authenticatedHeaders,
+    );
     return _readState(response);
   }
 
   Future<LessonStartResult> startLesson(String accountId) async {
     final response = await http.post(
       Uri.parse('$baseUrl/gamification/lesson-start'),
-      headers: {'Content-Type': 'application/json'},
+      headers: ApiSession.authenticatedHeaders,
       body: jsonEncode({'accountId': accountId}),
     );
     final body = _readBody(response);
@@ -49,7 +53,7 @@ class GamificationApi {
   Future<GameState> _postState(String path, Map<String, Object> payload) async {
     final response = await http.post(
       Uri.parse('$baseUrl$path'),
-      headers: {'Content-Type': 'application/json'},
+      headers: ApiSession.authenticatedHeaders,
       body: jsonEncode(payload),
     );
     return GameState.fromJson(_readBody(response));
@@ -68,6 +72,7 @@ class GamificationApi {
     return body;
   }
 
-  Uri _uri(String path, String accountId) =>
-      Uri.parse('$baseUrl$path').replace(queryParameters: {'accountId': accountId});
+  Uri _uri(String path, String accountId) => Uri.parse(
+    '$baseUrl$path',
+  ).replace(queryParameters: {'accountId': accountId});
 }

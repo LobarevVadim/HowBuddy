@@ -3,31 +3,39 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
 import pg from 'pg';
+import {createHmac, timingSafeEqual} from 'node:crypto';
+import {readFileSync} from 'node:fs';
 
 dotenv.config();
 
 const app = express();
 const port = Number(process.env.PORT ?? 3000);
+const sessionSecret = process.env.SESSION_SECRET ?? '';
 const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
 });
-const completedLessons = new Map();
-const completedTopics = new Set();
+const lessonContent = JSON.parse(
+  readFileSync(new URL('../data/lesson_exercises.json', import.meta.url), 'utf8'),
+);
 
 app.use(cors());
 app.use(express.json());
 
-app.get('/health', (_request, response) => {
-  response.json({ok: true});
+app.get('/health', async (_request, response) => {
+  try {
+    await pool.query('SELECT 1');
+    response.json({ok: true, database: 'connected'});
+  } catch (_error) {
+    response.status(503).json({ok: false, database: 'unavailable'});
+  }
 });
 
 app.get('/onboarding/topics', (_request, response) => {
-  response.json({topics});
+  response.json({topics: rootTopics()});
 });
 
-app.get('/gamification', async (request, response) => {
-  const accountId = String(request.query.accountId ?? '').trim();
-  if (!accountId) return response.status(400).json({message: 'Account is required.'});
+app.get('/gamification', requireAuth, async (request, response) => {
+  const accountId = request.accountId;
   try {
     return response.json(await getGameState(accountId));
   } catch (error) {
@@ -36,9 +44,8 @@ app.get('/gamification', async (request, response) => {
   }
 });
 
-app.post('/gamification/lesson-start', async (request, response) => {
-  const accountId = String(request.body.accountId ?? '').trim();
-  if (!accountId) return response.status(400).json({message: 'Account is required.'});
+app.post('/gamification/lesson-start', requireAuth, async (request, response) => {
+  const accountId = request.accountId;
   try {
     await ensureGameRow(accountId);
     const result = await pool.query(
@@ -52,9 +59,8 @@ app.post('/gamification/lesson-start', async (request, response) => {
   }
 });
 
-app.post('/gamification/heart-video', async (request, response) => {
-  const accountId = String(request.body.accountId ?? '').trim();
-  if (!accountId) return response.status(400).json({message: 'Account is required.'});
+app.post('/gamification/heart-video', requireAuth, async (request, response) => {
+  const accountId = request.accountId;
   try {
     await ensureGameRow(accountId);
     await pool.query(
@@ -68,9 +74,8 @@ app.post('/gamification/heart-video', async (request, response) => {
   }
 });
 
-app.post('/gamification/emerald-video', async (request, response) => {
-  const accountId = String(request.body.accountId ?? '').trim();
-  if (!accountId) return response.status(400).json({message: 'Account is required.'});
+app.post('/gamification/emerald-video', requireAuth, async (request, response) => {
+  const accountId = request.accountId;
   try {
     await ensureGameRow(accountId);
     await pool.query(
@@ -84,11 +89,11 @@ app.post('/gamification/emerald-video', async (request, response) => {
   }
 });
 
-app.post('/gamification/xp-boost', async (request, response) => {
-  const accountId = String(request.body.accountId ?? '').trim();
+app.post('/gamification/xp-boost', requireAuth, async (request, response) => {
+  const accountId = request.accountId;
   const minutes = Number(request.body.durationMinutes);
   const price = new Map([[60, 80], [30, 45], [10, 20]]).get(minutes);
-  if (!accountId || !price) {
+  if (!price) {
     return response.status(400).json({message: 'That XP boost is not available.'});
   }
   try {
@@ -130,7 +135,10 @@ app.post('/auth/register', async (request, response) => {
       [fullName, email, passwordHash],
     );
 
-    return response.status(201).json({account: toAccount(result.rows[0])});
+    return response.status(201).json({
+      account: toAccount(result.rows[0]),
+      sessionToken: issueSession(result.rows[0].id),
+    });
   } catch (error) {
     if (error.code === '23505') {
       return response.status(409).json({message: 'An account already exists for this email.'});
@@ -141,61 +149,51 @@ app.post('/auth/register', async (request, response) => {
   }
 });
 
-app.post('/auth/social-signup', async (request, response) => {
-  const provider = String(request.body.provider ?? '').trim().toLowerCase();
-  const fullName = String(request.body.displayName ?? '').trim();
-  const email = String(request.body.email ?? '').trim().toLowerCase();
-
-  if (!['google', 'apple'].includes(provider) || fullName.length < 2 || !email.includes('@')) {
-    return response.status(400).json({message: 'Social sign up details are invalid.'});
-  }
-
-  try {
-    const existing = await pool.query(
-      `SELECT id, full_name, email
-       FROM accounts
-       WHERE email = $1
-       LIMIT 1`,
-      [email],
-    );
-
-    if (existing.rows[0]) {
-      return response.json({account: toAccount(existing.rows[0])});
-    }
-
-    const result = await pool.query(
-      `INSERT INTO accounts (full_name, email, auth_provider, provider_subject)
-       VALUES ($1, $2, $3, $4)
-       RETURNING id, full_name, email`,
-      [fullName, email, provider, `${provider}:${email}`],
-    );
-
-    return response.status(201).json({account: toAccount(result.rows[0])});
-  } catch (error) {
-    console.error(error);
-    return response.status(500).json({message: 'Could not create social account.'});
-  }
-});
-
-app.get('/lessons/tree', (request, response) => {
-  const topic = findTopic(String(request.query.topic ?? 'immortal'));
-  response.json({
-    topic,
-    levels: buildLessonLevels(topic),
-    nextQuestions: getNextQuestions(topic.id),
+app.post('/auth/social-signup', (_request, response) => {
+  return response.status(501).json({
+    message: 'Google and Apple sign-in are not configured for this demo.',
   });
 });
 
-app.post('/lessons/complete', async (request, response) => {
+app.get('/lessons/tree', requireAuth, async (request, response) => {
+  const topic = findTopic(String(request.query.topic ?? lessonContent.roots[0]));
+  if (!topic) return response.status(404).json({message: 'This lesson topic was not found.'});
+  try {
+    const levels = await buildLessonLevels(topic, request.accountId);
+    return response.json({topic, levels, nextQuestions: getNextQuestions(topic.id)});
+  } catch (error) {
+    console.error(error);
+    return response.status(500).json({message: 'Could not load lesson progress.'});
+  }
+});
+
+app.get('/lessons/exercises', (request, response) => {
+  const topicId = String(request.query.topic ?? '').trim();
+  const lessonId = String(request.query.lesson ?? 'lesson-1').trim();
+  const topicContent = lessonContent.nodes[topicId];
+  if (!topicContent) {
+    return response.status(404).json({message: 'No exercises are available for this topic.'});
+  }
+  const lessonNumber = Number(lessonId.replace('lesson-', ''));
+  const extraNodeId = topicContent.extraLessons[lessonNumber - 2];
+  const lesson = lessonNumber === 1 ? topicContent : lessonContent.nodes[extraNodeId];
+  if (!lesson || !Number.isInteger(lessonNumber)) {
+    return response.status(404).json({message: 'This lesson is not available.'});
+  }
+  return response.json({topic: topicId, content: lesson.content, exercises: lesson.exercises});
+});
+
+app.post('/lessons/complete', requireAuth, async (request, response) => {
   const topicId = String(request.body.topicId ?? '').trim();
   const lessonId = String(request.body.lessonId ?? '').trim();
-  const accountId = String(request.body.accountId ?? '').trim();
+  const accountId = request.accountId;
   const correctAnswers = Number(request.body.correctAnswers);
   const exerciseCount = Number(request.body.exerciseCount);
   const topic = findTopic(topicId);
 
-  if (!lessonId || !accountId) {
-    return response.status(400).json({message: 'Lesson and account are required.'});
+  if (!topic) return response.status(404).json({message: 'This lesson topic was not found.'});
+  if (!lessonId) {
+    return response.status(400).json({message: 'Lesson is required.'});
   }
   if (
     !Number.isInteger(correctAnswers) ||
@@ -205,12 +203,9 @@ app.post('/lessons/complete', async (request, response) => {
     return response.status(400).json({message: 'Lesson score is invalid.'});
   }
 
-  const lessonSet = getCompletedLessonSet(topic.id);
-  lessonSet.add(lessonId);
-
-  const topicCompleted = lessonSet.size >= Math.min(topic.lessonCount, 20);
-  if (topicCompleted) {
-    completedTopics.add(topic.id);
+  const lessonNumber = Number(lessonId.replace('lesson-', ''));
+  if (!Number.isInteger(lessonNumber) || lessonNumber < 1 || lessonNumber > topic.lessonCount) {
+    return response.status(400).json({message: 'This lesson is not available.'});
   }
 
   const baseXp = 25 + Math.round(
@@ -219,6 +214,16 @@ app.post('/lessons/complete', async (request, response) => {
 
   try {
     await ensureGameRow(accountId);
+    await pool.query(
+      `INSERT INTO lesson_progress (account_id, topic_id, lesson_id)
+       VALUES ($1, $2, $3) ON CONFLICT (account_id, topic_id, lesson_id) DO NOTHING`,
+      [accountId, topic.id, lessonId],
+    );
+    const completionCount = await pool.query(
+      'SELECT COUNT(*)::int AS count FROM lesson_progress WHERE account_id = $1 AND topic_id = $2',
+      [accountId, topic.id],
+    );
+    const topicCompleted = completionCount.rows[0].count >= Math.min(topic.lessonCount, 20);
     await pool.query(
       'INSERT INTO study_days (account_id, study_date) VALUES ($1, (now() AT TIME ZONE \'UTC\')::date) ON CONFLICT DO NOTHING',
       [accountId],
@@ -251,11 +256,8 @@ app.post('/lessons/complete', async (request, response) => {
   }
 });
 
-app.get('/xp/weekly', async (request, response) => {
-  const accountId = String(request.query.accountId ?? '').trim();
-  if (!accountId) {
-    return response.status(400).json({message: 'Account is required.'});
-  }
+app.get('/xp/weekly', requireAuth, async (request, response) => {
+  const accountId = request.accountId;
 
   try {
     const [totals, daily] = await Promise.all([
@@ -289,8 +291,14 @@ app.get('/xp/weekly', async (request, response) => {
   }
 });
 
-app.get('/notepad/tree', (_request, response) => {
-  response.json({tree: buildNotepadTree()});
+app.get('/notepad/tree', requireAuth, async (request, response) => {
+  const accountId = request.accountId;
+  try {
+    return response.json({tree: await buildNotepadTree(accountId)});
+  } catch (error) {
+    console.error(error);
+    return response.status(500).json({message: 'Could not load lesson progress.'});
+  }
 });
 
 app.post('/auth/login', async (request, response) => {
@@ -314,8 +322,55 @@ app.post('/auth/login', async (request, response) => {
     return response.status(401).json({message: 'Invalid email, username, or password.'});
   }
 
-  return response.json({account: toAccount(account)});
+  return response.json({
+    account: toAccount(account),
+    sessionToken: issueSession(account.id),
+  });
 });
+
+function issueSession(accountId) {
+  const header = encodeBase64Url(JSON.stringify({alg: 'HS256', typ: 'JWT'}));
+  const payload = encodeBase64Url(JSON.stringify({
+    sub: accountId,
+    exp: Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60),
+  }));
+  const unsigned = `${header}.${payload}`;
+  const signature = createHmac('sha256', sessionSecret).update(unsigned).digest('base64url');
+  return `${unsigned}.${signature}`;
+}
+
+function encodeBase64Url(value) {
+  return Buffer.from(value).toString('base64url');
+}
+
+function requireAuth(request, response, next) {
+  const token = String(request.headers.authorization ?? '').replace(/^Bearer\s+/i, '');
+  const parts = token.split('.');
+  if (parts.length !== 3 || !sessionSecret) {
+    return response.status(401).json({message: 'Please sign in again.'});
+  }
+  const unsigned = `${parts[0]}.${parts[1]}`;
+  const expected = createHmac('sha256', sessionSecret).update(unsigned).digest();
+  let actual;
+  try {
+    actual = Buffer.from(parts[2], 'base64url');
+  } catch (_error) {
+    return response.status(401).json({message: 'Your session is invalid. Please sign in again.'});
+  }
+  if (actual.length !== expected.length || !timingSafeEqual(actual, expected)) {
+    return response.status(401).json({message: 'Your session is invalid. Please sign in again.'});
+  }
+  try {
+    const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8'));
+    if (typeof payload.sub !== 'string' || payload.exp <= Date.now() / 1000) {
+      return response.status(401).json({message: 'Your session expired. Please sign in again.'});
+    }
+    request.accountId = payload.sub;
+    return next();
+  } catch (_error) {
+    return response.status(401).json({message: 'Your session is invalid. Please sign in again.'});
+  }
+}
 
 function toAccount(row) {
   return {
@@ -325,63 +380,32 @@ function toAccount(row) {
   };
 }
 
-const topics = [
-  {
-    id: 'immortal',
-    question: 'Could we be immortal?',
-    lessonCount: 20,
-  },
-  {
-    id: 'poop-smell',
-    question: 'Who poop smells bad?',
-    lessonCount: 15,
-  },
-  {
-    id: 'monkeys-evolve',
-    question: 'Why do monkeys not eveoleve?',
-    lessonCount: 10,
-  },
-];
-
-const nextQuestionsByTopic = {
-  'poop-smell': ['Question1', 'Question2', 'Question3'],
-  'monkeys-evolve': ['Question4', 'Question5', 'Question6'],
-  immortal: ['Question7', 'Question8', 'Question9'],
-};
-
 function findTopic(topicId) {
-  const topic = topics.find((item) => item.id === topicId);
-  if (topic) {
-    return topic;
-  }
+  const node = lessonContent.nodes[topicId];
+  return node ? {id: node.id, question: node.question, lessonCount: node.lessonCount} : null;
+}
 
-  if (/^Question[1-9]$/.test(topicId)) {
-    return {
-      id: topicId,
-      question: topicId,
-      lessonCount: 10,
-    };
-  }
-
-  return topics[0];
+function rootTopics() {
+  return lessonContent.roots.map((id) => findTopic(id));
 }
 
 function getNextQuestions(topicId) {
-  if (nextQuestionsByTopic[topicId]) {
-    return nextQuestionsByTopic[topicId];
-  }
-
-  if (/^Question[1-9]$/.test(topicId)) {
-    return [1, 2, 3].map((index) => `${topicId}.${index}`);
-  }
-
-  return [];
+  return (lessonContent.nodes[topicId]?.children ?? []).map((id) => ({
+    id,
+    question: lessonContent.nodes[id].question,
+  }));
 }
 
-function buildLessonLevels(topic) {
+async function buildLessonLevels(topic, accountId) {
   const shapes = ['star', 'triangle', 'hexagon', 'square', 'circle'];
   const count = Math.min(topic.lessonCount, 20);
-  const lessonSet = getCompletedLessonSet(topic.id);
+  const progress = accountId
+    ? await pool.query(
+        'SELECT lesson_id FROM lesson_progress WHERE account_id = $1 AND topic_id = $2',
+        [accountId, topic.id],
+      )
+    : {rows: []};
+  const lessonSet = new Set(progress.rows.map((row) => row.lesson_id));
 
   return Array.from({length: count}, (_item, index) => {
     const level = index + 1;
@@ -394,43 +418,43 @@ function buildLessonLevels(topic) {
       id,
       level,
       shape: shapes[index % shapes.length],
-      title: `Lesson ${level}`,
+      title: level === 1
+        ? 'Core lesson'
+        : lessonContent.nodes[
+            lessonContent.nodes[topic.id].extraLessons[level - 2]
+          ].question,
       isCompleted,
       isUnlocked,
     };
   });
 }
 
-function buildNotepadTree() {
+async function buildNotepadTree(accountId) {
+  const result = await pool.query(
+    `SELECT topic_id, COUNT(*)::int AS count
+     FROM lesson_progress WHERE account_id = $1 GROUP BY topic_id`,
+    [accountId],
+  );
+  const completedTopics = new Set(
+    result.rows
+      .filter((row) => row.count >= Math.min(findTopic(row.topic_id)?.lessonCount ?? 20, 20))
+      .map((row) => row.topic_id),
+  );
+  const buildNode = (id) => {
+    const node = lessonContent.nodes[id];
+    return {
+      id,
+      title: node.question,
+      isCompleted: completedTopics.has(id),
+      children: node.children.map(buildNode),
+    };
+  };
   return {
     id: 'main-tree',
     title: 'Main Tree',
-    isCompleted: topics.every((topic) => completedTopics.has(topic.id)),
-    children: topics.map((topic) => ({
-      id: topic.id,
-      title: topic.question,
-      isCompleted: completedTopics.has(topic.id),
-      children: (nextQuestionsByTopic[topic.id] ?? []).map((question) => ({
-        id: question,
-        title: question,
-        isCompleted: completedTopics.has(question),
-        children: [1, 2, 3].map((index) => ({
-          id: `${question}.${index}`,
-          title: `${question}.${index}`,
-          isCompleted: completedTopics.has(question),
-          children: [],
-        })),
-      })),
-    })),
+    isCompleted: lessonContent.roots.every((id) => completedTopics.has(id)),
+    children: lessonContent.roots.map(buildNode),
   };
-}
-
-function getCompletedLessonSet(topicId) {
-  if (!completedLessons.has(topicId)) {
-    completedLessons.set(topicId, new Set());
-  }
-
-  return completedLessons.get(topicId);
 }
 
 async function ensureGameRow(accountId) {
@@ -474,29 +498,10 @@ async function getGameState(accountId) {
   };
 }
 
-pool.query(`
-  CREATE TABLE IF NOT EXISTS lesson_xp (
-    account_id UUID NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
-    topic_id TEXT NOT NULL,
-    lesson_id TEXT NOT NULL,
-    xp INTEGER NOT NULL CHECK (xp BETWEEN 25 AND 70),
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    PRIMARY KEY (account_id, topic_id, lesson_id)
-  );
-  ALTER TABLE lesson_xp DROP CONSTRAINT IF EXISTS lesson_xp_xp_check;
-  ALTER TABLE lesson_xp ADD CONSTRAINT lesson_xp_xp_check CHECK (xp BETWEEN 25 AND 70);
-  CREATE TABLE IF NOT EXISTS study_days (
-    account_id UUID NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
-    study_date DATE NOT NULL,
-    PRIMARY KEY (account_id, study_date)
-  );
-  CREATE TABLE IF NOT EXISTS account_gamification (
-    account_id UUID PRIMARY KEY REFERENCES accounts(id) ON DELETE CASCADE,
-    hearts INTEGER NOT NULL DEFAULT 5 CHECK (hearts BETWEEN 0 AND 5),
-    emeralds INTEGER NOT NULL DEFAULT 100 CHECK (emeralds >= 0),
-    xp_boost_until TIMESTAMPTZ
-  );
-`).then(() => {
+pool.query(readFileSync(new URL('../schema.sql', import.meta.url), 'utf8')).then(() => {
+  if (sessionSecret.length < 32) {
+    throw new Error('SESSION_SECRET must contain at least 32 characters.');
+  }
   app.listen(port, () => {
     console.log(`HowBuddy auth API listening on http://localhost:${port}`);
   });

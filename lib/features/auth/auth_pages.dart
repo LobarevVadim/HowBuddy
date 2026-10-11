@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import '../../app_style.dart';
 import '../../models/app_models.dart';
 import '../../services/auth_api.dart';
+import '../../services/api_session.dart';
 import '../../shared/app_widgets.dart';
 import '../home/home_page.dart';
 
 void _returnToLogin(NavigatorState navigator) {
+  ApiSession.clear();
   navigator.pushReplacement(
     MaterialPageRoute(builder: (_) => const LoginPage()),
   );
@@ -27,7 +29,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   bool _isLoading = false;
-  String? _socialProviderLoading;
 
   @override
   void dispose() {
@@ -75,31 +76,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   Future<void> _socialSignUp(String provider) async {
-    setState(() => _socialProviderLoading = provider);
-    try {
-      final account = await _authApi.socialSignUp(
-        provider: provider,
-        displayName: provider == 'google' ? 'Google User' : 'Apple User',
-        email: provider == 'google'
-            ? 'google.user@howbuddy.local'
-            : 'apple.user@howbuddy.local',
-      );
-
-      if (!mounted) {
-        return;
-      }
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => OnboardingPage(account: account)),
-      );
-    } on AuthException catch (error) {
-      _showMessage(error.message);
-    } catch (_) {
-      _showMessage('Could not reach the account server.');
-    } finally {
-      if (mounted) {
-        setState(() => _socialProviderLoading = null);
-      }
-    }
+    final providerName = provider == 'google' ? 'Google' : 'Apple';
+    _showMessage(
+      '$providerName sign-in needs provider setup. Use email and password for this demo.',
+    );
   }
 
   @override
@@ -164,7 +144,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
               text: 'Sign up with Google',
               icon: Icons.g_mobiledata_rounded,
               iconColor: AppColors.google,
-              isLoading: _socialProviderLoading == 'google',
               onPressed: () => _socialSignUp('google'),
             ),
             const SizedBox(height: AppSpacing.socialButtonGap),
@@ -172,7 +151,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
               text: 'Sign up with Apple',
               icon: Icons.apple,
               iconColor: AppColors.apple,
-              isLoading: _socialProviderLoading == 'apple',
               onPressed: () => _socialSignUp('apple'),
             ),
             const SizedBox(height: AppSpacing.authSwitchGap),

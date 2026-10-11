@@ -6,8 +6,13 @@ import '../../services/auth_api.dart';
 import '../learning/lesson_page.dart';
 
 class NotepadTreePage extends StatefulWidget {
-  const NotepadTreePage({required this.onTopicSelected, super.key});
+  const NotepadTreePage({
+    required this.accountId,
+    required this.onTopicSelected,
+    super.key,
+  });
 
+  final String accountId;
   final ValueChanged<String> onTopicSelected;
 
   @override
@@ -15,7 +20,9 @@ class NotepadTreePage extends StatefulWidget {
 }
 
 class _NotepadTreePageState extends State<NotepadTreePage> {
-  late final Future<NotepadTreeNode> _tree = AuthApi().fetchNotepadTree();
+  late final Future<NotepadTreeNode> _tree = AuthApi().fetchNotepadTree(
+    widget.accountId,
+  );
 
   @override
   Widget build(BuildContext context) {
