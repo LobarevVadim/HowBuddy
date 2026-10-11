@@ -361,6 +361,9 @@ app.post('/lessons/complete', requireAuth, async (request, response) => {
 
 app.get('/xp/weekly', requireAuth, async (request, response) => {
   const accountId = request.accountId;
+  const today = clientStudyDate(request);
+  const offsetMinutes = clientTimezoneOffset(request);
+  const localDateSql = "((created_at AT TIME ZONE 'UTC') + ($2::int * interval '1 minute'))::date";
 
   try {
     const [totals, daily] = await Promise.all([
@@ -369,22 +372,21 @@ app.get('/xp/weekly', requireAuth, async (request, response) => {
         [accountId],
       ),
       pool.query(
-        `SELECT (created_at AT TIME ZONE 'UTC')::date::text AS date,
+        `SELECT ${localDateSql}::text AS date,
                 SUM(xp)::int AS xp
          FROM lesson_xp
          WHERE account_id = $1
-           AND created_at >= date_trunc('day', now() AT TIME ZONE 'UTC') - interval '6 days'
-         GROUP BY (created_at AT TIME ZONE 'UTC')::date
+           AND ${localDateSql} BETWEEN ($3::date - 6) AND $3::date
+         GROUP BY ${localDateSql}
          ORDER BY date`,
-        [accountId],
+        [accountId, offsetMinutes, today],
       ),
     ]);
     const xpByDate = new Map(daily.rows.map((row) => [row.date, row.xp]));
-    const today = new Date();
+    const todayDate = new Date(`${today}T00:00:00.000Z`);
     const days = Array.from({length: 7}, (_item, index) => {
-      const date = new Date(Date.UTC(
-        today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() - 6 + index,
-      )).toISOString().slice(0, 10);
+      const date = new Date(todayDate.valueOf() - (6 - index) * 86400000)
+        .toISOString().slice(0, 10);
       return {date, xp: xpByDate.get(date) ?? 0};
     });
     return response.json({totalXp: totals.rows[0].total_xp, days});
@@ -625,6 +627,11 @@ function clientStudyDate(request) {
   const utcToday = new Date().toISOString().slice(0, 10);
   const dayDelta = (parsed.valueOf() - new Date(`${utcToday}T00:00:00.000Z`).valueOf()) / 86400000;
   return Math.abs(dayDelta) <= 1 ? candidate : utcToday;
+}
+
+function clientTimezoneOffset(request) {
+  const candidate = Number(request.get('X-Client-UTC-Offset-Minutes'));
+  return Number.isInteger(candidate) && Math.abs(candidate) <= 840 ? candidate : 0;
 }
 
 pool.query(readFileSync(new URL('../schema.sql', import.meta.url), 'utf8')).then(async () => {

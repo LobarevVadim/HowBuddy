@@ -266,12 +266,15 @@ const server = createServer(async (request, response) => {
       send(response, 400, {message: 'Account is required.'});
       return;
     }
-    const today = new Date();
+    const today = clientStudyDate(request);
+    const offsetMinutes = clientTimezoneOffset(request);
+    const todayDate = new Date(`${today}T00:00:00.000Z`);
     const days = Array.from({length: 7}, (_item, index) => {
-      const date = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() - 6 + index));
+      const date = new Date(todayDate.valueOf() - (6 - index) * 86400000);
       const dateKey = date.toISOString().slice(0, 10);
       const xp = [...xpEvents.values()]
-        .filter((event) => event.accountId === accountId && event.at.toISOString().slice(0, 10) === dateKey)
+        .filter((event) => event.accountId === accountId &&
+          new Date(event.at.valueOf() + offsetMinutes * 60000).toISOString().slice(0, 10) === dateKey)
         .reduce((sum, event) => sum + event.earnedXp, 0);
       return {date: dateKey, xp};
     });
@@ -446,6 +449,11 @@ function clientStudyDate(request) {
   const utcToday = new Date().toISOString().slice(0, 10);
   const dayDelta = (parsed.valueOf() - new Date(`${utcToday}T00:00:00.000Z`).valueOf()) / 86400000;
   return Math.abs(dayDelta) <= 1 ? candidate : utcToday;
+}
+
+function clientTimezoneOffset(request) {
+  const candidate = Number(request.headers['x-client-utc-offset-minutes']);
+  return Number.isInteger(candidate) && Math.abs(candidate) <= 840 ? candidate : 0;
 }
 
 async function readJson(request) {

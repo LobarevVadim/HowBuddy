@@ -17,6 +17,8 @@ class ApiSession {
   static Map<String, String> get authenticatedHeaders => {
     'Content-Type': 'application/json',
     'X-Client-Date': _localDate,
+    'X-Client-UTC-Offset-Minutes':
+        '${DateTime.now().timeZoneOffset.inMinutes}',
     if (_token != null) 'Authorization': 'Bearer $_token',
   };
 }
