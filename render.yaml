@@ -7,6 +7,12 @@ databases:
 
 services:
   - type: web
+    name: howbuddy-demo-web
+    runtime: static
+    branch: main
+    buildCommand: bash scripts/build_web.sh
+    staticPublishPath: build/web
+  - type: web
     name: howbuddy-demo-api
     runtime: node
     plan: free
