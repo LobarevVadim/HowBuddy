@@ -1,0 +1,37 @@
+name: Build Android demo
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out HowBuddy
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.41.9
+          cache: true
+
+      - name: Install Flutter packages
+        run: flutter pub get
+
+      - name: Build release APK
+        run: flutter build apk --release --dart-define=API_URL=https://howbuddy-demo-api.onrender.com
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: howbuddy-android-demo
+          path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
