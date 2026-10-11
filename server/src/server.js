@@ -613,7 +613,8 @@ function clientStudyDate(request) {
   return Math.abs(dayDelta) <= 1 ? candidate : utcToday;
 }
 
-pool.query(readFileSync(new URL('../schema.sql', import.meta.url), 'utf8')).then(() => {
+pool.query(readFileSync(new URL('../schema.sql', import.meta.url), 'utf8')).then(async () => {
+  await applyStudyDayBackfill();
   if (sessionSecret.length < 32) {
     throw new Error('SESSION_SECRET must contain at least 32 characters.');
   }
@@ -624,3 +625,26 @@ pool.query(readFileSync(new URL('../schema.sql', import.meta.url), 'utf8')).then
   console.error('Could not initialize the XP table.', error);
   process.exitCode = 1;
 });
+
+async function applyStudyDayBackfill() {
+  const email = String(process.env.STUDY_HISTORY_BACKFILL_EMAIL ?? '').trim().toLowerCase();
+  const endDate = String(process.env.STUDY_HISTORY_BACKFILL_END_DATE ?? '').trim();
+  if (!email && !endDate) return;
+  if (!email || !/^\d{4}-\d{2}-\d{2}$/.test(endDate)) {
+    throw new Error('Study history backfill needs an account email and a YYYY-MM-DD end date.');
+  }
+  const parsedDate = new Date(`${endDate}T00:00:00.000Z`);
+  if (Number.isNaN(parsedDate.valueOf()) || parsedDate.toISOString().slice(0, 10) !== endDate) {
+    throw new Error('Study history backfill end date is not a valid calendar date.');
+  }
+  const result = await pool.query(
+    `INSERT INTO study_days (account_id, study_date)
+     SELECT accounts.id, $2::date - dates.day_offset
+     FROM accounts
+     CROSS JOIN generate_series(1, 4) AS dates(day_offset)
+     WHERE lower(accounts.email) = $1
+     ON CONFLICT DO NOTHING`,
+    [email, endDate],
+  );
+  console.log(`Historical study-day backfill inserted ${result.rowCount} rows.`);
+}
