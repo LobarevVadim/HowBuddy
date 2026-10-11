@@ -27,6 +27,8 @@ class _LessonPageState extends State<LessonPage> {
   List<LessonExercise> _exercises = <LessonExercise>[];
   String _lessonContent = '';
   final Set<String> _selectedAnswers = <String>{};
+  final Map<String, String> _selectedMatches = <String, String>{};
+  List<String> _orderedAnswers = <String>[];
   int _exerciseIndex = 0;
   int _correctAnswers = 0;
   bool? _answerWasCorrect;
@@ -61,6 +63,10 @@ class _LessonPageState extends State<LessonPage> {
       setState(() {
         _exercises = lesson.exercises;
         _lessonContent = lesson.content;
+        _orderedAnswers = lesson.exercises.first.type ==
+                LessonExerciseType.orderSteps
+            ? List<String>.from(lesson.exercises.first.options)
+            : <String>[];
         _isLoadingExercises = false;
         _exerciseLoadError = null;
       });
@@ -96,6 +102,12 @@ class _LessonPageState extends State<LessonPage> {
     }
     if (_exercises[_exerciseIndex].type == LessonExerciseType.shortAnswer) {
       return _answerController.text.trim().isNotEmpty;
+    }
+    if (_exercises[_exerciseIndex].type == LessonExerciseType.orderSteps) {
+      return _orderedAnswers.isNotEmpty;
+    }
+    if (_exercises[_exerciseIndex].type == LessonExerciseType.matching) {
+      return _selectedMatches.length == _exercises[_exerciseIndex].pairs.length;
     }
     return _selectedAnswers.isNotEmpty;
   }
@@ -140,6 +152,11 @@ class _LessonPageState extends State<LessonPage> {
             _selectedAnswers.containsAll(exercise.correctAnswers),
       LessonExerciseType.singleChoice =>
         _selectedAnswers.firstOrNull == exercise.correctAnswers.firstOrNull,
+      LessonExerciseType.orderSteps =>
+          _orderedAnswers.join('\u0000') == exercise.correctOrder.join('\u0000'),
+      LessonExerciseType.matching => exercise.pairs.every(
+        (pair) => _selectedMatches[pair.left] == pair.right,
+      ),
     };
 
     setState(() {
@@ -151,9 +168,15 @@ class _LessonPageState extends State<LessonPage> {
   }
 
   void _continueLesson() {
+    final nextIndex = _exerciseIndex + 1;
     setState(() {
-      _exerciseIndex++;
+      _exerciseIndex = nextIndex;
       _selectedAnswers.clear();
+      _selectedMatches.clear();
+      _orderedAnswers = nextIndex < _exercises.length &&
+              _exercises[nextIndex].type == LessonExerciseType.orderSteps
+          ? List<String>.from(_exercises[nextIndex].options)
+          : <String>[];
       _answerController.clear();
       _answerWasCorrect = null;
     });
@@ -308,6 +331,49 @@ class _LessonPageState extends State<LessonPage> {
                     labelText: 'Your answer',
                     hintText: 'Type your answer',
                   ),
+                )
+              else if (exercise.type == LessonExerciseType.orderSteps)
+                ReorderableListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: _orderedAnswers.length,
+                  onReorder: (oldIndex, newIndex) {
+                    if (_answerWasCorrect != null) return;
+                    setState(() {
+                      if (newIndex > oldIndex) newIndex--;
+                      final item = _orderedAnswers.removeAt(oldIndex);
+                      _orderedAnswers.insert(newIndex, item);
+                    });
+                  },
+                  itemBuilder: (context, index) => Card(
+                    key: ValueKey(_orderedAnswers[index]),
+                    child: ListTile(
+                      leading: const Icon(Icons.drag_handle_rounded),
+                      title: Text(_orderedAnswers[index]),
+                    ),
+                  ),
+                )
+              else if (exercise.type == LessonExerciseType.matching)
+                Column(
+                  children: exercise.pairs.map((pair) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: DropdownButtonFormField<String>(
+                      value: _selectedMatches[pair.left],
+                      decoration: InputDecoration(labelText: pair.left),
+                      items: exercise.options.map((option) =>
+                        DropdownMenuItem(value: option, child: Text(option)),
+                      ).toList(),
+                      onChanged: _answerWasCorrect == null
+                          ? (value) => setState(() {
+                              if (value == null) {
+                                _selectedMatches.remove(pair.left);
+                              } else {
+                                _selectedMatches[pair.left] = value;
+                              }
+                            })
+                          : null,
+                    ),
+                  )).toList(),
                 )
               else
                 Wrap(

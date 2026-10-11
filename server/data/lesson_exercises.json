@@ -71,7 +71,7 @@
         "immune-memory",
         "fever"
       ],
-      "lessonCount": 4,
+      "lessonCount": 7,
       "exercises": [
         {
           "prompt": "How does your immune system remember a germ?",
@@ -111,7 +111,10 @@
       "extraLessons": [
         "immune-detection",
         "immune-memory",
-        "fever"
+        "fever",
+        "immune-response",
+        "immune-vaccine",
+        "immune-variants"
       ]
     },
     "sleep": {
@@ -1892,6 +1895,277 @@
             "Jet lag occurs because internal rhythms take time to align with local time."
           ],
           "explanation": "Your internal circadian rhythms remain aligned to the old time zone for a while after travel. Local light, meals, and activity happen at new times, creating a mismatch. The clock gradually shifts, and the direction and number of time zones affect adjustment."
+        }
+      ],
+      "extraLessons": []
+    },
+    "immune-response": {
+      "id": "immune-response",
+      "parentId": "immune",
+      "question": "What happens when immune cells recognize a germ?",
+      "content": "When a B cell or T cell has a receptor that recognizes a particular antigen, signals can activate that cell. It multiplies into a clone of similar cells. Some become short-lived effector cells that help control the infection; some B cells become antibody-making plasma cells. A portion of the activated cells can persist as memory cells. This selection process is specific: it expands cells whose receptors fit the target.",
+      "level": 2,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "prompt": "After a matching B or T cell is activated, what can happen?",
+          "type": "multipleSelect",
+          "options": [
+            "It can multiply into a group of similar cells.",
+            "Some of its descendants can become effector cells.",
+            "Some descendants can persist as memory cells.",
+            "Every immune cell in the body changes to recognize that same germ."
+          ],
+          "correctAnswers": [
+            "It can multiply into a group of similar cells.",
+            "Some of its descendants can become effector cells.",
+            "Some descendants can persist as memory cells."
+          ],
+          "explanation": "Activation can trigger clonal expansion. The resulting cells have related receptors, but only some become long-lived memory cells; the whole immune system does not acquire one receptor."
+        },
+        {
+          "prompt": "Put these broad stages in order.",
+          "type": "orderSteps",
+          "options": [
+            "Some activated cells persist as memory cells.",
+            "A matching immune cell recognizes an antigen.",
+            "The selected cell becomes activated and multiplies.",
+            "Effector cells help respond to the current threat."
+          ],
+          "correctOrder": [
+            "A matching immune cell recognizes an antigen.",
+            "The selected cell becomes activated and multiplies.",
+            "Effector cells help respond to the current threat.",
+            "Some activated cells persist as memory cells."
+          ],
+          "explanation": "Recognition and activation come first, followed by expansion and an effector response. Some cells remain afterward as memory cells."
+        },
+        {
+          "prompt": "Match each cell or protein with a role.",
+          "type": "matching",
+          "options": [
+            "Releases antibodies",
+            "Can respond quickly after a later matching exposure",
+            "Can destroy some infected body cells"
+          ],
+          "pairs": [
+            {
+              "left": "Plasma cell",
+              "right": "Releases antibodies"
+            },
+            {
+              "left": "Memory B cell",
+              "right": "Can respond quickly after a later matching exposure"
+            },
+            {
+              "left": "Cytotoxic T cell",
+              "right": "Can destroy some infected body cells"
+            }
+          ],
+          "explanation": "Plasma cells produce antibodies. Memory B cells can contribute to faster responses after later exposure. Cytotoxic T cells can kill infected cells."
+        },
+        {
+          "prompt": "Why does clonal expansion help?",
+          "type": "singleChoice",
+          "options": [
+            "It creates more cells that recognize the same target.",
+            "It makes every cell recognize every possible germ.",
+            "It stores a live germ inside a memory cell."
+          ],
+          "correctAnswers": [
+            "It creates more cells that recognize the same target."
+          ],
+          "explanation": "Clonal expansion increases the number of immune cells with receptors suited to a particular antigen."
+        },
+        {
+          "prompt": "In a sentence, what is clonal expansion?",
+          "type": "shortAnswer",
+          "options": [],
+          "correctAnswers": [
+            "A matching immune cell activates and multiplies into similar cells."
+          ],
+          "explanation": "Clonal expansion makes more cells with receptors suited to the antigen that activated the original cell."
+        }
+      ],
+      "extraLessons": []
+    },
+    "immune-vaccine": {
+      "id": "immune-vaccine",
+      "parentId": "immune",
+      "question": "How can a vaccine train immune memory?",
+      "content": "A vaccine exposes the immune system to an antigen, or in some vaccines instructions for making an antigen, without requiring the person to experience the full disease. The immune system can activate matching B and T cells, make an initial response, and leave some memory cells behind. Vaccine designs differ, and protection varies by vaccine and disease. Some vaccines need more than one dose to build or refresh protection.",
+      "level": 2,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "prompt": "What can happen after vaccination?",
+          "type": "multipleSelect",
+          "options": [
+            "The immune system may recognize an antigen presented by the vaccine.",
+            "Some matching immune cells may multiply.",
+            "Some immune cells may persist as memory cells.",
+            "Every vaccine contains a live version of the disease."
+          ],
+          "correctAnswers": [
+            "The immune system may recognize an antigen presented by the vaccine.",
+            "Some matching immune cells may multiply.",
+            "Some immune cells may persist as memory cells."
+          ],
+          "explanation": "Vaccine types differ. Many do not contain a live disease-causing germ; they present an antigen or instructions that help the immune system learn to recognize a target."
+        },
+        {
+          "prompt": "Put this simplified vaccine response in order.",
+          "type": "orderSteps",
+          "options": [
+            "Some responding cells remain as memory cells.",
+            "The vaccine presents an antigen or instructions for one.",
+            "Matching immune cells recognize the target and activate.",
+            "Activated cells multiply and help build an immune response."
+          ],
+          "correctOrder": [
+            "The vaccine presents an antigen or instructions for one.",
+            "Matching immune cells recognize the target and activate.",
+            "Activated cells multiply and help build an immune response.",
+            "Some responding cells remain as memory cells."
+          ],
+          "explanation": "The vaccine first presents a target. Matching cells activate and multiply; some may remain as memory cells afterward."
+        },
+        {
+          "prompt": "Match each term to its meaning.",
+          "type": "matching",
+          "options": [
+            "A target the immune system can recognize",
+            "A preparation that trains immune recognition",
+            "An additional dose that can strengthen or refresh protection"
+          ],
+          "pairs": [
+            {
+              "left": "Antigen",
+              "right": "A target the immune system can recognize"
+            },
+            {
+              "left": "Vaccine",
+              "right": "A preparation that trains immune recognition"
+            },
+            {
+              "left": "Booster dose",
+              "right": "An additional dose that can strengthen or refresh protection"
+            }
+          ],
+          "explanation": "An antigen is a recognizable target. Vaccines train immune recognition, and some vaccination schedules use additional doses to strengthen or refresh protection."
+        },
+        {
+          "prompt": "True or false: Every vaccine works by giving someone the full disease.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ],
+          "correctAnswers": [
+            "False"
+          ],
+          "explanation": "Vaccine types work in different ways. Their goal is to train immune recognition while avoiding the full disease, though side effects can occur."
+        },
+        {
+          "prompt": "What is one way a vaccine can help create immune memory?",
+          "type": "shortAnswer",
+          "options": [],
+          "correctAnswers": [
+            "It exposes the immune system to an antigen or instructions for one, activating matching cells."
+          ],
+          "explanation": "The immune system can respond to a vaccine target and leave some memory cells behind."
+        }
+      ],
+      "extraLessons": []
+    },
+    "immune-variants": {
+      "id": "immune-variants",
+      "parentId": "immune",
+      "question": "Why does immune memory not stop every new germ?",
+      "content": "Immune memory is specific to features of a pathogen. A new germ may have different antigens, or a familiar germ may change over time. Memory cells can still recognize shared features in some cases, but the match may be weaker or incomplete. The immune response can therefore vary between pathogens and variants; memory does not make someone invulnerable to every infection.",
+      "level": 2,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "prompt": "Why might old immune memory respond differently to a new germ?",
+          "type": "multipleSelect",
+          "options": [
+            "The new germ may have different antigens.",
+            "A familiar germ may have changed some of its features.",
+            "Memory cells may still recognize features shared with an earlier germ.",
+            "Memory cells automatically recognize every future pathogen."
+          ],
+          "correctAnswers": [
+            "The new germ may have different antigens.",
+            "A familiar germ may have changed some of its features.",
+            "Memory cells may still recognize features shared with an earlier germ."
+          ],
+          "explanation": "Immune recognition is specific. Changes can reduce how well memory cells match, although shared features may still be recognized."
+        },
+        {
+          "prompt": "Match the idea to what it means.",
+          "type": "matching",
+          "options": [
+            "A pathogen has different recognizable features",
+            "A feature that can be recognized on more than one related germ",
+            "Long-lived cells that can help with a later matching exposure"
+          ],
+          "pairs": [
+            {
+              "left": "Antigen variation",
+              "right": "A pathogen has different recognizable features"
+            },
+            {
+              "left": "Shared antigen",
+              "right": "A feature that can be recognized on more than one related germ"
+            },
+            {
+              "left": "Immune memory",
+              "right": "Long-lived cells that can help with a later matching exposure"
+            }
+          ],
+          "explanation": "Pathogens can differ or change in their antigens. Related germs may share some features, and memory cells can help when they recognize a later target."
+        },
+        {
+          "prompt": "Put this possible sequence in order when a changed germ appears.",
+          "type": "orderSteps",
+          "options": [
+            "The immune response acts on what it recognizes.",
+            "A changed germ enters the body.",
+            "Memory cells encounter the germ?s antigens.",
+            "The match may be strong, partial, or limited."
+          ],
+          "correctOrder": [
+            "A changed germ enters the body.",
+            "Memory cells encounter the germ?s antigens.",
+            "The match may be strong, partial, or limited.",
+            "The immune response acts on what it recognizes."
+          ],
+          "explanation": "Memory cells first encounter the changed germ. How closely its antigens match affects the response, which then acts on the features it recognizes."
+        },
+        {
+          "prompt": "True or false: Once you have immune memory, you cannot catch any related germ.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ],
+          "correctAnswers": [
+            "False"
+          ],
+          "explanation": "Memory may recognize shared features, but it is not a guarantee against infection. Germs can differ, and protection varies."
+        },
+        {
+          "prompt": "Why can a changed germ partly escape immune memory?",
+          "type": "shortAnswer",
+          "options": [],
+          "correctAnswers": [
+            "Its antigens may differ from the features the memory cells recognize."
+          ],
+          "explanation": "Memory cells recognize particular features. If those features change, recognition may be less effective."
         }
       ],
       "extraLessons": []
