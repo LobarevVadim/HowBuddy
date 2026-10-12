@@ -3,17 +3,21 @@ class Account {
     required this.id,
     required this.fullName,
     required this.email,
+    this.avatarPaletteIndex = 0,
   });
 
   final String id;
   final String fullName;
   final String email;
+  final int avatarPaletteIndex;
 
   factory Account.fromJson(Map<String, dynamic> json) {
     return Account(
       id: json['id'].toString(),
       fullName: json['fullName'].toString(),
       email: json['email'].toString(),
+      avatarPaletteIndex:
+          int.tryParse(json['avatarPaletteIndex']?.toString() ?? '') ?? 0,
     );
   }
 }
@@ -101,7 +105,9 @@ class XpWeeklySummary {
           .map((day) => XpDay.fromJson(day as Map<String, dynamic>))
           .toList(),
       leaderboard: (json['leaderboard'] as List<dynamic>? ?? [])
-          .map((entry) => LeaderboardEntry.fromJson(entry as Map<String, dynamic>))
+          .map(
+            (entry) => LeaderboardEntry.fromJson(entry as Map<String, dynamic>),
+          )
           .toList(),
       yourPlace: json['yourPlace'] is Map<String, dynamic>
           ? LeaderboardEntry.fromJson(json['yourPlace'] as Map<String, dynamic>)
@@ -116,12 +122,14 @@ class LeaderboardEntry {
     required this.xp,
     required this.place,
     required this.isYou,
+    this.avatarPaletteIndex = 0,
   });
 
   final String name;
   final int xp;
   final int place;
   final bool isYou;
+  final int avatarPaletteIndex;
 
   factory LeaderboardEntry.fromJson(Map<String, dynamic> json) {
     return LeaderboardEntry(
@@ -129,6 +137,8 @@ class LeaderboardEntry {
       xp: int.tryParse(json['xp'].toString()) ?? 0,
       place: int.tryParse(json['place'].toString()) ?? 0,
       isYou: json['isYou'] == true,
+      avatarPaletteIndex:
+          int.tryParse(json['avatarPaletteIndex']?.toString() ?? '') ?? 0,
     );
   }
 }

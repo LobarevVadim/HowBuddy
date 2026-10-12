@@ -34,6 +34,16 @@ class AuthApi {
     _readBody(response);
   }
 
+  Future<int> saveAvatarPalette(int paletteIndex) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/account/avatar-palette'),
+      headers: ApiSession.authenticatedHeaders,
+      body: jsonEncode({'paletteIndex': paletteIndex}),
+    );
+    final body = _readBody(response);
+    return int.tryParse(body['avatarPaletteIndex'].toString()) ?? 0;
+  }
+
   Future<Account> register({
     required String fullName,
     required String email,

@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-
 import '../../app_style.dart';
 import '../../models/app_models.dart';
 import '../../services/auth_api.dart';
@@ -10,6 +8,7 @@ import '../../shared/app_widgets.dart';
 import '../gamification/gamification_pages.dart';
 import '../learning/lesson_tree.dart';
 import '../notepad/notepad_tree_page.dart';
+import '../profile/avatar_palette.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({
@@ -34,6 +33,7 @@ class _HomePageState extends State<HomePage> {
   late String _topicId = widget.topicId;
   int _notepadRefreshKey = 0;
   int _xpRefreshKey = 0;
+  late int _avatarPaletteIndex = widget.account.avatarPaletteIndex;
   late Future<GameState> _gameStateFuture;
   GameState? _currentGameState;
   bool _topicReady = false;
@@ -129,6 +129,10 @@ class _HomePageState extends State<HomePage> {
     setState(() => _notepadRefreshKey++);
   }
 
+  void _setAvatarPalette(int paletteIndex) {
+    setState(() => _avatarPaletteIndex = paletteIndex);
+  }
+
   @override
   Widget build(BuildContext context) {
     ThemePreferencesScope.watch(context);
@@ -154,7 +158,12 @@ class _HomePageState extends State<HomePage> {
         onTopicSelected: _openTopicFromNotepad,
       ),
       XpTabPage(key: ValueKey(_xpRefreshKey), accountId: widget.account.id),
-      ProfileTabPage(account: widget.account, onLogout: widget.onLogout),
+      ProfileTabPage(
+        account: widget.account,
+        avatarPaletteIndex: _avatarPaletteIndex,
+        onAvatarPaletteChanged: _setAvatarPalette,
+        onLogout: widget.onLogout,
+      ),
     ];
 
     return Scaffold(
@@ -491,6 +500,9 @@ class XpTabPage extends StatelessWidget {
               ),
             ),
           ),
+          const SizedBox(width: 4),
+          HowBuddyAvatar(paletteIndex: entry.avatarPaletteIndex, size: 32),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(
               entry.isYou ? '${entry.name} (you)' : entry.name,
@@ -512,15 +524,51 @@ class XpTabPage extends StatelessWidget {
   }
 }
 
-class ProfileTabPage extends StatelessWidget {
+class ProfileTabPage extends StatefulWidget {
   const ProfileTabPage({
     required this.account,
+    required this.avatarPaletteIndex,
+    required this.onAvatarPaletteChanged,
     required this.onLogout,
     super.key,
   });
 
   final Account account;
+  final int avatarPaletteIndex;
+  final ValueChanged<int> onAvatarPaletteChanged;
   final VoidCallback onLogout;
+
+  @override
+  State<ProfileTabPage> createState() => _ProfileTabPageState();
+}
+
+class _ProfileTabPageState extends State<ProfileTabPage> {
+  late int _paletteIndex = widget.avatarPaletteIndex;
+  bool _savingPalette = false;
+
+  Future<void> _selectPalette(int paletteIndex) async {
+    if (_savingPalette || paletteIndex == _paletteIndex) return;
+    final previousIndex = _paletteIndex;
+    setState(() {
+      _paletteIndex = paletteIndex;
+      _savingPalette = true;
+    });
+    try {
+      final savedIndex = await AuthApi().saveAvatarPalette(paletteIndex);
+      if (mounted) {
+        setState(() => _paletteIndex = savedIndex);
+        widget.onAvatarPaletteChanged(savedIndex);
+      }
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _paletteIndex = previousIndex);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not save your avatar colors.')),
+      );
+    } finally {
+      if (mounted) setState(() => _savingPalette = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -534,14 +582,13 @@ class ProfileTabPage extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                SvgPicture.asset(
-                  'assets/icon/cropped_how_buddy.svg',
-                  width: AppSizes.tabHeroIcon,
-                  height: AppSizes.tabHeroIcon,
+                HowBuddyAvatar(
+                  paletteIndex: _paletteIndex,
+                  size: AppSizes.tabHeroIcon,
                 ),
                 const SizedBox(height: AppSpacing.tabIconGap),
                 Text(
-                  'Hi, ${account.fullName}',
+                  'Hi, ${widget.account.fullName}',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.w800,
@@ -549,12 +596,91 @@ class ProfileTabPage extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.tabTextGap),
                 Text(
-                  account.email,
+                  widget.account.email,
                   textAlign: TextAlign.center,
                   style: Theme.of(
                     context,
                   ).textTheme.bodyLarge?.copyWith(color: AppColors.mutedText),
                 ),
+                const SizedBox(height: 20),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Customize your buddy',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Choose a color palette. Your eyes, mouth, and background stay the same.',
+                  style: TextStyle(color: AppColors.mutedText),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: avatarPalettes.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    mainAxisSpacing: 8,
+                    crossAxisSpacing: 8,
+                    childAspectRatio: 0.92,
+                  ),
+                  itemBuilder: (context, index) {
+                    final selected = index == _paletteIndex;
+                    return Semantics(
+                      button: true,
+                      selected: selected,
+                      label: '${avatarPaletteNames[index]} avatar colors',
+                      child: InkWell(
+                        onTap: _savingPalette
+                            ? null
+                            : () => _selectPalette(index),
+                        borderRadius: BorderRadius.circular(14),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: selected
+                                ? AppColors.primary.withValues(alpha: 0.10)
+                                : AppColors.authPanelBackground,
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: selected
+                                  ? AppColors.primary
+                                  : AppColors.border,
+                              width: selected ? 2 : 1,
+                            ),
+                          ),
+                          padding: const EdgeInsets.all(6),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              HowBuddyAvatar(paletteIndex: index, size: 48),
+                              const SizedBox(height: 4),
+                              Text(
+                                avatarPaletteNames[index],
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: selected
+                                      ? FontWeight.w800
+                                      : FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                if (_savingPalette) ...[
+                  const SizedBox(height: 8),
+                  const LinearProgressIndicator(),
+                ],
                 const SizedBox(height: 20),
                 SwitchListTile.adaptive(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16),
@@ -576,7 +702,7 @@ class ProfileTabPage extends StatelessWidget {
                   onChanged: themePreferences.setDarkMode,
                 ),
                 const SizedBox(height: AppSpacing.profileLogoutGap),
-                PrimaryButton(text: 'Logout', onPressed: onLogout),
+                PrimaryButton(text: 'Logout', onPressed: widget.onLogout),
               ],
             ),
           ),
