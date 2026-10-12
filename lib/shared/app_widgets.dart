@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../app_style.dart';
+import '../services/theme_preferences.dart';
 
 class TreePanel extends StatelessWidget {
   const TreePanel({required this.child, super.key});
@@ -9,6 +11,7 @@ class TreePanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemePreferencesScope.watch(context);
     return Container(
       constraints: const BoxConstraints(minHeight: 620),
       decoration: BoxDecoration(
@@ -35,6 +38,7 @@ class AuthScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemePreferencesScope.watch(context);
     return Scaffold(
       body: SafeArea(
         child: LayoutBuilder(
@@ -104,13 +108,14 @@ class AuthHeroImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemePreferencesScope.watch(context);
     return ClipRRect(
       borderRadius: BorderRadius.circular(AppRadii.heroImage),
       child: Container(
         height: AppSizes.heroImageHeight,
         color: AppColors.heroBackground,
-        child: Image.asset(
-          'assets/images/howbuddy_mascot.jpg',
+        child: SvgPicture.asset(
+          'assets/images/how_buddy.svg',
           fit: BoxFit.contain,
         ),
       ),
@@ -153,15 +158,13 @@ class _AppTextFieldState extends State<AppTextField> {
 
   @override
   Widget build(BuildContext context) {
+    ThemePreferencesScope.watch(context);
     return TextFormField(
       controller: widget.controller,
       keyboardType: widget.keyboardType,
       obscureText: _isObscured,
       validator: widget.validator,
-      style: const TextStyle(
-        color: AppColors.text,
-        fontWeight: FontWeight.w600,
-      ),
+      style: TextStyle(color: AppColors.text, fontWeight: FontWeight.w600),
       decoration: InputDecoration(
         labelText: widget.label,
         prefixIcon: Icon(widget.icon, color: AppColors.primary),
@@ -184,6 +187,7 @@ class PasswordTipCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemePreferencesScope.watch(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
@@ -191,7 +195,7 @@ class PasswordTipCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadii.input),
         border: Border.all(color: AppColors.border),
       ),
-      child: const Row(
+      child: Row(
         children: [
           CircleAvatar(
             backgroundColor: AppColors.pageBackground,
@@ -227,6 +231,7 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemePreferencesScope.watch(context);
     return SizedBox(
       height: AppSizes.primaryButtonHeight,
       child: FilledButton(
@@ -247,7 +252,7 @@ class PrimaryButton extends StatelessWidget {
                 alignment: Alignment.center,
                 children: [
                   Center(child: Text(text)),
-                  const Positioned(
+                  Positioned(
                     right: 20,
                     child: Icon(Icons.eco_rounded, color: AppColors.success),
                   ),
@@ -265,6 +270,7 @@ class SocialButton extends StatelessWidget {
     required this.onPressed,
     this.iconColor,
     this.isLoading = false,
+    this.isEnabled = true,
     super.key,
   });
 
@@ -273,13 +279,15 @@ class SocialButton extends StatelessWidget {
   final VoidCallback onPressed;
   final Color? iconColor;
   final bool isLoading;
+  final bool isEnabled;
 
   @override
   Widget build(BuildContext context) {
+    ThemePreferencesScope.watch(context);
     return SizedBox(
       height: AppSizes.socialButtonHeight,
       child: OutlinedButton.icon(
-        onPressed: isLoading ? null : onPressed,
+        onPressed: isLoading || !isEnabled ? null : onPressed,
         icon: isLoading
             ? const SizedBox(
                 width: AppSizes.socialLoadingIndicator,
@@ -293,7 +301,7 @@ class SocialButton extends StatelessWidget {
         ),
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.text,
-          side: const BorderSide(color: AppColors.border),
+          side: BorderSide(color: AppColors.border),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadii.button),
           ),
@@ -308,7 +316,8 @@ class AuthDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
+    ThemePreferencesScope.watch(context);
+    return Padding(
       padding: EdgeInsets.symmetric(vertical: 22),
       child: Row(
         children: [
@@ -338,11 +347,12 @@ class AuthSwitchText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemePreferencesScope.watch(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Flexible(
-          child: Text(text, style: const TextStyle(color: AppColors.mutedText)),
+          child: Text(text, style: TextStyle(color: AppColors.mutedText)),
         ),
         TextButton(onPressed: onPressed, child: Text(linkText)),
       ],

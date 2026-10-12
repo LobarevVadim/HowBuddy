@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../app_style.dart';
 import '../../models/app_models.dart';
 import '../../services/auth_api.dart';
 import '../../services/gamification_api.dart';
+import '../../services/theme_preferences.dart';
 import '../../shared/app_widgets.dart';
 import '../gamification/gamification_pages.dart';
 import '../learning/lesson_tree.dart';
@@ -129,6 +131,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    ThemePreferencesScope.watch(context);
     final pages = [
       TreeLessonsPage(
         key: ValueKey(_topicId),
@@ -292,6 +295,7 @@ class XpTabPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemePreferencesScope.watch(context);
     return FutureBuilder<XpWeeklySummary>(
       future: AuthApi().fetchWeeklyXp(accountId),
       builder: (context, snapshot) {
@@ -437,7 +441,7 @@ class XpTabPage extends StatelessWidget {
                                 const SizedBox(height: 10),
                                 Text(
                                   weekday,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     color: AppColors.mutedText,
                                     fontSize: 12,
                                     fontWeight: FontWeight.w700,
@@ -451,7 +455,7 @@ class XpTabPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  const Text(
+                  Text(
                     'XP earned each day over the last 7 days',
                     textAlign: TextAlign.center,
                     style: TextStyle(color: AppColors.mutedText),
@@ -480,7 +484,9 @@ class XpTabPage extends StatelessWidget {
             child: Text(
               '#${entry.place}',
               style: TextStyle(
-                color: entry.place <= 3 ? AppColors.primary : AppColors.mutedText,
+                color: entry.place <= 3
+                    ? AppColors.primary
+                    : AppColors.mutedText,
                 fontWeight: FontWeight.w900,
               ),
             ),
@@ -495,7 +501,7 @@ class XpTabPage extends StatelessWidget {
           const SizedBox(width: 10),
           Text(
             '${entry.xp} XP',
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.primaryDark,
               fontWeight: FontWeight.w800,
             ),
@@ -518,6 +524,7 @@ class ProfileTabPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themePreferences = ThemePreferencesScope.of(context);
     return LayoutBuilder(
       builder: (context, constraints) => SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.tabPagePadding),
@@ -527,10 +534,10 @@ class ProfileTabPage extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(
-                  Icons.person_rounded,
-                  color: AppColors.success,
-                  size: AppSizes.tabHeroIcon,
+                SvgPicture.asset(
+                  'assets/icon/cropped_how_buddy.svg',
+                  width: AppSizes.tabHeroIcon,
+                  height: AppSizes.tabHeroIcon,
                 ),
                 const SizedBox(height: AppSpacing.tabIconGap),
                 Text(
@@ -547,6 +554,26 @@ class ProfileTabPage extends StatelessWidget {
                   style: Theme.of(
                     context,
                   ).textTheme.bodyLarge?.copyWith(color: AppColors.mutedText),
+                ),
+                const SizedBox(height: 20),
+                SwitchListTile.adaptive(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  secondary: Icon(
+                    themePreferences.isDarkMode
+                        ? Icons.dark_mode_rounded
+                        : Icons.light_mode_rounded,
+                    color: AppColors.primary,
+                  ),
+                  title: const Text(
+                    'Dark mode',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  subtitle: Text(
+                    themePreferences.isDarkMode ? 'On' : 'Off',
+                    style: TextStyle(color: AppColors.mutedText),
+                  ),
+                  value: themePreferences.isDarkMode,
+                  onChanged: themePreferences.setDarkMode,
                 ),
                 const SizedBox(height: AppSpacing.profileLogoutGap),
                 PrimaryButton(text: 'Logout', onPressed: onLogout),

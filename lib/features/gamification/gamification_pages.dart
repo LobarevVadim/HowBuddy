@@ -6,6 +6,7 @@ import '../../app_style.dart';
 import '../../models/app_models.dart';
 import '../../services/gamification_api.dart';
 import '../../services/rewarded_ads.dart';
+import '../../services/theme_preferences.dart';
 
 class HeartsPage extends StatefulWidget {
   const HeartsPage({
@@ -89,11 +90,14 @@ class _HeartsPageState extends State<HeartsPage> {
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
   Widget build(BuildContext context) {
+    ThemePreferencesScope.watch(context);
     return Scaffold(
       appBar: AppBar(title: const Text('Hearts')),
       body: Center(
@@ -104,7 +108,11 @@ class _HeartsPageState extends State<HeartsPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.favorite_rounded, color: Colors.redAccent, size: 76),
+                const Icon(
+                  Icons.favorite_rounded,
+                  color: Colors.redAccent,
+                  size: 76,
+                ),
                 const SizedBox(height: 12),
                 Text(
                   '${_state.hearts} of 5 hearts',
@@ -114,7 +122,7 @@ class _HeartsPageState extends State<HeartsPage> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'Starting a lesson uses one heart.',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: AppColors.mutedText),
@@ -158,15 +166,15 @@ class _HeartsPageState extends State<HeartsPage> {
                     label: Text(
                       _state.hearts >= 5
                           ? 'Hearts are full'
-                          : 'Watch ad · +1 heart',
+                          : 'Watch ad Â· +1 heart',
                     ),
                   ),
                 ),
                 const SizedBox(height: 10),
                 Text(
                   RewardedAds.isWebDemo
-                      ? 'SIMULATED AD · WEB DEMO. No real advertisement is shown.'
-                      : 'TEST AD · ADMOB. Test ads do not generate revenue.',
+                      ? 'SIMULATED AD Â· WEB DEMO. No real advertisement is shown.'
+                      : 'TEST AD Â· ADMOB. Test ads do not generate revenue.',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: AppColors.mutedText, fontSize: 12),
                 ),
@@ -248,7 +256,9 @@ class _EmeraldShopPageState extends State<EmeraldShopPage> {
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   String _boostTimeLeft() {
@@ -258,12 +268,17 @@ class _EmeraldShopPageState extends State<EmeraldShopPage> {
     final hours = remaining.inHours;
     final minutes = remaining.inMinutes.remainder(60);
     final seconds = remaining.inSeconds.remainder(60);
-    return '2× XP active · ${hours > 0 ? '${hours}h ' : ''}${minutes}m ${seconds}s left';
+    return '2Ã— XP active Â· ${hours > 0 ? '${hours}h ' : ''}${minutes}m ${seconds}s left';
   }
 
   @override
   Widget build(BuildContext context) {
-    const offers = [(minutes: 60, price: 80), (minutes: 30, price: 45), (minutes: 10, price: 20)];
+    ThemePreferencesScope.watch(context);
+    const offers = [
+      (minutes: 60, price: 80),
+      (minutes: 30, price: 45),
+      (minutes: 10, price: 20),
+    ];
     return Scaffold(
       appBar: AppBar(title: const Text('Emerald shop')),
       body: Center(
@@ -276,7 +291,11 @@ class _EmeraldShopPageState extends State<EmeraldShopPage> {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.diamond_rounded, color: Colors.green, size: 34),
+                    const Icon(
+                      Icons.diamond_rounded,
+                      color: Colors.green,
+                      size: 34,
+                    ),
                     const SizedBox(width: 10),
                     Text(
                       '${_state.emeralds} emeralds',
@@ -290,7 +309,7 @@ class _EmeraldShopPageState extends State<EmeraldShopPage> {
                 const SizedBox(height: 12),
                 Text(
                   _boostTimeLeft(),
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.success,
                     fontWeight: FontWeight.w800,
                   ),
@@ -298,21 +317,26 @@ class _EmeraldShopPageState extends State<EmeraldShopPage> {
                 const SizedBox(height: 26),
                 Text(
                   'Double your lesson XP',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w900,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
                 ),
                 const SizedBox(height: 12),
                 for (final offer in offers) ...[
                   Card(
                     child: ListTile(
-                      leading: const Icon(Icons.bolt_rounded, color: Colors.amber),
-                      title: Text('${offer.minutes} minute${offer.minutes == 60 ? '' : 's'} · 2× XP'),
+                      leading: const Icon(
+                        Icons.bolt_rounded,
+                        color: Colors.amber,
+                      ),
+                      title: Text(
+                        '${offer.minutes} minute${offer.minutes == 60 ? '' : 's'} Â· 2Ã— XP',
+                      ),
                       trailing: FilledButton.tonal(
                         onPressed: _busy || _state.emeralds < offer.price
                             ? null
                             : () => _purchase(offer.minutes),
-                        child: Text('◆ ${offer.price}'),
+                        child: Text('â—† ${offer.price}'),
                       ),
                     ),
                   ),
@@ -327,13 +351,13 @@ class _EmeraldShopPageState extends State<EmeraldShopPage> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.play_circle_outline_rounded),
-                  label: const Text('Watch ad · +25 emeralds'),
+                  label: const Text('Watch ad Â· +25 emeralds'),
                 ),
                 const SizedBox(height: 10),
                 Text(
                   RewardedAds.isWebDemo
-                      ? 'SIMULATED AD · WEB DEMO. No real advertisement is shown.'
-                      : 'TEST AD · ADMOB. Test ads do not generate revenue.',
+                      ? 'SIMULATED AD Â· WEB DEMO. No real advertisement is shown.'
+                      : 'TEST AD Â· ADMOB. Test ads do not generate revenue.',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: AppColors.mutedText, fontSize: 12),
                 ),
@@ -360,6 +384,7 @@ class _StreakCalendarPageState extends State<StreakCalendarPage> {
 
   @override
   Widget build(BuildContext context) {
+    ThemePreferencesScope.watch(context);
     final firstWeekdayOffset = _month.weekday - 1;
     final daysInMonth = DateTime(_month.year, _month.month + 1, 0).day;
     final cells = firstWeekdayOffset + daysInMonth;
@@ -379,14 +404,19 @@ class _StreakCalendarPageState extends State<StreakCalendarPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.local_fire_department_rounded, color: Colors.orange, size: 36),
+                    const Icon(
+                      Icons.local_fire_department_rounded,
+                      color: Colors.orange,
+                      size: 36,
+                    ),
                     const SizedBox(width: 8),
                     Text(
                       '${widget.state.streakCount} day streak',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        color: AppColors.primaryDark,
-                        fontWeight: FontWeight.w900,
-                      ),
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(
+                            color: AppColors.primaryDark,
+                            fontWeight: FontWeight.w900,
+                          ),
                     ),
                   ],
                 ),
@@ -411,7 +441,9 @@ class _StreakCalendarPageState extends State<StreakCalendarPage> {
                     ),
                     IconButton(
                       tooltip: 'Next month',
-                      onPressed: _month.year == today.year && _month.month >= today.month
+                      onPressed:
+                          _month.year == today.year &&
+                              _month.month >= today.month
                           ? null
                           : () => setState(() {
                               _month = DateTime(_month.year, _month.month + 1);
@@ -428,7 +460,7 @@ class _StreakCalendarPageState extends State<StreakCalendarPage> {
                           child: Center(
                             child: Text(
                               day,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: AppColors.mutedText,
                                 fontWeight: FontWeight.w700,
                               ),
@@ -459,7 +491,9 @@ class _StreakCalendarPageState extends State<StreakCalendarPage> {
                     final isToday = _sameDay(date, today);
                     return Container(
                       decoration: BoxDecoration(
-                        color: studied ? AppColors.success : AppColors.authPanelBackground,
+                        color: studied
+                            ? AppColors.success
+                            : AppColors.authPanelBackground,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: isToday ? AppColors.primary : AppColors.border,
@@ -481,7 +515,7 @@ class _StreakCalendarPageState extends State<StreakCalendarPage> {
                   },
                 ),
                 const SizedBox(height: 16),
-                const Text(
+                Text(
                   'Days you completed a lesson are highlighted.',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: AppColors.mutedText),
@@ -495,13 +529,25 @@ class _StreakCalendarPageState extends State<StreakCalendarPage> {
   }
 
   String _monthName(int month) => const [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December',
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
   ][month - 1];
 
   String _dateKey(DateTime date) =>
       '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 
   bool _sameDay(DateTime left, DateTime right) =>
-      left.year == right.year && left.month == right.month && left.day == right.day;
+      left.year == right.year &&
+      left.month == right.month &&
+      left.day == right.day;
 }

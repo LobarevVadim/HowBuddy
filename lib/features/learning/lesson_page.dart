@@ -4,6 +4,7 @@ import '../../app_style.dart';
 import '../../models/app_models.dart';
 import '../../services/auth_api.dart';
 import 'lesson_exercises.dart';
+import '../../services/theme_preferences.dart';
 
 class LessonPage extends StatefulWidget {
   const LessonPage({
@@ -63,8 +64,8 @@ class _LessonPageState extends State<LessonPage> {
       setState(() {
         _exercises = lesson.exercises;
         _lessonContent = lesson.content;
-        _orderedAnswers = lesson.exercises.first.type ==
-                LessonExerciseType.orderSteps
+        _orderedAnswers =
+            lesson.exercises.first.type == LessonExerciseType.orderSteps
             ? List<String>.from(lesson.exercises.first.options)
             : <String>[];
         _isLoadingExercises = false;
@@ -153,7 +154,7 @@ class _LessonPageState extends State<LessonPage> {
       LessonExerciseType.singleChoice =>
         _selectedAnswers.firstOrNull == exercise.correctAnswers.firstOrNull,
       LessonExerciseType.orderSteps =>
-          _orderedAnswers.join('\u0000') == exercise.correctOrder.join('\u0000'),
+        _orderedAnswers.join('\u0000') == exercise.correctOrder.join('\u0000'),
       LessonExerciseType.matching => exercise.pairs.every(
         (pair) => _selectedMatches[pair.left] == pair.right,
       ),
@@ -173,7 +174,8 @@ class _LessonPageState extends State<LessonPage> {
       _exerciseIndex = nextIndex;
       _selectedAnswers.clear();
       _selectedMatches.clear();
-      _orderedAnswers = nextIndex < _exercises.length &&
+      _orderedAnswers =
+          nextIndex < _exercises.length &&
               _exercises[nextIndex].type == LessonExerciseType.orderSteps
           ? List<String>.from(_exercises[nextIndex].options)
           : <String>[];
@@ -242,7 +244,7 @@ class _LessonPageState extends State<LessonPage> {
               const Spacer(),
               Text(
                 '${(progress * 100).round()}%',
-                style: const TextStyle(color: AppColors.mutedText),
+                style: TextStyle(color: AppColors.mutedText),
               ),
             ],
           ),
@@ -253,9 +255,7 @@ class _LessonPageState extends State<LessonPage> {
               value: progress,
               minHeight: 9,
               backgroundColor: AppColors.border,
-              valueColor: const AlwaysStoppedAnimation<Color>(
-                AppColors.success,
-              ),
+              valueColor: AlwaysStoppedAnimation<Color>(AppColors.success),
             ),
           ),
         ],
@@ -300,9 +300,9 @@ class _LessonPageState extends State<LessonPage> {
                   ),
                   child: Text(
                     _lessonContent,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      height: 1.45,
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyLarge?.copyWith(height: 1.45),
                   ),
                 ),
                 const SizedBox(height: 22),
@@ -359,25 +359,34 @@ class _LessonPageState extends State<LessonPage> {
                 )
               else if (exercise.type == LessonExerciseType.matching)
                 Column(
-                  children: exercise.pairs.map((pair) => Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: DropdownButtonFormField<String>(
-                      value: _selectedMatches[pair.left],
-                      decoration: InputDecoration(labelText: pair.left),
-                      items: exercise.options.map((option) =>
-                        DropdownMenuItem(value: option, child: Text(option)),
-                      ).toList(),
-                      onChanged: _answerWasCorrect == null
-                          ? (value) => setState(() {
-                              if (value == null) {
-                                _selectedMatches.remove(pair.left);
-                              } else {
-                                _selectedMatches[pair.left] = value;
-                              }
-                            })
-                          : null,
-                    ),
-                  )).toList(),
+                  children: exercise.pairs
+                      .map(
+                        (pair) => Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: DropdownButtonFormField<String>(
+                            value: _selectedMatches[pair.left],
+                            decoration: InputDecoration(labelText: pair.left),
+                            items: exercise.options
+                                .map(
+                                  (option) => DropdownMenuItem(
+                                    value: option,
+                                    child: Text(option),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: _answerWasCorrect == null
+                                ? (value) => setState(() {
+                                    if (value == null) {
+                                      _selectedMatches.remove(pair.left);
+                                    } else {
+                                      _selectedMatches[pair.left] = value;
+                                    }
+                                  })
+                                : null,
+                          ),
+                        ),
+                      )
+                      .toList(),
                 )
               else
                 Wrap(
@@ -428,7 +437,7 @@ class _LessonPageState extends State<LessonPage> {
                     children: [
                       Text(
                         _answerWasCorrect! ? 'Correct!' : 'Good try!',
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.primaryDark,
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
@@ -468,7 +477,8 @@ class _LessonPageState extends State<LessonPage> {
   Widget _buildSummary() {
     final accuracy = (_correctAnswers * 100 / _exercises.length).round();
     final elapsedSeconds = DateTime.now().difference(_startedAt).inSeconds;
-    final rawXp = (_correctAnswers * 5) + ((_exercises.length - _correctAnswers) * 2);
+    final rawXp =
+        (_correctAnswers * 5) + ((_exercises.length - _correctAnswers) * 2);
     final estimatedXp = (rawXp * (elapsedSeconds > 180 ? 0.8 : 1)).round();
     final elapsed =
         '${elapsedSeconds ~/ 60}:${(elapsedSeconds % 60).toString().padLeft(2, '0')}';
@@ -482,7 +492,7 @@ class _LessonPageState extends State<LessonPage> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Icon(
+              Icon(
                 Icons.celebration_rounded,
                 color: AppColors.success,
                 size: 82,
@@ -548,7 +558,7 @@ class _LessonPageState extends State<LessonPage> {
                       : const Icon(Icons.check_circle_outline_rounded),
                   label: Text(
                     _isCompleting
-                        ? 'Saving progress…'
+                        ? 'Saving progressâ€¦'
                         : _earnedXp == null
                         ? 'Finish lesson'
                         : 'Back to lessons',
@@ -568,7 +578,7 @@ class _LessonPageState extends State<LessonPage> {
         Expanded(
           child: Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.mutedText,
               fontWeight: FontWeight.w600,
             ),
@@ -576,7 +586,7 @@ class _LessonPageState extends State<LessonPage> {
         ),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.primaryDark,
             fontSize: 17,
             fontWeight: FontWeight.w800,
@@ -588,6 +598,7 @@ class _LessonPageState extends State<LessonPage> {
 
   @override
   Widget build(BuildContext context) {
+    ThemePreferencesScope.watch(context);
     final Widget lessonBody;
     if (_isLoadingExercises) {
       lessonBody = const Center(child: CircularProgressIndicator());
@@ -645,6 +656,7 @@ class DevelopmentPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemePreferencesScope.watch(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(title),

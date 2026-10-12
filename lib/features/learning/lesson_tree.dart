@@ -6,6 +6,7 @@ import '../../services/auth_api.dart';
 import '../../services/gamification_api.dart';
 import '../../shared/app_widgets.dart';
 import 'lesson_page.dart';
+import '../../services/theme_preferences.dart';
 
 class TreeLessonsPage extends StatefulWidget {
   const TreeLessonsPage({
@@ -90,6 +91,7 @@ class _TreeLessonsPageState extends State<TreeLessonsPage> {
 
   @override
   Widget build(BuildContext context) {
+    ThemePreferencesScope.watch(context);
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AppSpacing.tabPagePadding),
       child: Center(
@@ -195,6 +197,7 @@ class NextQuestionPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemePreferencesScope.watch(context);
     if (questions.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -223,7 +226,7 @@ class NextQuestionPanel extends StatelessWidget {
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.primaryDark,
                 alignment: Alignment.centerLeft,
-                side: const BorderSide(color: AppColors.border),
+                side: BorderSide(color: AppColors.border),
                 padding: const EdgeInsets.symmetric(
                   horizontal: 18,
                   vertical: 16,
@@ -269,6 +272,7 @@ class LessonTree extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemePreferencesScope.watch(context);
     final treeHeight =
         _topPadding + _bottomPadding + ((levels.length - 1) * _levelGap);
 
@@ -394,6 +398,7 @@ class LessonNode extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemePreferencesScope.watch(context);
     final borderColor = level.isCompleted
         ? AppColors.success
         : level.isUnlocked

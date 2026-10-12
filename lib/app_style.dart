@@ -3,19 +3,34 @@ import 'package:flutter/material.dart';
 class AppColors {
   const AppColors._();
 
-  static const primary = Color(0xFFB6753A);
-  static const primaryDark = Color(0xFF6F482C);
-  static const primaryLight = Color(0xFFD29A63);
-  static const success = Color(0xFF8DB84A);
-  static const text = Color(0xFF65462F);
-  static const mutedText = Color(0xFF9A826A);
-  static const pageBackground = Color(0xFFFFF8F2);
-  static const loadingBackground = Color(0xFFFCF5EF);
-  static const inputBackground = Color(0xFFFFFCF8);
-  static const border = Color(0xFFEEDFD3);
-  static const authPanelBackground = Color(0xFFFFF3E8);
-  static const heroBackground = Color(0xFFFFF8F2);
-  static const infoBackground = Color(0xFFFFF7EC);
+  static bool isDarkMode = false;
+
+  static Color get primary =>
+      isDarkMode ? const Color(0xFFE2A765) : const Color(0xFFB6753A);
+  static Color get primaryDark =>
+      isDarkMode ? const Color(0xFFFFD9B0) : const Color(0xFF6F482C);
+  static Color get primaryLight =>
+      isDarkMode ? const Color(0xFFC88C50) : const Color(0xFFD29A63);
+  static Color get success =>
+      isDarkMode ? const Color(0xFFB6D878) : const Color(0xFF8DB84A);
+  static Color get text =>
+      isDarkMode ? const Color(0xFFF4E8DC) : const Color(0xFF65462F);
+  static Color get mutedText =>
+      isDarkMode ? const Color(0xFFC1AD98) : const Color(0xFF9A826A);
+  static Color get pageBackground =>
+      isDarkMode ? const Color(0xFF1E1A17) : const Color(0xFFFFF8F2);
+  static Color get loadingBackground =>
+      isDarkMode ? const Color(0xFF1E1A17) : const Color(0xFFFCF5EF);
+  static Color get inputBackground =>
+      isDarkMode ? const Color(0xFF302923) : const Color(0xFFFFFCF8);
+  static Color get border =>
+      isDarkMode ? const Color(0xFF5A4938) : const Color(0xFFEEDFD3);
+  static Color get authPanelBackground =>
+      isDarkMode ? const Color(0xFF30261F) : const Color(0xFFFFF3E8);
+  static Color get heroBackground =>
+      isDarkMode ? const Color(0xFF29221C) : const Color(0xFFFFF8F2);
+  static Color get infoBackground =>
+      isDarkMode ? const Color(0xFF30271F) : const Color(0xFFFFF7EC);
   static const google = Color(0xFF4285F4);
   static const apple = Color(0xFF8B5CF6);
 }
@@ -89,23 +104,27 @@ class AppPositions {
 class AppTheme {
   const AppTheme._();
 
-  static ThemeData light() {
+  static ThemeData light() => _build(Brightness.light);
+
+  static ThemeData dark() => _build(Brightness.dark);
+
+  static ThemeData _build(Brightness brightness) {
     final inputBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(AppRadii.input),
-      borderSide: const BorderSide(color: AppColors.border),
+      borderSide: BorderSide(color: AppColors.border),
     );
 
     return ThemeData(
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppColors.primary,
-        brightness: Brightness.light,
+        brightness: brightness,
       ),
       scaffoldBackgroundColor: AppColors.pageBackground,
       fontFamily: AppFonts.primary,
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.inputBackground,
-        labelStyle: const TextStyle(
+        labelStyle: TextStyle(
           color: AppColors.mutedText,
           fontWeight: FontWeight.w600,
         ),
@@ -119,7 +138,7 @@ class AppTheme {
         enabledBorder: inputBorder,
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadii.input),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+          borderSide: BorderSide(color: AppColors.primary, width: 1.5),
         ),
       ),
       textButtonTheme: TextButtonThemeData(

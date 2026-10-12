@@ -4,6 +4,7 @@ import '../../app_style.dart';
 import '../../models/app_models.dart';
 import '../../services/auth_api.dart';
 import '../learning/lesson_page.dart';
+import '../../services/theme_preferences.dart';
 
 class NotepadTreePage extends StatefulWidget {
   const NotepadTreePage({
@@ -26,6 +27,7 @@ class _NotepadTreePageState extends State<NotepadTreePage> {
 
   @override
   Widget build(BuildContext context) {
+    ThemePreferencesScope.watch(context);
     return FutureBuilder<NotepadTreeNode>(
       future: _tree,
       builder: (context, snapshot) {
@@ -67,6 +69,7 @@ class NotepadTreeCanvas extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemePreferencesScope.watch(context);
     final positionedNodes = _layoutTree(root);
 
     return InteractiveViewer(
@@ -252,6 +255,7 @@ class NotepadTreeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemePreferencesScope.watch(context);
     final background = node.isCompleted
         ? AppColors.success.withValues(alpha: 0.18)
         : AppColors.inputBackground;

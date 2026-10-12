@@ -7,6 +7,7 @@ import '../../services/api_session.dart';
 import '../../shared/app_widgets.dart';
 import 'google_auth_button.dart';
 import '../home/home_page.dart';
+import '../../services/theme_preferences.dart';
 
 void _returnToLogin(NavigatorState navigator) {
   ApiSession.clear();
@@ -76,13 +77,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
     ).showSnackBar(SnackBar(content: Text(message)));
   }
 
-  Future<void> _socialSignUp(String provider) async {
-    final providerName = provider == 'google' ? 'Google' : 'Apple';
-    _showMessage(
-      '$providerName sign-in needs provider setup. Use email and password for this demo.',
-    );
-  }
-
   Future<void> _signUpWithGoogle(String idToken) async {
     if (_isLoading) return;
     setState(() => _isLoading = true);
@@ -120,6 +114,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   @override
   Widget build(BuildContext context) {
+    ThemePreferencesScope.watch(context);
     return AuthScaffold(
       title: 'Create your account',
       subtitle: 'Join HowBuddy and start your journey!',
@@ -184,10 +179,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
             ),
             const SizedBox(height: AppSpacing.socialButtonGap),
             SocialButton(
-              text: 'Sign up with Apple',
+              text: 'Sign up with Apple (coming soon)',
               icon: Icons.apple,
               iconColor: AppColors.apple,
-              onPressed: () => _socialSignUp('apple'),
+              onPressed: () {},
+              isEnabled: false,
             ),
             const SizedBox(height: AppSpacing.authSwitchGap),
             AuthSwitchText(
@@ -247,6 +243,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   @override
   Widget build(BuildContext context) {
+    ThemePreferencesScope.watch(context);
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -304,7 +301,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                             label: const Text('Skip to the main tree'),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: AppColors.primaryDark,
-                              side: const BorderSide(color: AppColors.border),
+                              side: BorderSide(color: AppColors.border),
                               padding: const EdgeInsets.symmetric(vertical: 18),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(
@@ -341,6 +338,7 @@ class OnboardingOptionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemePreferencesScope.watch(context);
     return FilledButton(
       onPressed: onPressed,
       style: FilledButton.styleFrom(
@@ -351,7 +349,7 @@ class OnboardingOptionButton extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.eco_rounded, color: AppColors.success),
+          Icon(Icons.eco_rounded, color: AppColors.success),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
@@ -469,6 +467,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    ThemePreferencesScope.watch(context);
     return AuthScaffold(
       title: 'Welcome back!',
       subtitle: 'Login to continue your journey',
@@ -506,6 +505,14 @@ class _LoginPageState extends State<LoginPage> {
               isLoading: _isLoading,
               onIdToken: _signInWithGoogle,
               onError: _showMessage,
+            ),
+            const SizedBox(height: AppSpacing.socialButtonGap),
+            SocialButton(
+              text: 'Sign in with Apple (coming soon)',
+              icon: Icons.apple,
+              iconColor: AppColors.apple,
+              onPressed: () {},
+              isEnabled: false,
             ),
             const SizedBox(height: AppSpacing.authSwitchGap),
             AuthSwitchText(
