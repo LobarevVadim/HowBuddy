@@ -166,15 +166,15 @@ class _HeartsPageState extends State<HeartsPage> {
                     label: Text(
                       _state.hearts >= 5
                           ? 'Hearts are full'
-                          : 'Watch ad Â· +1 heart',
+                          : 'Watch ad - +1 heart',
                     ),
                   ),
                 ),
                 const SizedBox(height: 10),
                 Text(
                   RewardedAds.isWebDemo
-                      ? 'SIMULATED AD Â· WEB DEMO. No real advertisement is shown.'
-                      : 'TEST AD Â· ADMOB. Test ads do not generate revenue.',
+                      ? 'SIMULATED AD - WEB DEMO. No real advertisement is shown.'
+                      : 'TEST AD - ADMOB. Test ads do not generate revenue.',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: AppColors.mutedText, fontSize: 12),
                 ),
@@ -268,7 +268,7 @@ class _EmeraldShopPageState extends State<EmeraldShopPage> {
     final hours = remaining.inHours;
     final minutes = remaining.inMinutes.remainder(60);
     final seconds = remaining.inSeconds.remainder(60);
-    return '2Ã— XP active Â· ${hours > 0 ? '${hours}h ' : ''}${minutes}m ${seconds}s left';
+    return '2x XP active - ${hours > 0 ? '${hours}h ' : ''}${minutes}m ${seconds}s left';
   }
 
   @override
@@ -330,13 +330,13 @@ class _EmeraldShopPageState extends State<EmeraldShopPage> {
                         color: Colors.amber,
                       ),
                       title: Text(
-                        '${offer.minutes} minute${offer.minutes == 60 ? '' : 's'} Â· 2Ã— XP',
+                        '${offer.minutes} minute${offer.minutes == 60 ? '' : 's'} - 2x XP',
                       ),
                       trailing: FilledButton.tonal(
                         onPressed: _busy || _state.emeralds < offer.price
                             ? null
                             : () => _purchase(offer.minutes),
-                        child: Text('â—† ${offer.price}'),
+                        child: Text('Price: ${offer.price}'),
                       ),
                     ),
                   ),
@@ -351,13 +351,13 @@ class _EmeraldShopPageState extends State<EmeraldShopPage> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.play_circle_outline_rounded),
-                  label: const Text('Watch ad Â· +25 emeralds'),
+                  label: const Text('Watch ad - +25 emeralds'),
                 ),
                 const SizedBox(height: 10),
                 Text(
                   RewardedAds.isWebDemo
-                      ? 'SIMULATED AD Â· WEB DEMO. No real advertisement is shown.'
-                      : 'TEST AD Â· ADMOB. Test ads do not generate revenue.',
+                      ? 'SIMULATED AD - WEB DEMO. No real advertisement is shown.'
+                      : 'TEST AD - ADMOB. Test ads do not generate revenue.',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: AppColors.mutedText, fontSize: 12),
                 ),
