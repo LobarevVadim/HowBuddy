@@ -454,10 +454,14 @@ class HowBuddyAvatar extends StatelessWidget {
   final double size;
 
   @override
-  Widget build(BuildContext context) => SvgPicture.asset(
-    'assets/icon/cropped_how_buddy.svg',
-    width: size,
-    height: size,
-    colorMapper: AvatarPaletteColorMapper(paletteIndex),
+  Widget build(BuildContext context) => ClipRRect(
+    borderRadius: BorderRadius.circular(size * 0.18),
+    clipBehavior: Clip.antiAlias,
+    child: SvgPicture.asset(
+      'assets/icon/cropped_how_buddy.svg',
+      width: size,
+      height: size,
+      colorMapper: AvatarPaletteColorMapper(paletteIndex),
+    ),
   );
 }
