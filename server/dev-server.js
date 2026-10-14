@@ -4,6 +4,7 @@ import {existsSync, readFileSync} from 'node:fs';
 
 const port = Number(process.env.PORT ?? 3000);
 const accounts = new Map();
+const sessions = new Map();
 const completedLessons = new Map();
 const completedTopics = new Set();
 const xpEvents = new Map();
@@ -33,8 +34,11 @@ const lessonContent = JSON.parse(readFileSync(lessonContentPath, 'utf8'));
 const server = createServer(async (request, response) => {
   const url = new URL(request.url, `http://localhost:${port}`);
   response.setHeader('Access-Control-Allow-Origin', '*');
-  response.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-  response.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  response.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,OPTIONS');
+  response.setHeader(
+    'Access-Control-Allow-Headers',
+    'Content-Type, Authorization, X-Client-Date, X-Client-UTC-Offset-Minutes',
+  );
   response.setHeader('Content-Type', 'application/json');
 
   if (request.method === 'OPTIONS') {
@@ -71,7 +75,7 @@ const server = createServer(async (request, response) => {
       passwordHash: hash(password),
     };
     accounts.set(email, account);
-    send(response, 201, {account: publicAccount(account)});
+    send(response, 201, {account: publicAccount(account), sessionToken: createSession(account)});
     return;
   }
 
@@ -88,7 +92,10 @@ const server = createServer(async (request, response) => {
 
     const existingAccount = accounts.get(email);
     if (existingAccount) {
-      send(response, 200, {account: publicAccount(existingAccount)});
+      send(response, 200, {
+        account: publicAccount(existingAccount),
+        sessionToken: createSession(existingAccount),
+      });
       return;
     }
 
@@ -101,12 +108,37 @@ const server = createServer(async (request, response) => {
       passwordHash: null,
     };
     accounts.set(email, account);
-    send(response, 201, {account: publicAccount(account)});
+    send(response, 201, {account: publicAccount(account), sessionToken: createSession(account)});
     return;
   }
 
   if (url.pathname === '/onboarding/topics' && request.method === 'GET') {
     send(response, 200, {topics: rootTopics()});
+    return;
+  }
+
+  if (url.pathname === '/account/preferences' && request.method === 'PUT') {
+    const body = await readJson(request);
+    const preferredLanguage = String(body.preferredLanguage ?? '');
+    const ageYears = Number(body.ageYears);
+    if (!['en', 'fr', 'es', 'hi', 'ru'].includes(preferredLanguage)) {
+      send(response, 400, {message: 'Choose a supported language.'});
+      return;
+    }
+    if (!Number.isInteger(ageYears) || ageYears < 1 || ageYears > 120) {
+      send(response, 400, {message: 'Choose an age between 1 and 120.'});
+      return;
+    }
+    const token = String(request.headers.authorization ?? '').replace(/^Bearer\s+/i, '');
+    const accountId = sessions.get(token);
+    const account = [...accounts.values()].find((item) => item.id === accountId);
+    if (!accountId || !account) {
+      send(response, 401, {message: 'Please sign in again.'});
+      return;
+    }
+    account.preferredLanguage = preferredLanguage;
+    account.ageYears = ageYears;
+    send(response, 200, {preferredLanguage, ageYears});
     return;
   }
 
@@ -345,7 +377,7 @@ const server = createServer(async (request, response) => {
       return;
     }
 
-    send(response, 200, {account: publicAccount(account)});
+    send(response, 200, {account: publicAccount(account), sessionToken: createSession(account)});
     return;
   }
 
@@ -365,7 +397,16 @@ function publicAccount(account) {
     id: account.id,
     fullName: account.fullName,
     email: account.email,
+    avatarPaletteIndex: account.avatarPaletteIndex ?? 0,
+    preferredLanguage: account.preferredLanguage ?? null,
+    ageYears: account.ageYears ?? null,
   };
+}
+
+function createSession(account) {
+  const token = randomUUID();
+  sessions.set(token, account.id);
+  return token;
 }
 
 function send(response, statusCode, body) {

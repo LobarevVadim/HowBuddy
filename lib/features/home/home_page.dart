@@ -211,7 +211,7 @@ class _HomePageState extends State<HomePage> {
           NavigationDestination(
             icon: Icon(Icons.note_alt_outlined),
             selectedIcon: Icon(Icons.note_alt_rounded),
-            label: 'Notepad',
+            label: 'Topics',
           ),
           NavigationDestination(
             icon: Icon(Icons.workspace_premium_outlined),
@@ -708,6 +708,26 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                   const LinearProgressIndicator(),
                 ],
                 const SizedBox(height: 20),
+                SwitchListTile.adaptive(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  secondary: Icon(
+                    themePreferences.isDarkMode
+                        ? Icons.dark_mode_rounded
+                        : Icons.light_mode_rounded,
+                    color: AppColors.primary,
+                  ),
+                  title: const Text(
+                    'Dark mode',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  subtitle: Text(
+                    themePreferences.isDarkMode ? 'On' : 'Off',
+                    style: TextStyle(color: AppColors.mutedText),
+                  ),
+                  value: themePreferences.isDarkMode,
+                  onChanged: themePreferences.setDarkMode,
+                ),
+                const SizedBox(height: 20),
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
@@ -786,26 +806,6 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                   const SizedBox(height: 8),
                   const LinearProgressIndicator(),
                 ],
-                const SizedBox(height: 20),
-                SwitchListTile.adaptive(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                  secondary: Icon(
-                    themePreferences.isDarkMode
-                        ? Icons.dark_mode_rounded
-                        : Icons.light_mode_rounded,
-                    color: AppColors.primary,
-                  ),
-                  title: const Text(
-                    'Dark mode',
-                    style: TextStyle(fontWeight: FontWeight.w700),
-                  ),
-                  subtitle: Text(
-                    themePreferences.isDarkMode ? 'On' : 'Off',
-                    style: TextStyle(color: AppColors.mutedText),
-                  ),
-                  value: themePreferences.isDarkMode,
-                  onChanged: themePreferences.setDarkMode,
-                ),
                 const SizedBox(height: AppSpacing.profileLogoutGap),
                 PrimaryButton(text: 'Logout', onPressed: widget.onLogout),
               ],
