@@ -5,7 +5,7 @@ import express from 'express';
 import {OAuth2Client} from 'google-auth-library';
 import pg from 'pg';
 import {createHmac, timingSafeEqual} from 'node:crypto';
-import {readFileSync} from 'node:fs';
+import {existsSync, readFileSync} from 'node:fs';
 
 dotenv.config();
 
@@ -20,6 +20,19 @@ const pool = new pg.Pool({
 const lessonContent = JSON.parse(
   readFileSync(new URL('../data/lesson_exercises.json', import.meta.url), 'utf8'),
 );
+const lessonContentByLanguage = new Map([['en', lessonContent]]);
+
+function getLessonContent(language) {
+  const code = ['fr', 'es', 'hi', 'ru'].includes(String(language))
+    ? String(language)
+    : 'en';
+  if (lessonContentByLanguage.has(code)) return lessonContentByLanguage.get(code);
+  const fileUrl = new URL(`../data/lesson_exercises_${code}.json`, import.meta.url);
+  if (!existsSync(fileUrl)) return lessonContent;
+  const localized = JSON.parse(readFileSync(fileUrl, 'utf8'));
+  lessonContentByLanguage.set(code, localized);
+  return localized;
+}
 
 app.use(cors());
 app.use(express.json());
@@ -33,8 +46,8 @@ app.get('/health', async (_request, response) => {
   }
 });
 
-app.get('/onboarding/topics', (_request, response) => {
-  response.json({topics: rootTopics()});
+app.get('/onboarding/topics', (request, response) => {
+  response.json({topics: rootTopics(getLessonContent(request.query.language))});
 });
 
 app.get('/gamification', requireAuth, async (request, response) => {
@@ -271,11 +284,12 @@ app.post('/auth/google', async (request, response) => {
 });
 
 app.get('/lessons/tree', requireAuth, async (request, response) => {
-  const topic = findTopic(String(request.query.topic ?? lessonContent.roots[0]));
+  const content = getLessonContent(request.query.language);
+  const topic = findTopic(String(request.query.topic ?? content.roots[0]), content);
   if (!topic) return response.status(404).json({message: 'This lesson topic was not found.'});
   try {
-    const levels = await buildLessonLevels(topic, request.accountId);
-    return response.json({topic, levels, nextQuestions: getNextQuestions(topic.id)});
+    const levels = await buildLessonLevels(topic, request.accountId, content);
+    return response.json({topic, levels, nextQuestions: getNextQuestions(topic.id, content)});
   } catch (error) {
     console.error(error);
     return response.status(500).json({message: 'Could not load lesson progress.'});
@@ -353,13 +367,14 @@ app.put('/account/preferences', requireAuth, async (request, response) => {
 app.get('/lessons/exercises', (request, response) => {
   const topicId = String(request.query.topic ?? '').trim();
   const lessonId = String(request.query.lesson ?? 'lesson-1').trim();
-  const topicContent = lessonContent.nodes[topicId];
+  const content = getLessonContent(request.query.language);
+  const topicContent = content.nodes[topicId];
   if (!topicContent) {
     return response.status(404).json({message: 'No exercises are available for this topic.'});
   }
   const lessonNumber = Number(lessonId.replace('lesson-', ''));
   const extraNodeId = topicContent.extraLessons[lessonNumber - 2];
-  const lesson = lessonNumber === 1 ? topicContent : lessonContent.nodes[extraNodeId];
+  const lesson = lessonNumber === 1 ? topicContent : content.nodes[extraNodeId];
   if (!lesson || !Number.isInteger(lessonNumber)) {
     return response.status(404).json({message: 'This lesson is not available.'});
   }
@@ -526,7 +541,9 @@ app.get('/xp/weekly', requireAuth, async (request, response) => {
 app.get('/notepad/tree', requireAuth, async (request, response) => {
   const accountId = request.accountId;
   try {
-    return response.json({tree: await buildNotepadTree(accountId)});
+    return response.json({
+      tree: await buildNotepadTree(accountId, getLessonContent(request.query.language)),
+    });
   } catch (error) {
     console.error(error);
     return response.status(500).json({message: 'Could not load lesson progress.'});
@@ -616,23 +633,23 @@ function toAccount(row) {
   };
 }
 
-function findTopic(topicId) {
-  const node = lessonContent.nodes[topicId];
+function findTopic(topicId, content = lessonContent) {
+  const node = content.nodes[topicId];
   return node ? {id: node.id, question: node.question, lessonCount: node.lessonCount} : null;
 }
 
-function rootTopics() {
-  return lessonContent.roots.map((id) => findTopic(id));
+function rootTopics(content = lessonContent) {
+  return content.roots.map((id) => findTopic(id, content));
 }
 
-function getNextQuestions(topicId) {
-  return (lessonContent.nodes[topicId]?.children ?? []).map((id) => ({
+function getNextQuestions(topicId, content = lessonContent) {
+  return (content.nodes[topicId]?.children ?? []).map((id) => ({
     id,
-    question: lessonContent.nodes[id].question,
+    question: content.nodes[id].question,
   }));
 }
 
-async function buildLessonLevels(topic, accountId) {
+async function buildLessonLevels(topic, accountId, content = lessonContent) {
   const shapes = ['star', 'triangle', 'hexagon', 'square', 'circle'];
   const count = Math.min(topic.lessonCount, 20);
   const progress = accountId
@@ -656,8 +673,8 @@ async function buildLessonLevels(topic, accountId) {
       shape: shapes[index % shapes.length],
       title: level === 1
         ? 'Core lesson'
-        : lessonContent.nodes[
-            lessonContent.nodes[topic.id].extraLessons[level - 2]
+        : content.nodes[
+            content.nodes[topic.id].extraLessons[level - 2]
           ].question,
       isCompleted,
       isUnlocked,
@@ -665,7 +682,7 @@ async function buildLessonLevels(topic, accountId) {
   });
 }
 
-async function buildNotepadTree(accountId) {
+async function buildNotepadTree(accountId, content = lessonContent) {
   const result = await pool.query(
     `SELECT topic_id, COUNT(*)::int AS count
      FROM lesson_progress WHERE account_id = $1 GROUP BY topic_id`,
@@ -673,11 +690,11 @@ async function buildNotepadTree(accountId) {
   );
   const completedTopics = new Set(
     result.rows
-      .filter((row) => row.count >= Math.min(findTopic(row.topic_id)?.lessonCount ?? 20, 20))
+      .filter((row) => row.count >= Math.min(findTopic(row.topic_id, content)?.lessonCount ?? 20, 20))
       .map((row) => row.topic_id),
   );
   const buildNode = (id) => {
-    const node = lessonContent.nodes[id];
+    const node = content.nodes[id];
     return {
       id,
       title: node.question,
@@ -688,8 +705,8 @@ async function buildNotepadTree(accountId) {
   return {
     id: 'main-tree',
     title: 'Main Tree',
-    isCompleted: lessonContent.roots.every((id) => completedTopics.has(id)),
-    children: lessonContent.roots.map(buildNode),
+    isCompleted: content.roots.every((id) => completedTopics.has(id)),
+    children: content.roots.map(buildNode),
   };
 }
 

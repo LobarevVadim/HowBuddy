@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import '../features/learning/lesson_exercises.dart';
 import '../models/app_models.dart';
 import 'api_session.dart';
+import 'ui_translations.dart';
 
 class AuthApi {
   AuthApi({
@@ -134,7 +135,9 @@ class AuthApi {
 
   Future<List<LessonLevel>> fetchLessonLevels() async {
     final response = await http.get(
-      Uri.parse('$baseUrl/lessons/tree'),
+      Uri.parse(
+        '$baseUrl/lessons/tree',
+      ).replace(queryParameters: {'language': UiTranslations.languageCode}),
       headers: ApiSession.authenticatedHeaders,
     );
     final Map<String, dynamic> body = jsonDecode(response.body);
@@ -156,9 +159,13 @@ class AuthApi {
     required String accountId,
   }) async {
     final response = await http.get(
-      Uri.parse(
-        '$baseUrl/lessons/tree',
-      ).replace(queryParameters: {'topic': topicId, 'accountId': accountId}),
+      Uri.parse('$baseUrl/lessons/tree').replace(
+        queryParameters: {
+          'topic': topicId,
+          'accountId': accountId,
+          'language': UiTranslations.languageCode,
+        },
+      ),
       headers: ApiSession.authenticatedHeaders,
     );
     final Map<String, dynamic> body = jsonDecode(response.body);
@@ -188,9 +195,13 @@ class AuthApi {
     required String lessonId,
   }) async {
     final response = await http.get(
-      Uri.parse(
-        '$baseUrl/lessons/exercises',
-      ).replace(queryParameters: {'topic': topicId, 'lesson': lessonId}),
+      Uri.parse('$baseUrl/lessons/exercises').replace(
+        queryParameters: {
+          'topic': topicId,
+          'lesson': lessonId,
+          'language': UiTranslations.languageCode,
+        },
+      ),
     );
     final Map<String, dynamic> body = jsonDecode(response.body);
 
@@ -262,7 +273,11 @@ class AuthApi {
   }
 
   Future<List<LessonTopic>> fetchOnboardingTopics() async {
-    final response = await http.get(Uri.parse('$baseUrl/onboarding/topics'));
+    final response = await http.get(
+      Uri.parse(
+        '$baseUrl/onboarding/topics',
+      ).replace(queryParameters: {'language': UiTranslations.languageCode}),
+    );
     final Map<String, dynamic> body = jsonDecode(response.body);
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
@@ -279,9 +294,12 @@ class AuthApi {
 
   Future<NotepadTreeNode> fetchNotepadTree(String accountId) async {
     final response = await http.get(
-      Uri.parse(
-        '$baseUrl/notepad/tree',
-      ).replace(queryParameters: {'accountId': accountId}),
+      Uri.parse('$baseUrl/notepad/tree').replace(
+        queryParameters: {
+          'accountId': accountId,
+          'language': UiTranslations.languageCode,
+        },
+      ),
       headers: ApiSession.authenticatedHeaders,
     );
     final Map<String, dynamic> body = jsonDecode(response.body);

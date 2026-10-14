@@ -30,6 +30,19 @@ const lessonContentPath = ['server/data/lesson_exercises.json', 'data/lesson_exe
   .find((path) => existsSync(path));
 if (!lessonContentPath) throw new Error('Lesson exercise JSON database was not found.');
 const lessonContent = JSON.parse(readFileSync(lessonContentPath, 'utf8'));
+const lessonContentByLanguage = new Map([['en', lessonContent]]);
+
+function getLessonContent(language) {
+  const code = ['fr', 'es', 'hi', 'ru'].includes(String(language))
+    ? String(language)
+    : 'en';
+  if (lessonContentByLanguage.has(code)) return lessonContentByLanguage.get(code);
+  const filePath = lessonContentPath.replace(/lesson_exercises\.json$/, `lesson_exercises_${code}.json`);
+  if (!existsSync(filePath)) return lessonContent;
+  const localized = JSON.parse(readFileSync(filePath, 'utf8'));
+  lessonContentByLanguage.set(code, localized);
+  return localized;
+}
 
 const server = createServer(async (request, response) => {
   const url = new URL(request.url, `http://localhost:${port}`);
@@ -113,7 +126,7 @@ const server = createServer(async (request, response) => {
   }
 
   if (url.pathname === '/onboarding/topics' && request.method === 'GET') {
-    send(response, 200, {topics: rootTopics()});
+    send(response, 200, {topics: rootTopics(getLessonContent(url.searchParams.get('language')))});
     return;
   }
 
@@ -224,16 +237,17 @@ const server = createServer(async (request, response) => {
   }
 
   if (url.pathname === '/lessons/tree' && request.method === 'GET') {
-    const topicId = url.searchParams.get('topic') ?? lessonContent.roots[0];
-    const topic = findTopic(topicId);
+    const content = getLessonContent(url.searchParams.get('language'));
+    const topicId = url.searchParams.get('topic') ?? content.roots[0];
+    const topic = findTopic(topicId, content);
     if (!topic) {
       send(response, 404, {message: 'This lesson topic was not found.'});
       return;
     }
     send(response, 200, {
       topic,
-      levels: buildLessonLevels(topic),
-      nextQuestions: getNextQuestions(topic.id),
+      levels: buildLessonLevels(topic, content),
+      nextQuestions: getNextQuestions(topic.id, content),
     });
     return;
   }
@@ -241,14 +255,15 @@ const server = createServer(async (request, response) => {
   if (url.pathname === '/lessons/exercises' && request.method === 'GET') {
     const topicId = String(url.searchParams.get('topic') ?? '').trim();
     const lessonId = String(url.searchParams.get('lesson') ?? 'lesson-1').trim();
-    const topicContent = lessonContent.nodes[topicId];
+    const content = getLessonContent(url.searchParams.get('language'));
+    const topicContent = content.nodes[topicId];
     if (!topicContent) {
       send(response, 404, {message: 'No exercises are available for this topic.'});
       return;
     }
     const lessonNumber = Number(lessonId.replace('lesson-', ''));
     const extraNodeId = topicContent.extraLessons[lessonNumber - 2];
-    const lesson = lessonNumber === 1 ? topicContent : lessonContent.nodes[extraNodeId];
+    const lesson = lessonNumber === 1 ? topicContent : content.nodes[extraNodeId];
     if (!lesson || !Number.isInteger(lessonNumber)) {
       send(response, 404, {message: 'This lesson is not available.'});
       return;
@@ -362,7 +377,7 @@ const server = createServer(async (request, response) => {
   }
 
   if (url.pathname === '/notepad/tree' && request.method === 'GET') {
-    send(response, 200, {tree: buildNotepadTree()});
+    send(response, 200, {tree: buildNotepadTree(getLessonContent(url.searchParams.get('language')))});
     return;
   }
 
@@ -414,23 +429,23 @@ function send(response, statusCode, body) {
   response.end(JSON.stringify(body));
 }
 
-function findTopic(topicId) {
-  const node = lessonContent.nodes[topicId];
+function findTopic(topicId, content = lessonContent) {
+  const node = content.nodes[topicId];
   return node ? {id: node.id, question: node.question, lessonCount: node.lessonCount} : null;
 }
 
-function rootTopics() {
-  return lessonContent.roots.map((id) => findTopic(id));
+function rootTopics(content = lessonContent) {
+  return content.roots.map((id) => findTopic(id, content));
 }
 
-function getNextQuestions(topicId) {
-  return (lessonContent.nodes[topicId]?.children ?? []).map((id) => ({
+function getNextQuestions(topicId, content = lessonContent) {
+  return (content.nodes[topicId]?.children ?? []).map((id) => ({
     id,
-    question: lessonContent.nodes[id].question,
+    question: content.nodes[id].question,
   }));
 }
 
-function buildLessonLevels(topic) {
+function buildLessonLevels(topic, content = lessonContent) {
   const shapes = ['star', 'triangle', 'hexagon', 'square', 'circle'];
   const count = Math.min(topic.lessonCount, 20);
   const lessonSet = getCompletedLessonSet(topic.id);
@@ -448,8 +463,8 @@ function buildLessonLevels(topic) {
       shape: shapes[index % shapes.length],
       title: level === 1
         ? 'Core lesson'
-        : lessonContent.nodes[
-            lessonContent.nodes[topic.id].extraLessons[level - 2]
+        : content.nodes[
+            content.nodes[topic.id].extraLessons[level - 2]
           ].question,
       isCompleted,
       isUnlocked,
@@ -457,9 +472,9 @@ function buildLessonLevels(topic) {
   });
 }
 
-function buildNotepadTree() {
+function buildNotepadTree(content = lessonContent) {
   const buildNode = (id) => {
-    const node = lessonContent.nodes[id];
+    const node = content.nodes[id];
     return {
       id,
       title: node.question,
@@ -470,8 +485,8 @@ function buildNotepadTree() {
   return {
     id: 'main-tree',
     title: 'Main Tree',
-    isCompleted: lessonContent.roots.every((id) => completedTopics.has(id)),
-    children: lessonContent.roots.map(buildNode),
+    isCompleted: content.roots.every((id) => completedTopics.has(id)),
+    children: content.roots.map(buildNode),
   };
 }
 
