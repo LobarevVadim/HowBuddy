@@ -56,7 +56,7 @@ class _NotepadTreePageState extends State<NotepadTreePage> {
   }
 }
 
-class NotepadTreeCanvas extends StatelessWidget {
+class NotepadTreeCanvas extends StatefulWidget {
   const NotepadTreeCanvas({
     required this.root,
     required this.onTopicSelected,
@@ -69,38 +69,86 @@ class NotepadTreeCanvas extends StatelessWidget {
   static const Size canvasSize = Size(3800, 1320);
 
   @override
+  State<NotepadTreeCanvas> createState() => _NotepadTreeCanvasState();
+}
+
+class _NotepadTreeCanvasState extends State<NotepadTreeCanvas> {
+  final TransformationController _transformationController =
+      TransformationController();
+  bool _initialTransformApplied = false;
+
+  @override
+  void dispose() {
+    _transformationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     ThemePreferencesScope.watch(context);
-    final positionedNodes = _layoutTree(root);
+    final positionedNodes = _layoutTree(widget.root);
 
-    return InteractiveViewer(
-      constrained: false,
-      boundaryMargin: const EdgeInsets.all(800),
-      minScale: 0.25,
-      maxScale: 1.6,
-      child: SizedBox(
-        width: canvasSize.width,
-        height: canvasSize.height,
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: CustomPaint(
-                painter: NotepadTreePainter(nodes: positionedNodes),
-              ),
-            ),
-            for (final node in positionedNodes)
-              Positioned(
-                left: node.offset.dx - (node.width / 2),
-                top: node.offset.dy - 35,
-                width: node.width,
-                child: NotepadTreeCard(
-                  node: node.node,
-                  onPressed: () => _openNode(context, node.node),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final viewport = constraints.biggest;
+        if (!_initialTransformApplied &&
+            viewport.width.isFinite &&
+            viewport.height.isFinite &&
+            viewport.width > 0 &&
+            viewport.height > 0) {
+          _initialTransformApplied = true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            final scale = (viewport.width / NotepadTreeCanvas.canvasSize.width)
+                .clamp(0.58, 0.72)
+                .toDouble();
+            final dx =
+                (viewport.width - NotepadTreeCanvas.canvasSize.width * scale) /
+                2;
+            final dy =
+                (viewport.height -
+                    NotepadTreeCanvas.canvasSize.height * scale) /
+                2;
+            _transformationController.value = Matrix4.diagonal3Values(
+              scale,
+              scale,
+              1,
+            )..setTranslationRaw(dx, dy, 0);
+          });
+        }
+
+        return InteractiveViewer(
+          transformationController: _transformationController,
+          constrained: false,
+          alignment: Alignment.topLeft,
+          boundaryMargin: const EdgeInsets.all(800),
+          minScale: 0.16,
+          maxScale: 2.4,
+          child: SizedBox(
+            width: NotepadTreeCanvas.canvasSize.width,
+            height: NotepadTreeCanvas.canvasSize.height,
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: CustomPaint(
+                    painter: NotepadTreePainter(nodes: positionedNodes),
+                  ),
                 ),
-              ),
-          ],
-        ),
-      ),
+                for (final node in positionedNodes)
+                  Positioned(
+                    left: node.offset.dx - (node.width / 2),
+                    top: node.offset.dy - 35,
+                    width: node.width,
+                    child: NotepadTreeCard(
+                      node: node.node,
+                      onPressed: () => _openNode(context, node.node),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -116,7 +164,7 @@ class NotepadTreeCanvas extends StatelessWidget {
       return;
     }
 
-    onTopicSelected(node.id);
+    widget.onTopicSelected(node.id);
   }
 
   List<PositionedNotepadNode> _layoutTree(NotepadTreeNode root) {
@@ -284,7 +332,7 @@ class NotepadTreeCard extends StatelessWidget {
             ],
           ),
           child: Text(
-            node.title,
+            node.id == 'main-tree' ? uiText(context, 'Main Tree') : node.title,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: AppColors.primaryDark,

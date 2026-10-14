@@ -243,6 +243,12 @@ class UiTranslations {
       'ru': 'Неверная почта, имя пользователя или пароль.',
     },
     'Tree': {'fr': 'Arbre', 'es': 'Árbol', 'hi': 'पेड़', 'ru': 'Дерево'},
+    'Main Tree': {
+      'fr': 'Arbre principal',
+      'es': 'Árbol principal',
+      'hi': 'मुख्य वृक्ष',
+      'ru': 'Главное дерево',
+    },
     'Topics': {'fr': 'Sujets', 'es': 'Temas', 'hi': 'विषय', 'ru': 'Темы'},
     'XP': {'fr': 'XP', 'es': 'XP', 'hi': 'XP', 'ru': 'XP'},
     'Profile': {
