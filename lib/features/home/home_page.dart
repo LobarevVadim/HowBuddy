@@ -9,6 +9,7 @@ import '../gamification/gamification_pages.dart';
 import '../learning/lesson_tree.dart';
 import '../notepad/notepad_tree_page.dart';
 import '../profile/avatar_palette.dart';
+import '../auth/account_preferences_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({
@@ -31,6 +32,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late int _selectedIndex = widget.initialIndex;
   late String _topicId = widget.topicId;
+  late String _preferredLanguage = widget.account.preferredLanguage ?? 'en';
+  late int _ageYears = widget.account.ageYears ?? 18;
   int _notepadRefreshKey = 0;
   int _xpRefreshKey = 0;
   late int _avatarPaletteIndex = widget.account.avatarPaletteIndex;
@@ -133,6 +136,22 @@ class _HomePageState extends State<HomePage> {
     setState(() => _avatarPaletteIndex = paletteIndex);
   }
 
+  void _setAccountPreferences(String language, int age) {
+    setState(() {
+      _preferredLanguage = language;
+      _ageYears = age;
+    });
+  }
+
+  Account get _accountWithPreferences => Account(
+    id: widget.account.id,
+    fullName: widget.account.fullName,
+    email: widget.account.email,
+    avatarPaletteIndex: _avatarPaletteIndex,
+    preferredLanguage: _preferredLanguage,
+    ageYears: _ageYears,
+  );
+
   @override
   Widget build(BuildContext context) {
     ThemePreferencesScope.watch(context);
@@ -159,9 +178,10 @@ class _HomePageState extends State<HomePage> {
       ),
       XpTabPage(key: ValueKey(_xpRefreshKey), accountId: widget.account.id),
       ProfileTabPage(
-        account: widget.account,
+        account: _accountWithPreferences,
         avatarPaletteIndex: _avatarPaletteIndex,
         onAvatarPaletteChanged: _setAvatarPalette,
+        onAccountPreferencesChanged: _setAccountPreferences,
         onLogout: widget.onLogout,
       ),
     ];
@@ -529,6 +549,7 @@ class ProfileTabPage extends StatefulWidget {
     required this.account,
     required this.avatarPaletteIndex,
     required this.onAvatarPaletteChanged,
+    required this.onAccountPreferencesChanged,
     required this.onLogout,
     super.key,
   });
@@ -536,6 +557,7 @@ class ProfileTabPage extends StatefulWidget {
   final Account account;
   final int avatarPaletteIndex;
   final ValueChanged<int> onAvatarPaletteChanged;
+  final void Function(String language, int age) onAccountPreferencesChanged;
   final VoidCallback onLogout;
 
   @override
@@ -544,7 +566,11 @@ class ProfileTabPage extends StatefulWidget {
 
 class _ProfileTabPageState extends State<ProfileTabPage> {
   late int _paletteIndex = widget.avatarPaletteIndex;
+  late String _preferredLanguage =
+      widget.account.preferredLanguage ?? accountLanguageOptions.first.code;
+  late int _ageYears = widget.account.ageYears ?? 18;
   bool _savingPalette = false;
+  bool _savingPreferences = false;
 
   Future<void> _selectPalette(int paletteIndex) async {
     if (_savingPalette || paletteIndex == _paletteIndex) return;
@@ -567,6 +593,48 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
       );
     } finally {
       if (mounted) setState(() => _savingPalette = false);
+    }
+  }
+
+  Future<void> _savePreferences({String? language, int? age}) async {
+    if (_savingPreferences) return;
+    final previousLanguage = _preferredLanguage;
+    final previousAge = _ageYears;
+    final nextLanguage = language ?? _preferredLanguage;
+    final nextAge = age ?? _ageYears;
+    setState(() {
+      _preferredLanguage = nextLanguage;
+      _ageYears = nextAge;
+      _savingPreferences = true;
+    });
+    try {
+      await AuthApi().saveAccountPreferences(
+        preferredLanguage: nextLanguage,
+        ageYears: nextAge,
+      );
+      if (mounted) {
+        widget.onAccountPreferencesChanged(nextLanguage, nextAge);
+      }
+    } on AuthException catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _preferredLanguage = previousLanguage;
+        _ageYears = previousAge;
+      });
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(error.message)));
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _preferredLanguage = previousLanguage;
+        _ageYears = previousAge;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not save your preferences.')),
+      );
+    } finally {
+      if (mounted) setState(() => _savingPreferences = false);
     }
   }
 
@@ -602,6 +670,43 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                     context,
                   ).textTheme.bodyLarge?.copyWith(color: AppColors.mutedText),
                 ),
+                const SizedBox(height: 18),
+                DropdownButtonFormField<String>(
+                  initialValue: _preferredLanguage,
+                  decoration: const InputDecoration(
+                    labelText: 'Language preference',
+                  ),
+                  items: [
+                    for (final language in accountLanguageOptions)
+                      DropdownMenuItem(
+                        value: language.code,
+                        child: Text(language.name),
+                      ),
+                  ],
+                  onChanged: _savingPreferences
+                      ? null
+                      : (value) {
+                          if (value != null) _savePreferences(language: value);
+                        },
+                ),
+                const SizedBox(height: AppSpacing.fieldGap),
+                DropdownButtonFormField<int>(
+                  initialValue: _ageYears,
+                  decoration: const InputDecoration(labelText: 'Age'),
+                  items: [
+                    for (var age = 1; age <= 120; age++)
+                      DropdownMenuItem(value: age, child: Text('$age')),
+                  ],
+                  onChanged: _savingPreferences
+                      ? null
+                      : (value) {
+                          if (value != null) _savePreferences(age: value);
+                        },
+                ),
+                if (_savingPreferences) ...[
+                  const SizedBox(height: 8),
+                  const LinearProgressIndicator(),
+                ],
                 const SizedBox(height: 20),
                 Align(
                   alignment: Alignment.centerLeft,

@@ -8,8 +8,27 @@ CREATE TABLE IF NOT EXISTS accounts (
   password_hash TEXT,
   auth_provider TEXT NOT NULL DEFAULT 'password',
   provider_subject TEXT UNIQUE,
+  preferred_language TEXT,
+  age_years SMALLINT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+ALTER TABLE accounts ADD COLUMN IF NOT EXISTS preferred_language TEXT;
+ALTER TABLE accounts ADD COLUMN IF NOT EXISTS age_years SMALLINT;
+
+DO $$
+BEGIN
+  ALTER TABLE accounts ADD CONSTRAINT accounts_preferred_language_check
+    CHECK (preferred_language IS NULL OR preferred_language IN ('en', 'fr', 'es', 'hi', 'ru'));
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$
+BEGIN
+  ALTER TABLE accounts ADD CONSTRAINT accounts_age_years_check
+    CHECK (age_years IS NULL OR age_years BETWEEN 1 AND 120);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 ALTER TABLE accounts ADD COLUMN IF NOT EXISTS last_topic_id TEXT;
 ALTER TABLE accounts

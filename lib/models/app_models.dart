@@ -4,12 +4,16 @@ class Account {
     required this.fullName,
     required this.email,
     this.avatarPaletteIndex = 0,
+    this.preferredLanguage,
+    this.ageYears,
   });
 
   final String id;
   final String fullName;
   final String email;
   final int avatarPaletteIndex;
+  final String? preferredLanguage;
+  final int? ageYears;
 
   factory Account.fromJson(Map<String, dynamic> json) {
     return Account(
@@ -18,6 +22,8 @@ class Account {
       email: json['email'].toString(),
       avatarPaletteIndex:
           int.tryParse(json['avatarPaletteIndex']?.toString() ?? '') ?? 0,
+      preferredLanguage: json['preferredLanguage']?.toString(),
+      ageYears: int.tryParse(json['ageYears']?.toString() ?? ''),
     );
   }
 }

@@ -6,6 +6,7 @@ import '../../services/auth_api.dart';
 import '../../services/api_session.dart';
 import '../../shared/app_widgets.dart';
 import 'google_auth_button.dart';
+import 'account_preferences_page.dart';
 import '../home/home_page.dart';
 import '../../services/theme_preferences.dart';
 
@@ -14,6 +15,27 @@ void _returnToLogin(NavigatorState navigator) {
   navigator.pushReplacement(
     MaterialPageRoute(builder: (_) => const LoginPage()),
   );
+}
+
+Widget _accountDestination(
+  Account account,
+  NavigatorState navigator, {
+  required bool isNewUser,
+}) {
+  Widget nextPage(Account savedAccount) => isNewUser
+      ? OnboardingPage(account: savedAccount)
+      : HomePage(
+          account: savedAccount,
+          onLogout: () => _returnToLogin(navigator),
+        );
+
+  if (account.preferredLanguage == null || account.ageYears == null) {
+    return AccountPreferencesPage(
+      account: account,
+      nextPageBuilder: (_, savedAccount) => nextPage(savedAccount),
+    );
+  }
+  return nextPage(account);
 }
 
 class RegistrationPage extends StatefulWidget {
@@ -57,8 +79,12 @@ class _RegistrationPageState extends State<RegistrationPage> {
       if (!mounted) {
         return;
       }
+      final navigator = Navigator.of(context);
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => OnboardingPage(account: account)),
+        MaterialPageRoute(
+          builder: (_) =>
+              _accountDestination(account, navigator, isNewUser: true),
+        ),
       );
     } on AuthException catch (error) {
       _showMessage(error.message);
@@ -87,22 +113,15 @@ class _RegistrationPageState extends State<RegistrationPage> {
       );
       if (!mounted) return;
       final navigator = Navigator.of(context);
-      if (result.isNewUser) {
-        navigator.pushReplacement(
-          MaterialPageRoute(
-            builder: (_) => OnboardingPage(account: result.account),
+      navigator.pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => _accountDestination(
+            result.account,
+            navigator,
+            isNewUser: result.isNewUser,
           ),
-        );
-      } else {
-        navigator.pushReplacement(
-          MaterialPageRoute(
-            builder: (_) => HomePage(
-              account: result.account,
-              onLogout: () => _returnToLogin(navigator),
-            ),
-          ),
-        );
-      }
+        ),
+      );
     } on AuthException catch (error) {
       _showMessage(error.message);
     } catch (_) {
@@ -415,10 +434,8 @@ class _LoginPageState extends State<LoginPage> {
       final navigator = Navigator.of(context);
       navigator.pushReplacement(
         MaterialPageRoute(
-          builder: (_) => HomePage(
-            account: account,
-            onLogout: () => _returnToLogin(navigator),
-          ),
+          builder: (_) =>
+              _accountDestination(account, navigator, isNewUser: false),
         ),
       );
     } on AuthException catch (error) {
@@ -450,10 +467,8 @@ class _LoginPageState extends State<LoginPage> {
       final navigator = Navigator.of(context);
       navigator.pushReplacement(
         MaterialPageRoute(
-          builder: (_) => HomePage(
-            account: result.account,
-            onLogout: () => _returnToLogin(navigator),
-          ),
+          builder: (_) =>
+              _accountDestination(result.account, navigator, isNewUser: false),
         ),
       );
     } on AuthException catch (error) {

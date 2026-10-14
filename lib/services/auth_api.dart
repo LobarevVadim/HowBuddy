@@ -44,6 +44,21 @@ class AuthApi {
     return int.tryParse(body['avatarPaletteIndex'].toString()) ?? 0;
   }
 
+  Future<void> saveAccountPreferences({
+    required String preferredLanguage,
+    required int ageYears,
+  }) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/account/preferences'),
+      headers: ApiSession.authenticatedHeaders,
+      body: jsonEncode({
+        'preferredLanguage': preferredLanguage,
+        'ageYears': ageYears,
+      }),
+    );
+    _readBody(response);
+  }
+
   Future<Account> register({
     required String fullName,
     required String email,

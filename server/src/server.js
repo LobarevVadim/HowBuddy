@@ -151,7 +151,7 @@ app.post('/auth/register', async (request, response) => {
     const result = await pool.query(
       `INSERT INTO accounts (full_name, email, password_hash, auth_provider)
        VALUES ($1, $2, $3, 'password')
-       RETURNING id, full_name, email, avatar_palette_index`,
+       RETURNING id, full_name, email, avatar_palette_index, preferred_language, age_years`,
       [fullName, email, passwordHash],
     );
 
@@ -197,7 +197,8 @@ app.post('/auth/google', async (request, response) => {
   try {
     const email = googleUser.email.toLowerCase();
     const existing = await pool.query(
-      `SELECT id, full_name, email, provider_subject, avatar_palette_index
+      `SELECT id, full_name, email, provider_subject, avatar_palette_index,
+              preferred_language, age_years
        FROM accounts WHERE provider_subject = $1 OR email = $2 LIMIT 1`,
       [googleUser.sub, email],
     );
@@ -212,7 +213,8 @@ app.post('/auth/google', async (request, response) => {
         const linked = await pool.query(
           `UPDATE accounts SET provider_subject = $1
            WHERE id = $2 AND provider_subject IS NULL
-           RETURNING id, full_name, email, provider_subject, avatar_palette_index`,
+           RETURNING id, full_name, email, provider_subject, avatar_palette_index,
+                     preferred_language, age_years`,
           [googleUser.sub, account.id],
         );
         account = linked.rows[0] ?? account;
@@ -226,7 +228,8 @@ app.post('/auth/google', async (request, response) => {
         const created = await pool.query(
           `INSERT INTO accounts (full_name, email, auth_provider, provider_subject)
            VALUES ($1, $2, 'google', $3)
-           RETURNING id, full_name, email, provider_subject, avatar_palette_index`,
+           RETURNING id, full_name, email, provider_subject, avatar_palette_index,
+                     preferred_language, age_years`,
           [name, email, googleUser.sub],
         );
         account = created.rows[0];
@@ -234,7 +237,8 @@ app.post('/auth/google', async (request, response) => {
       } catch (error) {
         if (error.code !== '23505') throw error;
         const raced = await pool.query(
-          `SELECT id, full_name, email, provider_subject, avatar_palette_index
+          `SELECT id, full_name, email, provider_subject, avatar_palette_index,
+                  preferred_language, age_years
            FROM accounts WHERE provider_subject = $1 OR email = $2 LIMIT 1`,
           [googleUser.sub, email],
         );
@@ -246,7 +250,8 @@ app.post('/auth/google', async (request, response) => {
           const linked = await pool.query(
             `UPDATE accounts SET provider_subject = $1
              WHERE id = $2 AND provider_subject IS NULL
-             RETURNING id, full_name, email, provider_subject, avatar_palette_index`,
+             RETURNING id, full_name, email, provider_subject, avatar_palette_index,
+                       preferred_language, age_years`,
             [googleUser.sub, account.id],
           );
           account = linked.rows[0] ?? account;
@@ -321,6 +326,27 @@ app.put('/account/avatar-palette', requireAuth, async (request, response) => {
   } catch (error) {
     console.error(error);
     return response.status(500).json({message: 'Could not save your avatar colors.'});
+  }
+});
+
+app.put('/account/preferences', requireAuth, async (request, response) => {
+  const preferredLanguage = String(request.body.preferredLanguage ?? '');
+  const ageYears = Number(request.body.ageYears);
+  if (!['en', 'fr', 'es', 'hi', 'ru'].includes(preferredLanguage)) {
+    return response.status(400).json({message: 'Choose a supported language.'});
+  }
+  if (!Number.isInteger(ageYears) || ageYears < 1 || ageYears > 120) {
+    return response.status(400).json({message: 'Choose an age between 1 and 120.'});
+  }
+  try {
+    await pool.query(
+      'UPDATE accounts SET preferred_language = $1, age_years = $2 WHERE id = $3',
+      [preferredLanguage, ageYears, request.accountId],
+    );
+    return response.json({preferredLanguage, ageYears});
+  } catch (error) {
+    console.error(error);
+    return response.status(500).json({message: 'Could not save your preferences.'});
   }
 });
 
@@ -516,7 +542,8 @@ app.post('/auth/login', async (request, response) => {
   }
 
   const result = await pool.query(
-    `SELECT id, full_name, email, password_hash, avatar_palette_index
+    `SELECT id, full_name, email, password_hash, avatar_palette_index,
+            preferred_language, age_years
      FROM accounts
      WHERE email = $1 OR username = $1
      LIMIT 1`,
@@ -584,6 +611,8 @@ function toAccount(row) {
     fullName: row.full_name,
     email: row.email,
     avatarPaletteIndex: row.avatar_palette_index ?? 0,
+    preferredLanguage: row.preferred_language ?? null,
+    ageYears: row.age_years ?? null,
   };
 }
 
