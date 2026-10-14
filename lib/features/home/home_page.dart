@@ -4,6 +4,7 @@ import '../../models/app_models.dart';
 import '../../services/auth_api.dart';
 import '../../services/gamification_api.dart';
 import '../../services/theme_preferences.dart';
+import '../../services/ui_translations.dart';
 import '../../shared/app_widgets.dart';
 import '../gamification/gamification_pages.dart';
 import '../learning/lesson_tree.dart';
@@ -44,6 +45,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    UiTranslations.saveLanguage(_preferredLanguage);
     _gameStateFuture = GamificationApi().fetchState(widget.account.id).then((
       state,
     ) {
@@ -141,6 +143,7 @@ class _HomePageState extends State<HomePage> {
       _preferredLanguage = language;
       _ageYears = age;
     });
+    UiTranslations.saveLanguage(language);
   }
 
   Account get _accountWithPreferences => Account(
@@ -202,26 +205,26 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: _selectTab,
-        destinations: const [
+        destinations: [
           NavigationDestination(
             icon: Icon(Icons.park_outlined),
             selectedIcon: Icon(Icons.park_rounded),
-            label: 'Tree',
+            label: uiText(context, 'Tree'),
           ),
           NavigationDestination(
             icon: Icon(Icons.note_alt_outlined),
             selectedIcon: Icon(Icons.note_alt_rounded),
-            label: 'Topics',
+            label: uiText(context, 'Topics'),
           ),
           NavigationDestination(
             icon: Icon(Icons.workspace_premium_outlined),
             selectedIcon: Icon(Icons.workspace_premium_rounded),
-            label: 'XP',
+            label: uiText(context, 'XP'),
           ),
           NavigationDestination(
             icon: Icon(Icons.person_outline),
             selectedIcon: Icon(Icons.person_rounded),
-            label: 'Profile',
+            label: uiText(context, 'Profile'),
           ),
         ],
       ),
@@ -247,7 +250,7 @@ class _HomePageState extends State<HomePage> {
                 child: _resourceButton(
                   icon: Icons.local_fire_department_rounded,
                   color: Colors.orange,
-                  label: '${state.streakCount} days',
+                  label: '${state.streakCount} ${uiText(context, 'days')}',
                   onTap: () => _openStreak(state),
                 ),
               ),
@@ -336,7 +339,10 @@ class XpTabPage extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(AppSpacing.tabPagePadding),
               child: Text(
-                'Could not load your XP. Please check your connection and try again.',
+                uiText(
+                  context,
+                  'Could not load your XP. Please check your connection and try again.',
+                ),
                 textAlign: TextAlign.center,
                 style: Theme.of(
                   context,
@@ -360,7 +366,7 @@ class XpTabPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    'Your XP',
+                    uiText(context, 'Your XP'),
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                       color: AppColors.primaryDark,
                       fontWeight: FontWeight.w900,
@@ -368,7 +374,11 @@ class XpTabPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '${summary.totalXp} total XP',
+                    uiText(
+                      context,
+                      '{count} total XP',
+                      args: {'count': '${summary.totalXp}'},
+                    ),
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       color: AppColors.primary,
                       fontWeight: FontWeight.w800,
@@ -376,7 +386,7 @@ class XpTabPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 28),
                   Text(
-                    'Leaderboard',
+                    uiText(context, 'Leaderboard'),
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w800,
                     ),
@@ -391,20 +401,22 @@ class XpTabPage extends StatelessWidget {
                     ),
                     child: Column(
                       children: [
-                        ...summary.leaderboard.map(_leaderboardRow),
+                        ...summary.leaderboard.map(
+                          (entry) => _leaderboardRow(context, entry),
+                        ),
                         if (summary.yourPlace case final yourPlace?) ...[
                           const Padding(
                             padding: EdgeInsets.symmetric(horizontal: 10),
                             child: Divider(height: 18),
                           ),
-                          _leaderboardRow(yourPlace),
+                          _leaderboardRow(context, yourPlace),
                         ],
                       ],
                     ),
                   ),
                   const SizedBox(height: 28),
                   Text(
-                    'This week',
+                    uiText(context, 'This week'),
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w800,
                     ),
@@ -422,14 +434,14 @@ class XpTabPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: summary.days.map((day) {
                         final fraction = day.xp / maxXp;
-                        final weekday = const [
-                          'Mon',
-                          'Tue',
-                          'Wed',
-                          'Thu',
-                          'Fri',
-                          'Sat',
-                          'Sun',
+                        final weekday = [
+                          uiText(context, 'Mon'),
+                          uiText(context, 'Tue'),
+                          uiText(context, 'Wed'),
+                          uiText(context, 'Thu'),
+                          uiText(context, 'Fri'),
+                          uiText(context, 'Sat'),
+                          uiText(context, 'Sun'),
                         ][day.date.weekday - 1];
                         return Expanded(
                           child: Padding(
@@ -485,7 +497,7 @@ class XpTabPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'XP earned each day over the last 7 days',
+                    uiText(context, 'XP earned each day over the last 7 days'),
                     textAlign: TextAlign.center,
                     style: TextStyle(color: AppColors.mutedText),
                   ),
@@ -498,7 +510,7 @@ class XpTabPage extends StatelessWidget {
     );
   }
 
-  Widget _leaderboardRow(LeaderboardEntry entry) {
+  Widget _leaderboardRow(BuildContext context, LeaderboardEntry entry) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 3),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
@@ -525,7 +537,9 @@ class XpTabPage extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              entry.isYou ? '${entry.name} (you)' : entry.name,
+              entry.isYou
+                  ? '${entry.name}${uiText(context, ' (you)')}'
+                  : entry.name,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontWeight: FontWeight.w700),
             ),
@@ -589,7 +603,9 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
       if (!mounted) return;
       setState(() => _paletteIndex = previousIndex);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not save your avatar colors.')),
+        SnackBar(
+          content: Text(uiText(context, 'Could not save your avatar colors.')),
+        ),
       );
     } finally {
       if (mounted) setState(() => _savingPalette = false);
@@ -602,6 +618,10 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
     final previousAge = _ageYears;
     final nextLanguage = language ?? _preferredLanguage;
     final nextAge = age ?? _ageYears;
+    if (language != null) {
+      UiTranslations.saveLanguage(nextLanguage);
+      widget.onAccountPreferencesChanged(nextLanguage, nextAge);
+    }
     setState(() {
       _preferredLanguage = nextLanguage;
       _ageYears = nextAge;
@@ -621,17 +641,27 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
         _preferredLanguage = previousLanguage;
         _ageYears = previousAge;
       });
+      if (language != null) {
+        UiTranslations.saveLanguage(previousLanguage);
+        widget.onAccountPreferencesChanged(previousLanguage, previousAge);
+      }
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(error.message)));
+      ).showSnackBar(SnackBar(content: Text(uiText(context, error.message))));
     } catch (_) {
       if (!mounted) return;
       setState(() {
         _preferredLanguage = previousLanguage;
         _ageYears = previousAge;
       });
+      if (language != null) {
+        UiTranslations.saveLanguage(previousLanguage);
+        widget.onAccountPreferencesChanged(previousLanguage, previousAge);
+      }
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not save your preferences.')),
+        SnackBar(
+          content: Text(uiText(context, 'Could not save your preferences.')),
+        ),
       );
     } finally {
       if (mounted) setState(() => _savingPreferences = false);
@@ -656,7 +686,11 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                 ),
                 const SizedBox(height: AppSpacing.tabIconGap),
                 Text(
-                  'Hi, ${widget.account.fullName}',
+                  uiText(
+                    context,
+                    'Hi, {name}',
+                    args: {'name': widget.account.fullName},
+                  ),
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.w800,
@@ -673,14 +707,14 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                 const SizedBox(height: 18),
                 DropdownButtonFormField<String>(
                   initialValue: _preferredLanguage,
-                  decoration: const InputDecoration(
-                    labelText: 'Language preference',
+                  decoration: InputDecoration(
+                    labelText: uiText(context, 'Language preference'),
                   ),
                   items: [
                     for (final language in accountLanguageOptions)
                       DropdownMenuItem(
                         value: language.code,
-                        child: Text(language.name),
+                        child: Text(UiTranslations.languageName(language.code)),
                       ),
                   ],
                   onChanged: _savingPreferences
@@ -692,7 +726,9 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                 const SizedBox(height: AppSpacing.fieldGap),
                 DropdownButtonFormField<int>(
                   initialValue: _ageYears,
-                  decoration: const InputDecoration(labelText: 'Age'),
+                  decoration: InputDecoration(
+                    labelText: uiText(context, 'Age'),
+                  ),
                   items: [
                     for (var age = 1; age <= 120; age++)
                       DropdownMenuItem(value: age, child: Text('$age')),
@@ -716,12 +752,12 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                         : Icons.light_mode_rounded,
                     color: AppColors.primary,
                   ),
-                  title: const Text(
-                    'Dark mode',
+                  title: Text(
+                    uiText(context, 'Dark mode'),
                     style: TextStyle(fontWeight: FontWeight.w700),
                   ),
                   subtitle: Text(
-                    themePreferences.isDarkMode ? 'On' : 'Off',
+                    uiText(context, themePreferences.isDarkMode ? 'On' : 'Off'),
                     style: TextStyle(color: AppColors.mutedText),
                   ),
                   value: themePreferences.isDarkMode,
@@ -731,7 +767,7 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'Customize your buddy',
+                    uiText(context, 'Customize your buddy'),
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w800,
                     ),
@@ -739,7 +775,10 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Choose a color palette. Your eyes, mouth, and background stay the same.',
+                  uiText(
+                    context,
+                    'Choose a color palette. Your eyes, mouth, and background stay the same.',
+                  ),
                   style: TextStyle(color: AppColors.mutedText),
                   textAlign: TextAlign.center,
                 ),
@@ -759,7 +798,17 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                     return Semantics(
                       button: true,
                       selected: selected,
-                      label: '${avatarPaletteNames[index]} avatar colors',
+                      label: uiText(
+                        context,
+                        '{name} avatar colors',
+                        args: {
+                          'name': uiText(
+                            context,
+                            index == 0 ? 'Original' : 'Palette {number}',
+                            args: {'number': '${index + 1}'},
+                          ),
+                        },
+                      ),
                       child: InkWell(
                         onTap: _savingPalette
                             ? null
@@ -785,7 +834,11 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                               HowBuddyAvatar(paletteIndex: index, size: 48),
                               const SizedBox(height: 4),
                               Text(
-                                avatarPaletteNames[index],
+                                uiText(
+                                  context,
+                                  index == 0 ? 'Original' : 'Palette {number}',
+                                  args: {'number': '${index + 1}'},
+                                ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
@@ -807,7 +860,10 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                   const LinearProgressIndicator(),
                 ],
                 const SizedBox(height: AppSpacing.profileLogoutGap),
-                PrimaryButton(text: 'Logout', onPressed: widget.onLogout),
+                PrimaryButton(
+                  text: uiText(context, 'Logout'),
+                  onPressed: widget.onLogout,
+                ),
               ],
             ),
           ),

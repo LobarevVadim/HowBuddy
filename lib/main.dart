@@ -6,9 +6,11 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'app_style.dart';
 import 'features/auth/auth_pages.dart';
 import 'services/theme_preferences.dart';
+import 'services/ui_translations.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await UiTranslations.loadSavedLanguage();
   if (!kIsWeb) {
     await MobileAds.instance.initialize();
   }

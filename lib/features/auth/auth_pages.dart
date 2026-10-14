@@ -9,6 +9,7 @@ import 'google_auth_button.dart';
 import 'account_preferences_page.dart';
 import '../home/home_page.dart';
 import '../../services/theme_preferences.dart';
+import '../../services/ui_translations.dart';
 
 void _returnToLogin(NavigatorState navigator) {
   ApiSession.clear();
@@ -100,7 +101,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   void _showMessage(String message) {
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    ).showSnackBar(SnackBar(content: Text(uiText(context, message))));
   }
 
   Future<void> _signUpWithGoogle(String idToken) async {
@@ -135,8 +136,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
   Widget build(BuildContext context) {
     ThemePreferencesScope.watch(context);
     return AuthScaffold(
-      title: 'Create your account',
-      subtitle: 'Join HowBuddy and start your journey!',
+      title: uiText(context, 'Create your account'),
+      subtitle: uiText(context, 'Join HowBuddy and start your journey!'),
       child: Form(
         key: _formKey,
         child: Column(
@@ -144,52 +145,60 @@ class _RegistrationPageState extends State<RegistrationPage> {
           children: [
             AppTextField(
               controller: _fullNameController,
-              label: 'Full Name',
+              label: uiText(context, 'Full Name'),
               icon: Icons.badge_outlined,
               validator: (value) => value == null || value.trim().length < 2
-                  ? 'Enter your full name.'
+                  ? uiText(context, 'Enter your full name.')
                   : null,
             ),
             const SizedBox(height: AppSpacing.fieldGap),
             AppTextField(
               controller: _emailController,
-              label: 'Email Address',
+              label: uiText(context, 'Email Address'),
               icon: Icons.mail_outline,
               keyboardType: TextInputType.emailAddress,
-              validator: validateEmailInput,
+              validator: (value) {
+                final error = validateEmailInput(value);
+                return error == null ? null : uiText(context, error);
+              },
             ),
             const SizedBox(height: AppSpacing.fieldGap),
             AppTextField(
               controller: _passwordController,
-              label: 'Password',
+              label: uiText(context, 'Password'),
               icon: Icons.lock_outline,
               obscureText: true,
               showPasswordToggle: true,
-              validator: validatePasswordInput,
+              translatePasswordToggle: true,
+              validator: (value) {
+                final error = validatePasswordInput(value);
+                return error == null ? null : uiText(context, error);
+              },
             ),
             const SizedBox(height: AppSpacing.fieldGap),
             AppTextField(
               controller: _confirmPasswordController,
-              label: 'Confirm Password',
+              label: uiText(context, 'Confirm Password'),
               icon: Icons.verified_user_outlined,
               obscureText: true,
               showPasswordToggle: true,
+              translatePasswordToggle: true,
               validator: (value) {
                 if (value != _passwordController.text) {
-                  return 'Passwords do not match.';
+                  return uiText(context, 'Passwords do not match.');
                 }
                 return null;
               },
             ),
             const SizedBox(height: AppSpacing.passwordTipGap),
-            const PasswordTipCard(),
+            const PasswordTipCard(localized: true),
             const SizedBox(height: AppSpacing.sectionGap),
             PrimaryButton(
-              text: 'Sign up',
+              text: uiText(context, 'Sign up'),
               isLoading: _isLoading,
               onPressed: _submit,
             ),
-            const AuthDivider(),
+            const AuthDivider(translate: true),
             GoogleAuthButton(
               isSignup: true,
               isLoading: _isLoading,
@@ -198,7 +207,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
             ),
             const SizedBox(height: AppSpacing.socialButtonGap),
             SocialButton(
-              text: 'Sign up with Apple (coming soon)',
+              text: uiText(context, 'Sign up with Apple (coming soon)'),
               icon: Icons.apple,
               iconColor: AppColors.apple,
               onPressed: () {},
@@ -206,8 +215,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
             ),
             const SizedBox(height: AppSpacing.authSwitchGap),
             AuthSwitchText(
-              text: 'Already have an account?',
-              linkText: 'Login',
+              text: uiText(context, 'Already have an account?'),
+              linkText: uiText(context, 'Login'),
               onPressed: () {
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(builder: (_) => const LoginPage()),
@@ -276,7 +285,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   const AuthHeroImage(),
                   const SizedBox(height: AppSpacing.heroGap),
                   Text(
-                    'Where do we want to start?',
+                    uiText(context, 'Where do we want to start?'),
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                       color: AppColors.primaryDark,
@@ -295,7 +304,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
                       if (snapshot.hasError) {
                         return Text(
-                          'Could not load questions.',
+                          uiText(context, 'Could not load questions.'),
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.bodyLarge
                               ?.copyWith(color: AppColors.mutedText),
@@ -309,7 +318,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
                           for (final topic in topics) ...[
                             OnboardingOptionButton(
                               title: topic.question,
-                              subtitle: '${topic.lessonCount} lessons',
+                              subtitle: uiText(
+                                context,
+                                '{count} lessons',
+                                args: {'count': '${topic.lessonCount}'},
+                              ),
                               onPressed: () => _openTopic(topic),
                             ),
                             const SizedBox(height: AppSpacing.socialButtonGap),
@@ -317,7 +330,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
                           OutlinedButton.icon(
                             onPressed: _skipToNotepad,
                             icon: const Icon(Icons.note_alt_outlined),
-                            label: const Text('Skip to the main tree'),
+                            label: Text(
+                              uiText(context, 'Skip to the main tree'),
+                            ),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: AppColors.primaryDark,
                               side: BorderSide(color: AppColors.border),
@@ -452,7 +467,14 @@ class _LoginPageState extends State<LoginPage> {
   void _showMessage(String message) {
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    ).showSnackBar(SnackBar(content: Text(uiText(context, message))));
+  }
+
+  String? _validateLoginPassword(String? value) {
+    if (value == null || value.length < 8) {
+      return uiText(context, 'Password must be at least 8 characters.');
+    }
+    return null;
   }
 
   Future<void> _signInWithGoogle(String idToken) async {
@@ -484,8 +506,8 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     ThemePreferencesScope.watch(context);
     return AuthScaffold(
-      title: 'Welcome back!',
-      subtitle: 'Login to continue your journey',
+      title: uiText(context, 'Welcome back!'),
+      subtitle: uiText(context, 'Login to continue your journey'),
       child: Form(
         key: _formKey,
         child: Column(
@@ -493,28 +515,29 @@ class _LoginPageState extends State<LoginPage> {
           children: [
             AppTextField(
               controller: _identifierController,
-              label: 'Email or Username',
+              label: uiText(context, 'Email or Username'),
               icon: Icons.account_circle_outlined,
               validator: (value) => value == null || value.trim().isEmpty
-                  ? 'Enter your email or username.'
+                  ? uiText(context, 'Enter your email or username.')
                   : null,
             ),
             const SizedBox(height: AppSpacing.fieldGap),
             AppTextField(
               controller: _passwordController,
-              label: 'Password',
+              label: uiText(context, 'Password'),
               icon: Icons.lock_outline,
               obscureText: true,
               showPasswordToggle: true,
-              validator: validatePasswordInput,
+              translatePasswordToggle: true,
+              validator: _validateLoginPassword,
             ),
             const SizedBox(height: AppSpacing.sectionGap),
             PrimaryButton(
-              text: 'Login',
+              text: uiText(context, 'Login'),
               isLoading: _isLoading,
               onPressed: _submit,
             ),
-            const AuthDivider(),
+            const AuthDivider(translate: true),
             GoogleAuthButton(
               isSignup: false,
               isLoading: _isLoading,
@@ -523,7 +546,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             const SizedBox(height: AppSpacing.socialButtonGap),
             SocialButton(
-              text: 'Sign in with Apple (coming soon)',
+              text: uiText(context, 'Sign in with Apple (coming soon)'),
               icon: Icons.apple,
               iconColor: AppColors.apple,
               onPressed: () {},
@@ -531,8 +554,8 @@ class _LoginPageState extends State<LoginPage> {
             ),
             const SizedBox(height: AppSpacing.authSwitchGap),
             AuthSwitchText(
-              text: 'Don\'t have an account?',
-              linkText: 'Sign Up',
+              text: uiText(context, "Don't have an account?"),
+              linkText: uiText(context, 'Sign Up'),
               onPressed: () {
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(builder: (_) => const RegistrationPage()),

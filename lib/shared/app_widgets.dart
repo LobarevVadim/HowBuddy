@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../app_style.dart';
 import '../services/theme_preferences.dart';
+import '../services/ui_translations.dart';
 
 class TreePanel extends StatelessWidget {
   const TreePanel({required this.child, super.key});
@@ -131,6 +132,7 @@ class AppTextField extends StatefulWidget {
     this.keyboardType,
     this.obscureText = false,
     this.showPasswordToggle = false,
+    this.translatePasswordToggle = false,
     this.validator,
     super.key,
   });
@@ -141,6 +143,7 @@ class AppTextField extends StatefulWidget {
   final TextInputType? keyboardType;
   final bool obscureText;
   final bool showPasswordToggle;
+  final bool translatePasswordToggle;
   final String? Function(String?)? validator;
 
   @override
@@ -171,6 +174,12 @@ class _AppTextFieldState extends State<AppTextField> {
         suffixIcon: widget.showPasswordToggle
             ? IconButton(
                 onPressed: () => setState(() => _isObscured = !_isObscured),
+                tooltip: widget.translatePasswordToggle
+                    ? uiText(
+                        context,
+                        _isObscured ? 'Show password' : 'Hide password',
+                      )
+                    : null,
                 icon: Icon(
                   _isObscured ? Icons.visibility : Icons.visibility_off,
                   color: AppColors.mutedText,
@@ -183,7 +192,9 @@ class _AppTextFieldState extends State<AppTextField> {
 }
 
 class PasswordTipCard extends StatelessWidget {
-  const PasswordTipCard({super.key});
+  const PasswordTipCard({this.localized = false, super.key});
+
+  final bool localized;
 
   @override
   Widget build(BuildContext context) {
@@ -204,7 +215,9 @@ class PasswordTipCard extends StatelessWidget {
           SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Password must be at least 8 characters.',
+                localized
+                    ? uiText(context, 'Password must be at least 8 characters.')
+                    : 'Password must be at least 8 characters.',
               style: TextStyle(
                 color: AppColors.text,
                 fontWeight: FontWeight.w600,
@@ -312,7 +325,9 @@ class SocialButton extends StatelessWidget {
 }
 
 class AuthDivider extends StatelessWidget {
-  const AuthDivider({super.key});
+  const AuthDivider({this.translate = false, super.key});
+
+  final bool translate;
 
   @override
   Widget build(BuildContext context) {
@@ -324,7 +339,10 @@ class AuthDivider extends StatelessWidget {
           Expanded(child: Divider()),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 14),
-            child: Text('or', style: TextStyle(color: AppColors.mutedText)),
+            child: Text(
+              translate ? uiText(context, 'or') : 'or',
+              style: TextStyle(color: AppColors.mutedText),
+            ),
           ),
           Expanded(child: Divider()),
         ],

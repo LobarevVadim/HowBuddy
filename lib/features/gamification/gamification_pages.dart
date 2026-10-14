@@ -7,6 +7,7 @@ import '../../models/app_models.dart';
 import '../../services/gamification_api.dart';
 import '../../services/rewarded_ads.dart';
 import '../../services/theme_preferences.dart';
+import '../../services/ui_translations.dart';
 
 class HeartsPage extends StatefulWidget {
   const HeartsPage({
@@ -61,15 +62,21 @@ class _HeartsPageState extends State<HeartsPage> {
     }
   }
 
-  String _rechargeCountdown() {
+  String _rechargeCountdown(BuildContext context) {
     final rechargeAt = _state.heartRechargeAt;
-    if (rechargeAt == null) return 'A heart will recharge in 3:00:00';
+    if (rechargeAt == null) {
+      return uiText(context, 'A heart will recharge in 3:00:00');
+    }
     final remaining = rechargeAt.difference(DateTime.now());
     final seconds = remaining.isNegative ? 0 : remaining.inSeconds;
     final hours = (seconds ~/ 3600).toString().padLeft(2, '0');
     final minutes = ((seconds % 3600) ~/ 60).toString().padLeft(2, '0');
     final secs = (seconds % 60).toString().padLeft(2, '0');
-    return 'Next heart in $hours:$minutes:$secs';
+    return uiText(
+      context,
+      'Next heart in {time}',
+      args: {'time': '$hours:$minutes:$secs'},
+    );
   }
 
   Future<void> _watchVideo() async {
@@ -81,9 +88,13 @@ class _HeartsPageState extends State<HeartsPage> {
       _state = await GamificationApi().watchHeartVideo(widget.accountId);
       if (mounted) setState(() {});
     } on AuthException catch (error) {
+      if (!mounted) return;
       _showError(error.message);
     } catch (_) {
-      _showError('Could not restore a heart. Please try again.');
+      if (!mounted) return;
+      _showError(
+        uiText(context, 'Could not restore a heart. Please try again.'),
+      );
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -92,14 +103,14 @@ class _HeartsPageState extends State<HeartsPage> {
   void _showError(String message) {
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    ).showSnackBar(SnackBar(content: Text(uiText(context, message))));
   }
 
   @override
   Widget build(BuildContext context) {
     ThemePreferencesScope.watch(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Hearts')),
+      appBar: AppBar(title: Text(uiText(context, 'Hearts'))),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.tabPagePadding),
@@ -115,7 +126,11 @@ class _HeartsPageState extends State<HeartsPage> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  '${_state.hearts} of 5 hearts',
+                  uiText(
+                    context,
+                    '{count} of 5 hearts',
+                    args: {'count': '${_state.hearts}'},
+                  ),
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     color: AppColors.primaryDark,
                     fontWeight: FontWeight.w900,
@@ -123,14 +138,14 @@ class _HeartsPageState extends State<HeartsPage> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Starting a lesson uses one heart.',
+                  uiText(context, 'Starting a lesson uses one heart.'),
                   textAlign: TextAlign.center,
                   style: TextStyle(color: AppColors.mutedText),
                 ),
                 const SizedBox(height: 24),
                 if (_state.hearts < 5) ...[
                   Text(
-                    _rechargeCountdown(),
+                    _rechargeCountdown(context),
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: AppColors.primaryDark,
                       fontWeight: FontWeight.w800,
@@ -164,17 +179,26 @@ class _HeartsPageState extends State<HeartsPage> {
                           )
                         : const Icon(Icons.play_circle_outline_rounded),
                     label: Text(
-                      _state.hearts >= 5
-                          ? 'Hearts are full'
-                          : 'Watch ad - +1 heart',
+                      uiText(
+                        context,
+                        _state.hearts >= 5
+                            ? 'Hearts are full'
+                            : 'Watch ad - +1 heart',
+                      ),
                     ),
                   ),
                 ),
                 const SizedBox(height: 10),
                 Text(
                   RewardedAds.isWebDemo
-                      ? 'SIMULATED AD - WEB DEMO. No real advertisement is shown.'
-                      : 'TEST AD - ADMOB. Test ads do not generate revenue.',
+                      ? uiText(
+                          context,
+                          'SIMULATED AD - WEB DEMO. No real advertisement is shown.',
+                        )
+                      : uiText(
+                          context,
+                          'TEST AD - ADMOB. Test ads do not generate revenue.',
+                        ),
                   textAlign: TextAlign.center,
                   style: TextStyle(color: AppColors.mutedText, fontSize: 12),
                 ),
@@ -230,9 +254,13 @@ class _EmeraldShopPageState extends State<EmeraldShopPage> {
       );
       if (mounted) setState(() {});
     } on AuthException catch (error) {
+      if (!mounted) return;
       _showError(error.message);
     } catch (_) {
-      _showError('Could not buy the XP boost. Please try again.');
+      if (!mounted) return;
+      _showError(
+        uiText(context, 'Could not buy the XP boost. Please try again.'),
+      );
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -247,9 +275,11 @@ class _EmeraldShopPageState extends State<EmeraldShopPage> {
       _state = await GamificationApi().watchEmeraldVideo(widget.accountId);
       if (mounted) setState(() {});
     } on AuthException catch (error) {
+      if (!mounted) return;
       _showError(error.message);
     } catch (_) {
-      _showError('Could not add emeralds. Please try again.');
+      if (!mounted) return;
+      _showError(uiText(context, 'Could not add emeralds. Please try again.'));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -258,17 +288,34 @@ class _EmeraldShopPageState extends State<EmeraldShopPage> {
   void _showError(String message) {
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    ).showSnackBar(SnackBar(content: Text(uiText(context, message))));
   }
 
-  String _boostTimeLeft() {
+  String _boostTimeLeft(BuildContext context) {
     final end = _state.xpBoostUntil;
-    if (end == null || !end.isAfter(DateTime.now())) return 'No active boost';
+    if (end == null || !end.isAfter(DateTime.now())) {
+      return uiText(context, 'No active boost');
+    }
     final remaining = end.difference(DateTime.now());
     final hours = remaining.inHours;
     final minutes = remaining.inMinutes.remainder(60);
     final seconds = remaining.inSeconds.remainder(60);
-    return '2x XP active - ${hours > 0 ? '${hours}h ' : ''}${minutes}m ${seconds}s left';
+    final time = hours > 0
+        ? uiText(
+            context,
+            '{hours}h {minutes}m {seconds}s',
+            args: {
+              'hours': '$hours',
+              'minutes': '$minutes',
+              'seconds': '$seconds',
+            },
+          )
+        : uiText(
+            context,
+            '{minutes}m {seconds}s',
+            args: {'minutes': '$minutes', 'seconds': '$seconds'},
+          );
+    return uiText(context, '2x XP active - {time} left', args: {'time': time});
   }
 
   @override
@@ -280,7 +327,7 @@ class _EmeraldShopPageState extends State<EmeraldShopPage> {
       (minutes: 10, price: 20),
     ];
     return Scaffold(
-      appBar: AppBar(title: const Text('Emerald shop')),
+      appBar: AppBar(title: Text(uiText(context, 'Emerald shop'))),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.tabPagePadding),
@@ -298,7 +345,11 @@ class _EmeraldShopPageState extends State<EmeraldShopPage> {
                     ),
                     const SizedBox(width: 10),
                     Text(
-                      '${_state.emeralds} emeralds',
+                      uiText(
+                        context,
+                        '{count} emeralds',
+                        args: {'count': '${_state.emeralds}'},
+                      ),
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         color: AppColors.primaryDark,
                         fontWeight: FontWeight.w900,
@@ -308,7 +359,7 @@ class _EmeraldShopPageState extends State<EmeraldShopPage> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  _boostTimeLeft(),
+                  _boostTimeLeft(context),
                   style: TextStyle(
                     color: AppColors.success,
                     fontWeight: FontWeight.w800,
@@ -316,7 +367,7 @@ class _EmeraldShopPageState extends State<EmeraldShopPage> {
                 ),
                 const SizedBox(height: 26),
                 Text(
-                  'Double your lesson XP',
+                  uiText(context, 'Double your lesson XP'),
                   style: Theme.of(
                     context,
                   ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
@@ -330,13 +381,25 @@ class _EmeraldShopPageState extends State<EmeraldShopPage> {
                         color: Colors.amber,
                       ),
                       title: Text(
-                        '${offer.minutes} minute${offer.minutes == 60 ? '' : 's'} - 2x XP',
+                        uiText(
+                          context,
+                          offer.minutes == 60
+                              ? '{minutes} minute - 2x XP'
+                              : '{minutes} minutes - 2x XP',
+                          args: {'minutes': '${offer.minutes}'},
+                        ),
                       ),
                       trailing: FilledButton.tonal(
                         onPressed: _busy || _state.emeralds < offer.price
                             ? null
                             : () => _purchase(offer.minutes),
-                        child: Text('Price: ${offer.price}'),
+                        child: Text(
+                          uiText(
+                            context,
+                            'Price: {price}',
+                            args: {'price': '${offer.price}'},
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -351,13 +414,19 @@ class _EmeraldShopPageState extends State<EmeraldShopPage> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.play_circle_outline_rounded),
-                  label: const Text('Watch ad - +25 emeralds'),
+                  label: Text(uiText(context, 'Watch ad - +25 emeralds')),
                 ),
                 const SizedBox(height: 10),
                 Text(
                   RewardedAds.isWebDemo
-                      ? 'SIMULATED AD - WEB DEMO. No real advertisement is shown.'
-                      : 'TEST AD - ADMOB. Test ads do not generate revenue.',
+                      ? uiText(
+                          context,
+                          'SIMULATED AD - WEB DEMO. No real advertisement is shown.',
+                        )
+                      : uiText(
+                          context,
+                          'TEST AD - ADMOB. Test ads do not generate revenue.',
+                        ),
                   textAlign: TextAlign.center,
                   style: TextStyle(color: AppColors.mutedText, fontSize: 12),
                 ),
@@ -392,7 +461,7 @@ class _StreakCalendarPageState extends State<StreakCalendarPage> {
     final today = DateTime.now();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Study streak')),
+      appBar: AppBar(title: Text(uiText(context, 'Study streak'))),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.tabPagePadding),
@@ -411,7 +480,11 @@ class _StreakCalendarPageState extends State<StreakCalendarPage> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      '${widget.state.streakCount} day streak',
+                      uiText(
+                        context,
+                        '{count} day streak',
+                        args: {'count': '${widget.state.streakCount}'},
+                      ),
                       style: Theme.of(context).textTheme.headlineSmall
                           ?.copyWith(
                             color: AppColors.primaryDark,
@@ -424,7 +497,7 @@ class _StreakCalendarPageState extends State<StreakCalendarPage> {
                 Row(
                   children: [
                     IconButton(
-                      tooltip: 'Previous month',
+                      tooltip: uiText(context, 'Previous month'),
                       onPressed: () => setState(() {
                         _month = DateTime(_month.year, _month.month - 1);
                       }),
@@ -432,7 +505,7 @@ class _StreakCalendarPageState extends State<StreakCalendarPage> {
                     ),
                     Expanded(
                       child: Text(
-                        '${_monthName(_month.month)} ${_month.year}',
+                        '${_monthName(context, _month.month)} ${_month.year}',
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w800,
@@ -440,7 +513,7 @@ class _StreakCalendarPageState extends State<StreakCalendarPage> {
                       ),
                     ),
                     IconButton(
-                      tooltip: 'Next month',
+                      tooltip: uiText(context, 'Next month'),
                       onPressed:
                           _month.year == today.year &&
                               _month.month >= today.month
@@ -516,7 +589,10 @@ class _StreakCalendarPageState extends State<StreakCalendarPage> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Days you completed a lesson are highlighted.',
+                  uiText(
+                    context,
+                    'Days you completed a lesson are highlighted.',
+                  ),
                   textAlign: TextAlign.center,
                   style: TextStyle(color: AppColors.mutedText),
                 ),
@@ -528,20 +604,23 @@ class _StreakCalendarPageState extends State<StreakCalendarPage> {
     );
   }
 
-  String _monthName(int month) => const [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ][month - 1];
+  String _monthName(BuildContext context, int month) => uiText(
+    context,
+    const [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ][month - 1],
+  );
 
   String _dateKey(DateTime date) =>
       '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';

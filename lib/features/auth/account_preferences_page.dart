@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app_style.dart';
 import '../../models/app_models.dart';
 import '../../services/auth_api.dart';
+import '../../services/ui_translations.dart';
 import '../../shared/app_widgets.dart';
 
 typedef AccountPreferencesNextPage =
@@ -43,6 +44,12 @@ class _AccountPreferencesPageState extends State<AccountPreferencesPage> {
   late int _ageYears = widget.account.ageYears ?? 18;
   bool _saving = false;
 
+  @override
+  void initState() {
+    super.initState();
+    UiTranslations.saveLanguage(_preferredLanguage);
+  }
+
   Future<void> _continue() async {
     if (_saving) return;
     setState(() => _saving = true);
@@ -66,9 +73,13 @@ class _AccountPreferencesPageState extends State<AccountPreferencesPage> {
         ),
       );
     } on AuthException catch (error) {
+      if (!mounted) return;
       _showError(error.message);
     } catch (_) {
-      _showError('Could not save your preferences. Please try again.');
+      if (!mounted) return;
+      _showError(
+        uiText(context, 'Could not save your preferences. Please try again.'),
+      );
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -77,7 +88,7 @@ class _AccountPreferencesPageState extends State<AccountPreferencesPage> {
   void _showError(String message) {
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    ).showSnackBar(SnackBar(content: Text(uiText(context, message))));
   }
 
   @override
@@ -95,7 +106,7 @@ class _AccountPreferencesPageState extends State<AccountPreferencesPage> {
                   const AuthHeroImage(),
                   const SizedBox(height: AppSpacing.heroGap),
                   Text(
-                    'A couple of details',
+                    uiText(context, 'A couple of details'),
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                       color: AppColors.primaryDark,
@@ -104,27 +115,30 @@ class _AccountPreferencesPageState extends State<AccountPreferencesPage> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    'Choose your preferred language and age.',
+                    uiText(context, 'Choose your preferred language and age.'),
                     textAlign: TextAlign.center,
                     style: TextStyle(color: AppColors.mutedText),
                   ),
                   const SizedBox(height: 24),
                   DropdownButtonFormField<String>(
                     initialValue: _preferredLanguage,
-                    decoration: const InputDecoration(
-                      labelText: 'Language preference',
+                    decoration: InputDecoration(
+                      labelText: uiText(context, 'Language preference'),
                     ),
                     items: [
                       for (final language in accountLanguageOptions)
                         DropdownMenuItem(
                           value: language.code,
-                          child: Text(language.name),
+                          child: Text(
+                            UiTranslations.languageName(language.code),
+                          ),
                         ),
                     ],
                     onChanged: _saving
                         ? null
                         : (value) {
                             if (value != null) {
+                              UiTranslations.saveLanguage(value);
                               setState(() => _preferredLanguage = value);
                             }
                           },
@@ -132,7 +146,9 @@ class _AccountPreferencesPageState extends State<AccountPreferencesPage> {
                   const SizedBox(height: AppSpacing.fieldGap),
                   DropdownButtonFormField<int>(
                     initialValue: _ageYears,
-                    decoration: const InputDecoration(labelText: 'Age'),
+                    decoration: InputDecoration(
+                      labelText: uiText(context, 'Age'),
+                    ),
                     items: [
                       for (var age = 1; age <= 120; age++)
                         DropdownMenuItem(value: age, child: Text('$age')),
@@ -147,7 +163,7 @@ class _AccountPreferencesPageState extends State<AccountPreferencesPage> {
                   ),
                   const SizedBox(height: AppSpacing.sectionGap),
                   PrimaryButton(
-                    text: 'Continue',
+                    text: uiText(context, 'Continue'),
                     isLoading: _saving,
                     onPressed: _continue,
                   ),

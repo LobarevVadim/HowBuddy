@@ -5,6 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:google_sign_in_web/web_only.dart' as google_web;
 
 import '../../services/google_identity.dart';
+import '../../services/ui_translations.dart';
 
 class GoogleAuthButton extends StatefulWidget {
   const GoogleAuthButton({
@@ -90,6 +91,7 @@ class _GoogleAuthButtonState extends State<GoogleAuthButton> {
                 : google_web.GSIButtonText.signinWith,
             shape: google_web.GSIButtonShape.rectangular,
             minimumWidth: 260,
+            locale: UiTranslations.languageCode,
           ),
         ),
       ),

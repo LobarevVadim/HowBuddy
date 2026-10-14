@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../services/google_identity.dart';
+import '../../services/ui_translations.dart';
 import '../../shared/app_widgets.dart';
 
 class GoogleAuthButton extends StatefulWidget {
@@ -37,7 +38,9 @@ class _GoogleAuthButtonState extends State<GoogleAuthButton> {
 
   @override
   Widget build(BuildContext context) => SocialButton(
-    text: widget.isSignup ? 'Sign up with Google' : 'Sign in with Google',
+    text: widget.isSignup
+        ? uiText(context, 'Sign up with Google')
+        : uiText(context, 'Sign in with Google'),
     icon: Icons.g_mobiledata_rounded,
     iconColor: const Color(0xFF4285F4),
     onPressed: _signIn,

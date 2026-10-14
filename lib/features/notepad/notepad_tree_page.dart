@@ -5,6 +5,7 @@ import '../../models/app_models.dart';
 import '../../services/auth_api.dart';
 import '../learning/lesson_page.dart';
 import '../../services/theme_preferences.dart';
+import '../../services/ui_translations.dart';
 
 class NotepadTreePage extends StatefulWidget {
   const NotepadTreePage({
@@ -38,7 +39,7 @@ class _NotepadTreePageState extends State<NotepadTreePage> {
         if (snapshot.hasError) {
           return Center(
             child: Text(
-              'Could not load notepad tree.',
+              uiText(context, 'Could not load notepad tree.'),
               style: Theme.of(
                 context,
               ).textTheme.bodyLarge?.copyWith(color: AppColors.mutedText),
