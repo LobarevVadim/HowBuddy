@@ -160,7 +160,7 @@ class _HomePageState extends State<HomePage> {
     ThemePreferencesScope.watch(context);
     final pages = [
       TreeLessonsPage(
-        key: ValueKey(_topicId),
+        key: ValueKey('$_topicId-$_preferredLanguage'),
         accountId: widget.account.id,
         topicId: _topicId,
         onGameStateChanged: _setGameState,
@@ -175,7 +175,7 @@ class _HomePageState extends State<HomePage> {
         },
       ),
       NotepadTreePage(
-        key: ValueKey(_notepadRefreshKey),
+        key: ValueKey('$_notepadRefreshKey-$_preferredLanguage'),
         accountId: widget.account.id,
         onTopicSelected: _openTopicFromNotepad,
       ),
