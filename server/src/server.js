@@ -284,10 +284,10 @@ app.post('/auth/google', async (request, response) => {
 });
 
 app.get('/lessons/tree', requireAuth, async (request, response) => {
-  const content = getLessonContent(request.query.language);
-  const topic = findTopic(String(request.query.topic ?? content.roots[0]), content);
-  if (!topic) return response.status(404).json({message: 'This lesson topic was not found.'});
   try {
+    const content = await getAccountLessonContent(request);
+    const topic = findTopic(String(request.query.topic ?? content.roots[0]), content);
+    if (!topic) return response.status(404).json({message: 'This lesson topic was not found.'});
     const levels = await buildLessonLevels(topic, request.accountId, content);
     return response.json({topic, levels, nextQuestions: getNextQuestions(topic.id, content)});
   } catch (error) {
@@ -364,21 +364,26 @@ app.put('/account/preferences', requireAuth, async (request, response) => {
   }
 });
 
-app.get('/lessons/exercises', (request, response) => {
+app.get('/lessons/exercises', async (request, response) => {
   const topicId = String(request.query.topic ?? '').trim();
   const lessonId = String(request.query.lesson ?? 'lesson-1').trim();
-  const content = getLessonContent(request.query.language);
-  const topicContent = content.nodes[topicId];
-  if (!topicContent) {
-    return response.status(404).json({message: 'No exercises are available for this topic.'});
+  try {
+    const content = await getAccountLessonContent(request);
+    const topicContent = content.nodes[topicId];
+    if (!topicContent) {
+      return response.status(404).json({message: 'No exercises are available for this topic.'});
+    }
+    const lessonNumber = Number(lessonId.replace('lesson-', ''));
+    const extraNodeId = topicContent.extraLessons[lessonNumber - 2];
+    const lesson = lessonNumber === 1 ? topicContent : content.nodes[extraNodeId];
+    if (!lesson || !Number.isInteger(lessonNumber)) {
+      return response.status(404).json({message: 'This lesson is not available.'});
+    }
+    return response.json({topic: topicId, content: lesson.content, exercises: lesson.exercises});
+  } catch (error) {
+    console.error(error);
+    return response.status(500).json({message: 'Could not load lesson exercises.'});
   }
-  const lessonNumber = Number(lessonId.replace('lesson-', ''));
-  const extraNodeId = topicContent.extraLessons[lessonNumber - 2];
-  const lesson = lessonNumber === 1 ? topicContent : content.nodes[extraNodeId];
-  if (!lesson || !Number.isInteger(lessonNumber)) {
-    return response.status(404).json({message: 'This lesson is not available.'});
-  }
-  return response.json({topic: topicId, content: lesson.content, exercises: lesson.exercises});
 });
 
 app.post('/lessons/complete', requireAuth, async (request, response) => {
@@ -542,7 +547,7 @@ app.get('/notepad/tree', requireAuth, async (request, response) => {
   const accountId = request.accountId;
   try {
     return response.json({
-      tree: await buildNotepadTree(accountId, getLessonContent(request.query.language)),
+      tree: await buildNotepadTree(accountId, await getAccountLessonContent(request)),
     });
   } catch (error) {
     console.error(error);
@@ -631,6 +636,21 @@ function toAccount(row) {
     preferredLanguage: row.preferred_language ?? null,
     ageYears: row.age_years ?? null,
   };
+}
+
+async function getAccountLessonContent(request) {
+  if (request.query.language) return getLessonContent(request.query.language);
+  if (!request.accountId) return lessonContent;
+  try {
+    const result = await pool.query(
+      'SELECT preferred_language FROM accounts WHERE id = $1',
+      [request.accountId],
+    );
+    return getLessonContent(result.rows[0]?.preferred_language ?? 'en');
+  } catch (error) {
+    console.error('Could not load account language:', error);
+    throw error;
+  }
 }
 
 function findTopic(topicId, content = lessonContent) {
