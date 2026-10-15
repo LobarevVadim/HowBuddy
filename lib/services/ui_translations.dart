@@ -73,6 +73,12 @@ class UiTranslations {
       'hi': 'HowBuddy से जुड़ें और अपनी यात्रा शुरू करें!',
       'ru': 'Присоединяйтесь к HowBuddy и начните свой путь!',
     },
+    'Your Friendly Guide to How Your Body Works': {
+      'fr': 'Votre guide amical pour comprendre le fonctionnement de votre corps',
+      'es': 'Tu guía amigable para entender cómo funciona tu cuerpo',
+      'hi': 'आपका शरीर कैसे काम करता है, यह जानने के लिए आपका दोस्ताना मार्गदर्शक',
+      'ru': 'Ваш дружелюбный проводник в мир работы человеческого тела',
+    },
     'Full Name': {
       'fr': 'Nom complet',
       'es': 'Nombre completo',

@@ -137,7 +137,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     ThemePreferencesScope.watch(context);
     return AuthScaffold(
       title: uiText(context, 'Create your account'),
-      subtitle: uiText(context, 'Join HowBuddy and start your journey!'),
+      subtitle: uiText(context, 'Your Friendly Guide to How Your Body Works'),
       child: Form(
         key: _formKey,
         child: Column(
@@ -507,7 +507,7 @@ class _LoginPageState extends State<LoginPage> {
     ThemePreferencesScope.watch(context);
     return AuthScaffold(
       title: uiText(context, 'Welcome back!'),
-      subtitle: uiText(context, 'Login to continue your journey'),
+      subtitle: uiText(context, 'Your Friendly Guide to How Your Body Works'),
       child: Form(
         key: _formKey,
         child: Column(
