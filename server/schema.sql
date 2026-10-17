@@ -37,6 +37,9 @@ ALTER TABLE accounts
 ALTER TABLE accounts
   ADD COLUMN IF NOT EXISTS glasses_accessory_index INTEGER NOT NULL DEFAULT 0
   CHECK (glasses_accessory_index BETWEEN 0 AND 16);
+ALTER TABLE accounts
+  ADD COLUMN IF NOT EXISTS avatar_effect_index INTEGER NOT NULL DEFAULT 0
+  CHECK (avatar_effect_index BETWEEN 0 AND 25);
 
 CREATE TABLE IF NOT EXISTS lesson_xp (
   account_id UUID NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,

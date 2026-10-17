@@ -65,6 +65,7 @@ class _AccountPreferencesPageState extends State<AccountPreferencesPage> {
         email: widget.account.email,
         avatarPaletteIndex: widget.account.avatarPaletteIndex,
         glassesAccessoryIndex: widget.account.glassesAccessoryIndex,
+        avatarEffectIndex: widget.account.avatarEffectIndex,
         preferredLanguage: _preferredLanguage,
         ageYears: _ageYears,
       );

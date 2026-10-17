@@ -55,6 +55,16 @@ class AuthApi {
     return int.tryParse(body['glassesAccessoryIndex'].toString()) ?? 0;
   }
 
+  Future<int> saveAvatarEffect(int effectIndex) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/account/avatar-effect'),
+      headers: ApiSession.authenticatedHeaders,
+      body: jsonEncode({'effectIndex': effectIndex}),
+    );
+    final body = _readBody(response);
+    return int.tryParse(body['avatarEffectIndex'].toString()) ?? 0;
+  }
+
   Future<void> saveAccountPreferences({
     required String preferredLanguage,
     required int ageYears,

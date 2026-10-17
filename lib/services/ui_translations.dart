@@ -74,9 +74,11 @@ class UiTranslations {
       'ru': 'Присоединяйтесь к HowBuddy и начните свой путь!',
     },
     'Your Friendly Guide to How Your Body Works': {
-      'fr': 'Votre guide amical pour comprendre le fonctionnement de votre corps',
+      'fr':
+          'Votre guide amical pour comprendre le fonctionnement de votre corps',
       'es': 'Tu guía amigable para entender cómo funciona tu cuerpo',
-      'hi': 'आपका शरीर कैसे काम करता है, यह जानने के लिए आपका दोस्ताना मार्गदर्शक',
+      'hi':
+          'आपका शरीर कैसे काम करता है, यह जानने के लिए आपका दोस्ताना मार्गदर्शक',
       'ru': 'Ваш дружелюбный проводник в мир работы человеческого тела',
     },
     'Full Name': {
@@ -285,6 +287,36 @@ class UiTranslations {
       'es': 'No se pudieron guardar tus gafas.',
       'hi': 'आपका चश्मा सहेजा नहीं जा सका।',
       'ru': 'Не удалось сохранить выбранные очки.',
+    },
+    'Decorative effects': {
+      'fr': 'Effets décoratifs',
+      'es': 'Efectos decorativos',
+      'hi': 'सजावटी प्रभाव',
+      'ru': 'Декоративные эффекты',
+    },
+    'Add flowers, stars, hearts, and other details.': {
+      'fr': 'Ajoutez des fleurs, des étoiles, des cœurs et d’autres détails.',
+      'es': 'Añade flores, estrellas, corazones y otros detalles.',
+      'hi': 'फूल, तारे, दिल और अन्य सजावट जोड़ें।',
+      'ru': 'Добавьте цветы, звёзды, сердечки и другие детали.',
+    },
+    'No effect': {
+      'fr': 'Aucun effet',
+      'es': 'Sin efecto',
+      'hi': 'कोई प्रभाव नहीं',
+      'ru': 'Без эффекта',
+    },
+    'Effect {number}': {
+      'fr': 'Effet {number}',
+      'es': 'Efecto {number}',
+      'hi': 'प्रभाव {number}',
+      'ru': 'Эффект {number}',
+    },
+    'Could not save your avatar effect.': {
+      'fr': 'Impossible d’enregistrer l’effet de votre avatar.',
+      'es': 'No se pudo guardar el efecto de tu avatar.',
+      'hi': 'आपके अवतार का प्रभाव सहेजा नहीं जा सका।',
+      'ru': 'Не удалось сохранить эффект аватара.',
     },
     'Topics': {'fr': 'Sujets', 'es': 'Temas', 'hi': 'विषय', 'ru': 'Темы'},
     'XP': {'fr': 'XP', 'es': 'XP', 'hi': 'XP', 'ru': 'XP'},

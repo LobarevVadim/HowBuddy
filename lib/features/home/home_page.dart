@@ -39,6 +39,7 @@ class _HomePageState extends State<HomePage> {
   int _xpRefreshKey = 0;
   late int _avatarPaletteIndex = widget.account.avatarPaletteIndex;
   late int _glassesAccessoryIndex = widget.account.glassesAccessoryIndex;
+  late int _avatarEffectIndex = widget.account.avatarEffectIndex;
   late Future<GameState> _gameStateFuture;
   GameState? _currentGameState;
   bool _topicReady = false;
@@ -143,6 +144,10 @@ class _HomePageState extends State<HomePage> {
     setState(() => _glassesAccessoryIndex = accessoryIndex);
   }
 
+  void _setAvatarEffect(int effectIndex) {
+    setState(() => _avatarEffectIndex = effectIndex);
+  }
+
   void _setAccountPreferences(String language, int age) {
     setState(() {
       _preferredLanguage = language;
@@ -157,6 +162,7 @@ class _HomePageState extends State<HomePage> {
     email: widget.account.email,
     avatarPaletteIndex: _avatarPaletteIndex,
     glassesAccessoryIndex: _glassesAccessoryIndex,
+    avatarEffectIndex: _avatarEffectIndex,
     preferredLanguage: _preferredLanguage,
     ageYears: _ageYears,
   );
@@ -190,8 +196,10 @@ class _HomePageState extends State<HomePage> {
         account: _accountWithPreferences,
         avatarPaletteIndex: _avatarPaletteIndex,
         glassesAccessoryIndex: _glassesAccessoryIndex,
+        avatarEffectIndex: _avatarEffectIndex,
         onAvatarPaletteChanged: _setAvatarPalette,
         onGlassesAccessoryChanged: _setGlassesAccessory,
+        onAvatarEffectChanged: _setAvatarEffect,
         onAccountPreferencesChanged: _setAccountPreferences,
         onLogout: widget.onLogout,
       ),
@@ -544,6 +552,7 @@ class XpTabPage extends StatelessWidget {
           HowBuddyAvatar(
             paletteIndex: entry.avatarPaletteIndex,
             glassesAccessoryIndex: entry.glassesAccessoryIndex,
+            avatarEffectIndex: entry.avatarEffectIndex,
             size: 32,
           ),
           const SizedBox(width: 8),
@@ -575,8 +584,10 @@ class ProfileTabPage extends StatefulWidget {
     required this.account,
     required this.avatarPaletteIndex,
     required this.glassesAccessoryIndex,
+    required this.avatarEffectIndex,
     required this.onAvatarPaletteChanged,
     required this.onGlassesAccessoryChanged,
+    required this.onAvatarEffectChanged,
     required this.onAccountPreferencesChanged,
     required this.onLogout,
     super.key,
@@ -585,8 +596,10 @@ class ProfileTabPage extends StatefulWidget {
   final Account account;
   final int avatarPaletteIndex;
   final int glassesAccessoryIndex;
+  final int avatarEffectIndex;
   final ValueChanged<int> onAvatarPaletteChanged;
   final ValueChanged<int> onGlassesAccessoryChanged;
+  final ValueChanged<int> onAvatarEffectChanged;
   final void Function(String language, int age) onAccountPreferencesChanged;
   final VoidCallback onLogout;
 
@@ -597,11 +610,13 @@ class ProfileTabPage extends StatefulWidget {
 class _ProfileTabPageState extends State<ProfileTabPage> {
   late int _paletteIndex = widget.avatarPaletteIndex;
   late int _glassesIndex = widget.glassesAccessoryIndex;
+  late int _effectIndex = widget.avatarEffectIndex;
   late String _preferredLanguage =
       widget.account.preferredLanguage ?? accountLanguageOptions.first.code;
   late int _ageYears = widget.account.ageYears ?? 18;
   bool _savingPalette = false;
   bool _savingGlasses = false;
+  bool _savingEffect = false;
   bool _savingPreferences = false;
 
   Future<void> _selectPalette(int paletteIndex) async {
@@ -647,10 +662,38 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
       if (!mounted) return;
       setState(() => _glassesIndex = previousIndex);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(uiText(context, 'Could not save your glasses.'))),
+        SnackBar(
+          content: Text(uiText(context, 'Could not save your glasses.')),
+        ),
       );
     } finally {
       if (mounted) setState(() => _savingGlasses = false);
+    }
+  }
+
+  Future<void> _selectEffect(int effectIndex) async {
+    if (_savingEffect || effectIndex == _effectIndex) return;
+    final previousIndex = _effectIndex;
+    setState(() {
+      _effectIndex = effectIndex;
+      _savingEffect = true;
+    });
+    try {
+      final savedIndex = await AuthApi().saveAvatarEffect(effectIndex);
+      if (mounted) {
+        setState(() => _effectIndex = savedIndex);
+        widget.onAvatarEffectChanged(savedIndex);
+      }
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _effectIndex = previousIndex);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(uiText(context, 'Could not save your avatar effect.')),
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _savingEffect = false);
     }
   }
 
@@ -725,6 +768,7 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                 HowBuddyAvatar(
                   paletteIndex: _paletteIndex,
                   glassesAccessoryIndex: _glassesIndex,
+                  avatarEffectIndex: _effectIndex,
                   size: AppSizes.tabHeroIcon,
                 ),
                 const SizedBox(height: AppSpacing.tabIconGap),
@@ -877,6 +921,7 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                               HowBuddyAvatar(
                                 paletteIndex: index,
                                 glassesAccessoryIndex: _glassesIndex,
+                                avatarEffectIndex: _effectIndex,
                                 size: 48,
                               ),
                               const SizedBox(height: 4),
@@ -996,6 +1041,95 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                   },
                 ),
                 if (_savingGlasses) ...[
+                  const SizedBox(height: 8),
+                  const LinearProgressIndicator(),
+                ],
+                const SizedBox(height: 20),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    uiText(context, 'Decorative effects'),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  uiText(
+                    context,
+                    'Add flowers, stars, hearts, and other details.',
+                  ),
+                  style: TextStyle(color: AppColors.mutedText),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: 26,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 5,
+                    mainAxisSpacing: 7,
+                    crossAxisSpacing: 7,
+                    childAspectRatio: 0.9,
+                  ),
+                  itemBuilder: (context, index) {
+                    final selected = index == _effectIndex;
+                    return Semantics(
+                      button: true,
+                      selected: selected,
+                      label: uiText(
+                        context,
+                        index == 0 ? 'No effect' : 'Effect {number}',
+                        args: {'number': '$index'},
+                      ),
+                      child: InkWell(
+                        onTap: _savingEffect
+                            ? null
+                            : () => _selectEffect(index),
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: selected
+                                ? AppColors.primary.withValues(alpha: 0.10)
+                                : AppColors.authPanelBackground,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: selected
+                                  ? AppColors.primary
+                                  : AppColors.border,
+                              width: selected ? 2 : 1,
+                            ),
+                          ),
+                          padding: const EdgeInsets.all(3),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              HowBuddyAvatar(
+                                paletteIndex: _paletteIndex,
+                                glassesAccessoryIndex: _glassesIndex,
+                                avatarEffectIndex: index,
+                                size: 48,
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                index == 0 ? uiText(context, 'None') : '$index',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: selected
+                                      ? FontWeight.w800
+                                      : FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                if (_savingEffect) ...[
                   const SizedBox(height: 8),
                   const LinearProgressIndicator(),
                 ],

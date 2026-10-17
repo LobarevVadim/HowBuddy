@@ -448,12 +448,14 @@ class HowBuddyAvatar extends StatelessWidget {
     required this.paletteIndex,
     required this.size,
     this.glassesAccessoryIndex = 0,
+    this.avatarEffectIndex = 0,
     super.key,
   });
 
   final int paletteIndex;
   final double size;
   final int glassesAccessoryIndex;
+  final int avatarEffectIndex;
 
   @override
   Widget build(BuildContext context) => ClipRRect(
@@ -479,6 +481,11 @@ class HowBuddyAvatar extends StatelessWidget {
                 'assets/avatar/glasses/glasses_${glassesAccessoryIndex.clamp(1, 16).toString().padLeft(2, '0')}.svg',
                 fit: BoxFit.fill,
               ),
+            ),
+          if (avatarEffectIndex > 0)
+            SvgPicture.asset(
+              'assets/avatar/effects/effect_${avatarEffectIndex.clamp(1, 25).toString().padLeft(2, '0')}.svg',
+              fit: BoxFit.fill,
             ),
         ],
       ),

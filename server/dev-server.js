@@ -174,6 +174,25 @@ const server = createServer(async (request, response) => {
     return;
   }
 
+  if (url.pathname === '/account/avatar-effect' && request.method === 'PUT') {
+    const body = await readJson(request);
+    const effectIndex = Number(body.effectIndex);
+    const token = String(request.headers.authorization ?? '').replace(/^Bearer\s+/i, '');
+    const accountId = sessions.get(token);
+    const account = [...accounts.values()].find((item) => item.id === accountId);
+    if (!accountId || !account) {
+      send(response, 401, {message: 'Please sign in again.'});
+      return;
+    }
+    if (!Number.isInteger(effectIndex) || effectIndex < 0 || effectIndex > 25) {
+      send(response, 400, {message: 'Choose one of the available avatar effects.'});
+      return;
+    }
+    account.avatarEffectIndex = effectIndex;
+    send(response, 200, {avatarEffectIndex: effectIndex});
+    return;
+  }
+
   if (url.pathname === '/gamification' && request.method === 'GET') {
     const accountId = String(url.searchParams.get('accountId') ?? '').trim();
     if (!accountId) {
@@ -393,6 +412,7 @@ const server = createServer(async (request, response) => {
         isYou: id === accountId,
         avatarPaletteIndex: [...accounts.values()].find((account) => account.id === id)?.avatarPaletteIndex ?? 0,
         glassesAccessoryIndex: [...accounts.values()].find((account) => account.id === id)?.glassesAccessoryIndex ?? 0,
+        avatarEffectIndex: [...accounts.values()].find((account) => account.id === id)?.avatarEffectIndex ?? 0,
       }));
     const currentUser = ranked.find((user) => user.id === accountId);
     const yourPlace = currentUser?.place > 10
@@ -403,6 +423,7 @@ const server = createServer(async (request, response) => {
           isYou: true,
           avatarPaletteIndex: [...accounts.values()].find((account) => account.id === accountId)?.avatarPaletteIndex ?? 0,
           glassesAccessoryIndex: [...accounts.values()].find((account) => account.id === accountId)?.glassesAccessoryIndex ?? 0,
+          avatarEffectIndex: [...accounts.values()].find((account) => account.id === accountId)?.avatarEffectIndex ?? 0,
         }
       : null;
     send(response, 200, {totalXp, days, leaderboard, yourPlace});
@@ -447,6 +468,7 @@ function publicAccount(account) {
     email: account.email,
     avatarPaletteIndex: account.avatarPaletteIndex ?? 0,
     glassesAccessoryIndex: account.glassesAccessoryIndex ?? 0,
+    avatarEffectIndex: account.avatarEffectIndex ?? 0,
     preferredLanguage: account.preferredLanguage ?? null,
     ageYears: account.ageYears ?? null,
   };
