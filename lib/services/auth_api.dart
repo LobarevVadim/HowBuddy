@@ -55,14 +55,14 @@ class AuthApi {
     return int.tryParse(body['glassesAccessoryIndex'].toString()) ?? 0;
   }
 
-  Future<int> saveAvatarEffect(int effectIndex) async {
+  Future<String> saveAvatarEmoji(String emoji) async {
     final response = await http.put(
-      Uri.parse('$baseUrl/account/avatar-effect'),
+      Uri.parse('$baseUrl/account/avatar-emoji'),
       headers: ApiSession.authenticatedHeaders,
-      body: jsonEncode({'effectIndex': effectIndex}),
+      body: jsonEncode({'emoji': emoji}),
     );
     final body = _readBody(response);
-    return int.tryParse(body['avatarEffectIndex'].toString()) ?? 0;
+    return body['avatarEmoji']?.toString() ?? '';
   }
 
   Future<void> saveAccountPreferences({

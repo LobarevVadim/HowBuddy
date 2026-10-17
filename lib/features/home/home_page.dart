@@ -39,7 +39,7 @@ class _HomePageState extends State<HomePage> {
   int _xpRefreshKey = 0;
   late int _avatarPaletteIndex = widget.account.avatarPaletteIndex;
   late int _glassesAccessoryIndex = widget.account.glassesAccessoryIndex;
-  late int _avatarEffectIndex = widget.account.avatarEffectIndex;
+  late String _avatarEmoji = widget.account.avatarEmoji;
   late Future<GameState> _gameStateFuture;
   GameState? _currentGameState;
   bool _topicReady = false;
@@ -144,8 +144,8 @@ class _HomePageState extends State<HomePage> {
     setState(() => _glassesAccessoryIndex = accessoryIndex);
   }
 
-  void _setAvatarEffect(int effectIndex) {
-    setState(() => _avatarEffectIndex = effectIndex);
+  void _setAvatarEmoji(String emoji) {
+    setState(() => _avatarEmoji = emoji);
   }
 
   void _setAccountPreferences(String language, int age) {
@@ -162,7 +162,7 @@ class _HomePageState extends State<HomePage> {
     email: widget.account.email,
     avatarPaletteIndex: _avatarPaletteIndex,
     glassesAccessoryIndex: _glassesAccessoryIndex,
-    avatarEffectIndex: _avatarEffectIndex,
+    avatarEmoji: _avatarEmoji,
     preferredLanguage: _preferredLanguage,
     ageYears: _ageYears,
   );
@@ -196,10 +196,10 @@ class _HomePageState extends State<HomePage> {
         account: _accountWithPreferences,
         avatarPaletteIndex: _avatarPaletteIndex,
         glassesAccessoryIndex: _glassesAccessoryIndex,
-        avatarEffectIndex: _avatarEffectIndex,
+        avatarEmoji: _avatarEmoji,
         onAvatarPaletteChanged: _setAvatarPalette,
         onGlassesAccessoryChanged: _setGlassesAccessory,
-        onAvatarEffectChanged: _setAvatarEffect,
+        onAvatarEmojiChanged: _setAvatarEmoji,
         onAccountPreferencesChanged: _setAccountPreferences,
         onLogout: widget.onLogout,
       ),
@@ -552,7 +552,7 @@ class XpTabPage extends StatelessWidget {
           HowBuddyAvatar(
             paletteIndex: entry.avatarPaletteIndex,
             glassesAccessoryIndex: entry.glassesAccessoryIndex,
-            avatarEffectIndex: entry.avatarEffectIndex,
+            avatarEmoji: entry.avatarEmoji,
             size: 32,
           ),
           const SizedBox(width: 8),
@@ -584,10 +584,10 @@ class ProfileTabPage extends StatefulWidget {
     required this.account,
     required this.avatarPaletteIndex,
     required this.glassesAccessoryIndex,
-    required this.avatarEffectIndex,
+    required this.avatarEmoji,
     required this.onAvatarPaletteChanged,
     required this.onGlassesAccessoryChanged,
-    required this.onAvatarEffectChanged,
+    required this.onAvatarEmojiChanged,
     required this.onAccountPreferencesChanged,
     required this.onLogout,
     super.key,
@@ -596,10 +596,10 @@ class ProfileTabPage extends StatefulWidget {
   final Account account;
   final int avatarPaletteIndex;
   final int glassesAccessoryIndex;
-  final int avatarEffectIndex;
+  final String avatarEmoji;
   final ValueChanged<int> onAvatarPaletteChanged;
   final ValueChanged<int> onGlassesAccessoryChanged;
-  final ValueChanged<int> onAvatarEffectChanged;
+  final ValueChanged<String> onAvatarEmojiChanged;
   final void Function(String language, int age) onAccountPreferencesChanged;
   final VoidCallback onLogout;
 
@@ -610,13 +610,13 @@ class ProfileTabPage extends StatefulWidget {
 class _ProfileTabPageState extends State<ProfileTabPage> {
   late int _paletteIndex = widget.avatarPaletteIndex;
   late int _glassesIndex = widget.glassesAccessoryIndex;
-  late int _effectIndex = widget.avatarEffectIndex;
+  late String _emoji = widget.avatarEmoji;
   late String _preferredLanguage =
       widget.account.preferredLanguage ?? accountLanguageOptions.first.code;
   late int _ageYears = widget.account.ageYears ?? 18;
   bool _savingPalette = false;
   bool _savingGlasses = false;
-  bool _savingEffect = false;
+  bool _savingEmoji = false;
   bool _savingPreferences = false;
 
   Future<void> _selectPalette(int paletteIndex) async {
@@ -671,29 +671,29 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
     }
   }
 
-  Future<void> _selectEffect(int effectIndex) async {
-    if (_savingEffect || effectIndex == _effectIndex) return;
-    final previousIndex = _effectIndex;
+  Future<void> _selectEmoji(String emoji) async {
+    if (_savingEmoji || emoji == _emoji) return;
+    final previousEmoji = _emoji;
     setState(() {
-      _effectIndex = effectIndex;
-      _savingEffect = true;
+      _emoji = emoji;
+      _savingEmoji = true;
     });
     try {
-      final savedIndex = await AuthApi().saveAvatarEffect(effectIndex);
+      final savedEmoji = await AuthApi().saveAvatarEmoji(emoji);
       if (mounted) {
-        setState(() => _effectIndex = savedIndex);
-        widget.onAvatarEffectChanged(savedIndex);
+        setState(() => _emoji = savedEmoji);
+        widget.onAvatarEmojiChanged(savedEmoji);
       }
     } catch (_) {
       if (!mounted) return;
-      setState(() => _effectIndex = previousIndex);
+      setState(() => _emoji = previousEmoji);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(uiText(context, 'Could not save your avatar effect.')),
+          content: Text(uiText(context, 'Could not save your avatar emoji.')),
         ),
       );
     } finally {
-      if (mounted) setState(() => _savingEffect = false);
+      if (mounted) setState(() => _savingEmoji = false);
     }
   }
 
@@ -768,7 +768,7 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                 HowBuddyAvatar(
                   paletteIndex: _paletteIndex,
                   glassesAccessoryIndex: _glassesIndex,
-                  avatarEffectIndex: _effectIndex,
+                  avatarEmoji: _emoji,
                   size: AppSizes.tabHeroIcon,
                 ),
                 const SizedBox(height: AppSpacing.tabIconGap),
@@ -921,7 +921,7 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                               HowBuddyAvatar(
                                 paletteIndex: index,
                                 glassesAccessoryIndex: _glassesIndex,
-                                avatarEffectIndex: _effectIndex,
+                                avatarEmoji: _emoji,
                                 size: 48,
                               ),
                               const SizedBox(height: 4),
@@ -1048,7 +1048,7 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    uiText(context, 'Decorative effects'),
+                    uiText(context, 'Avatar emoji'),
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w800,
                     ),
@@ -1058,78 +1058,84 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                 Text(
                   uiText(
                     context,
-                    'Add flowers, stars, hearts, and other details.',
+                    'Choose an emoji or type one. It can overlap the avatar border.',
                   ),
                   style: TextStyle(color: AppColors.mutedText),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12),
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: 26,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 5,
-                    mainAxisSpacing: 7,
-                    crossAxisSpacing: 7,
-                    childAspectRatio: 0.9,
-                  ),
-                  itemBuilder: (context, index) {
-                    final selected = index == _effectIndex;
-                    return Semantics(
-                      button: true,
-                      selected: selected,
-                      label: uiText(
-                        context,
-                        index == 0 ? 'No effect' : 'Effect {number}',
-                        args: {'number': '$index'},
-                      ),
-                      child: InkWell(
-                        onTap: _savingEffect
-                            ? null
-                            : () => _selectEffect(index),
-                        borderRadius: BorderRadius.circular(12),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: selected
-                                ? AppColors.primary.withValues(alpha: 0.10)
-                                : AppColors.authPanelBackground,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: selected
-                                  ? AppColors.primary
-                                  : AppColors.border,
-                              width: selected ? 2 : 1,
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 8,
+                  runSpacing: 8,
+                  children:
+                      [
+                            '\u{1F600}',
+                            '\u{1F970}',
+                            '\u{1F602}',
+                            '\u{1F60D}',
+                            '\u{1F60E}',
+                            '\u{1F973}',
+                            '\u{1F98B}',
+                            '\u{1F338}',
+                            '\u{2B50}',
+                            '\u{1F4A7}',
+                            '\u{1F340}',
+                            '\u{1F389}',
+                            '\u{1F525}',
+                            '\u{1F308}',
+                            '\u{1F438}',
+                            '\u{1F431}',
+                          ]
+                          .map(
+                            (emoji) => ChoiceChip(
+                              label: Text(
+                                emoji,
+                                style: const TextStyle(fontSize: 20),
+                              ),
+                              selected: _emoji == emoji,
+                              onSelected: _savingEmoji
+                                  ? null
+                                  : (_) => _selectEmoji(emoji),
                             ),
-                          ),
-                          padding: const EdgeInsets.all(3),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              HowBuddyAvatar(
-                                paletteIndex: _paletteIndex,
-                                glassesAccessoryIndex: _glassesIndex,
-                                avatarEffectIndex: index,
-                                size: 48,
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                index == 0 ? uiText(context, 'None') : '$index',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: selected
-                                      ? FontWeight.w800
-                                      : FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
+                          )
+                          .toList(),
                 ),
-                if (_savingEffect) ...[
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        key: ValueKey(_emoji),
+                        initialValue: _emoji,
+                        maxLength: 8,
+                        decoration: InputDecoration(
+                          labelText: uiText(context, 'Type an emoji'),
+                          counterText: '',
+                          prefixIcon: const Icon(Icons.emoji_emotions_outlined),
+                        ),
+                        onChanged: (value) {
+                          setState(() => _emoji = value);
+                        },
+                        onFieldSubmitted: _selectEmoji,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton.filledTonal(
+                      onPressed: _savingEmoji
+                          ? null
+                          : () => _selectEmoji(_emoji),
+                      icon: const Icon(Icons.check_rounded),
+                      tooltip: uiText(context, 'Save emoji'),
+                    ),
+                    IconButton(
+                      onPressed: _savingEmoji ? null : () => _selectEmoji(''),
+                      icon: const Icon(Icons.close_rounded),
+                      tooltip: uiText(context, 'Remove emoji'),
+                    ),
+                  ],
+                ),
+                if (_savingEmoji) ...[
                   const SizedBox(height: 8),
                   const LinearProgressIndicator(),
                 ],

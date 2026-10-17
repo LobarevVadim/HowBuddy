@@ -174,9 +174,9 @@ const server = createServer(async (request, response) => {
     return;
   }
 
-  if (url.pathname === '/account/avatar-effect' && request.method === 'PUT') {
+  if (url.pathname === '/account/avatar-emoji' && request.method === 'PUT') {
     const body = await readJson(request);
-    const effectIndex = Number(body.effectIndex);
+    const emoji = String(body.emoji ?? '').trim();
     const token = String(request.headers.authorization ?? '').replace(/^Bearer\s+/i, '');
     const accountId = sessions.get(token);
     const account = [...accounts.values()].find((item) => item.id === accountId);
@@ -184,12 +184,12 @@ const server = createServer(async (request, response) => {
       send(response, 401, {message: 'Please sign in again.'});
       return;
     }
-    if (!Number.isInteger(effectIndex) || effectIndex < 0 || effectIndex > 25) {
-      send(response, 400, {message: 'Choose one of the available avatar effects.'});
+    if (emoji.length > 32 || /[<>]/.test(emoji)) {
+      send(response, 400, {message: 'Choose a valid avatar emoji.'});
       return;
     }
-    account.avatarEffectIndex = effectIndex;
-    send(response, 200, {avatarEffectIndex: effectIndex});
+    account.avatarEmoji = emoji;
+    send(response, 200, {avatarEmoji: emoji});
     return;
   }
 
@@ -412,7 +412,7 @@ const server = createServer(async (request, response) => {
         isYou: id === accountId,
         avatarPaletteIndex: [...accounts.values()].find((account) => account.id === id)?.avatarPaletteIndex ?? 0,
         glassesAccessoryIndex: [...accounts.values()].find((account) => account.id === id)?.glassesAccessoryIndex ?? 0,
-        avatarEffectIndex: [...accounts.values()].find((account) => account.id === id)?.avatarEffectIndex ?? 0,
+        avatarEmoji: [...accounts.values()].find((account) => account.id === id)?.avatarEmoji ?? '',
       }));
     const currentUser = ranked.find((user) => user.id === accountId);
     const yourPlace = currentUser?.place > 10
@@ -423,7 +423,7 @@ const server = createServer(async (request, response) => {
           isYou: true,
           avatarPaletteIndex: [...accounts.values()].find((account) => account.id === accountId)?.avatarPaletteIndex ?? 0,
           glassesAccessoryIndex: [...accounts.values()].find((account) => account.id === accountId)?.glassesAccessoryIndex ?? 0,
-          avatarEffectIndex: [...accounts.values()].find((account) => account.id === accountId)?.avatarEffectIndex ?? 0,
+          avatarEmoji: [...accounts.values()].find((account) => account.id === accountId)?.avatarEmoji ?? '',
         }
       : null;
     send(response, 200, {totalXp, days, leaderboard, yourPlace});
@@ -468,7 +468,7 @@ function publicAccount(account) {
     email: account.email,
     avatarPaletteIndex: account.avatarPaletteIndex ?? 0,
     glassesAccessoryIndex: account.glassesAccessoryIndex ?? 0,
-    avatarEffectIndex: account.avatarEffectIndex ?? 0,
+    avatarEmoji: account.avatarEmoji ?? '',
     preferredLanguage: account.preferredLanguage ?? null,
     ageYears: account.ageYears ?? null,
   };

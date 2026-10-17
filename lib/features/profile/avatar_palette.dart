@@ -448,47 +448,60 @@ class HowBuddyAvatar extends StatelessWidget {
     required this.paletteIndex,
     required this.size,
     this.glassesAccessoryIndex = 0,
-    this.avatarEffectIndex = 0,
+    this.avatarEmoji = '',
     super.key,
   });
 
   final int paletteIndex;
   final double size;
   final int glassesAccessoryIndex;
-  final int avatarEffectIndex;
+  final String avatarEmoji;
 
   @override
-  Widget build(BuildContext context) => ClipRRect(
-    borderRadius: BorderRadius.circular(size * 0.18),
-    clipBehavior: Clip.antiAlias,
-    child: SizedBox.square(
-      dimension: size,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          SvgPicture.asset(
-            'assets/icon/cropped_how_buddy.svg',
-            fit: BoxFit.fill,
-            colorMapper: AvatarPaletteColorMapper(paletteIndex),
+  Widget build(BuildContext context) => SizedBox(
+    width: size * 1.16,
+    height: size * 1.16,
+    child: Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Positioned(
+          left: 0,
+          bottom: 0,
+          width: size,
+          height: size,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(size * 0.18),
+            clipBehavior: Clip.antiAlias,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                SvgPicture.asset(
+                  'assets/icon/cropped_how_buddy.svg',
+                  fit: BoxFit.fill,
+                  colorMapper: AvatarPaletteColorMapper(paletteIndex),
+                ),
+                if (glassesAccessoryIndex > 0)
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    top: size * 0.19,
+                    height: size * 0.43,
+                    child: SvgPicture.asset(
+                      'assets/avatar/glasses/glasses_${glassesAccessoryIndex.clamp(1, 16).toString().padLeft(2, '0')}.svg',
+                      fit: BoxFit.fill,
+                    ),
+                  ),
+              ],
+            ),
           ),
-          if (glassesAccessoryIndex > 0)
-            Positioned(
-              left: 0,
-              right: 0,
-              top: size * 0.19,
-              height: size * 0.43,
-              child: SvgPicture.asset(
-                'assets/avatar/glasses/glasses_${glassesAccessoryIndex.clamp(1, 16).toString().padLeft(2, '0')}.svg',
-                fit: BoxFit.fill,
-              ),
-            ),
-          if (avatarEffectIndex > 0)
-            SvgPicture.asset(
-              'assets/avatar/effects/effect_${avatarEffectIndex.clamp(1, 25).toString().padLeft(2, '0')}.svg',
-              fit: BoxFit.fill,
-            ),
-        ],
-      ),
+        ),
+        if (avatarEmoji.isNotEmpty)
+          Positioned(
+            right: -size * 0.03,
+            top: -size * 0.09,
+            child: Text(avatarEmoji, style: TextStyle(fontSize: size * 0.36)),
+          ),
+      ],
     ),
   );
 }

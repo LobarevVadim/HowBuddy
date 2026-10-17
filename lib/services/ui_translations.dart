@@ -393,6 +393,43 @@ class UiTranslations {
       'hi': 'डार्क मोड',
       'ru': 'Тёмная тема',
     },
+    'Avatar emoji': {
+      'fr': 'Emoji de l’avatar',
+      'es': 'Emoji del avatar',
+      'hi': 'अवतार इमोजी',
+      'ru': 'Эмодзи аватара',
+    },
+    'Choose an emoji or type one. It can overlap the avatar border.': {
+      'fr':
+          'Choisissez ou saisissez un emoji. Il peut dépasser du contour de l’avatar.',
+      'es': 'Elige o escribe un emoji. Puede sobresalir del borde del avatar.',
+      'hi': 'इमोजी चुनें या टाइप करें। यह अवतार की सीमा से बाहर निकल सकता है।',
+      'ru': 'Выберите или введите эмодзи. Он может выступать за край аватара.',
+    },
+    'Type an emoji': {
+      'fr': 'Saisissez un emoji',
+      'es': 'Escribe un emoji',
+      'hi': 'इमोजी टाइप करें',
+      'ru': 'Введите эмодзи',
+    },
+    'Save emoji': {
+      'fr': 'Enregistrer l’emoji',
+      'es': 'Guardar emoji',
+      'hi': 'इमोजी सहेजें',
+      'ru': 'Сохранить эмодзи',
+    },
+    'Remove emoji': {
+      'fr': 'Supprimer l’emoji',
+      'es': 'Quitar emoji',
+      'hi': 'इमोजी हटाएँ',
+      'ru': 'Убрать эмодзи',
+    },
+    'Could not save your avatar emoji.': {
+      'fr': 'Impossible d’enregistrer l’emoji de votre avatar.',
+      'es': 'No se pudo guardar el emoji del avatar.',
+      'hi': 'अवतार इमोजी सहेजा नहीं जा सका।',
+      'ru': 'Не удалось сохранить эмодзи аватара.',
+    },
     'On': {'fr': 'Activé', 'es': 'Activado', 'hi': 'चालू', 'ru': 'Вкл.'},
     'Off': {'fr': 'Désactivé', 'es': 'Desactivado', 'hi': 'बंद', 'ru': 'Выкл.'},
     'Customize your buddy': {
