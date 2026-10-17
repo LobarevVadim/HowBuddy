@@ -1013,6 +1013,7 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                               HowBuddyAvatar(
                                 paletteIndex: _paletteIndex,
                                 glassesAccessoryIndex: index,
+                                avatarEmoji: _emoji,
                                 size: 56,
                               ),
                               const SizedBox(height: 3),

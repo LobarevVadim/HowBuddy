@@ -499,7 +499,7 @@ class HowBuddyAvatar extends StatelessWidget {
           Positioned(
             right: -size * 0.03,
             top: -size * 0.09,
-            child: Text(avatarEmoji, style: TextStyle(fontSize: size * 0.36)),
+            child: Text(avatarEmoji, style: TextStyle(fontSize: size * 0.432)),
           ),
       ],
     ),
