@@ -38,6 +38,7 @@ class _HomePageState extends State<HomePage> {
   int _notepadRefreshKey = 0;
   int _xpRefreshKey = 0;
   late int _avatarPaletteIndex = widget.account.avatarPaletteIndex;
+  late int _glassesAccessoryIndex = widget.account.glassesAccessoryIndex;
   late Future<GameState> _gameStateFuture;
   GameState? _currentGameState;
   bool _topicReady = false;
@@ -138,6 +139,10 @@ class _HomePageState extends State<HomePage> {
     setState(() => _avatarPaletteIndex = paletteIndex);
   }
 
+  void _setGlassesAccessory(int accessoryIndex) {
+    setState(() => _glassesAccessoryIndex = accessoryIndex);
+  }
+
   void _setAccountPreferences(String language, int age) {
     setState(() {
       _preferredLanguage = language;
@@ -151,6 +156,7 @@ class _HomePageState extends State<HomePage> {
     fullName: widget.account.fullName,
     email: widget.account.email,
     avatarPaletteIndex: _avatarPaletteIndex,
+    glassesAccessoryIndex: _glassesAccessoryIndex,
     preferredLanguage: _preferredLanguage,
     ageYears: _ageYears,
   );
@@ -183,7 +189,9 @@ class _HomePageState extends State<HomePage> {
       ProfileTabPage(
         account: _accountWithPreferences,
         avatarPaletteIndex: _avatarPaletteIndex,
+        glassesAccessoryIndex: _glassesAccessoryIndex,
         onAvatarPaletteChanged: _setAvatarPalette,
+        onGlassesAccessoryChanged: _setGlassesAccessory,
         onAccountPreferencesChanged: _setAccountPreferences,
         onLogout: widget.onLogout,
       ),
@@ -533,7 +541,11 @@ class XpTabPage extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 4),
-          HowBuddyAvatar(paletteIndex: entry.avatarPaletteIndex, size: 32),
+          HowBuddyAvatar(
+            paletteIndex: entry.avatarPaletteIndex,
+            glassesAccessoryIndex: entry.glassesAccessoryIndex,
+            size: 32,
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -562,7 +574,9 @@ class ProfileTabPage extends StatefulWidget {
   const ProfileTabPage({
     required this.account,
     required this.avatarPaletteIndex,
+    required this.glassesAccessoryIndex,
     required this.onAvatarPaletteChanged,
+    required this.onGlassesAccessoryChanged,
     required this.onAccountPreferencesChanged,
     required this.onLogout,
     super.key,
@@ -570,7 +584,9 @@ class ProfileTabPage extends StatefulWidget {
 
   final Account account;
   final int avatarPaletteIndex;
+  final int glassesAccessoryIndex;
   final ValueChanged<int> onAvatarPaletteChanged;
+  final ValueChanged<int> onGlassesAccessoryChanged;
   final void Function(String language, int age) onAccountPreferencesChanged;
   final VoidCallback onLogout;
 
@@ -580,10 +596,12 @@ class ProfileTabPage extends StatefulWidget {
 
 class _ProfileTabPageState extends State<ProfileTabPage> {
   late int _paletteIndex = widget.avatarPaletteIndex;
+  late int _glassesIndex = widget.glassesAccessoryIndex;
   late String _preferredLanguage =
       widget.account.preferredLanguage ?? accountLanguageOptions.first.code;
   late int _ageYears = widget.account.ageYears ?? 18;
   bool _savingPalette = false;
+  bool _savingGlasses = false;
   bool _savingPreferences = false;
 
   Future<void> _selectPalette(int paletteIndex) async {
@@ -609,6 +627,30 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
       );
     } finally {
       if (mounted) setState(() => _savingPalette = false);
+    }
+  }
+
+  Future<void> _selectGlasses(int accessoryIndex) async {
+    if (_savingGlasses || accessoryIndex == _glassesIndex) return;
+    final previousIndex = _glassesIndex;
+    setState(() {
+      _glassesIndex = accessoryIndex;
+      _savingGlasses = true;
+    });
+    try {
+      final savedIndex = await AuthApi().saveAvatarGlasses(accessoryIndex);
+      if (mounted) {
+        setState(() => _glassesIndex = savedIndex);
+        widget.onGlassesAccessoryChanged(savedIndex);
+      }
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _glassesIndex = previousIndex);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(uiText(context, 'Could not save your glasses.'))),
+      );
+    } finally {
+      if (mounted) setState(() => _savingGlasses = false);
     }
   }
 
@@ -682,6 +724,7 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
               children: [
                 HowBuddyAvatar(
                   paletteIndex: _paletteIndex,
+                  glassesAccessoryIndex: _glassesIndex,
                   size: AppSizes.tabHeroIcon,
                 ),
                 const SizedBox(height: AppSpacing.tabIconGap),
@@ -831,7 +874,11 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              HowBuddyAvatar(paletteIndex: index, size: 48),
+                              HowBuddyAvatar(
+                                paletteIndex: index,
+                                glassesAccessoryIndex: _glassesIndex,
+                                size: 48,
+                              ),
                               const SizedBox(height: 4),
                               Text(
                                 uiText(
@@ -856,6 +903,99 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                   },
                 ),
                 if (_savingPalette) ...[
+                  const SizedBox(height: 8),
+                  const LinearProgressIndicator(),
+                ],
+                const SizedBox(height: 20),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    uiText(context, 'Glasses accessory'),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  uiText(context, 'Choose glasses to layer over your buddy.'),
+                  style: TextStyle(color: AppColors.mutedText),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: 17,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 4,
+                    mainAxisSpacing: 8,
+                    crossAxisSpacing: 8,
+                    childAspectRatio: 0.95,
+                  ),
+                  itemBuilder: (context, index) {
+                    final selected = index == _glassesIndex;
+                    return Semantics(
+                      button: true,
+                      selected: selected,
+                      label: uiText(
+                        context,
+                        index == 0 ? 'No glasses' : 'Glasses {number}',
+                        args: {'number': '$index'},
+                      ),
+                      child: InkWell(
+                        onTap: _savingGlasses
+                            ? null
+                            : () => _selectGlasses(index),
+                        borderRadius: BorderRadius.circular(14),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: selected
+                                ? AppColors.primary.withValues(alpha: 0.10)
+                                : AppColors.authPanelBackground,
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: selected
+                                  ? AppColors.primary
+                                  : AppColors.border,
+                              width: selected ? 2 : 1,
+                            ),
+                          ),
+                          padding: const EdgeInsets.all(5),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              HowBuddyAvatar(
+                                paletteIndex: _paletteIndex,
+                                glassesAccessoryIndex: index,
+                                size: 56,
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                index == 0
+                                    ? uiText(context, 'None')
+                                    : uiText(
+                                        context,
+                                        'Glasses {number}',
+                                        args: {'number': '$index'},
+                                      ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: selected
+                                      ? FontWeight.w800
+                                      : FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                if (_savingGlasses) ...[
                   const SizedBox(height: 8),
                   const LinearProgressIndicator(),
                 ],

@@ -4,6 +4,7 @@ class Account {
     required this.fullName,
     required this.email,
     this.avatarPaletteIndex = 0,
+    this.glassesAccessoryIndex = 0,
     this.preferredLanguage,
     this.ageYears,
   });
@@ -12,6 +13,7 @@ class Account {
   final String fullName;
   final String email;
   final int avatarPaletteIndex;
+  final int glassesAccessoryIndex;
   final String? preferredLanguage;
   final int? ageYears;
 
@@ -22,6 +24,8 @@ class Account {
       email: json['email'].toString(),
       avatarPaletteIndex:
           int.tryParse(json['avatarPaletteIndex']?.toString() ?? '') ?? 0,
+      glassesAccessoryIndex:
+          int.tryParse(json['glassesAccessoryIndex']?.toString() ?? '') ?? 0,
       preferredLanguage: json['preferredLanguage']?.toString(),
       ageYears: int.tryParse(json['ageYears']?.toString() ?? ''),
     );
@@ -129,6 +133,7 @@ class LeaderboardEntry {
     required this.place,
     required this.isYou,
     this.avatarPaletteIndex = 0,
+    this.glassesAccessoryIndex = 0,
   });
 
   final String name;
@@ -136,6 +141,7 @@ class LeaderboardEntry {
   final int place;
   final bool isYou;
   final int avatarPaletteIndex;
+  final int glassesAccessoryIndex;
 
   factory LeaderboardEntry.fromJson(Map<String, dynamic> json) {
     return LeaderboardEntry(
@@ -145,6 +151,8 @@ class LeaderboardEntry {
       isYou: json['isYou'] == true,
       avatarPaletteIndex:
           int.tryParse(json['avatarPaletteIndex']?.toString() ?? '') ?? 0,
+      glassesAccessoryIndex:
+          int.tryParse(json['glassesAccessoryIndex']?.toString() ?? '') ?? 0,
     );
   }
 }

@@ -255,6 +255,37 @@ class UiTranslations {
       'hi': 'मुख्य वृक्ष',
       'ru': 'Главное дерево',
     },
+    'Glasses accessory': {
+      'fr': 'Accessoire lunettes',
+      'es': 'Accesorio de gafas',
+      'hi': 'चश्मे का एक्सेसरी',
+      'ru': 'Аксессуар: очки',
+    },
+    'Choose glasses to layer over your buddy.': {
+      'fr': 'Choisissez des lunettes à superposer sur votre compagnon.',
+      'es': 'Elige unas gafas para poner sobre tu compañero.',
+      'hi': 'अपने साथी के ऊपर लगाने के लिए चश्मा चुनें।',
+      'ru': 'Выберите очки, которые будут отображаться поверх вашего друга.',
+    },
+    'No glasses': {
+      'fr': 'Sans lunettes',
+      'es': 'Sin gafas',
+      'hi': 'बिना चश्मे के',
+      'ru': 'Без очков',
+    },
+    'None': {'fr': 'Aucun', 'es': 'Ninguno', 'hi': 'कोई नहीं', 'ru': 'Нет'},
+    'Glasses {number}': {
+      'fr': 'Lunettes {number}',
+      'es': 'Gafas {number}',
+      'hi': 'चश्मा {number}',
+      'ru': 'Очки {number}',
+    },
+    'Could not save your glasses.': {
+      'fr': 'Impossible d’enregistrer vos lunettes.',
+      'es': 'No se pudieron guardar tus gafas.',
+      'hi': 'आपका चश्मा सहेजा नहीं जा सका।',
+      'ru': 'Не удалось сохранить выбранные очки.',
+    },
     'Topics': {'fr': 'Sujets', 'es': 'Temas', 'hi': 'विषय', 'ru': 'Темы'},
     'XP': {'fr': 'XP', 'es': 'XP', 'hi': 'XP', 'ru': 'XP'},
     'Profile': {

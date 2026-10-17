@@ -155,6 +155,25 @@ const server = createServer(async (request, response) => {
     return;
   }
 
+  if (url.pathname === '/account/avatar-glasses' && request.method === 'PUT') {
+    const body = await readJson(request);
+    const accessoryIndex = Number(body.accessoryIndex);
+    const token = String(request.headers.authorization ?? '').replace(/^Bearer\s+/i, '');
+    const accountId = sessions.get(token);
+    const account = [...accounts.values()].find((item) => item.id === accountId);
+    if (!accountId || !account) {
+      send(response, 401, {message: 'Please sign in again.'});
+      return;
+    }
+    if (!Number.isInteger(accessoryIndex) || accessoryIndex < 0 || accessoryIndex > 16) {
+      send(response, 400, {message: 'Choose one of the available glasses options.'});
+      return;
+    }
+    account.glassesAccessoryIndex = accessoryIndex;
+    send(response, 200, {glassesAccessoryIndex: accessoryIndex});
+    return;
+  }
+
   if (url.pathname === '/gamification' && request.method === 'GET') {
     const accountId = String(url.searchParams.get('accountId') ?? '').trim();
     if (!accountId) {
@@ -367,10 +386,24 @@ const server = createServer(async (request, response) => {
       .map(([id, user], index) => ({id, ...user, place: index + 1}));
     const leaderboard = ranked
       .filter((user) => user.place <= 10)
-      .map(({id, name, xp, place}) => ({name, xp, place, isYou: id === accountId}));
+      .map(({id, name, xp, place}) => ({
+        name,
+        xp,
+        place,
+        isYou: id === accountId,
+        avatarPaletteIndex: [...accounts.values()].find((account) => account.id === id)?.avatarPaletteIndex ?? 0,
+        glassesAccessoryIndex: [...accounts.values()].find((account) => account.id === id)?.glassesAccessoryIndex ?? 0,
+      }));
     const currentUser = ranked.find((user) => user.id === accountId);
     const yourPlace = currentUser?.place > 10
-      ? {name: currentUser.name, xp: currentUser.xp, place: currentUser.place, isYou: true}
+      ? {
+          name: currentUser.name,
+          xp: currentUser.xp,
+          place: currentUser.place,
+          isYou: true,
+          avatarPaletteIndex: [...accounts.values()].find((account) => account.id === accountId)?.avatarPaletteIndex ?? 0,
+          glassesAccessoryIndex: [...accounts.values()].find((account) => account.id === accountId)?.glassesAccessoryIndex ?? 0,
+        }
       : null;
     send(response, 200, {totalXp, days, leaderboard, yourPlace});
     return;
@@ -413,6 +446,7 @@ function publicAccount(account) {
     fullName: account.fullName,
     email: account.email,
     avatarPaletteIndex: account.avatarPaletteIndex ?? 0,
+    glassesAccessoryIndex: account.glassesAccessoryIndex ?? 0,
     preferredLanguage: account.preferredLanguage ?? null,
     ageYears: account.ageYears ?? null,
   };

@@ -164,7 +164,8 @@ app.post('/auth/register', async (request, response) => {
     const result = await pool.query(
       `INSERT INTO accounts (full_name, email, password_hash, auth_provider)
        VALUES ($1, $2, $3, 'password')
-       RETURNING id, full_name, email, avatar_palette_index, preferred_language, age_years`,
+       RETURNING id, full_name, email, avatar_palette_index, glasses_accessory_index,
+                 preferred_language, age_years`,
       [fullName, email, passwordHash],
     );
 
@@ -211,6 +212,7 @@ app.post('/auth/google', async (request, response) => {
     const email = googleUser.email.toLowerCase();
     const existing = await pool.query(
       `SELECT id, full_name, email, provider_subject, avatar_palette_index,
+              glasses_accessory_index,
               preferred_language, age_years
        FROM accounts WHERE provider_subject = $1 OR email = $2 LIMIT 1`,
       [googleUser.sub, email],
@@ -227,6 +229,7 @@ app.post('/auth/google', async (request, response) => {
           `UPDATE accounts SET provider_subject = $1
            WHERE id = $2 AND provider_subject IS NULL
            RETURNING id, full_name, email, provider_subject, avatar_palette_index,
+                     glasses_accessory_index,
                      preferred_language, age_years`,
           [googleUser.sub, account.id],
         );
@@ -242,6 +245,7 @@ app.post('/auth/google', async (request, response) => {
           `INSERT INTO accounts (full_name, email, auth_provider, provider_subject)
            VALUES ($1, $2, 'google', $3)
            RETURNING id, full_name, email, provider_subject, avatar_palette_index,
+                     glasses_accessory_index,
                      preferred_language, age_years`,
           [name, email, googleUser.sub],
         );
@@ -251,6 +255,7 @@ app.post('/auth/google', async (request, response) => {
         if (error.code !== '23505') throw error;
         const raced = await pool.query(
           `SELECT id, full_name, email, provider_subject, avatar_palette_index,
+                  glasses_accessory_index,
                   preferred_language, age_years
            FROM accounts WHERE provider_subject = $1 OR email = $2 LIMIT 1`,
           [googleUser.sub, email],
@@ -264,6 +269,7 @@ app.post('/auth/google', async (request, response) => {
             `UPDATE accounts SET provider_subject = $1
              WHERE id = $2 AND provider_subject IS NULL
              RETURNING id, full_name, email, provider_subject, avatar_palette_index,
+                       glasses_accessory_index,
                        preferred_language, age_years`,
             [googleUser.sub, account.id],
           );
@@ -340,6 +346,23 @@ app.put('/account/avatar-palette', requireAuth, async (request, response) => {
   } catch (error) {
     console.error(error);
     return response.status(500).json({message: 'Could not save your avatar colors.'});
+  }
+});
+
+app.put('/account/avatar-glasses', requireAuth, async (request, response) => {
+  const accessoryIndex = Number(request.body.accessoryIndex);
+  if (!Number.isInteger(accessoryIndex) || accessoryIndex < 0 || accessoryIndex > 16) {
+    return response.status(400).json({message: 'Choose one of the available glasses options.'});
+  }
+  try {
+    await pool.query(
+      'UPDATE accounts SET glasses_accessory_index = $1 WHERE id = $2',
+      [accessoryIndex, request.accountId],
+    );
+    return response.json({glassesAccessoryIndex: accessoryIndex});
+  } catch (error) {
+    console.error(error);
+    return response.status(500).json({message: 'Could not save your glasses.'});
   }
 });
 
@@ -491,19 +514,20 @@ app.get('/xp/weekly', requireAuth, async (request, response) => {
       pool.query(
         `WITH account_totals AS (
            SELECT accounts.id, accounts.full_name, accounts.avatar_palette_index,
+                  accounts.glasses_accessory_index,
                   accounts.created_at,
                   COALESCE(SUM(lesson_xp.xp), 0)::int AS xp
            FROM accounts
            LEFT JOIN lesson_xp ON lesson_xp.account_id = accounts.id
            GROUP BY accounts.id
          ), ranked AS (
-           SELECT id, full_name, avatar_palette_index, xp,
+           SELECT id, full_name, avatar_palette_index, glasses_accessory_index, xp,
                   ROW_NUMBER() OVER (
                     ORDER BY xp DESC, created_at ASC, lower(full_name), id
                   )::int AS place
            FROM account_totals
          )
-         SELECT id, full_name AS name, avatar_palette_index, xp, place
+         SELECT id, full_name AS name, avatar_palette_index, glasses_accessory_index, xp, place
          FROM ranked
          WHERE place <= 10 OR id = $1
          ORDER BY place`,
@@ -520,12 +544,13 @@ app.get('/xp/weekly', requireAuth, async (request, response) => {
     const currentUser = leaderboardRows.rows.find((row) => row.id === accountId);
     const leaderboard = leaderboardRows.rows
       .filter((row) => row.place <= 10)
-      .map(({id, name, xp, place, avatar_palette_index}) => ({
+      .map(({id, name, xp, place, avatar_palette_index, glasses_accessory_index}) => ({
         name,
         xp,
         place,
         isYou: id === accountId,
         avatarPaletteIndex: avatar_palette_index,
+        glassesAccessoryIndex: glasses_accessory_index,
       }));
     const yourPlace = currentUser?.place > 10
       ? {
@@ -534,6 +559,7 @@ app.get('/xp/weekly', requireAuth, async (request, response) => {
           place: currentUser.place,
           isYou: true,
           avatarPaletteIndex: currentUser.avatar_palette_index,
+          glassesAccessoryIndex: currentUser.glasses_accessory_index,
         }
       : null;
     return response.json({totalXp: totals.rows[0].total_xp, days, leaderboard, yourPlace});
@@ -565,6 +591,7 @@ app.post('/auth/login', async (request, response) => {
 
   const result = await pool.query(
     `SELECT id, full_name, email, password_hash, avatar_palette_index,
+            glasses_accessory_index,
             preferred_language, age_years
      FROM accounts
      WHERE email = $1 OR username = $1
@@ -633,6 +660,7 @@ function toAccount(row) {
     fullName: row.full_name,
     email: row.email,
     avatarPaletteIndex: row.avatar_palette_index ?? 0,
+    glassesAccessoryIndex: row.glasses_accessory_index ?? 0,
     preferredLanguage: row.preferred_language ?? null,
     ageYears: row.age_years ?? null,
   };
