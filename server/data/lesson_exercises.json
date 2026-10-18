@@ -9,7 +9,7 @@
     "heart": {
       "id": "heart",
       "parentId": null,
-      "question": "Why does your heart keep beating while you sleep?",
+      "question": "How does your body keep you alive?",
       "content": "Your heart is a muscle pump controlled by electrical signals. A small group of cells starts each beat, while nerves and hormones adjust the pace. During sleep, your heart usually slows because your body needs less energy, but it keeps supplying oxygen and nutrients every second.",
       "level": 1,
       "children": [
@@ -20,7 +20,7 @@
       "lessonCount": 4,
       "exercises": [
         {
-          "prompt": "Why does your heart keep beating while you sleep?",
+          "prompt": "How does your body keep you alive?",
           "type": "singleChoice",
           "options": [
             "The heart has its own electrical pacing system, and the nervous system adjusts its rate.",
@@ -45,7 +45,7 @@
           "explanation": "Your heart is a muscle pump controlled by electrical signals. A small group of cells starts each beat, while nerves and hormones adjust the pace. During sleep, your heart usually slows because your body needs less energy, but it keeps supplying oxygen and nutrients every second."
         },
         {
-          "prompt": "What is one key takeaway? Why does your heart keep beating while you sleep?",
+          "prompt": "What is one key takeaway? How does your body keep you alive?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -63,7 +63,7 @@
     "immune": {
       "id": "immune",
       "parentId": null,
-      "question": "How does your immune system remember a germ?",
+      "question": "Can you survive with only half your brain?",
       "content": "Your immune system can learn to recognize specific parts of microbes. After an infection or vaccination, some B cells and T cells remain as memory cells. If the same threat appears again, these cells can help the body respond faster.",
       "level": 1,
       "children": [
@@ -74,7 +74,7 @@
       "lessonCount": 7,
       "exercises": [
         {
-          "prompt": "How does your immune system remember a germ?",
+          "prompt": "Can you survive with only half your brain?",
           "type": "singleChoice",
           "options": [
             "Some B cells and T cells persist as memory cells after an infection or vaccination.",
@@ -99,7 +99,7 @@
           "explanation": "Your immune system can learn to recognize specific parts of microbes. After an infection or vaccination, some B cells and T cells remain as memory cells. If the same threat appears again, these cells can help the body respond faster."
         },
         {
-          "prompt": "What is one key takeaway? How does your immune system remember a germ?",
+          "prompt": "What is one key takeaway? Can you survive with only half your brain?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -120,7 +120,7 @@
     "sleep": {
       "id": "sleep",
       "parentId": null,
-      "question": "Why does your brain need sleep?",
+      "question": "Can we stop our bodies from aging?",
       "content": "Sleep is an active brain state, not simply an off switch. Brain activity changes through repeating stages, and sleep supports learning, attention, mood, and many body processes. Scientists are still studying exactly how its different benefits fit together.",
       "level": 1,
       "children": [
@@ -131,7 +131,7 @@
       "lessonCount": 4,
       "exercises": [
         {
-          "prompt": "Why does your brain need sleep?",
+          "prompt": "Can we stop our bodies from aging?",
           "type": "singleChoice",
           "options": [
             "Sleep supports learning, attention, mood, and other brain and body processes.",
@@ -156,7 +156,7 @@
           "explanation": "Sleep is an active brain state, not simply an off switch. Brain activity changes through repeating stages, and sleep supports learning, attention, mood, and many body processes. Scientists are still studying exactly how its different benefits fit together."
         },
         {
-          "prompt": "What is one key takeaway? Why does your brain need sleep?",
+          "prompt": "What is one key takeaway? Can we stop our bodies from aging?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -174,7 +174,7 @@
     "heart-electric": {
       "id": "heart-electric",
       "parentId": "heart",
-      "question": "What makes a heartbeat start?",
+      "question": "What happens if you stop eating?",
       "content": "Specialized cells in the sinoatrial node, a tiny area in the right atrium, spontaneously create electrical impulses. The signal spreads through the heart in a carefully timed route, coordinating the chambers so blood is pumped efficiently.",
       "level": 2,
       "children": [
@@ -185,7 +185,7 @@
       "lessonCount": 4,
       "exercises": [
         {
-          "prompt": "What makes a heartbeat start?",
+          "prompt": "What happens if you stop eating?",
           "type": "singleChoice",
           "options": [
             "Cells in the sinoatrial node spontaneously generate electrical impulses that start each heartbeat.",
@@ -210,7 +210,7 @@
           "explanation": "Specialized cells in the sinoatrial node, a tiny area in the right atrium, spontaneously create electrical impulses. The signal spreads through the heart in a carefully timed route, coordinating the chambers so blood is pumped efficiently."
         },
         {
-          "prompt": "What is one key takeaway? What makes a heartbeat start?",
+          "prompt": "What is one key takeaway? What happens if you stop eating?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -228,7 +228,7 @@
     "heart-speed": {
       "id": "heart-speed",
       "parentId": "heart",
-      "question": "Why does your heart race when you are scared?",
+      "question": "What actually causes a heart attack?",
       "content": "The autonomic nervous system and hormones such as adrenaline can raise heart rate during stress. More blood can then reach muscles and other organs preparing for action. When the threat passes, calming signals help the body return toward its resting state.",
       "level": 2,
       "children": [
@@ -239,7 +239,7 @@
       "lessonCount": 4,
       "exercises": [
         {
-          "prompt": "Why does your heart race when you are scared?",
+          "prompt": "What actually causes a heart attack?",
           "type": "singleChoice",
           "options": [
             "Stress signals such as adrenaline can increase heart rate and prepare the body for action.",
@@ -264,7 +264,7 @@
           "explanation": "The autonomic nervous system and hormones such as adrenaline can raise heart rate during stress. More blood can then reach muscles and other organs preparing for action. When the threat passes, calming signals help the body return toward its resting state."
         },
         {
-          "prompt": "What is one key takeaway? Why does your heart race when you are scared?",
+          "prompt": "What is one key takeaway? What actually causes a heart attack?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -282,7 +282,7 @@
     "heart-oxygen": {
       "id": "heart-oxygen",
       "parentId": "heart",
-      "question": "How does blood deliver oxygen around your body?",
+      "question": "What would happen if you didn't drink water?",
       "content": "In the lungs, oxygen crosses into tiny blood vessels and attaches to hemoglobin inside red blood cells. The heart pumps this oxygen-rich blood through arteries. In tissues, oxygen leaves the blood and enters cells, where it helps release energy from food.",
       "level": 2,
       "children": [
@@ -293,7 +293,7 @@
       "lessonCount": 4,
       "exercises": [
         {
-          "prompt": "How does blood deliver oxygen around your body?",
+          "prompt": "What would happen if you didn't drink water?",
           "type": "singleChoice",
           "options": [
             "Hemoglobin in red blood cells carries oxygen from the lungs to body tissues.",
@@ -318,7 +318,7 @@
           "explanation": "In the lungs, oxygen crosses into tiny blood vessels and attaches to hemoglobin inside red blood cells. The heart pumps this oxygen-rich blood through arteries. In tissues, oxygen leaves the blood and enters cells, where it helps release energy from food."
         },
         {
-          "prompt": "What is one key takeaway? How does blood deliver oxygen around your body?",
+          "prompt": "What is one key takeaway? What would happen if you didn't drink water?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -336,14 +336,14 @@
     "pacemaker": {
       "id": "pacemaker",
       "parentId": "heart-electric",
-      "question": "How can heart cells keep a rhythm without a brain command?",
+      "question": "How does sugar affect your brain?",
       "content": "Pacemaker cells have ion channels that let charged particles move across their membranes. This gradually changes their electrical voltage until an impulse fires. The autonomic nerves can speed up or slow down this rhythm, but the heart has a built-in rhythm source.",
       "level": 3,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
-          "prompt": "How can heart cells keep a rhythm without a brain command?",
+          "prompt": "How does sugar affect your brain?",
           "type": "singleChoice",
           "options": [
             "Ion movement gradually changes pacemaker-cell voltage until an electrical impulse fires.",
@@ -368,7 +368,7 @@
           "explanation": "Pacemaker cells have ion channels that let charged particles move across their membranes. This gradually changes their electrical voltage until an impulse fires. The autonomic nerves can speed up or slow down this rhythm, but the heart has a built-in rhythm source."
         },
         {
-          "prompt": "What is one key takeaway? How can heart cells keep a rhythm without a brain command?",
+          "prompt": "What is one key takeaway? How does sugar affect your brain?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -382,14 +382,14 @@
     "heartbeat-route": {
       "id": "heartbeat-route",
       "parentId": "heart-electric",
-      "question": "Why must the heart's electrical signal pause between chambers?",
+      "question": "What happens if you eat mold?",
       "content": "The signal briefly slows at the atrioventricular node. This pause lets the atria finish pushing blood into the ventricles before the ventricles contract. If the chambers squeezed at the same time, pumping would be less coordinated.",
       "level": 3,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
-          "prompt": "Why must the heart's electrical signal pause between chambers?",
+          "prompt": "What happens if you eat mold?",
           "type": "singleChoice",
           "options": [
             "A brief delay lets the atria fill the ventricles before the ventricles contract.",
@@ -414,7 +414,7 @@
           "explanation": "The signal briefly slows at the atrioventricular node. This pause lets the atria finish pushing blood into the ventricles before the ventricles contract. If the chambers squeezed at the same time, pumping would be less coordinated."
         },
         {
-          "prompt": "What is one key takeaway? Why must the heart's electrical signal pause between chambers?",
+          "prompt": "What is one key takeaway? What happens if you eat mold?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -428,14 +428,14 @@
     "heart-ecg": {
       "id": "heart-ecg",
       "parentId": "heart-electric",
-      "question": "What can an ECG reveal about a heartbeat?",
+      "question": "How much water should you drink a day?",
       "content": "An electrocardiogram records electrical changes at the skin using electrodes. Its wave patterns help clinicians assess heart rate and rhythm and can provide clues about heart problems. An ECG is one piece of evidence; clinicians interpret it with symptoms and other tests.",
       "level": 3,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
-          "prompt": "What can an ECG reveal about a heartbeat?",
+          "prompt": "How much water should you drink a day?",
           "type": "singleChoice",
           "options": [
             "An ECG records electrical activity associated with the heart's rhythm.",
@@ -460,7 +460,7 @@
           "explanation": "An electrocardiogram records electrical changes at the skin using electrodes. Its wave patterns help clinicians assess heart rate and rhythm and can provide clues about heart problems. An ECG is one piece of evidence; clinicians interpret it with symptoms and other tests."
         },
         {
-          "prompt": "What is one key takeaway? What can an ECG reveal about a heartbeat?",
+          "prompt": "What is one key takeaway? How much water should you drink a day?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -474,14 +474,14 @@
     "adrenaline": {
       "id": "adrenaline",
       "parentId": "heart-speed",
-      "question": "How does adrenaline prepare the body to act?",
+      "question": "What causes high and low blood pressure?",
       "content": "Adrenaline is released during some stressful situations. It can increase heart rate, widen airways, and make stored energy more available. These short-term changes can help with action, although a stress response is not always useful when it stays switched on.",
       "level": 3,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
-          "prompt": "How does adrenaline prepare the body to act?",
+          "prompt": "What causes high and low blood pressure?",
           "type": "singleChoice",
           "options": [
             "Adrenaline can raise heart rate and make energy more available during stress.",
@@ -506,7 +506,7 @@
           "explanation": "Adrenaline is released during some stressful situations. It can increase heart rate, widen airways, and make stored energy more available. These short-term changes can help with action, although a stress response is not always useful when it stays switched on."
         },
         {
-          "prompt": "What is one key takeaway? How does adrenaline prepare the body to act?",
+          "prompt": "What is one key takeaway? What causes high and low blood pressure?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -520,14 +520,14 @@
     "heart-recovery": {
       "id": "heart-recovery",
       "parentId": "heart-speed",
-      "question": "How does your heart slow down after a scare?",
+      "question": "What happens if you breathe pure oxygen?",
       "content": "When a threat passes, parasympathetic nerves help restore a calmer state. The heart's rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing.",
       "level": 3,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
-          "prompt": "How does your heart slow down after a scare?",
+          "prompt": "What happens if you breathe pure oxygen?",
           "type": "singleChoice",
           "options": [
             "Parasympathetic nerve signals help the heart return toward a calmer rate.",
@@ -552,7 +552,7 @@
           "explanation": "When a threat passes, parasympathetic nerves help restore a calmer state. The heart's rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing."
         },
         {
-          "prompt": "What is one key takeaway? How does your heart slow down after a scare?",
+          "prompt": "What is one key takeaway? What happens if you breathe pure oxygen?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -566,14 +566,14 @@
     "blood-vessels": {
       "id": "blood-vessels",
       "parentId": "heart-speed",
-      "question": "Why do blood vessels change width during exercise?",
+      "question": "Why do we sweat so much?",
       "content": "Blood vessels can widen or narrow to help direct blood where it is needed. During exercise, vessels supplying working muscles widen, increasing blood flow. Other signals help maintain blood pressure so blood can still reach organs throughout the body.",
       "level": 3,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
-          "prompt": "Why do blood vessels change width during exercise?",
+          "prompt": "Why do we sweat so much?",
           "type": "singleChoice",
           "options": [
             "Vessels supplying active muscles widen to increase local blood flow during exercise.",
@@ -598,7 +598,7 @@
           "explanation": "Blood vessels can widen or narrow to help direct blood where it is needed. During exercise, vessels supplying working muscles widen, increasing blood flow. Other signals help maintain blood pressure so blood can still reach organs throughout the body."
         },
         {
-          "prompt": "What is one key takeaway? Why do blood vessels change width during exercise?",
+          "prompt": "What is one key takeaway? Why do we sweat so much?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -612,14 +612,14 @@
     "red-cells": {
       "id": "red-cells",
       "parentId": "heart-oxygen",
-      "question": "Why are red blood cells shaped like tiny discs?",
+      "question": "What causes kidney stones?",
       "content": "Most red blood cells are flexible, flattened discs with a dip on both sides. This shape gives them a large surface area for gas exchange and helps them squeeze through narrow capillaries. Mature human red blood cells lack a nucleus, leaving more room for hemoglobin.",
       "level": 3,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
-          "prompt": "Why are red blood cells shaped like tiny discs?",
+          "prompt": "What causes kidney stones?",
           "type": "singleChoice",
           "options": [
             "Their flexible, indented shape supports gas exchange and passage through tiny capillaries.",
@@ -644,7 +644,7 @@
           "explanation": "Most red blood cells are flexible, flattened discs with a dip on both sides. This shape gives them a large surface area for gas exchange and helps them squeeze through narrow capillaries. Mature human red blood cells lack a nucleus, leaving more room for hemoglobin."
         },
         {
-          "prompt": "What is one key takeaway? Why are red blood cells shaped like tiny discs?",
+          "prompt": "What is one key takeaway? What causes kidney stones?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -658,14 +658,14 @@
     "hemoglobin": {
       "id": "hemoglobin",
       "parentId": "heart-oxygen",
-      "question": "How does hemoglobin hold oxygen without keeping it forever?",
+      "question": "Can you survive without your liver?",
       "content": "Hemoglobin contains iron-bearing heme groups that can bind oxygen reversibly. In the lungs, where oxygen is abundant, hemoglobin tends to pick it up. In tissues where oxygen is lower, it releases more, helping deliver oxygen where cells need it.",
       "level": 3,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
-          "prompt": "How does hemoglobin hold oxygen without keeping it forever?",
+          "prompt": "Can you survive without your liver?",
           "type": "singleChoice",
           "options": [
             "Hemoglobin binds oxygen reversibly, picking it up in lungs and releasing it in tissues.",
@@ -690,7 +690,7 @@
           "explanation": "Hemoglobin contains iron-bearing heme groups that can bind oxygen reversibly. In the lungs, where oxygen is abundant, hemoglobin tends to pick it up. In tissues where oxygen is lower, it releases more, helping deliver oxygen where cells need it."
         },
         {
-          "prompt": "What is one key takeaway? How does hemoglobin hold oxygen without keeping it forever?",
+          "prompt": "What is one key takeaway? Can you survive without your liver?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -704,14 +704,14 @@
     "capillaries": {
       "id": "capillaries",
       "parentId": "heart-oxygen",
-      "question": "Why are capillaries only one cell thick?",
+      "question": "Why is smoking so awesome?",
       "content": "Capillaries are the smallest blood vessels. Their walls are very thin, often one cell layer, so oxygen, nutrients, and waste products can move between blood and nearby tissues over a short distance. Their enormous network reaches almost every active part of the body.",
       "level": 3,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
-          "prompt": "Why are capillaries only one cell thick?",
+          "prompt": "Why is smoking so awesome?",
           "type": "singleChoice",
           "options": [
             "Thin capillary walls make it easier for substances to exchange between blood and tissues.",
@@ -736,7 +736,7 @@
           "explanation": "Capillaries are the smallest blood vessels. Their walls are very thin, often one cell layer, so oxygen, nutrients, and waste products can move between blood and nearby tissues over a short distance. Their enormous network reaches almost every active part of the body."
         },
         {
-          "prompt": "What is one key takeaway? Why are capillaries only one cell thick?",
+          "prompt": "What is one key takeaway? Why is smoking so awesome?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -750,7 +750,7 @@
     "immune-detection": {
       "id": "immune-detection",
       "parentId": "immune",
-      "question": "How can immune cells tell your cells from an invader?",
+      "question": "How long can you survive without sleep?",
       "content": "Cells display molecular markers on their surfaces. Immune cells use receptors to inspect these signals and detect patterns associated with microbes or damaged cells. Recognition is complex, and immune safeguards help reduce the chance of attacking healthy tissue.",
       "level": 2,
       "children": [
@@ -761,7 +761,7 @@
       "lessonCount": 4,
       "exercises": [
         {
-          "prompt": "How can immune cells tell your cells from an invader?",
+          "prompt": "How long can you survive without sleep?",
           "type": "singleChoice",
           "options": [
             "Immune receptors recognize molecular patterns displayed by cells and microbes.",
@@ -786,7 +786,7 @@
           "explanation": "Cells display molecular markers on their surfaces. Immune cells use receptors to inspect these signals and detect patterns associated with microbes or damaged cells. Recognition is complex, and immune safeguards help reduce the chance of attacking healthy tissue."
         },
         {
-          "prompt": "What is one key takeaway? How can immune cells tell your cells from an invader?",
+          "prompt": "What is one key takeaway? How long can you survive without sleep?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -804,7 +804,7 @@
     "immune-memory": {
       "id": "immune-memory",
       "parentId": "immune",
-      "question": "How can one vaccine prepare you for a future infection?",
+      "question": "Why do we have two eyes?",
       "content": "A vaccine safely exposes the immune system to a target, such as a harmless piece or instruction related to a germ. This can train B and T cells to recognize it and form memory cells. Protection varies by vaccine and can change over time.",
       "level": 2,
       "children": [
@@ -815,7 +815,7 @@
       "lessonCount": 4,
       "exercises": [
         {
-          "prompt": "How can one vaccine prepare you for a future infection?",
+          "prompt": "Why do we have two eyes?",
           "type": "singleChoice",
           "options": [
             "Vaccines can train immune cells to recognize a target and form memory cells.",
@@ -840,7 +840,7 @@
           "explanation": "A vaccine safely exposes the immune system to a target, such as a harmless piece or instruction related to a germ. This can train B and T cells to recognize it and form memory cells. Protection varies by vaccine and can change over time."
         },
         {
-          "prompt": "What is one key takeaway? How can one vaccine prepare you for a future infection?",
+          "prompt": "What is one key takeaway? Why do we have two eyes?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -858,7 +858,7 @@
     "fever": {
       "id": "fever",
       "parentId": "immune",
-      "question": "Why can a fever help while also making you feel awful?",
+      "question": "What is depression?",
       "content": "During infection, immune signals can raise the body's temperature set point. A moderate fever is part of the immune response, but it also increases discomfort and the body's workload. Fever has many causes, and very high or persistent fever can need medical attention.",
       "level": 2,
       "children": [
@@ -869,7 +869,7 @@
       "lessonCount": 4,
       "exercises": [
         {
-          "prompt": "Why can a fever help while also making you feel awful?",
+          "prompt": "What is depression?",
           "type": "singleChoice",
           "options": [
             "Immune signals can raise the temperature set point as part of the response to infection.",
@@ -894,7 +894,7 @@
           "explanation": "During infection, immune signals can raise the body's temperature set point. A moderate fever is part of the immune response, but it also increases discomfort and the body's workload. Fever has many causes, and very high or persistent fever can need medical attention."
         },
         {
-          "prompt": "What is one key takeaway? Why can a fever help while also making you feel awful?",
+          "prompt": "What is one key takeaway? What is depression?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -912,14 +912,14 @@
     "antigens": {
       "id": "antigens",
       "parentId": "immune-detection",
-      "question": "What is an antigen that immune cells can recognize?",
+      "question": "Why do we dream, and can we control our dreams?",
       "content": "An antigen is a molecule or molecular piece that can be recognized by parts of the immune system. Many antigens come from microbes, but the immune system also encounters harmless substances and the body's own molecules. Context helps shape the response.",
       "level": 3,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
-          "prompt": "What is an antigen that immune cells can recognize?",
+          "prompt": "Why do we dream, and can we control our dreams?",
           "type": "singleChoice",
           "options": [
             "An antigen is a molecule or molecular piece recognized by the immune system.",
@@ -944,7 +944,7 @@
           "explanation": "An antigen is a molecule or molecular piece that can be recognized by parts of the immune system. Many antigens come from microbes, but the immune system also encounters harmless substances and the body's own molecules. Context helps shape the response."
         },
         {
-          "prompt": "What is one key takeaway? What is an antigen that immune cells can recognize?",
+          "prompt": "What is one key takeaway? Why do we dream, and can we control our dreams?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -958,14 +958,14 @@
     "barriers": {
       "id": "barriers",
       "parentId": "immune-detection",
-      "question": "How does your skin stop many germs before they enter?",
+      "question": "How can you fall asleep in 2 minutes?",
       "content": "Skin forms a physical barrier, and its surface conditions make it difficult for many microbes to grow. Mucus, tears, and other secretions also trap or wash away microbes. These first-line defenses work alongside immune cells deeper in the body.",
       "level": 3,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
-          "prompt": "How does your skin stop many germs before they enter?",
+          "prompt": "How can you fall asleep in 2 minutes?",
           "type": "singleChoice",
           "options": [
             "Skin and mucosal surfaces provide physical and chemical first-line defenses.",
@@ -990,7 +990,7 @@
           "explanation": "Skin forms a physical barrier, and its surface conditions make it difficult for many microbes to grow. Mucus, tears, and other secretions also trap or wash away microbes. These first-line defenses work alongside immune cells deeper in the body."
         },
         {
-          "prompt": "What is one key takeaway? How does your skin stop many germs before they enter?",
+          "prompt": "What is one key takeaway? How can you fall asleep in 2 minutes?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -1004,14 +1004,14 @@
     "inflammation": {
       "id": "inflammation",
       "parentId": "immune-detection",
-      "question": "Why does a small cut become warm and red?",
+      "question": "Why do I have a headache?",
       "content": "Injury and infection can trigger inflammation. Local signals widen blood vessels and make them more permeable, allowing immune cells and fluid to reach the area. The extra blood flow can cause warmth and redness; inflammation helps repair, but excessive inflammation can harm tissue.",
       "level": 3,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
-          "prompt": "Why does a small cut become warm and red?",
+          "prompt": "Why do I have a headache?",
           "type": "singleChoice",
           "options": [
             "Inflammation increases local blood flow and helps immune cells reach injured tissue.",
@@ -1036,7 +1036,7 @@
           "explanation": "Injury and infection can trigger inflammation. Local signals widen blood vessels and make them more permeable, allowing immune cells and fluid to reach the area. The extra blood flow can cause warmth and redness; inflammation helps repair, but excessive inflammation can harm tissue."
         },
         {
-          "prompt": "What is one key takeaway? Why does a small cut become warm and red?",
+          "prompt": "What is one key takeaway? Why do I have a headache?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -1050,14 +1050,14 @@
     "b-cells": {
       "id": "b-cells",
       "parentId": "immune-memory",
-      "question": "What do B cells do when they recognize a germ?",
+      "question": "Why do we have different skin colours?",
       "content": "Some B cells can become plasma cells that release antibodies, proteins that bind particular targets. Other B cells become memory cells. Antibodies can help neutralize microbes or mark them for other immune defenses, but they are only one part of immunity.",
       "level": 3,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
-          "prompt": "What do B cells do when they recognize a germ?",
+          "prompt": "Why do we have different skin colours?",
           "type": "singleChoice",
           "options": [
             "Some B cells make antibodies, while others can become memory B cells.",
@@ -1082,7 +1082,7 @@
           "explanation": "Some B cells can become plasma cells that release antibodies, proteins that bind particular targets. Other B cells become memory cells. Antibodies can help neutralize microbes or mark them for other immune defenses, but they are only one part of immunity."
         },
         {
-          "prompt": "What is one key takeaway? What do B cells do when they recognize a germ?",
+          "prompt": "What is one key takeaway? Why do we have different skin colours?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -1096,14 +1096,14 @@
     "t-cells": {
       "id": "t-cells",
       "parentId": "immune-memory",
-      "question": "Why does your immune system need T cells as well as antibodies?",
+      "question": "Why do we get goosebumps?",
       "content": "Different T cells have different jobs. Helper T cells coordinate parts of the immune response, while cytotoxic T cells can destroy infected body cells. Memory T cells can persist after an infection or vaccination and help with later recognition.",
       "level": 3,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
-          "prompt": "Why does your immune system need T cells as well as antibodies?",
+          "prompt": "Why do we get goosebumps?",
           "type": "singleChoice",
           "options": [
             "Helper T cells coordinate responses and cytotoxic T cells can kill infected cells.",
@@ -1128,7 +1128,7 @@
           "explanation": "Different T cells have different jobs. Helper T cells coordinate parts of the immune response, while cytotoxic T cells can destroy infected body cells. Memory T cells can persist after an infection or vaccination and help with later recognition."
         },
         {
-          "prompt": "What is one key takeaway? Why does your immune system need T cells as well as antibodies?",
+          "prompt": "What is one key takeaway? Why do we get goosebumps?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -1142,14 +1142,14 @@
     "memory-cells": {
       "id": "memory-cells",
       "parentId": "immune-memory",
-      "question": "Why can immune memory fade?",
+      "question": "Why do we get hiccups?",
       "content": "Some immune memory lasts a long time, while protection against other threats decreases as antibody levels and immune-cell responses change. Germs can also evolve. This is why protection depends on the disease, vaccine, person, and time since exposure.",
       "level": 3,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
-          "prompt": "Why can immune memory fade?",
+          "prompt": "Why do we get hiccups?",
           "type": "singleChoice",
           "options": [
             "Immune protection can change as antibody levels, memory responses, and germs change over time.",
@@ -1174,7 +1174,7 @@
           "explanation": "Some immune memory lasts a long time, while protection against other threats decreases as antibody levels and immune-cell responses change. Germs can also evolve. This is why protection depends on the disease, vaccine, person, and time since exposure."
         },
         {
-          "prompt": "What is one key takeaway? Why can immune memory fade?",
+          "prompt": "What is one key takeaway? Why do we get hiccups?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -1188,14 +1188,14 @@
     "fever-setpoint": {
       "id": "fever-setpoint",
       "parentId": "fever",
-      "question": "Who tells the body to turn up its temperature?",
+      "question": "Why do we cry?",
       "content": "Immune molecules called pyrogens can influence the hypothalamus, a brain region that helps regulate body temperature. The hypothalamus changes the body's temperature set point. Shivering and seeking warmth can then help the body approach that new set point.",
       "level": 3,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
-          "prompt": "Who tells the body to turn up its temperature?",
+          "prompt": "Why do we cry?",
           "type": "singleChoice",
           "options": [
             "Immune signals can influence the hypothalamus to raise the temperature set point.",
@@ -1220,7 +1220,7 @@
           "explanation": "Immune molecules called pyrogens can influence the hypothalamus, a brain region that helps regulate body temperature. The hypothalamus changes the body's temperature set point. Shivering and seeking warmth can then help the body approach that new set point."
         },
         {
-          "prompt": "What is one key takeaway? Who tells the body to turn up its temperature?",
+          "prompt": "What is one key takeaway? Why do we cry?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -1234,14 +1234,14 @@
     "fever-shivers": {
       "id": "fever-shivers",
       "parentId": "fever",
-      "question": "Why do you shiver when a fever is rising?",
+      "question": "Can you be awake during surgery?",
       "content": "If the body's temperature set point rises, the current temperature can feel too low to the brain. Muscles may shiver and blood vessels near the skin may narrow, generating and conserving heat. When the set point falls, sweating can help release heat.",
       "level": 3,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
-          "prompt": "Why do you shiver when a fever is rising?",
+          "prompt": "Can you be awake during surgery?",
           "type": "singleChoice",
           "options": [
             "Shivering generates heat when the body is below its raised temperature set point.",
@@ -1266,7 +1266,7 @@
           "explanation": "If the body's temperature set point rises, the current temperature can feel too low to the brain. Muscles may shiver and blood vessels near the skin may narrow, generating and conserving heat. When the set point falls, sweating can help release heat."
         },
         {
-          "prompt": "What is one key takeaway? Why do you shiver when a fever is rising?",
+          "prompt": "What is one key takeaway? Can you be awake during surgery?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -1280,14 +1280,14 @@
     "fever-variation": {
       "id": "fever-variation",
       "parentId": "fever",
-      "question": "Why is a fever not a perfect thermometer for how sick you are?",
+      "question": "Where did we come from?",
       "content": "Temperature is only one clue about illness. Age, measurement method, time of day, medicines, and the cause all matter. A person's overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned.",
       "level": 3,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
-          "prompt": "Why is a fever not a perfect thermometer for how sick you are?",
+          "prompt": "Where did we come from?",
           "type": "singleChoice",
           "options": [
             "Fever is one health clue and must be considered with symptoms and context.",
@@ -1312,7 +1312,7 @@
           "explanation": "Temperature is only one clue about illness. Age, measurement method, time of day, medicines, and the cause all matter. A person's overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned."
         },
         {
-          "prompt": "What is one key takeaway? Why is a fever not a perfect thermometer for how sick you are?",
+          "prompt": "What is one key takeaway? Where did we come from?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -1326,7 +1326,7 @@
     "sleep-stages": {
       "id": "sleep-stages",
       "parentId": "sleep",
-      "question": "What happens to brain activity during a night of sleep?",
+      "question": "Why do humans age in the first place?",
       "content": "Sleep cycles through non-rapid eye movement and rapid eye movement stages. The pattern repeats several times, with the balance shifting over the night. The brain remains active and responsive in different ways; sleep is not one uniform state.",
       "level": 2,
       "children": [
@@ -1337,7 +1337,7 @@
       "lessonCount": 4,
       "exercises": [
         {
-          "prompt": "What happens to brain activity during a night of sleep?",
+          "prompt": "Why do humans age in the first place?",
           "type": "singleChoice",
           "options": [
             "Sleep alternates through non-REM and REM stages in repeating cycles.",
@@ -1362,7 +1362,7 @@
           "explanation": "Sleep cycles through non-rapid eye movement and rapid eye movement stages. The pattern repeats several times, with the balance shifting over the night. The brain remains active and responsive in different ways; sleep is not one uniform state."
         },
         {
-          "prompt": "What is one key takeaway? What happens to brain activity during a night of sleep?",
+          "prompt": "What is one key takeaway? Why do humans age in the first place?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -1380,7 +1380,7 @@
     "sleep-memory": {
       "id": "sleep-memory",
       "parentId": "sleep",
-      "question": "How can sleep help you remember what you learned?",
+      "question": "Could stronger legs help you live longer?",
       "content": "During sleep, the brain replays and reorganizes some patterns of activity from waking experience. This can help stabilize certain memories and integrate new information with what you already know. Sleep does not guarantee perfect recall, but learning is often better with adequate rest.",
       "level": 2,
       "children": [
@@ -1391,7 +1391,7 @@
       "lessonCount": 4,
       "exercises": [
         {
-          "prompt": "How can sleep help you remember what you learned?",
+          "prompt": "Could stronger legs help you live longer?",
           "type": "singleChoice",
           "options": [
             "Sleep can help stabilize and reorganize some memories formed while awake.",
@@ -1416,7 +1416,7 @@
           "explanation": "During sleep, the brain replays and reorganizes some patterns of activity from waking experience. This can help stabilize certain memories and integrate new information with what you already know. Sleep does not guarantee perfect recall, but learning is often better with adequate rest."
         },
         {
-          "prompt": "What is one key takeaway? How can sleep help you remember what you learned?",
+          "prompt": "What is one key takeaway? Could stronger legs help you live longer?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -1434,7 +1434,7 @@
     "body-clock": {
       "id": "body-clock",
       "parentId": "sleep",
-      "question": "Why do you feel sleepy at roughly the same time each night?",
+      "question": "What is the deadliest living thing on Earth?",
       "content": "The circadian system generates daily rhythms in alertness, hormones, and body temperature. Light is a powerful cue that helps align this internal clock with day and night. Sleep pressure also builds the longer you stay awake, and both systems shape when sleep feels likely.",
       "level": 2,
       "children": [
@@ -1445,7 +1445,7 @@
       "lessonCount": 4,
       "exercises": [
         {
-          "prompt": "Why do you feel sleepy at roughly the same time each night?",
+          "prompt": "What is the deadliest living thing on Earth?",
           "type": "singleChoice",
           "options": [
             "Circadian rhythms and accumulating sleep pressure both influence sleepiness.",
@@ -1470,7 +1470,7 @@
           "explanation": "The circadian system generates daily rhythms in alertness, hormones, and body temperature. Light is a powerful cue that helps align this internal clock with day and night. Sleep pressure also builds the longer you stay awake, and both systems shape when sleep feels likely."
         },
         {
-          "prompt": "What is one key takeaway? Why do you feel sleepy at roughly the same time each night?",
+          "prompt": "What is one key takeaway? What is the deadliest living thing on Earth?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -1488,14 +1488,14 @@
     "dreams": {
       "id": "dreams",
       "parentId": "sleep-stages",
-      "question": "Why can dreams feel real while you are asleep?",
+      "question": "What happened before recorded history?",
       "content": "Dreams can occur in several sleep stages and are often vivid in REM sleep. Brain regions involved in imagery and emotion can be active while parts involved in checking reality work differently. Scientists study dreaming, and no single theory explains every dream.",
       "level": 3,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
-          "prompt": "Why can dreams feel real while you are asleep?",
+          "prompt": "What happened before recorded history?",
           "type": "singleChoice",
           "options": [
             "Dreaming reflects active brain processes, often vivid during REM sleep.",
@@ -1520,7 +1520,7 @@
           "explanation": "Dreams can occur in several sleep stages and are often vivid in REM sleep. Brain regions involved in imagery and emotion can be active while parts involved in checking reality work differently. Scientists study dreaming, and no single theory explains every dream."
         },
         {
-          "prompt": "What is one key takeaway? Why can dreams feel real while you are asleep?",
+          "prompt": "What is one key takeaway? What happened before recorded history?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -1534,14 +1534,14 @@
     "deep-sleep": {
       "id": "deep-sleep",
       "parentId": "sleep-stages",
-      "question": "Why is it hard to wake someone during deep sleep?",
+      "question": "Why do women have periods?",
       "content": "Deep sleep is a stage of non-REM sleep with slow, synchronized brain waves. A person can be less responsive to outside sounds during this stage. Deep sleep is especially common earlier in the night, though sleep architecture changes with age and other factors.",
       "level": 3,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
-          "prompt": "Why is it hard to wake someone during deep sleep?",
+          "prompt": "Why do women have periods?",
           "type": "singleChoice",
           "options": [
             "Deep non-REM sleep has slow brain activity and reduced responsiveness to sounds.",
@@ -1566,7 +1566,7 @@
           "explanation": "Deep sleep is a stage of non-REM sleep with slow, synchronized brain waves. A person can be less responsive to outside sounds during this stage. Deep sleep is especially common earlier in the night, though sleep architecture changes with age and other factors."
         },
         {
-          "prompt": "What is one key takeaway? Why is it hard to wake someone during deep sleep?",
+          "prompt": "What is one key takeaway? Why do women have periods?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -1580,14 +1580,14 @@
     "sleep-rem": {
       "id": "sleep-rem",
       "parentId": "sleep-stages",
-      "question": "Why do your eyes move during REM sleep?",
+      "question": "Can we create genetically perfect babies?",
       "content": "REM means rapid eye movement. During this stage, the eyes move beneath closed lids, brain activity resembles some waking patterns, and most skeletal muscles are temporarily inhibited. The exact relationship between eye movements and dream content is still being studied.",
       "level": 3,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
-          "prompt": "Why do your eyes move during REM sleep?",
+          "prompt": "Can we create genetically perfect babies?",
           "type": "singleChoice",
           "options": [
             "REM sleep features rapid eye movements and temporary inhibition of most skeletal muscles.",
@@ -1612,7 +1612,7 @@
           "explanation": "REM means rapid eye movement. During this stage, the eyes move beneath closed lids, brain activity resembles some waking patterns, and most skeletal muscles are temporarily inhibited. The exact relationship between eye movements and dream content is still being studied."
         },
         {
-          "prompt": "What is one key takeaway? Why do your eyes move during REM sleep?",
+          "prompt": "What is one key takeaway? Can we create genetically perfect babies?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -1626,14 +1626,14 @@
     "memory-replay": {
       "id": "memory-replay",
       "parentId": "sleep-memory",
-      "question": "Does your brain replay everything you did that day while you sleep?",
+      "question": "Can you build muscle without lifting weights?",
       "content": "Some brain activity during sleep resembles patterns from recent experiences, but this is not a complete replay of the day. Researchers study how sleep helps selected memories become stable and how the brain prioritizes information. Not every event is stored equally.",
       "level": 3,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
-          "prompt": "Does your brain replay everything you did that day while you sleep?",
+          "prompt": "Can you build muscle without lifting weights?",
           "type": "singleChoice",
           "options": [
             "Some experience-related brain patterns can recur during sleep, but not as a full replay.",
@@ -1658,7 +1658,7 @@
           "explanation": "Some brain activity during sleep resembles patterns from recent experiences, but this is not a complete replay of the day. Researchers study how sleep helps selected memories become stable and how the brain prioritizes information. Not every event is stored equally."
         },
         {
-          "prompt": "What is one key takeaway? Does your brain replay everything you did that day while you sleep?",
+          "prompt": "What is one key takeaway? Can you build muscle without lifting weights?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -1672,14 +1672,14 @@
     "forgetting": {
       "id": "forgetting",
       "parentId": "sleep-memory",
-      "question": "Why can a short nap sometimes help you learn?",
+      "question": "Can you train your bones and ligaments?",
       "content": "A nap can reduce sleepiness and may support memory, especially when it includes useful sleep stages. The effect depends on nap timing and length, prior sleep, and the task. A nap cannot replace the benefits of consistently adequate nighttime sleep.",
       "level": 3,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
-          "prompt": "Why can a short nap sometimes help you learn?",
+          "prompt": "Can you train your bones and ligaments?",
           "type": "singleChoice",
           "options": [
             "A nap may support alertness and some memory, depending on timing and sleep needs.",
@@ -1704,7 +1704,7 @@
           "explanation": "A nap can reduce sleepiness and may support memory, especially when it includes useful sleep stages. The effect depends on nap timing and length, prior sleep, and the task. A nap cannot replace the benefits of consistently adequate nighttime sleep."
         },
         {
-          "prompt": "What is one key takeaway? Why can a short nap sometimes help you learn?",
+          "prompt": "What is one key takeaway? Can you train your bones and ligaments?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -1718,14 +1718,14 @@
     "memory-links": {
       "id": "memory-links",
       "parentId": "sleep-memory",
-      "question": "How can sleep connect a new idea to something you already know?",
+      "question": "Can we regrow lost body parts?",
       "content": "Learning changes connections among neurons. Sleep may help the brain reorganize some of these patterns, making it easier to link new information with existing knowledge. This process is not a simple filing system, and researchers are still uncovering how different sleep stages contribute.",
       "level": 3,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
-          "prompt": "How can sleep connect a new idea to something you already know?",
+          "prompt": "Can we regrow lost body parts?",
           "type": "singleChoice",
           "options": [
             "Sleep may help reorganize brain activity and link new information with existing knowledge.",
@@ -1764,14 +1764,14 @@
     "light-clock": {
       "id": "light-clock",
       "parentId": "body-clock",
-      "question": "How does morning light reset your body clock?",
+      "question": "How does your immune system remember a germ?",
       "content": "Light reaches specialized cells in the retina, which send timing information to the brain's circadian clock. Morning light often shifts the clock earlier, while bright light late at night can shift it later. The effect depends on when the light arrives.",
       "level": 3,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
-          "prompt": "How does morning light reset your body clock?",
+          "prompt": "How does your immune system remember a germ?",
           "type": "singleChoice",
           "options": [
             "Retinal light signals help synchronize the brain's circadian clock with the day.",
@@ -1796,7 +1796,7 @@
           "explanation": "Light reaches specialized cells in the retina, which send timing information to the brain's circadian clock. Morning light often shifts the clock earlier, while bright light late at night can shift it later. The effect depends on when the light arrives."
         },
         {
-          "prompt": "What is one key takeaway? How does morning light reset your body clock?",
+          "prompt": "What is one key takeaway? How does your immune system remember a germ?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -1810,14 +1810,14 @@
     "melatonin": {
       "id": "melatonin",
       "parentId": "body-clock",
-      "question": "What does melatonin actually do at night?",
+      "question": "Why don't blue whales get cancer more often?",
       "content": "Melatonin is a hormone whose levels usually rise in dim evening conditions under circadian control. It signals that biological night has begun and can support sleep timing. It is not a general knockout drug, and light exposure can affect its timing.",
       "level": 3,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
-          "prompt": "What does melatonin actually do at night?",
+          "prompt": "Why don't blue whales get cancer more often?",
           "type": "singleChoice",
           "options": [
             "Melatonin signals biological night and helps regulate sleep timing.",
@@ -1842,7 +1842,7 @@
           "explanation": "Melatonin is a hormone whose levels usually rise in dim evening conditions under circadian control. It signals that biological night has begun and can support sleep timing. It is not a general knockout drug, and light exposure can affect its timing."
         },
         {
-          "prompt": "What is one key takeaway? What does melatonin actually do at night?",
+          "prompt": "What is one key takeaway? Why don't blue whales get cancer more often?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -1856,14 +1856,14 @@
     "jet-lag": {
       "id": "jet-lag",
       "parentId": "body-clock",
-      "question": "Why does crossing time zones make your body feel confused?",
+      "question": "Why do we have different blood types?",
       "content": "Your internal circadian rhythms remain aligned to the old time zone for a while after travel. Local light, meals, and activity happen at new times, creating a mismatch. The clock gradually shifts, and the direction and number of time zones affect adjustment.",
       "level": 3,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
-          "prompt": "Why does crossing time zones make your body feel confused?",
+          "prompt": "Why do we have different blood types?",
           "type": "singleChoice",
           "options": [
             "Jet lag occurs because internal rhythms take time to align with local time.",
@@ -1888,7 +1888,7 @@
           "explanation": "Your internal circadian rhythms remain aligned to the old time zone for a while after travel. Local light, meals, and activity happen at new times, creating a mismatch. The clock gradually shifts, and the direction and number of time zones affect adjustment."
         },
         {
-          "prompt": "What is one key takeaway? Why does crossing time zones make your body feel confused?",
+          "prompt": "What is one key takeaway? Why do we have different blood types?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
