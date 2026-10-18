@@ -18,7 +18,7 @@ const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
 });
 const lessonContent = JSON.parse(
-  readFileSync(new URL('../data/lesson_exercises.json', import.meta.url), 'utf8'),
+  readFileSync(new URL('../data/lesson_exercises_en.json', import.meta.url), 'utf8'),
 );
 const lessonContentByLanguage = new Map([['en', lessonContent]]);
 

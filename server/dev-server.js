@@ -26,7 +26,7 @@ demoXpAmounts.forEach((earnedXp, index) => {
     at: new Date(),
   });
 });
-const lessonContentPath = ['server/data/lesson_exercises.json', 'data/lesson_exercises.json']
+const lessonContentPath = ['server/data/lesson_exercises_en.json', 'data/lesson_exercises_en.json']
   .find((path) => existsSync(path));
 if (!lessonContentPath) throw new Error('Lesson exercise JSON database was not found.');
 const lessonContent = JSON.parse(readFileSync(lessonContentPath, 'utf8'));
@@ -37,7 +37,7 @@ function getLessonContent(language) {
     ? String(language)
     : 'en';
   if (lessonContentByLanguage.has(code)) return lessonContentByLanguage.get(code);
-  const filePath = lessonContentPath.replace(/lesson_exercises\.json$/, `lesson_exercises_${code}.json`);
+  const filePath = lessonContentPath.replace(/lesson_exercises_en\.json$/, `lesson_exercises_${code}.json`);
   if (!existsSync(filePath)) return lessonContent;
   const localized = JSON.parse(readFileSync(filePath, 'utf8'));
   lessonContentByLanguage.set(code, localized);
