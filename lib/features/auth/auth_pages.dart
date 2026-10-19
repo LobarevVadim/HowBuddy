@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../app_style.dart';
@@ -10,8 +12,10 @@ import 'account_preferences_page.dart';
 import '../home/home_page.dart';
 import '../../services/theme_preferences.dart';
 import '../../services/ui_translations.dart';
+import '../../services/notification_service.dart';
 
-void _returnToLogin(NavigatorState navigator) {
+Future<void> _returnToLogin(NavigatorState navigator, String accountId) async {
+  await NotificationService.instance.unregister(accountId);
   ApiSession.clear();
   navigator.pushReplacement(
     MaterialPageRoute(builder: (_) => const LoginPage()),
@@ -27,7 +31,8 @@ Widget _accountDestination(
       ? OnboardingPage(account: savedAccount)
       : HomePage(
           account: savedAccount,
-          onLogout: () => _returnToLogin(navigator),
+          topicId: NotificationService.instance.takePendingTopicId() ?? 'heart',
+          onLogout: () => unawaited(_returnToLogin(navigator, savedAccount.id)),
         );
 
   if (account.preferredLanguage == null || account.ageYears == null) {
@@ -250,7 +255,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
         builder: (_) => HomePage(
           account: widget.account,
           topicId: topic.id,
-          onLogout: () => _returnToLogin(navigator),
+          onLogout: () =>
+              unawaited(_returnToLogin(navigator, widget.account.id)),
         ),
       ),
     );
@@ -263,7 +269,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
         builder: (_) => HomePage(
           account: widget.account,
           initialIndex: 1,
-          onLogout: () => _returnToLogin(navigator),
+          onLogout: () =>
+              unawaited(_returnToLogin(navigator, widget.account.id)),
         ),
       ),
     );

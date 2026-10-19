@@ -7,10 +7,12 @@ import 'app_style.dart';
 import 'features/auth/auth_pages.dart';
 import 'services/theme_preferences.dart';
 import 'services/ui_translations.dart';
+import 'services/notification_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await UiTranslations.loadSavedLanguage();
+  await NotificationService.instance.initialize();
   if (!kIsWeb) {
     await MobileAds.instance.initialize();
   }

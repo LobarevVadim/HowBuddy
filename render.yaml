@@ -12,6 +12,29 @@ services:
     branch: main
     buildCommand: bash scripts/build_web.sh
     staticPublishPath: build/web
+    envVars:
+      - key: FIREBASE_API_KEY
+        sync: false
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      - key: FIREBASE_MESSAGING_SENDER_ID
+        sync: false
+      - key: FIREBASE_WEB_APP_ID
+        sync: false
+      - key: FIREBASE_ANDROID_APP_ID
+        sync: false
+      - key: FIREBASE_IOS_APP_ID
+        sync: false
+      - key: FIREBASE_AUTH_DOMAIN
+        sync: false
+      - key: FIREBASE_STORAGE_BUCKET
+        sync: false
+      - key: FIREBASE_IOS_BUNDLE_ID
+        sync: false
+      - key: FIREBASE_MEASUREMENT_ID
+        sync: false
+      - key: FIREBASE_WEB_VAPID_KEY
+        sync: false
   - type: web
     name: howbuddy-demo-api
     runtime: node
@@ -31,3 +54,7 @@ services:
         value: production
       - key: GOOGLE_WEB_CLIENT_ID
         value: 533985639406-lpjq93u5eos638fc0rsf1tjkhq1157o0.apps.googleusercontent.com
+      - key: FIREBASE_SERVICE_ACCOUNT_JSON
+        sync: false
+      - key: NOTIFICATION_CRON_SECRET
+        generateValue: true

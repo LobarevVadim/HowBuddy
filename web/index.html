@@ -32,6 +32,16 @@
 
   <title>HowBuddy</title>
   <link rel="manifest" href="manifest.json">
+  <script>
+    window.howBuddyShowNotification = (title, body, topicId) => {
+      if (!('Notification' in window) || Notification.permission !== 'granted') return;
+      const notification = new Notification(title, { body, icon: 'icons/Icon-192.png' });
+      notification.onclick = () => {
+        const target = topicId ? `/?notificationTopic=${encodeURIComponent(topicId)}` : '/';
+        window.location.assign(target);
+      };
+    };
+  </script>
 </head>
 <body>
   <!--

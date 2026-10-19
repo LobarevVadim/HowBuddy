@@ -6,6 +6,10 @@ import {OAuth2Client} from 'google-auth-library';
 import pg from 'pg';
 import {createHmac, timingSafeEqual} from 'node:crypto';
 import {existsSync, readFileSync} from 'node:fs';
+import {getApps, initializeApp, cert} from 'firebase-admin/app';
+import {getMessaging} from 'firebase-admin/messaging';
+import {createNotificationScheduler} from './notification_scheduler.js';
+import {isValidTimeZone} from './notification_policy.js';
 
 dotenv.config();
 
@@ -16,6 +20,22 @@ const googleWebClientId = process.env.GOOGLE_WEB_CLIENT_ID ?? '';
 const googleOAuthClient = new OAuth2Client();
 const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
+});
+const firebaseServiceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+let pushMessaging = null;
+if (firebaseServiceAccountJson) {
+  try {
+    const serviceAccount = JSON.parse(firebaseServiceAccountJson);
+    if (!getApps().length) initializeApp({credential: cert(serviceAccount)});
+    pushMessaging = getMessaging();
+  } catch (error) {
+    console.error('Firebase Admin notifications are disabled: invalid service account JSON.', error.message);
+  }
+}
+const notificationScheduler = createNotificationScheduler({
+  pool,
+  messaging: pushMessaging,
+  getLessonContent,
 });
 const lessonContent = JSON.parse(
   readFileSync(new URL('../data/lesson_exercises.json', import.meta.url), 'utf8'),
@@ -403,6 +423,149 @@ app.put('/account/preferences', requireAuth, async (request, response) => {
     console.error(error);
     return response.status(500).json({message: 'Could not save your preferences.'});
   }
+});
+
+app.get('/account/notifications/preferences', requireAuth, async (request, response) => {
+  try {
+    await ensureNotificationSettings(request.accountId);
+    const result = await pool.query(
+      `SELECT enabled, curiosity_enabled, quiet_hours_enabled,
+              quiet_start_minute, quiet_end_minute
+       FROM account_notification_settings WHERE account_id = $1`,
+      [request.accountId],
+    );
+    return response.json({preferences: notificationPreferencesJson(result.rows[0])});
+  } catch (error) {
+    console.error(error);
+    return response.status(500).json({message: 'Could not load notification preferences.'});
+  }
+});
+
+app.put('/account/notifications/preferences', requireAuth, async (request, response) => {
+  const enabled = request.body.enabled === true;
+  const curiosityEnabled = request.body.curiosityEnabled !== false;
+  const quietHoursEnabled = request.body.quietHoursEnabled !== false;
+  const quietStartMinute = Number(request.body.quietStartMinute);
+  const quietEndMinute = Number(request.body.quietEndMinute);
+  if (![quietStartMinute, quietEndMinute].every((minute) => Number.isInteger(minute) && minute >= 0 && minute < 1440)) {
+    return response.status(400).json({message: 'Choose valid quiet-hour times.'});
+  }
+  try {
+    await pool.query(
+      `INSERT INTO account_notification_settings
+         (account_id, enabled, curiosity_enabled, quiet_hours_enabled,
+          quiet_start_minute, quiet_end_minute)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       ON CONFLICT (account_id) DO UPDATE SET
+         enabled = EXCLUDED.enabled,
+         curiosity_enabled = EXCLUDED.curiosity_enabled,
+         quiet_hours_enabled = EXCLUDED.quiet_hours_enabled,
+         quiet_start_minute = EXCLUDED.quiet_start_minute,
+         quiet_end_minute = EXCLUDED.quiet_end_minute,
+         updated_at = now()`,
+      [request.accountId, enabled, curiosityEnabled, quietHoursEnabled, quietStartMinute, quietEndMinute],
+    );
+    return response.json({preferences: {
+      enabled, curiosityEnabled, quietHoursEnabled, quietStartMinute, quietEndMinute,
+    }});
+  } catch (error) {
+    console.error(error);
+    return response.status(500).json({message: 'Could not save notification preferences.'});
+  }
+});
+
+app.post('/account/notifications/device', requireAuth, async (request, response) => {
+  const token = String(request.body.token ?? '').trim();
+  const platform = String(request.body.platform ?? '');
+  const language = String(request.body.language ?? 'en');
+  const timeZone = String(request.body.timeZone ?? 'UTC');
+  if (!token || token.length > 4096 || !['android', 'ios', 'web'].includes(platform)) {
+    return response.status(400).json({message: 'Invalid notification device.'});
+  }
+  if (!['en', 'fr', 'es', 'hi', 'ru'].includes(language) || !isValidTimeZone(timeZone)) {
+    return response.status(400).json({message: 'Invalid language or time zone.'});
+  }
+  try {
+    await ensureNotificationSettings(request.accountId);
+    await pool.query(
+      `INSERT INTO notification_devices(token, account_id, platform, language)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (token) DO UPDATE SET account_id = EXCLUDED.account_id,
+         platform = EXCLUDED.platform, language = EXCLUDED.language, last_seen_at = now()`,
+      [token, request.accountId, platform, language],
+    );
+    await pool.query(
+      `UPDATE account_notification_settings SET time_zone = $1, updated_at = now()
+       WHERE account_id = $2`,
+      [timeZone, request.accountId],
+    );
+    return response.json({registered: true});
+  } catch (error) {
+    console.error(error);
+    return response.status(500).json({message: 'Could not register this notification device.'});
+  }
+});
+
+app.delete('/account/notifications/device', requireAuth, async (request, response) => {
+  const token = String(request.body.token ?? '').trim();
+  if (!token) return response.status(400).json({message: 'Notification token is required.'});
+  try {
+    await pool.query(
+      'DELETE FROM notification_devices WHERE account_id = $1 AND token = $2',
+      [request.accountId, token],
+    );
+    return response.json({unregistered: true});
+  } catch (error) {
+    console.error(error);
+    return response.status(500).json({message: 'Could not unregister this notification device.'});
+  }
+});
+
+app.post('/account/notifications/test', requireAuth, async (request, response) => {
+  if (!pushMessaging) {
+    return response.status(503).json({message: 'Push notifications are not configured on the server.'});
+  }
+  try {
+    const [devices, account] = await Promise.all([
+      pool.query('SELECT token FROM notification_devices WHERE account_id = $1', [request.accountId]),
+      pool.query('SELECT preferred_language FROM accounts WHERE id = $1', [request.accountId]),
+    ]);
+    const tokens = devices.rows.map((row) => row.token);
+    if (!tokens.length) return response.status(400).json({message: 'Enable notifications on this device first.'});
+    const language = account.rows[0]?.preferred_language ?? 'en';
+    const testText = {
+      en: ['HowBuddy test', 'Your notifications are ready!'],
+      fr: ['Test HowBuddy', 'Tes notifications sont prêtes !'],
+      es: ['Prueba de HowBuddy', '¡Tus notificaciones están listas!'],
+      ru: ['Тест HowBuddy', 'Уведомления готовы!'],
+      hi: ['HowBuddy परीक्षण', 'आपकी सूचनाएँ तैयार हैं!'],
+    }[language] ?? ['HowBuddy test', 'Your notifications are ready!'];
+    let sent = 0;
+    for (let offset = 0; offset < tokens.length; offset += 500) {
+      const result = await pushMessaging.sendEachForMulticast({
+        tokens: tokens.slice(offset, offset + 500),
+        notification: {title: testText[0], body: testText[1]},
+        data: {type: 'test', topicId: ''},
+      });
+      sent += result.successCount;
+    }
+    return response.json({sent});
+  } catch (error) {
+    console.error(error);
+    return response.status(500).json({message: 'Could not send the test notification.'});
+  }
+});
+
+app.post('/notifications/tick', async (request, response) => {
+  const secret = process.env.NOTIFICATION_CRON_SECRET ?? '';
+  const supplied = String(request.get('X-Notification-Cron-Secret') ?? '');
+  const secretBytes = Buffer.from(secret);
+  const suppliedBytes = Buffer.from(supplied);
+  const authorized = secretBytes.length > 0 &&
+    secretBytes.length === suppliedBytes.length &&
+    timingSafeEqual(secretBytes, suppliedBytes);
+  if (!authorized) return response.status(secret ? 401 : 503).json({message: 'Scheduler is not authorized.'});
+  return response.json(await notificationScheduler.tick());
 });
 
 app.get('/lessons/exercises', async (request, response) => {
@@ -866,6 +1029,23 @@ function clientStudyDate(request) {
   return Math.abs(dayDelta) <= 1 ? candidate : utcToday;
 }
 
+async function ensureNotificationSettings(accountId) {
+  await pool.query(
+    'INSERT INTO account_notification_settings(account_id) VALUES ($1) ON CONFLICT (account_id) DO NOTHING',
+    [accountId],
+  );
+}
+
+function notificationPreferencesJson(row) {
+  return {
+    enabled: row.enabled,
+    curiosityEnabled: row.curiosity_enabled,
+    quietHoursEnabled: row.quiet_hours_enabled,
+    quietStartMinute: row.quiet_start_minute,
+    quietEndMinute: row.quiet_end_minute,
+  };
+}
+
 function clientTimezoneOffset(request) {
   const candidate = Number(request.get('X-Client-UTC-Offset-Minutes'));
   return Number.isInteger(candidate) && Math.abs(candidate) <= 840 ? candidate : 0;
@@ -880,6 +1060,7 @@ pool.query(readFileSync(new URL('../schema.sql', import.meta.url), 'utf8')).then
   app.listen(port, () => {
     console.log(`HowBuddy auth API listening on http://localhost:${port}`);
   });
+  if (pushMessaging) notificationScheduler.start();
 }).catch((error) => {
   console.error('Could not initialize the XP table.', error);
   process.exitCode = 1;

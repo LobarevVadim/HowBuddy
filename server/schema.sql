@@ -40,6 +40,39 @@ ALTER TABLE accounts
 ALTER TABLE accounts
   ADD COLUMN IF NOT EXISTS avatar_emoji TEXT NOT NULL DEFAULT '';
 
+CREATE TABLE IF NOT EXISTS account_notification_settings (
+  account_id UUID PRIMARY KEY REFERENCES accounts(id) ON DELETE CASCADE,
+  enabled BOOLEAN NOT NULL DEFAULT false,
+  curiosity_enabled BOOLEAN NOT NULL DEFAULT true,
+  quiet_hours_enabled BOOLEAN NOT NULL DEFAULT true,
+  quiet_start_minute SMALLINT NOT NULL DEFAULT 1320 CHECK (quiet_start_minute BETWEEN 0 AND 1439),
+  quiet_end_minute SMALLINT NOT NULL DEFAULT 480 CHECK (quiet_end_minute BETWEEN 0 AND 1439),
+  time_zone TEXT NOT NULL DEFAULT 'UTC',
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS notification_devices (
+  token TEXT PRIMARY KEY,
+  account_id UUID NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+  platform TEXT NOT NULL CHECK (platform IN ('android', 'ios', 'web')),
+  language TEXT NOT NULL DEFAULT 'en' CHECK (language IN ('en', 'fr', 'es', 'hi', 'ru')),
+  last_seen_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS notification_devices_account_idx ON notification_devices(account_id);
+
+CREATE TABLE IF NOT EXISTS notification_deliveries (
+  id BIGSERIAL PRIMARY KEY,
+  account_id UUID NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+  local_date DATE NOT NULL,
+  notification_type TEXT NOT NULL,
+  title TEXT NOT NULL,
+  body TEXT NOT NULL DEFAULT '',
+  topic_id TEXT NOT NULL DEFAULT '',
+  sent_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (account_id, local_date, notification_type)
+);
+CREATE INDEX IF NOT EXISTS notification_deliveries_day_idx ON notification_deliveries(account_id, local_date);
+
 CREATE TABLE IF NOT EXISTS lesson_xp (
   account_id UUID NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
   topic_id TEXT NOT NULL,

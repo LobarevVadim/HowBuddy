@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import '../../app_style.dart';
 import '../../models/app_models.dart';
@@ -10,7 +12,9 @@ import '../gamification/gamification_pages.dart';
 import '../learning/lesson_tree.dart';
 import '../notepad/notepad_tree_page.dart';
 import '../profile/avatar_palette.dart';
+import '../profile/notification_preferences_panel.dart';
 import '../auth/account_preferences_page.dart';
+import '../../services/notification_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({
@@ -43,10 +47,22 @@ class _HomePageState extends State<HomePage> {
   late Future<GameState> _gameStateFuture;
   GameState? _currentGameState;
   bool _topicReady = false;
+  String? _queuedNotificationTopic;
+  StreamSubscription<String>? _notificationSubscription;
+  StreamSubscription<ForegroundNotification>?
+  _foregroundNotificationSubscription;
 
   @override
   void initState() {
     super.initState();
+    _notificationSubscription = NotificationService.instance.topicTaps.listen(
+      _onNotificationTopic,
+    );
+    _foregroundNotificationSubscription = NotificationService
+        .instance
+        .foregroundNotifications
+        .listen(_onForegroundNotification);
+    unawaited(NotificationService.instance.syncAccount(widget.account.id));
     UiTranslations.saveLanguage(_preferredLanguage);
     _gameStateFuture = GamificationApi().fetchState(widget.account.id).then((
       state,
@@ -57,11 +73,50 @@ class _HomePageState extends State<HomePage> {
     _restoreLastTopic();
   }
 
+  void _onNotificationTopic(String topicId) {
+    _queuedNotificationTopic = topicId;
+    if (!_topicReady || !mounted) return;
+    setState(() {
+      _topicId = topicId;
+      _selectedIndex = 0;
+    });
+    AuthApi().saveLastTopicId(topicId).catchError((_) {});
+  }
+
+  void _onForegroundNotification(ForegroundNotification notification) {
+    if (!mounted) return;
+    final topicId = notification.topicId;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          notification.body.isEmpty
+              ? notification.title
+              : '${notification.title}\n${notification.body}',
+        ),
+        action: topicId.isEmpty
+            ? null
+            : SnackBarAction(
+                label: uiText(context, 'Open'),
+                onPressed: () => _onNotificationTopic(topicId),
+              ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _notificationSubscription?.cancel();
+    _foregroundNotificationSubscription?.cancel();
+    super.dispose();
+  }
+
   Future<void> _restoreLastTopic() async {
     try {
       final savedTopicId = await AuthApi().fetchLastTopicId();
       if (!mounted) return;
-      if (savedTopicId != null && savedTopicId.isNotEmpty) {
+      if (_queuedNotificationTopic != null) {
+        setState(() => _topicId = _queuedNotificationTopic!);
+      } else if (savedTopicId != null && savedTopicId.isNotEmpty) {
         setState(() => _topicId = savedTopicId);
       } else {
         await AuthApi().saveLastTopicId(_topicId);
@@ -69,7 +124,13 @@ class _HomePageState extends State<HomePage> {
     } catch (_) {
       // Keep the starting topic if the preference request is temporarily unavailable.
     } finally {
-      if (mounted) setState(() => _topicReady = true);
+      if (mounted) {
+        setState(() => _topicReady = true);
+        final notificationTopic = _queuedNotificationTopic;
+        if (notificationTopic != null) {
+          AuthApi().saveLastTopicId(notificationTopic).catchError((_) {});
+        }
+      }
     }
   }
 
@@ -830,6 +891,17 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                   const SizedBox(height: 8),
                   const LinearProgressIndicator(),
                 ],
+                const SizedBox(height: 20),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    uiText(context, 'Notifications'),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                NotificationPreferencesPanel(accountId: widget.account.id),
                 const SizedBox(height: 20),
                 SwitchListTile.adaptive(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16),
