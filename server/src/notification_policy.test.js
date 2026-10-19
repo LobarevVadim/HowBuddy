@@ -122,6 +122,25 @@ test('notification messages are available in every supported language', () => {
   }
 });
 
+test('every inactivity reminder from day 2 through 41 is localized in all five languages', () => {
+  for (const language of ['en', 'fr', 'es', 'ru', 'hi']) {
+    for (let days = 2; days <= 41; days++) {
+      const message = chooseNotification({
+        slot: 'evening',
+        today,
+        language,
+        lastStudyDate: dateAt(days),
+      });
+      assert.equal(message?.type, 'inactivity', `${language}, day ${days}`);
+      assert.ok(message.title, `${language}, day ${days} has a title`);
+      assert.doesNotMatch(message.title, /\uFFFD/);
+      if (language !== 'en') {
+        assert.notEqual(message.title, INACTIVITY_MESSAGES[days], `${language}, day ${days}`);
+      }
+    }
+  }
+});
+
 test('expired streak is not described as an active streak', () => {
   const result = chooseNotification({slot:'evening',today,lastStudyDate:dateAt(2),studyDates:[dateAt(2)]});
   assert.equal(result.type, 'inactivity');
