@@ -112,7 +112,11 @@ class _NotificationPreferencesPanelState
         _message('Could not send the test notification.');
         return;
       }
-      _message('Test notification sent.');
+      _message(
+        result['emailSent'] == true
+            ? 'Test notification and email sent.'
+            : 'Test notification sent; email was not sent.',
+      );
     } catch (_) {
       _message('Could not send the test notification.');
     } finally {

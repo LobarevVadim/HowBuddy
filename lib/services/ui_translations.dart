@@ -477,6 +477,18 @@ class UiTranslations {
       'hi': 'Test suchna bheji gayi.',
       'ru': 'Test otpravlen.',
     },
+    'Test notification and email sent.': {
+      'fr': 'Notification et e-mail de test envoyes.',
+      'es': 'Notificacion y correo de prueba enviados.',
+      'hi': 'Test suchna aur email bheje gaye.',
+      'ru': 'Testovoe uvedomlenie i pismo otpravleny.',
+    },
+    'Test notification sent; email was not sent.': {
+      'fr': 'Notification envoyee, mais pas le courriel.',
+      'es': 'Se envio la notificacion, pero no el correo.',
+      'hi': 'Suchna bheji gayi, email nahi bheja gaya.',
+      'ru': 'Uvedomlenie otpravleno, pismo net.',
+    },
     'Notifications need Firebase setup and device permission.': {
       'fr': 'Configurez Firebase et autorisez les notifications.',
       'es': 'Configura Firebase y permite las notificaciones.',

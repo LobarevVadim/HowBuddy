@@ -58,3 +58,7 @@ services:
         sync: false
       - key: NOTIFICATION_CRON_SECRET
         generateValue: true
+      - key: RESEND_API_KEY
+        sync: false
+      - key: NOTIFICATION_EMAIL_FROM
+        sync: false

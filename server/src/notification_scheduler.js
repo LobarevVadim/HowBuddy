@@ -22,7 +22,13 @@ export function reachableQuestionNodes(content) {
   return result;
 }
 
-export function createNotificationScheduler({pool, messaging, getLessonContent, logger = console}) {
+export function createNotificationScheduler({
+  pool,
+  messaging,
+  getLessonContent,
+  emailSender = async () => ({sent: false, reason: 'email-not-configured'}),
+  logger = console,
+}) {
   let interval;
   let tickRunning = false;
 
@@ -39,6 +45,7 @@ export function createNotificationScheduler({pool, messaging, getLessonContent, 
                 settings.quiet_start_minute,
                 settings.quiet_end_minute,
                 settings.time_zone,
+                accounts.email AS account_email,
                 COALESCE(accounts.preferred_language, 'en') AS language,
                 array_agg(DISTINCT devices.token) AS tokens,
                 COALESCE(history.study_dates, ARRAY[]::text[]) AS study_dates,
@@ -70,7 +77,8 @@ export function createNotificationScheduler({pool, messaging, getLessonContent, 
          WHERE settings.enabled = true
          GROUP BY settings.account_id, settings.enabled, settings.curiosity_enabled,
                   settings.quiet_hours_enabled, settings.quiet_start_minute,
-                  settings.quiet_end_minute, settings.time_zone, accounts.preferred_language,
+                  settings.quiet_end_minute, settings.time_zone, accounts.email,
+                  accounts.preferred_language,
                   history.study_dates, last_activity.last_study_date,
                   deliveries.sent_types, deliveries.daily_count`,
       );
@@ -112,6 +120,7 @@ export function createNotificationScheduler({pool, messaging, getLessonContent, 
         if (!claimed) continue;
         try {
           const tokens = [...new Set(user.tokens ?? [])];
+          let pushAccepted = false;
           for (let offset = 0; offset < tokens.length; offset += 500) {
             const batch = tokens.slice(offset, offset + 500);
             const response = await messaging.sendEachForMulticast({
@@ -136,8 +145,26 @@ export function createNotificationScheduler({pool, messaging, getLessonContent, 
             if (expiredTokens.length) {
               await pool.query('DELETE FROM notification_devices WHERE token = ANY($1::text[])', [expiredTokens]);
             }
-            if (response.successCount > 0) sent++;
+            if (response.successCount > 0) pushAccepted = true;
             else throw new Error('Firebase rejected every device token for this account.');
+          }
+          if (pushAccepted) {
+            sent++;
+            try {
+              const emailResult = await emailSender({
+                email: user.account_email,
+                title: plan.title,
+                body: plan.body,
+                topicId: plan.topicId,
+                type: plan.type,
+                localDate: plan.localDate,
+              });
+              if (!emailResult.sent && emailResult.reason !== 'recipient-filtered') {
+                logger.warn(`Notification email was not sent (${emailResult.reason ?? 'unknown reason'}).`);
+              }
+            } catch (error) {
+              logger.error('Notification email send failed:', error.message);
+            }
           }
           if (!tokens.length) await deleteDelivery(pool, user.account_id, clock.date, plan.type);
         } catch (error) {

@@ -10,6 +10,17 @@ Daily/missed-yesterday reminders and inactivity/streak rules are evaluated from 
 
 The `dev-server.js` in-memory prototype does not send scheduled pushes. Use the PostgreSQL API in `server/src/server.js` for persistent notification delivery.
 
+## Email copies during the owner-only test
+
+Every accepted push notification also attempts to send an email with the same localized title and message. For the test phase, `server/src/notification_email.js` only permits delivery to `vlobarev823@gmail.com`; other account addresses are filtered out. Remove that allowlist check only when you are ready to email all users.
+
+Email delivery uses the Resend HTTP API. Create a Resend API key and configure a sender address that Resend permits (verify your sending domain if required). Add these values to the Render **API** service only:
+
+- `RESEND_API_KEY` — keep this secret; never commit it or put it in the web service.
+- `NOTIFICATION_EMAIL_FROM` — a permitted sender, for example `HowBuddy <notifications@your-verified-domain.example>`.
+
+The Profile notification test reports separately whether the push and email were sent. If the email provider is not configured or rejects a message, push delivery continues and the API logs the email failure. See [Resend's Express guide](https://resend.com/express) and [domain setup](https://resend.com/docs/dashboard/domains/introduction).
+
 ## Firebase and hosting setup
 
 1. In Firebase Console, create or select a project and enable **Cloud Messaging**.

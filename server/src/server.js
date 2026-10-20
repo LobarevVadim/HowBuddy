@@ -9,6 +9,7 @@ import {existsSync, readFileSync} from 'node:fs';
 import {getApps, initializeApp, cert} from 'firebase-admin/app';
 import {getMessaging} from 'firebase-admin/messaging';
 import {createNotificationScheduler} from './notification_scheduler.js';
+import {createNotificationEmailSender} from './notification_email.js';
 import {isValidTimeZone} from './notification_policy.js';
 
 dotenv.config();
@@ -32,10 +33,15 @@ if (firebaseServiceAccountJson) {
     console.error('Firebase Admin notifications are disabled: invalid service account JSON.', error.message);
   }
 }
+const notificationEmailSender = createNotificationEmailSender({
+  apiKey: process.env.RESEND_API_KEY,
+  from: process.env.NOTIFICATION_EMAIL_FROM,
+});
 const notificationScheduler = createNotificationScheduler({
   pool,
   messaging: pushMessaging,
   getLessonContent,
+  emailSender: notificationEmailSender,
 });
 const lessonContent = JSON.parse(
   readFileSync(new URL('../data/lesson_exercises.json', import.meta.url), 'utf8'),
@@ -528,7 +534,7 @@ app.post('/account/notifications/test', requireAuth, async (request, response) =
   try {
     const [devices, account] = await Promise.all([
       pool.query('SELECT token FROM notification_devices WHERE account_id = $1', [request.accountId]),
-      pool.query('SELECT preferred_language FROM accounts WHERE id = $1', [request.accountId]),
+      pool.query('SELECT email, preferred_language FROM accounts WHERE id = $1', [request.accountId]),
     ]);
     const tokens = devices.rows.map((row) => row.token);
     if (!tokens.length) return response.status(400).json({message: 'Enable notifications on this device first.'});
@@ -549,7 +555,17 @@ app.post('/account/notifications/test', requireAuth, async (request, response) =
       });
       sent += result.successCount;
     }
-    return response.json({sent});
+    let emailSent = false;
+    if (sent > 0) {
+      const emailResult = await notificationEmailSender({
+        email: account.rows[0]?.email,
+        title: testText[0],
+        body: testText[1],
+        type: 'test',
+      });
+      emailSent = emailResult.sent;
+    }
+    return response.json({sent, emailSent});
   } catch (error) {
     console.error(error);
     return response.status(500).json({message: 'Could not send the test notification.'});
