@@ -23,11 +23,11 @@ Render can host the Flutter web app, Node API, and PostgreSQL database. This rep
 
 After the static site deploys, share `https://howbuddy.app`. Friends can open it in iPhone Safari and optionally choose **Share > Add to Home Screen**.
 
-The API creates or updates its PostgreSQL tables when it starts. After the API Web Service deploys, open `https://api.howbuddy.app/health`. It should return `{"ok":true,"database":"connected"}`. Then build the phone app with that HTTPS URL:
+The API creates or updates its PostgreSQL tables when it starts. After the API Web Service deploys, open `https://howbuddy-demo-api.onrender.com/health`. It should return `{"ok":true,"database":"connected"}`. Then build the phone app with that HTTPS URL:
 
 ```sh
-flutter build apk --dart-define=API_URL=https://api.howbuddy.app
-flutter build ios --dart-define=API_URL=https://api.howbuddy.app
+flutter build apk --dart-define=API_URL=https://howbuddy-demo-api.onrender.com
+flutter build ios --dart-define=API_URL=https://howbuddy-demo-api.onrender.com
 ```
 
 Use the generated Android APK for sideloading. iOS requires a Mac with Xcode to build and sign. Apple's free developer account supports testing on your own device from Xcode; sharing installs with friends through TestFlight requires Apple Developer Program membership, currently USD $99/year. [Apple membership details](https://developer.apple.com/programs/)

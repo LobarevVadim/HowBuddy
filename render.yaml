@@ -41,8 +41,6 @@ services:
     name: howbuddy-demo-api
     runtime: node
     plan: free
-    domains:
-      - api.howbuddy.app
     rootDir: server
     buildCommand: npm install
     startCommand: npm start
