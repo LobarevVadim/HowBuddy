@@ -10,6 +10,8 @@ services:
     name: howbuddy-demo-web
     runtime: static
     branch: main
+    domains:
+      - howbuddy.app
     buildCommand: bash scripts/build_web.sh
     staticPublishPath: build/web
     envVars:
@@ -39,6 +41,8 @@ services:
     name: howbuddy-demo-api
     runtime: node
     plan: free
+    domains:
+      - api.howbuddy.app
     rootDir: server
     buildCommand: npm install
     startCommand: npm start

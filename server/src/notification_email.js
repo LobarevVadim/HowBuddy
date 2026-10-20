@@ -1,5 +1,5 @@
 const EMAIL_TEST_RECIPIENT = 'vlobarev823@gmail.com';
-const HOWBUDDY_WEB_URL = 'https://howbuddy-demo-web.onrender.com';
+const HOWBUDDY_WEB_URL = 'https://howbuddy.app';
 
 export function isEmailTestRecipient(email) {
   return String(email ?? '').trim().toLowerCase() === EMAIL_TEST_RECIPIENT;

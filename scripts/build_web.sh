@@ -25,6 +25,6 @@ for key in FIREBASE_API_KEY FIREBASE_PROJECT_ID FIREBASE_MESSAGING_SENDER_ID \
   fi
 done
 flutter build web --release --base-href / \
-  --dart-define=API_URL=https://howbuddy-demo-api.onrender.com \
+  --dart-define=API_URL=https://api.howbuddy.app \
   "${firebase_args[@]}"
 node scripts/configure_firebase_web.js build/web/firebase-messaging-sw.js
