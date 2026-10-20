@@ -1076,7 +1076,7 @@ pool.query(readFileSync(new URL('../schema.sql', import.meta.url), 'utf8')).then
   app.listen(port, () => {
     console.log(`HowBuddy auth API listening on http://localhost:${port}`);
   });
-  if (pushMessaging) notificationScheduler.start();
+  notificationScheduler.start();
 }).catch((error) => {
   console.error('Could not initialize the XP table.', error);
   process.exitCode = 1;

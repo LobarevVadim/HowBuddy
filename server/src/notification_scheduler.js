@@ -33,7 +33,7 @@ export function createNotificationScheduler({
   let tickRunning = false;
 
   async function tick(now = new Date()) {
-    if (!messaging || tickRunning) return {sent: 0, skipped: 'unavailable-or-busy'};
+    if (tickRunning) return {sent: 0, skipped: 'busy'};
     tickRunning = true;
     let sent = 0;
     try {
@@ -47,13 +47,14 @@ export function createNotificationScheduler({
                 settings.time_zone,
                 accounts.email AS account_email,
                 COALESCE(accounts.preferred_language, 'en') AS language,
-                array_agg(DISTINCT devices.token) AS tokens,
+                array_remove(array_agg(DISTINCT devices.token), NULL) AS tokens,
                 COALESCE(history.study_dates, ARRAY[]::text[]) AS study_dates,
+                last_activity.last_study_date,
                 COALESCE(deliveries.sent_types, ARRAY[]::text[]) AS sent_types,
                 COALESCE(deliveries.daily_count, 0)::int AS daily_count
          FROM account_notification_settings settings
          JOIN accounts ON accounts.id = settings.account_id
-         JOIN notification_devices devices ON devices.account_id = settings.account_id
+         LEFT JOIN notification_devices devices ON devices.account_id = settings.account_id
          LEFT JOIN LATERAL (
            SELECT array_agg(study_date::text ORDER BY study_date DESC) AS study_dates
            FROM (
@@ -121,52 +122,65 @@ export function createNotificationScheduler({
         try {
           const tokens = [...new Set(user.tokens ?? [])];
           let pushAccepted = false;
-          for (let offset = 0; offset < tokens.length; offset += 500) {
-            const batch = tokens.slice(offset, offset + 500);
-            const response = await messaging.sendEachForMulticast({
-              tokens: batch,
-              notification: {title: plan.title, body: plan.body},
-              data: {
-                type: plan.type,
-                topicId: plan.topicId,
-                localDate: plan.localDate,
-              },
-              android: {priority: 'high', notification: {channelId: 'howbuddy_reminders', tag: `${clock.date}-${plan.type}`}},
-              apns: {payload: {aps: {sound: 'default', threadId: 'howbuddy-reminders'}}},
-              webpush: {headers: {Urgency: 'high'}, fcmOptions: {link: `/?notificationTopic=${encodeURIComponent(plan.topicId)}`}},
-            });
-            const expiredTokens = [];
-            response.responses.forEach((item, index) => {
-              if (!item.success && [
-                'messaging/invalid-registration-token',
-                'messaging/registration-token-not-registered',
-              ].includes(item.error?.code)) expiredTokens.push(batch[index]);
-            });
-            if (expiredTokens.length) {
-              await pool.query('DELETE FROM notification_devices WHERE token = ANY($1::text[])', [expiredTokens]);
-            }
-            if (response.successCount > 0) pushAccepted = true;
-            else throw new Error('Firebase rejected every device token for this account.');
-          }
-          if (pushAccepted) {
-            sent++;
+          if (messaging && tokens.length) {
             try {
-              const emailResult = await emailSender({
-                email: user.account_email,
-                title: plan.title,
-                body: plan.body,
-                topicId: plan.topicId,
-                type: plan.type,
-                localDate: plan.localDate,
-              });
-              if (!emailResult.sent && emailResult.reason !== 'recipient-filtered') {
-                logger.warn(`Notification email was not sent (${emailResult.reason ?? 'unknown reason'}).`);
+              for (let offset = 0; offset < tokens.length; offset += 500) {
+                const batch = tokens.slice(offset, offset + 500);
+                const response = await messaging.sendEachForMulticast({
+                  tokens: batch,
+                  notification: {title: plan.title, body: plan.body},
+                  data: {
+                    type: plan.type,
+                    topicId: plan.topicId,
+                    localDate: plan.localDate,
+                  },
+                  android: {priority: 'high', notification: {channelId: 'howbuddy_reminders', tag: `${clock.date}-${plan.type}`}},
+                  apns: {payload: {aps: {sound: 'default', threadId: 'howbuddy-reminders'}}},
+                  webpush: {headers: {Urgency: 'high'}, fcmOptions: {link: `/?notificationTopic=${encodeURIComponent(plan.topicId)}`}},
+                });
+                const expiredTokens = [];
+                response.responses.forEach((item, index) => {
+                  if (!item.success && [
+                    'messaging/invalid-registration-token',
+                    'messaging/registration-token-not-registered',
+                  ].includes(item.error?.code)) expiredTokens.push(batch[index]);
+                });
+                if (expiredTokens.length) {
+                  await pool.query('DELETE FROM notification_devices WHERE token = ANY($1::text[])', [expiredTokens]);
+                }
+                if (response.successCount > 0) pushAccepted = true;
+                else throw new Error('Firebase rejected every device token for this account.');
               }
             } catch (error) {
-              logger.error('Notification email send failed:', error.message);
+              logger.error('Scheduled push send failed:', error.message);
             }
+          } else if (!messaging) {
+            logger.warn('Scheduled push skipped because Firebase is not configured.');
           }
-          if (!tokens.length) await deleteDelivery(pool, user.account_id, clock.date, plan.type);
+
+          let emailAccepted = false;
+          try {
+            const emailResult = await emailSender({
+              email: user.account_email,
+              title: plan.title,
+              body: plan.body,
+              topicId: plan.topicId,
+              type: plan.type,
+              localDate: plan.localDate,
+            });
+            emailAccepted = emailResult.sent === true;
+            if (!emailAccepted && emailResult.reason !== 'recipient-filtered') {
+              logger.warn(`Notification email was not sent (${emailResult.reason ?? 'unknown reason'}).`);
+            }
+          } catch (error) {
+            logger.error('Notification email send failed:', error.message);
+          }
+
+          if (pushAccepted || emailAccepted) {
+            sent++;
+          } else {
+            await deleteDelivery(pool, user.account_id, clock.date, plan.type);
+          }
         } catch (error) {
           await deleteDelivery(pool, user.account_id, clock.date, plan.type);
           logger.error('Notification send failed:', error.message);

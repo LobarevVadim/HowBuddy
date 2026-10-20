@@ -12,14 +12,14 @@ The `dev-server.js` in-memory prototype does not send scheduled pushes. Use the 
 
 ## Email copies during the owner-only test
 
-Every accepted push notification also attempts to send an email with the same localized title and message. For the test phase, `server/src/notification_email.js` only permits delivery to `vlobarev823@gmail.com`; other account addresses are filtered out. Remove that allowlist check only when you are ready to email all users.
+Every eligible scheduled notification independently attempts a push and an email with the same localized title and message. A failure or missing device token for one channel does not block the other. For the test phase, `server/src/notification_email.js` only permits delivery to `vlobarev823@gmail.com`; other account addresses are filtered out. Remove that allowlist check only when you are ready to email all users.
 
 Email delivery uses the Resend HTTP API. Create a Resend API key and configure a sender address that Resend permits (verify your sending domain if required). Add these values to the Render **API** service only:
 
 - `RESEND_API_KEY` — keep this secret; never commit it or put it in the web service.
 - `NOTIFICATION_EMAIL_FROM` — a permitted sender, for example `HowBuddy <notifications@your-verified-domain.example>`.
 
-The Profile notification test reports separately whether the push and email were sent. If the email provider is not configured or rejects a message, push delivery continues and the API logs the email failure. See [Resend's Express guide](https://resend.com/express) and [domain setup](https://resend.com/docs/dashboard/domains/introduction).
+The Profile notification test reports separately whether the push and email were sent. If the email provider is not configured or rejects a message, push delivery continues and the API logs the email failure. Scheduled email is also attempted independently when the notification policy chooses an eligible message. See [Resend's Express guide](https://resend.com/express) and [domain setup](https://resend.com/docs/dashboard/domains/introduction).
 
 ## Firebase and hosting setup
 
