@@ -31,6 +31,8 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+/support_admin/build/
+/support_admin/.dart_tool/
 /coverage/
 
 # Local credentials and configuration

@@ -113,3 +113,40 @@ ALTER TABLE account_gamification
 UPDATE account_gamification
 SET heart_recharge_at = now() + interval '3 hours'
 WHERE hearts < 5 AND heart_recharge_at IS NULL;
+
+CREATE TABLE IF NOT EXISTS support_conversations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  inbox_address TEXT NOT NULL CHECK (inbox_address IN ('hello@howbuddy.app', 'support@howbuddy.app', 'contact@howbuddy.app')),
+  sender_email TEXT NOT NULL,
+  subject TEXT NOT NULL DEFAULT '',
+  is_read BOOLEAN NOT NULL DEFAULT false,
+  last_activity_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS support_conversations_activity_idx ON support_conversations(last_activity_at DESC);
+CREATE TABLE IF NOT EXISTS support_messages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  conversation_id UUID NOT NULL REFERENCES support_conversations(id) ON DELETE CASCADE,
+  direction TEXT NOT NULL CHECK (direction IN ('inbound', 'outbound')),
+  sender_email TEXT NOT NULL,
+  recipient_email TEXT NOT NULL,
+  subject TEXT NOT NULL DEFAULT '',
+  text_body TEXT NOT NULL DEFAULT '',
+  html_body TEXT NOT NULL DEFAULT '',
+  provider_email_id TEXT UNIQUE,
+  message_id TEXT,
+  in_reply_to TEXT,
+  references_header TEXT[] NOT NULL DEFAULT '{}',
+  received_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS support_messages_conversation_idx ON support_messages(conversation_id, received_at);
+CREATE INDEX IF NOT EXISTS support_messages_message_id_idx ON support_messages(message_id);
+CREATE TABLE IF NOT EXISTS support_attachments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  message_id UUID NOT NULL REFERENCES support_messages(id) ON DELETE CASCADE,
+  provider_attachment_id TEXT NOT NULL,
+  filename TEXT NOT NULL,
+  content_type TEXT NOT NULL DEFAULT 'application/octet-stream',
+  size_bytes BIGINT NOT NULL DEFAULT 0,
+  UNIQUE (message_id, provider_attachment_id)
+);

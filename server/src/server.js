@@ -11,6 +11,7 @@ import {getMessaging} from 'firebase-admin/messaging';
 import {createNotificationScheduler} from './notification_scheduler.js';
 import {createNotificationEmailSender} from './notification_email.js';
 import {isValidTimeZone} from './notification_policy.js';
+import {createSupportInbox, verifyResendWebhook, SUPPORT_INBOXES} from './support_inbox.js';
 
 dotenv.config();
 
@@ -37,6 +38,10 @@ const notificationEmailSender = createNotificationEmailSender({
   apiKey: process.env.RESEND_API_KEY,
   from: process.env.NOTIFICATION_EMAIL_FROM,
 });
+const supportInbox = createSupportInbox({
+  pool,
+  apiKey: process.env.RESEND_API_KEY,
+});
 const notificationScheduler = createNotificationScheduler({
   pool,
   messaging: pushMessaging,
@@ -61,7 +66,79 @@ function getLessonContent(language) {
 }
 
 app.use(cors());
+app.post('/webhooks/resend', express.raw({type: 'application/json', limit: '2mb'}), async (request, response) => {
+  const secret = process.env.RESEND_INBOUND_WEBHOOK_SECRET ?? '';
+  if (!verifyResendWebhook(request.body ?? Buffer.alloc(0), request.headers, secret)) {
+    return response.status(400).json({message: 'Invalid webhook signature.'});
+  }
+  try {
+    const result = await supportInbox.handleWebhook(JSON.parse(request.body.toString('utf8')));
+    return response.json({received: true, ...result});
+  } catch (error) {
+    console.error('Could not process inbound support email:', error.message);
+    return response.status(500).json({message: 'Could not process inbound email.'});
+  }
+});
 app.use(express.json());
+
+app.get('/admin/session', requireAuth, requireAdmin, async (request, response) => {
+  const result = await pool.query('SELECT full_name, email FROM accounts WHERE id = $1', [request.accountId]);
+  return response.json({account: result.rows[0] ?? null, inboxes: SUPPORT_INBOXES});
+});
+
+app.get('/admin/conversations', requireAuth, requireAdmin, async (request, response) => {
+  try {
+    return response.json({conversations: await supportInbox.list({
+      search: String(request.query.search ?? ''),
+      inbox: String(request.query.inbox ?? ''),
+    })});
+  } catch (error) {
+    console.error('Could not load support inbox:', error.message);
+    return response.status(500).json({message: 'Could not load support inbox.'});
+  }
+});
+
+app.get('/admin/conversations/:id', requireAuth, requireAdmin, async (request, response) => {
+  try {
+    const conversation = await supportInbox.getConversation(request.params.id);
+    if (!conversation) return response.status(404).json({message: 'Conversation not found.'});
+    return response.json({conversation});
+  } catch (error) {
+    console.error('Could not load support conversation:', error.message);
+    return response.status(500).json({message: 'Could not load conversation.'});
+  }
+});
+
+app.post('/admin/conversations/:id/read', requireAuth, requireAdmin, async (request, response) => {
+  try {
+    const updated = await supportInbox.markRead(request.params.id);
+    return response.status(updated ? 200 : 404).json({read: updated});
+  } catch (error) {
+    console.error('Could not update support read status:', error.message);
+    return response.status(500).json({message: 'Could not update read status.'});
+  }
+});
+
+app.post('/admin/conversations/:id/reply', requireAuth, requireAdmin, async (request, response) => {
+  try {
+    return response.json(await supportInbox.reply(request.params.id, request.body.text));
+  } catch (error) {
+    const status = error.message === 'Conversation not found.' ? 404
+      : /Write a reply|Invalid support inbox/.test(error.message) ? 400 : 502;
+    return response.status(status).json({message: error.message || 'Could not send reply.'});
+  }
+});
+
+app.get('/admin/attachments/:id', requireAuth, requireAdmin, async (request, response) => {
+  try {
+    const attachment = await supportInbox.attachmentUrl(request.params.id);
+    if (!attachment) return response.status(404).json({message: 'Attachment not found.'});
+    return response.json(attachment);
+  } catch (error) {
+    console.error('Could not retrieve support attachment:', error.message);
+    return response.status(502).json({message: 'Could not retrieve attachment.'});
+  }
+});
 
 app.get('/health', async (_request, response) => {
   try {
@@ -852,6 +929,24 @@ function requireAuth(request, response, next) {
     return next();
   } catch (_error) {
     return response.status(401).json({message: 'Your session is invalid. Please sign in again.'});
+  }
+}
+
+async function requireAdmin(request, response, next) {
+  const allowed = new Set(
+    String(process.env.ADMIN_EMAILS ?? '').split(',')
+      .map((email) => email.trim().toLowerCase()).filter(Boolean),
+  );
+  if (!allowed.size) return response.status(403).json({message: 'Administrator access is not configured.'});
+  try {
+    const result = await pool.query('SELECT lower(email) AS email FROM accounts WHERE id = $1', [request.accountId]);
+    if (!result.rowCount || !allowed.has(result.rows[0].email)) {
+      return response.status(403).json({message: 'This HowBuddy account is not an administrator.'});
+    }
+    return next();
+  } catch (error) {
+    console.error('Could not verify support administrator:', error.message);
+    return response.status(500).json({message: 'Could not verify administrator access.'});
   }
 }
 

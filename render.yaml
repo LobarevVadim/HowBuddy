@@ -64,3 +64,13 @@ services:
         sync: false
       - key: NOTIFICATION_EMAIL_FROM
         sync: false
+      - key: ADMIN_EMAILS
+        sync: false
+      - key: RESEND_INBOUND_WEBHOOK_SECRET
+        sync: false
+  - type: web
+    name: howbuddy-support-admin
+    runtime: static
+    branch: main
+    buildCommand: bash scripts/build_support_admin.sh
+    staticPublishPath: support_admin/build/web
