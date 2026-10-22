@@ -388,13 +388,20 @@ app.post('/gamification/lesson-start', requireAuth, async (request, response) =>
   const topic = topicId ? findTopic(topicId) : null;
   const lessonNumber = Number(lessonId.replace('lesson-', ''));
   if (hasLessonIdentity && (!topic || !Number.isInteger(lessonNumber) ||
-      lessonNumber < 1 || lessonNumber > topic.lessonCount)) {
+      lessonNumber < 1 || lessonNumber > Math.min(topic.lessonCount, 20))) {
     return response.status(400).json({message: 'This lesson is not available.'});
   }
   try {
     await ensureGameRow(accountId);
     await refreshHearts(accountId);
     await pool.query('UPDATE accounts SET last_active_at = now() WHERE id = $1', [accountId]);
+    if (topic && lessonId) {
+      await pool.query(
+        `INSERT INTO lesson_starts (account_id, topic_id, lesson_id)
+         VALUES ($1, $2, $3) ON CONFLICT (account_id, topic_id, lesson_id) DO NOTHING`,
+        [accountId, topic.id, lessonId],
+      );
+    }
     const result = await pool.query(
       `UPDATE account_gamification
        SET hearts = hearts - 1,
@@ -405,13 +412,6 @@ app.post('/gamification/lesson-start', requireAuth, async (request, response) =>
        WHERE account_id = $1 AND hearts > 0 RETURNING hearts`,
       [accountId],
     );
-    if (topic && lessonId) {
-      await pool.query(
-        `INSERT INTO lesson_starts (account_id, topic_id, lesson_id)
-         VALUES ($1, $2, $3) ON CONFLICT (account_id, topic_id, lesson_id) DO NOTHING`,
-        [accountId, topic.id, lessonId],
-      );
-    }
     return response.json({
       lessonAllowed: result.rowCount === 1,
       ...await getGameState(accountId, clientStudyDate(request)),
