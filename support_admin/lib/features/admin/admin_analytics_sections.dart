@@ -347,7 +347,8 @@ class _AdminLearningAnalyticsSectionState
           const SizedBox(height: 16),
           _Panel(
             title: 'Topic interest and completion',
-            subtitle: 'All topics in the 3 + 9 + 27 learning tree. Each user is counted once per topic.',
+            subtitle:
+                'All topics in the 3 + 9 + 27 learning tree, ranked by users who completed at least one lesson.',
             child: _topicProgressList(
               _data['topics'] as List<dynamic>? ?? const [],
             ),
@@ -365,22 +366,32 @@ class _AdminLearningAnalyticsSectionState
   );
 
   Widget _topicProgressList(List<dynamic> values) {
-    final topics = values.cast<Map<String, dynamic>>();
+    final topics = values.cast<Map<String, dynamic>>()
+      ..sort((a, b) {
+        final aCount = a['interestedUsers'] as int? ?? 0;
+        final bCount = b['interestedUsers'] as int? ?? 0;
+        return bCount.compareTo(aCount);
+      });
     if (topics.isEmpty) {
       return const Text(
         'No topics found.',
         style: TextStyle(color: _muted),
       );
     }
+    final maxInterested = topics.fold<int>(0, (maximum, topic) {
+      final count = topic['interestedUsers'] as int? ?? 0;
+      return count > maximum ? count : maximum;
+    });
     return Column(
       children: topics.map((topic) {
         final label = topic['title']?.toString() ?? topic['id'].toString();
         final interested = topic['interestedUsers'] as int? ?? 0;
         final completed = topic['lastLessonUsers'] as int? ?? 0;
-        final interestRate =
-            (topic['interestRatePercent'] as num? ?? 0).toDouble();
         final completionRate =
             (topic['completionRatePercent'] as num? ?? 0).toDouble();
+        final relativeInterest = maxInterested > 0
+            ? interested / maxInterested
+            : 0.0;
         final level = topic['level'] as int? ?? 1;
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 9),
@@ -407,8 +418,18 @@ class _AdminLearningAnalyticsSectionState
               ),
               const SizedBox(height: 4),
               Text(
-                'Interest: $interested users completed at least one lesson (${interestRate.toStringAsFixed(1)}% of users)',
+                'Interest: $interested users completed at least one lesson (${(relativeInterest * 100).toStringAsFixed(1)}% of the most chosen topic)',
                 style: const TextStyle(color: _muted, fontSize: 12),
+              ),
+              const SizedBox(height: 6),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: LinearProgressIndicator(
+                  value: relativeInterest.clamp(0, 1),
+                  minHeight: 6,
+                  backgroundColor: const Color(0xFFF0F1F5),
+                  color: const Color(0xFF3C9B68),
+                ),
               ),
               Text(
                 'Completion: $completed users completed the last lesson (${completionRate.toStringAsFixed(1)}% of interested users)',
