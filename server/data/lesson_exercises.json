@@ -79,7 +79,7 @@
           "options": [
             "Some B cells and T cells persist as memory cells after an infection or vaccination.",
             "The immune system stores whole germs in the stomach for later.",
-            "Every infection erases the immune system's previous knowledge."
+            "Every infection erases the immune system\u0027s previous knowledge."
           ],
           "correctAnswers": [
             "Some B cells and T cells persist as memory cells after an infection or vaccination."
@@ -282,7 +282,7 @@
     "heart-oxygen": {
       "id": "heart-oxygen",
       "parentId": "heart",
-      "question": "What would happen if you didn't drink water?",
+      "question": "What would happen if you didn\u0027t drink water?",
       "content": "In the lungs, oxygen crosses into tiny blood vessels and attaches to hemoglobin inside red blood cells. The heart pumps this oxygen-rich blood through arteries. In tissues, oxygen leaves the blood and enters cells, where it helps release energy from food.",
       "level": 2,
       "children": [
@@ -293,7 +293,7 @@
       "lessonCount": 4,
       "exercises": [
         {
-          "prompt": "What would happen if you didn't drink water?",
+          "prompt": "What would happen if you didn\u0027t drink water?",
           "type": "singleChoice",
           "options": [
             "Hemoglobin in red blood cells carries oxygen from the lungs to body tissues.",
@@ -318,7 +318,7 @@
           "explanation": "In the lungs, oxygen crosses into tiny blood vessels and attaches to hemoglobin inside red blood cells. The heart pumps this oxygen-rich blood through arteries. In tissues, oxygen leaves the blood and enters cells, where it helps release energy from food."
         },
         {
-          "prompt": "What is one key takeaway? What would happen if you didn't drink water?",
+          "prompt": "What is one key takeaway? What would happen if you didn\u0027t drink water?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -340,7 +340,7 @@
       "content": "Pacemaker cells have ion channels that let charged particles move across their membranes. This gradually changes their electrical voltage until an impulse fires. The autonomic nerves can speed up or slow down this rhythm, but the heart has a built-in rhythm source.",
       "level": 3,
       "children": [],
-      "lessonCount": 1,
+      "lessonCount": 3,
       "exercises": [
         {
           "prompt": "How does sugar affect your brain?",
@@ -377,7 +377,10 @@
           "explanation": "Pacemaker cells have ion channels that let charged particles move across their membranes. This gradually changes their electrical voltage until an impulse fires. The autonomic nerves can speed up or slow down this rhythm, but the heart has a built-in rhythm source."
         }
       ],
-      "extraLessons": []
+      "extraLessons": [
+        "pacemaker-extra-2",
+        "pacemaker-extra-3"
+      ]
     },
     "heartbeat-route": {
       "id": "heartbeat-route",
@@ -386,7 +389,7 @@
       "content": "The signal briefly slows at the atrioventricular node. This pause lets the atria finish pushing blood into the ventricles before the ventricles contract. If the chambers squeezed at the same time, pumping would be less coordinated.",
       "level": 3,
       "children": [],
-      "lessonCount": 1,
+      "lessonCount": 3,
       "exercises": [
         {
           "prompt": "What happens if you eat mold?",
@@ -423,7 +426,10 @@
           "explanation": "The signal briefly slows at the atrioventricular node. This pause lets the atria finish pushing blood into the ventricles before the ventricles contract. If the chambers squeezed at the same time, pumping would be less coordinated."
         }
       ],
-      "extraLessons": []
+      "extraLessons": [
+        "heartbeat-route-extra-2",
+        "heartbeat-route-extra-3"
+      ]
     },
     "heart-ecg": {
       "id": "heart-ecg",
@@ -432,18 +438,18 @@
       "content": "An electrocardiogram records electrical changes at the skin using electrodes. Its wave patterns help clinicians assess heart rate and rhythm and can provide clues about heart problems. An ECG is one piece of evidence; clinicians interpret it with symptoms and other tests.",
       "level": 3,
       "children": [],
-      "lessonCount": 1,
+      "lessonCount": 3,
       "exercises": [
         {
           "prompt": "How much water should you drink a day?",
           "type": "singleChoice",
           "options": [
-            "An ECG records electrical activity associated with the heart's rhythm.",
+            "An ECG records electrical activity associated with the heart\u0027s rhythm.",
             "An ECG takes a picture of every heart valve opening.",
             "An ECG measures how much oxygen the brain uses."
           ],
           "correctAnswers": [
-            "An ECG records electrical activity associated with the heart's rhythm."
+            "An ECG records electrical activity associated with the heart\u0027s rhythm."
           ],
           "explanation": "An electrocardiogram records electrical changes at the skin using electrodes. Its wave patterns help clinicians assess heart rate and rhythm and can provide clues about heart problems. An ECG is one piece of evidence; clinicians interpret it with symptoms and other tests."
         },
@@ -464,12 +470,15 @@
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
-            "An ECG records electrical activity associated with the heart's rhythm."
+            "An ECG records electrical activity associated with the heart\u0027s rhythm."
           ],
           "explanation": "An electrocardiogram records electrical changes at the skin using electrodes. Its wave patterns help clinicians assess heart rate and rhythm and can provide clues about heart problems. An ECG is one piece of evidence; clinicians interpret it with symptoms and other tests."
         }
       ],
-      "extraLessons": []
+      "extraLessons": [
+        "heart-ecg-extra-2",
+        "heart-ecg-extra-3"
+      ]
     },
     "adrenaline": {
       "id": "adrenaline",
@@ -478,7 +487,7 @@
       "content": "Adrenaline is released during some stressful situations. It can increase heart rate, widen airways, and make stored energy more available. These short-term changes can help with action, although a stress response is not always useful when it stays switched on.",
       "level": 3,
       "children": [],
-      "lessonCount": 1,
+      "lessonCount": 3,
       "exercises": [
         {
           "prompt": "What causes high and low blood pressure?",
@@ -515,16 +524,19 @@
           "explanation": "Adrenaline is released during some stressful situations. It can increase heart rate, widen airways, and make stored energy more available. These short-term changes can help with action, although a stress response is not always useful when it stays switched on."
         }
       ],
-      "extraLessons": []
+      "extraLessons": [
+        "adrenaline-extra-2",
+        "adrenaline-extra-3"
+      ]
     },
     "heart-recovery": {
       "id": "heart-recovery",
       "parentId": "heart-speed",
       "question": "What happens if you breathe pure oxygen?",
-      "content": "When a threat passes, parasympathetic nerves help restore a calmer state. The heart's rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing.",
+      "content": "When a threat passes, parasympathetic nerves help restore a calmer state. The heart\u0027s rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing.",
       "level": 3,
       "children": [],
-      "lessonCount": 1,
+      "lessonCount": 3,
       "exercises": [
         {
           "prompt": "What happens if you breathe pure oxygen?",
@@ -537,7 +549,7 @@
           "correctAnswers": [
             "Parasympathetic nerve signals help the heart return toward a calmer rate."
           ],
-          "explanation": "When a threat passes, parasympathetic nerves help restore a calmer state. The heart's rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing."
+          "explanation": "When a threat passes, parasympathetic nerves help restore a calmer state. The heart\u0027s rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing."
         },
         {
           "prompt": "True or false: The heart slows because blood pressure turns off its electrical system.",
@@ -549,7 +561,7 @@
           "correctAnswers": [
             "False"
           ],
-          "explanation": "When a threat passes, parasympathetic nerves help restore a calmer state. The heart's rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing."
+          "explanation": "When a threat passes, parasympathetic nerves help restore a calmer state. The heart\u0027s rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing."
         },
         {
           "prompt": "What is one key takeaway? What happens if you breathe pure oxygen?",
@@ -558,10 +570,13 @@
           "correctAnswers": [
             "Parasympathetic nerve signals help the heart return toward a calmer rate."
           ],
-          "explanation": "When a threat passes, parasympathetic nerves help restore a calmer state. The heart's rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing."
+          "explanation": "When a threat passes, parasympathetic nerves help restore a calmer state. The heart\u0027s rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing."
         }
       ],
-      "extraLessons": []
+      "extraLessons": [
+        "heart-recovery-extra-2",
+        "heart-recovery-extra-3"
+      ]
     },
     "blood-vessels": {
       "id": "blood-vessels",
@@ -570,7 +585,7 @@
       "content": "Blood vessels can widen or narrow to help direct blood where it is needed. During exercise, vessels supplying working muscles widen, increasing blood flow. Other signals help maintain blood pressure so blood can still reach organs throughout the body.",
       "level": 3,
       "children": [],
-      "lessonCount": 1,
+      "lessonCount": 3,
       "exercises": [
         {
           "prompt": "Why do we sweat so much?",
@@ -607,7 +622,10 @@
           "explanation": "Blood vessels can widen or narrow to help direct blood where it is needed. During exercise, vessels supplying working muscles widen, increasing blood flow. Other signals help maintain blood pressure so blood can still reach organs throughout the body."
         }
       ],
-      "extraLessons": []
+      "extraLessons": [
+        "blood-vessels-extra-2",
+        "blood-vessels-extra-3"
+      ]
     },
     "red-cells": {
       "id": "red-cells",
@@ -616,7 +634,7 @@
       "content": "Most red blood cells are flexible, flattened discs with a dip on both sides. This shape gives them a large surface area for gas exchange and helps them squeeze through narrow capillaries. Mature human red blood cells lack a nucleus, leaving more room for hemoglobin.",
       "level": 3,
       "children": [],
-      "lessonCount": 1,
+      "lessonCount": 3,
       "exercises": [
         {
           "prompt": "What causes kidney stones?",
@@ -653,7 +671,10 @@
           "explanation": "Most red blood cells are flexible, flattened discs with a dip on both sides. This shape gives them a large surface area for gas exchange and helps them squeeze through narrow capillaries. Mature human red blood cells lack a nucleus, leaving more room for hemoglobin."
         }
       ],
-      "extraLessons": []
+      "extraLessons": [
+        "red-cells-extra-2",
+        "red-cells-extra-3"
+      ]
     },
     "hemoglobin": {
       "id": "hemoglobin",
@@ -662,7 +683,7 @@
       "content": "Hemoglobin contains iron-bearing heme groups that can bind oxygen reversibly. In the lungs, where oxygen is abundant, hemoglobin tends to pick it up. In tissues where oxygen is lower, it releases more, helping deliver oxygen where cells need it.",
       "level": 3,
       "children": [],
-      "lessonCount": 1,
+      "lessonCount": 3,
       "exercises": [
         {
           "prompt": "Can you survive without your liver?",
@@ -699,7 +720,10 @@
           "explanation": "Hemoglobin contains iron-bearing heme groups that can bind oxygen reversibly. In the lungs, where oxygen is abundant, hemoglobin tends to pick it up. In tissues where oxygen is lower, it releases more, helping deliver oxygen where cells need it."
         }
       ],
-      "extraLessons": []
+      "extraLessons": [
+        "hemoglobin-extra-2",
+        "hemoglobin-extra-3"
+      ]
     },
     "capillaries": {
       "id": "capillaries",
@@ -708,7 +732,7 @@
       "content": "Capillaries are the smallest blood vessels. Their walls are very thin, often one cell layer, so oxygen, nutrients, and waste products can move between blood and nearby tissues over a short distance. Their enormous network reaches almost every active part of the body.",
       "level": 3,
       "children": [],
-      "lessonCount": 1,
+      "lessonCount": 3,
       "exercises": [
         {
           "prompt": "Why is smoking so awesome?",
@@ -745,7 +769,10 @@
           "explanation": "Capillaries are the smallest blood vessels. Their walls are very thin, often one cell layer, so oxygen, nutrients, and waste products can move between blood and nearby tissues over a short distance. Their enormous network reaches almost every active part of the body."
         }
       ],
-      "extraLessons": []
+      "extraLessons": [
+        "capillaries-extra-2",
+        "capillaries-extra-3"
+      ]
     },
     "immune-detection": {
       "id": "immune-detection",
@@ -859,7 +886,7 @@
       "id": "fever",
       "parentId": "immune",
       "question": "What is depression?",
-      "content": "During infection, immune signals can raise the body's temperature set point. A moderate fever is part of the immune response, but it also increases discomfort and the body's workload. Fever has many causes, and very high or persistent fever can need medical attention.",
+      "content": "During infection, immune signals can raise the body\u0027s temperature set point. A moderate fever is part of the immune response, but it also increases discomfort and the body\u0027s workload. Fever has many causes, and very high or persistent fever can need medical attention.",
       "level": 2,
       "children": [
         "fever-setpoint",
@@ -879,7 +906,7 @@
           "correctAnswers": [
             "Immune signals can raise the temperature set point as part of the response to infection."
           ],
-          "explanation": "During infection, immune signals can raise the body's temperature set point. A moderate fever is part of the immune response, but it also increases discomfort and the body's workload. Fever has many causes, and very high or persistent fever can need medical attention."
+          "explanation": "During infection, immune signals can raise the body\u0027s temperature set point. A moderate fever is part of the immune response, but it also increases discomfort and the body\u0027s workload. Fever has many causes, and very high or persistent fever can need medical attention."
         },
         {
           "prompt": "True or false: A fever is the body melting microbes with sunlight.",
@@ -891,7 +918,7 @@
           "correctAnswers": [
             "False"
           ],
-          "explanation": "During infection, immune signals can raise the body's temperature set point. A moderate fever is part of the immune response, but it also increases discomfort and the body's workload. Fever has many causes, and very high or persistent fever can need medical attention."
+          "explanation": "During infection, immune signals can raise the body\u0027s temperature set point. A moderate fever is part of the immune response, but it also increases discomfort and the body\u0027s workload. Fever has many causes, and very high or persistent fever can need medical attention."
         },
         {
           "prompt": "What is one key takeaway? What is depression?",
@@ -900,7 +927,7 @@
           "correctAnswers": [
             "Immune signals can raise the temperature set point as part of the response to infection."
           ],
-          "explanation": "During infection, immune signals can raise the body's temperature set point. A moderate fever is part of the immune response, but it also increases discomfort and the body's workload. Fever has many causes, and very high or persistent fever can need medical attention."
+          "explanation": "During infection, immune signals can raise the body\u0027s temperature set point. A moderate fever is part of the immune response, but it also increases discomfort and the body\u0027s workload. Fever has many causes, and very high or persistent fever can need medical attention."
         }
       ],
       "extraLessons": [
@@ -913,10 +940,10 @@
       "id": "antigens",
       "parentId": "immune-detection",
       "question": "Why do we dream, and can we control our dreams?",
-      "content": "An antigen is a molecule or molecular piece that can be recognized by parts of the immune system. Many antigens come from microbes, but the immune system also encounters harmless substances and the body's own molecules. Context helps shape the response.",
+      "content": "An antigen is a molecule or molecular piece that can be recognized by parts of the immune system. Many antigens come from microbes, but the immune system also encounters harmless substances and the body\u0027s own molecules. Context helps shape the response.",
       "level": 3,
       "children": [],
-      "lessonCount": 1,
+      "lessonCount": 3,
       "exercises": [
         {
           "prompt": "Why do we dream, and can we control our dreams?",
@@ -929,7 +956,7 @@
           "correctAnswers": [
             "An antigen is a molecule or molecular piece recognized by the immune system."
           ],
-          "explanation": "An antigen is a molecule or molecular piece that can be recognized by parts of the immune system. Many antigens come from microbes, but the immune system also encounters harmless substances and the body's own molecules. Context helps shape the response."
+          "explanation": "An antigen is a molecule or molecular piece that can be recognized by parts of the immune system. Many antigens come from microbes, but the immune system also encounters harmless substances and the body\u0027s own molecules. Context helps shape the response."
         },
         {
           "prompt": "True or false: An antigen is a type of red blood cell that carries oxygen.",
@@ -941,7 +968,7 @@
           "correctAnswers": [
             "False"
           ],
-          "explanation": "An antigen is a molecule or molecular piece that can be recognized by parts of the immune system. Many antigens come from microbes, but the immune system also encounters harmless substances and the body's own molecules. Context helps shape the response."
+          "explanation": "An antigen is a molecule or molecular piece that can be recognized by parts of the immune system. Many antigens come from microbes, but the immune system also encounters harmless substances and the body\u0027s own molecules. Context helps shape the response."
         },
         {
           "prompt": "What is one key takeaway? Why do we dream, and can we control our dreams?",
@@ -950,10 +977,13 @@
           "correctAnswers": [
             "An antigen is a molecule or molecular piece recognized by the immune system."
           ],
-          "explanation": "An antigen is a molecule or molecular piece that can be recognized by parts of the immune system. Many antigens come from microbes, but the immune system also encounters harmless substances and the body's own molecules. Context helps shape the response."
+          "explanation": "An antigen is a molecule or molecular piece that can be recognized by parts of the immune system. Many antigens come from microbes, but the immune system also encounters harmless substances and the body\u0027s own molecules. Context helps shape the response."
         }
       ],
-      "extraLessons": []
+      "extraLessons": [
+        "antigens-extra-2",
+        "antigens-extra-3"
+      ]
     },
     "barriers": {
       "id": "barriers",
@@ -962,7 +992,7 @@
       "content": "Skin forms a physical barrier, and its surface conditions make it difficult for many microbes to grow. Mucus, tears, and other secretions also trap or wash away microbes. These first-line defenses work alongside immune cells deeper in the body.",
       "level": 3,
       "children": [],
-      "lessonCount": 1,
+      "lessonCount": 3,
       "exercises": [
         {
           "prompt": "How can you fall asleep in 2 minutes?",
@@ -999,7 +1029,10 @@
           "explanation": "Skin forms a physical barrier, and its surface conditions make it difficult for many microbes to grow. Mucus, tears, and other secretions also trap or wash away microbes. These first-line defenses work alongside immune cells deeper in the body."
         }
       ],
-      "extraLessons": []
+      "extraLessons": [
+        "barriers-extra-2",
+        "barriers-extra-3"
+      ]
     },
     "inflammation": {
       "id": "inflammation",
@@ -1008,7 +1041,7 @@
       "content": "Injury and infection can trigger inflammation. Local signals widen blood vessels and make them more permeable, allowing immune cells and fluid to reach the area. The extra blood flow can cause warmth and redness; inflammation helps repair, but excessive inflammation can harm tissue.",
       "level": 3,
       "children": [],
-      "lessonCount": 1,
+      "lessonCount": 3,
       "exercises": [
         {
           "prompt": "Why do I have a headache?",
@@ -1045,7 +1078,10 @@
           "explanation": "Injury and infection can trigger inflammation. Local signals widen blood vessels and make them more permeable, allowing immune cells and fluid to reach the area. The extra blood flow can cause warmth and redness; inflammation helps repair, but excessive inflammation can harm tissue."
         }
       ],
-      "extraLessons": []
+      "extraLessons": [
+        "inflammation-extra-2",
+        "inflammation-extra-3"
+      ]
     },
     "b-cells": {
       "id": "b-cells",
@@ -1054,7 +1090,7 @@
       "content": "Some B cells can become plasma cells that release antibodies, proteins that bind particular targets. Other B cells become memory cells. Antibodies can help neutralize microbes or mark them for other immune defenses, but they are only one part of immunity.",
       "level": 3,
       "children": [],
-      "lessonCount": 1,
+      "lessonCount": 3,
       "exercises": [
         {
           "prompt": "Why do we have different skin colours?",
@@ -1091,7 +1127,10 @@
           "explanation": "Some B cells can become plasma cells that release antibodies, proteins that bind particular targets. Other B cells become memory cells. Antibodies can help neutralize microbes or mark them for other immune defenses, but they are only one part of immunity."
         }
       ],
-      "extraLessons": []
+      "extraLessons": [
+        "b-cells-extra-2",
+        "b-cells-extra-3"
+      ]
     },
     "t-cells": {
       "id": "t-cells",
@@ -1100,7 +1139,7 @@
       "content": "Different T cells have different jobs. Helper T cells coordinate parts of the immune response, while cytotoxic T cells can destroy infected body cells. Memory T cells can persist after an infection or vaccination and help with later recognition.",
       "level": 3,
       "children": [],
-      "lessonCount": 1,
+      "lessonCount": 3,
       "exercises": [
         {
           "prompt": "Why do we get goosebumps?",
@@ -1137,7 +1176,10 @@
           "explanation": "Different T cells have different jobs. Helper T cells coordinate parts of the immune response, while cytotoxic T cells can destroy infected body cells. Memory T cells can persist after an infection or vaccination and help with later recognition."
         }
       ],
-      "extraLessons": []
+      "extraLessons": [
+        "t-cells-extra-2",
+        "t-cells-extra-3"
+      ]
     },
     "memory-cells": {
       "id": "memory-cells",
@@ -1146,7 +1188,7 @@
       "content": "Some immune memory lasts a long time, while protection against other threats decreases as antibody levels and immune-cell responses change. Germs can also evolve. This is why protection depends on the disease, vaccine, person, and time since exposure.",
       "level": 3,
       "children": [],
-      "lessonCount": 1,
+      "lessonCount": 3,
       "exercises": [
         {
           "prompt": "Why do we get hiccups?",
@@ -1183,32 +1225,35 @@
           "explanation": "Some immune memory lasts a long time, while protection against other threats decreases as antibody levels and immune-cell responses change. Germs can also evolve. This is why protection depends on the disease, vaccine, person, and time since exposure."
         }
       ],
-      "extraLessons": []
+      "extraLessons": [
+        "memory-cells-extra-2",
+        "memory-cells-extra-3"
+      ]
     },
     "fever-setpoint": {
       "id": "fever-setpoint",
       "parentId": "fever",
       "question": "Why do we cry?",
-      "content": "Immune molecules called pyrogens can influence the hypothalamus, a brain region that helps regulate body temperature. The hypothalamus changes the body's temperature set point. Shivering and seeking warmth can then help the body approach that new set point.",
+      "content": "Immune molecules called pyrogens can influence the hypothalamus, a brain region that helps regulate body temperature. The hypothalamus changes the body\u0027s temperature set point. Shivering and seeking warmth can then help the body approach that new set point.",
       "level": 3,
       "children": [],
-      "lessonCount": 1,
+      "lessonCount": 3,
       "exercises": [
         {
           "prompt": "Why do we cry?",
           "type": "singleChoice",
           "options": [
             "Immune signals can influence the hypothalamus to raise the temperature set point.",
-            "The heart's pacemaker measures the outside temperature and turns on fever.",
+            "The heart\u0027s pacemaker measures the outside temperature and turns on fever.",
             "The stomach sets body temperature by digesting food."
           ],
           "correctAnswers": [
             "Immune signals can influence the hypothalamus to raise the temperature set point."
           ],
-          "explanation": "Immune molecules called pyrogens can influence the hypothalamus, a brain region that helps regulate body temperature. The hypothalamus changes the body's temperature set point. Shivering and seeking warmth can then help the body approach that new set point."
+          "explanation": "Immune molecules called pyrogens can influence the hypothalamus, a brain region that helps regulate body temperature. The hypothalamus changes the body\u0027s temperature set point. Shivering and seeking warmth can then help the body approach that new set point."
         },
         {
-          "prompt": "True or false: The heart's pacemaker measures the outside temperature and turns on fever.",
+          "prompt": "True or false: The heart\u0027s pacemaker measures the outside temperature and turns on fever.",
           "type": "singleChoice",
           "options": [
             "True",
@@ -1217,7 +1262,7 @@
           "correctAnswers": [
             "False"
           ],
-          "explanation": "Immune molecules called pyrogens can influence the hypothalamus, a brain region that helps regulate body temperature. The hypothalamus changes the body's temperature set point. Shivering and seeking warmth can then help the body approach that new set point."
+          "explanation": "Immune molecules called pyrogens can influence the hypothalamus, a brain region that helps regulate body temperature. The hypothalamus changes the body\u0027s temperature set point. Shivering and seeking warmth can then help the body approach that new set point."
         },
         {
           "prompt": "What is one key takeaway? Why do we cry?",
@@ -1226,19 +1271,22 @@
           "correctAnswers": [
             "Immune signals can influence the hypothalamus to raise the temperature set point."
           ],
-          "explanation": "Immune molecules called pyrogens can influence the hypothalamus, a brain region that helps regulate body temperature. The hypothalamus changes the body's temperature set point. Shivering and seeking warmth can then help the body approach that new set point."
+          "explanation": "Immune molecules called pyrogens can influence the hypothalamus, a brain region that helps regulate body temperature. The hypothalamus changes the body\u0027s temperature set point. Shivering and seeking warmth can then help the body approach that new set point."
         }
       ],
-      "extraLessons": []
+      "extraLessons": [
+        "fever-setpoint-extra-2",
+        "fever-setpoint-extra-3"
+      ]
     },
     "fever-shivers": {
       "id": "fever-shivers",
       "parentId": "fever",
       "question": "Can you be awake during surgery?",
-      "content": "If the body's temperature set point rises, the current temperature can feel too low to the brain. Muscles may shiver and blood vessels near the skin may narrow, generating and conserving heat. When the set point falls, sweating can help release heat.",
+      "content": "If the body\u0027s temperature set point rises, the current temperature can feel too low to the brain. Muscles may shiver and blood vessels near the skin may narrow, generating and conserving heat. When the set point falls, sweating can help release heat.",
       "level": 3,
       "children": [],
-      "lessonCount": 1,
+      "lessonCount": 3,
       "exercises": [
         {
           "prompt": "Can you be awake during surgery?",
@@ -1251,7 +1299,7 @@
           "correctAnswers": [
             "Shivering generates heat when the body is below its raised temperature set point."
           ],
-          "explanation": "If the body's temperature set point rises, the current temperature can feel too low to the brain. Muscles may shiver and blood vessels near the skin may narrow, generating and conserving heat. When the set point falls, sweating can help release heat."
+          "explanation": "If the body\u0027s temperature set point rises, the current temperature can feel too low to the brain. Muscles may shiver and blood vessels near the skin may narrow, generating and conserving heat. When the set point falls, sweating can help release heat."
         },
         {
           "prompt": "True or false: Shivering creates antibodies by vibrating blood.",
@@ -1263,7 +1311,7 @@
           "correctAnswers": [
             "False"
           ],
-          "explanation": "If the body's temperature set point rises, the current temperature can feel too low to the brain. Muscles may shiver and blood vessels near the skin may narrow, generating and conserving heat. When the set point falls, sweating can help release heat."
+          "explanation": "If the body\u0027s temperature set point rises, the current temperature can feel too low to the brain. Muscles may shiver and blood vessels near the skin may narrow, generating and conserving heat. When the set point falls, sweating can help release heat."
         },
         {
           "prompt": "What is one key takeaway? Can you be awake during surgery?",
@@ -1272,19 +1320,22 @@
           "correctAnswers": [
             "Shivering generates heat when the body is below its raised temperature set point."
           ],
-          "explanation": "If the body's temperature set point rises, the current temperature can feel too low to the brain. Muscles may shiver and blood vessels near the skin may narrow, generating and conserving heat. When the set point falls, sweating can help release heat."
+          "explanation": "If the body\u0027s temperature set point rises, the current temperature can feel too low to the brain. Muscles may shiver and blood vessels near the skin may narrow, generating and conserving heat. When the set point falls, sweating can help release heat."
         }
       ],
-      "extraLessons": []
+      "extraLessons": [
+        "fever-shivers-extra-2",
+        "fever-shivers-extra-3"
+      ]
     },
     "fever-variation": {
       "id": "fever-variation",
       "parentId": "fever",
       "question": "Where did we come from?",
-      "content": "Temperature is only one clue about illness. Age, measurement method, time of day, medicines, and the cause all matter. A person's overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned.",
+      "content": "Temperature is only one clue about illness. Age, measurement method, time of day, medicines, and the cause all matter. A person\u0027s overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned.",
       "level": 3,
       "children": [],
-      "lessonCount": 1,
+      "lessonCount": 3,
       "exercises": [
         {
           "prompt": "Where did we come from?",
@@ -1297,7 +1348,7 @@
           "correctAnswers": [
             "Fever is one health clue and must be considered with symptoms and context."
           ],
-          "explanation": "Temperature is only one clue about illness. Age, measurement method, time of day, medicines, and the cause all matter. A person's overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned."
+          "explanation": "Temperature is only one clue about illness. Age, measurement method, time of day, medicines, and the cause all matter. A person\u0027s overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned."
         },
         {
           "prompt": "True or false: A higher fever always means a more dangerous infection.",
@@ -1309,7 +1360,7 @@
           "correctAnswers": [
             "False"
           ],
-          "explanation": "Temperature is only one clue about illness. Age, measurement method, time of day, medicines, and the cause all matter. A person's overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned."
+          "explanation": "Temperature is only one clue about illness. Age, measurement method, time of day, medicines, and the cause all matter. A person\u0027s overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned."
         },
         {
           "prompt": "What is one key takeaway? Where did we come from?",
@@ -1318,10 +1369,13 @@
           "correctAnswers": [
             "Fever is one health clue and must be considered with symptoms and context."
           ],
-          "explanation": "Temperature is only one clue about illness. Age, measurement method, time of day, medicines, and the cause all matter. A person's overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned."
+          "explanation": "Temperature is only one clue about illness. Age, measurement method, time of day, medicines, and the cause all matter. A person\u0027s overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned."
         }
       ],
-      "extraLessons": []
+      "extraLessons": [
+        "fever-variation-extra-2",
+        "fever-variation-extra-3"
+      ]
     },
     "sleep-stages": {
       "id": "sleep-stages",
@@ -1492,7 +1546,7 @@
       "content": "Dreams can occur in several sleep stages and are often vivid in REM sleep. Brain regions involved in imagery and emotion can be active while parts involved in checking reality work differently. Scientists study dreaming, and no single theory explains every dream.",
       "level": 3,
       "children": [],
-      "lessonCount": 1,
+      "lessonCount": 3,
       "exercises": [
         {
           "prompt": "What happened before recorded history?",
@@ -1529,7 +1583,10 @@
           "explanation": "Dreams can occur in several sleep stages and are often vivid in REM sleep. Brain regions involved in imagery and emotion can be active while parts involved in checking reality work differently. Scientists study dreaming, and no single theory explains every dream."
         }
       ],
-      "extraLessons": []
+      "extraLessons": [
+        "dreams-extra-2",
+        "dreams-extra-3"
+      ]
     },
     "deep-sleep": {
       "id": "deep-sleep",
@@ -1538,7 +1595,7 @@
       "content": "Deep sleep is a stage of non-REM sleep with slow, synchronized brain waves. A person can be less responsive to outside sounds during this stage. Deep sleep is especially common earlier in the night, though sleep architecture changes with age and other factors.",
       "level": 3,
       "children": [],
-      "lessonCount": 1,
+      "lessonCount": 3,
       "exercises": [
         {
           "prompt": "Why do women have periods?",
@@ -1575,7 +1632,10 @@
           "explanation": "Deep sleep is a stage of non-REM sleep with slow, synchronized brain waves. A person can be less responsive to outside sounds during this stage. Deep sleep is especially common earlier in the night, though sleep architecture changes with age and other factors."
         }
       ],
-      "extraLessons": []
+      "extraLessons": [
+        "deep-sleep-extra-2",
+        "deep-sleep-extra-3"
+      ]
     },
     "sleep-rem": {
       "id": "sleep-rem",
@@ -1584,7 +1644,7 @@
       "content": "REM means rapid eye movement. During this stage, the eyes move beneath closed lids, brain activity resembles some waking patterns, and most skeletal muscles are temporarily inhibited. The exact relationship between eye movements and dream content is still being studied.",
       "level": 3,
       "children": [],
-      "lessonCount": 1,
+      "lessonCount": 3,
       "exercises": [
         {
           "prompt": "Can we create genetically perfect babies?",
@@ -1621,7 +1681,10 @@
           "explanation": "REM means rapid eye movement. During this stage, the eyes move beneath closed lids, brain activity resembles some waking patterns, and most skeletal muscles are temporarily inhibited. The exact relationship between eye movements and dream content is still being studied."
         }
       ],
-      "extraLessons": []
+      "extraLessons": [
+        "sleep-rem-extra-2",
+        "sleep-rem-extra-3"
+      ]
     },
     "memory-replay": {
       "id": "memory-replay",
@@ -1630,7 +1693,7 @@
       "content": "Some brain activity during sleep resembles patterns from recent experiences, but this is not a complete replay of the day. Researchers study how sleep helps selected memories become stable and how the brain prioritizes information. Not every event is stored equally.",
       "level": 3,
       "children": [],
-      "lessonCount": 1,
+      "lessonCount": 3,
       "exercises": [
         {
           "prompt": "Can you build muscle without lifting weights?",
@@ -1667,7 +1730,10 @@
           "explanation": "Some brain activity during sleep resembles patterns from recent experiences, but this is not a complete replay of the day. Researchers study how sleep helps selected memories become stable and how the brain prioritizes information. Not every event is stored equally."
         }
       ],
-      "extraLessons": []
+      "extraLessons": [
+        "memory-replay-extra-2",
+        "memory-replay-extra-3"
+      ]
     },
     "forgetting": {
       "id": "forgetting",
@@ -1676,7 +1742,7 @@
       "content": "A nap can reduce sleepiness and may support memory, especially when it includes useful sleep stages. The effect depends on nap timing and length, prior sleep, and the task. A nap cannot replace the benefits of consistently adequate nighttime sleep.",
       "level": 3,
       "children": [],
-      "lessonCount": 1,
+      "lessonCount": 3,
       "exercises": [
         {
           "prompt": "Can you train your bones and ligaments?",
@@ -1713,7 +1779,10 @@
           "explanation": "A nap can reduce sleepiness and may support memory, especially when it includes useful sleep stages. The effect depends on nap timing and length, prior sleep, and the task. A nap cannot replace the benefits of consistently adequate nighttime sleep."
         }
       ],
-      "extraLessons": []
+      "extraLessons": [
+        "forgetting-extra-2",
+        "forgetting-extra-3"
+      ]
     },
     "memory-links": {
       "id": "memory-links",
@@ -1722,7 +1791,7 @@
       "content": "Learning changes connections among neurons. Sleep may help the brain reorganize some of these patterns, making it easier to link new information with existing knowledge. This process is not a simple filing system, and researchers are still uncovering how different sleep stages contribute.",
       "level": 3,
       "children": [],
-      "lessonCount": 1,
+      "lessonCount": 3,
       "exercises": [
         {
           "prompt": "Can we regrow lost body parts?",
@@ -1759,29 +1828,32 @@
           "explanation": "Learning changes connections among neurons. Sleep may help the brain reorganize some of these patterns, making it easier to link new information with existing knowledge. This process is not a simple filing system, and researchers are still uncovering how different sleep stages contribute."
         }
       ],
-      "extraLessons": []
+      "extraLessons": [
+        "memory-links-extra-2",
+        "memory-links-extra-3"
+      ]
     },
     "light-clock": {
       "id": "light-clock",
       "parentId": "body-clock",
       "question": "How does your immune system remember a germ?",
-      "content": "Light reaches specialized cells in the retina, which send timing information to the brain's circadian clock. Morning light often shifts the clock earlier, while bright light late at night can shift it later. The effect depends on when the light arrives.",
+      "content": "Light reaches specialized cells in the retina, which send timing information to the brain\u0027s circadian clock. Morning light often shifts the clock earlier, while bright light late at night can shift it later. The effect depends on when the light arrives.",
       "level": 3,
       "children": [],
-      "lessonCount": 1,
+      "lessonCount": 3,
       "exercises": [
         {
           "prompt": "How does your immune system remember a germ?",
           "type": "singleChoice",
           "options": [
-            "Retinal light signals help synchronize the brain's circadian clock with the day.",
+            "Retinal light signals help synchronize the brain\u0027s circadian clock with the day.",
             "Light enters through the skin and directly changes the stomach clock.",
             "Any light at any time shifts the clock earlier."
           ],
           "correctAnswers": [
-            "Retinal light signals help synchronize the brain's circadian clock with the day."
+            "Retinal light signals help synchronize the brain\u0027s circadian clock with the day."
           ],
-          "explanation": "Light reaches specialized cells in the retina, which send timing information to the brain's circadian clock. Morning light often shifts the clock earlier, while bright light late at night can shift it later. The effect depends on when the light arrives."
+          "explanation": "Light reaches specialized cells in the retina, which send timing information to the brain\u0027s circadian clock. Morning light often shifts the clock earlier, while bright light late at night can shift it later. The effect depends on when the light arrives."
         },
         {
           "prompt": "True or false: Light enters through the skin and directly changes the stomach clock.",
@@ -1793,31 +1865,34 @@
           "correctAnswers": [
             "False"
           ],
-          "explanation": "Light reaches specialized cells in the retina, which send timing information to the brain's circadian clock. Morning light often shifts the clock earlier, while bright light late at night can shift it later. The effect depends on when the light arrives."
+          "explanation": "Light reaches specialized cells in the retina, which send timing information to the brain\u0027s circadian clock. Morning light often shifts the clock earlier, while bright light late at night can shift it later. The effect depends on when the light arrives."
         },
         {
           "prompt": "What is one key takeaway? How does your immune system remember a germ?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
-            "Retinal light signals help synchronize the brain's circadian clock with the day."
+            "Retinal light signals help synchronize the brain\u0027s circadian clock with the day."
           ],
-          "explanation": "Light reaches specialized cells in the retina, which send timing information to the brain's circadian clock. Morning light often shifts the clock earlier, while bright light late at night can shift it later. The effect depends on when the light arrives."
+          "explanation": "Light reaches specialized cells in the retina, which send timing information to the brain\u0027s circadian clock. Morning light often shifts the clock earlier, while bright light late at night can shift it later. The effect depends on when the light arrives."
         }
       ],
-      "extraLessons": []
+      "extraLessons": [
+        "light-clock-extra-2",
+        "light-clock-extra-3"
+      ]
     },
     "melatonin": {
       "id": "melatonin",
       "parentId": "body-clock",
-      "question": "Why don't blue whales get cancer more often?",
+      "question": "Why don\u0027t blue whales get cancer more often?",
       "content": "Melatonin is a hormone whose levels usually rise in dim evening conditions under circadian control. It signals that biological night has begun and can support sleep timing. It is not a general knockout drug, and light exposure can affect its timing.",
       "level": 3,
       "children": [],
-      "lessonCount": 1,
+      "lessonCount": 3,
       "exercises": [
         {
-          "prompt": "Why don't blue whales get cancer more often?",
+          "prompt": "Why don\u0027t blue whales get cancer more often?",
           "type": "singleChoice",
           "options": [
             "Melatonin signals biological night and helps regulate sleep timing.",
@@ -1842,7 +1917,7 @@
           "explanation": "Melatonin is a hormone whose levels usually rise in dim evening conditions under circadian control. It signals that biological night has begun and can support sleep timing. It is not a general knockout drug, and light exposure can affect its timing."
         },
         {
-          "prompt": "What is one key takeaway? Why don't blue whales get cancer more often?",
+          "prompt": "What is one key takeaway? Why don\u0027t blue whales get cancer more often?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -1851,7 +1926,10 @@
           "explanation": "Melatonin is a hormone whose levels usually rise in dim evening conditions under circadian control. It signals that biological night has begun and can support sleep timing. It is not a general knockout drug, and light exposure can affect its timing."
         }
       ],
-      "extraLessons": []
+      "extraLessons": [
+        "melatonin-extra-2",
+        "melatonin-extra-3"
+      ]
     },
     "jet-lag": {
       "id": "jet-lag",
@@ -1860,7 +1938,7 @@
       "content": "Your internal circadian rhythms remain aligned to the old time zone for a while after travel. Local light, meals, and activity happen at new times, creating a mismatch. The clock gradually shifts, and the direction and number of time zones affect adjustment.",
       "level": 3,
       "children": [],
-      "lessonCount": 1,
+      "lessonCount": 3,
       "exercises": [
         {
           "prompt": "Why do we have different blood types?",
@@ -1897,7 +1975,10 @@
           "explanation": "Your internal circadian rhythms remain aligned to the old time zone for a while after travel. Local light, meals, and activity happen at new times, creating a mismatch. The clock gradually shifts, and the direction and number of time zones affect adjustment."
         }
       ],
-      "extraLessons": []
+      "extraLessons": [
+        "jet-lag-extra-2",
+        "jet-lag-extra-3"
+      ]
     },
     "immune-response": {
       "id": "immune-response",
@@ -2166,6 +2247,2706 @@
             "Its antigens may differ from the features the memory cells recognize."
           ],
           "explanation": "Memory cells recognize particular features. If those features change, recognition may be less effective."
+        }
+      ],
+      "extraLessons": []
+    },
+    "jet-lag-extra-2": {
+      "id": "jet-lag-extra-2",
+      "parentId": "jet-lag",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Your internal circadian rhythms remain aligned to the old time zone for a while after travel.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Your internal circadian rhythms remain aligned to the old time zone for a while after travel.",
+          "correctAnswers": [
+            "Your internal circadian rhythms remain aligned to the old time zone for a while after travel."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Your internal circadian rhythms remain aligned to the old time zone for a while after travel.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Your internal circadian rhythms remain aligned to the old time zone for a while after travel.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Your internal circadian rhythms remain aligned to the old time zone for a while after travel.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Your internal circadian rhythms remain aligned to the old time zone for a while after travel.",
+          "correctAnswers": [
+            "Your internal circadian rhythms remain aligned to the old time zone for a while after travel."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Your internal circadian rhythms remain aligned to the old time zone for a while after travel.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "jet-lag-extra-3": {
+      "id": "jet-lag-extra-3",
+      "parentId": "jet-lag",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Local light, meals, and activity happen at new times, creating a mismatch. The clock gradually shifts, and the direction and number of time zones affect adjustment.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Local light, meals, and activity happen at new times, creating a mismatch. The clock gradually shifts, and the direction and number of time zones affect adjustment.",
+          "correctAnswers": [
+            "Local light, meals, and activity happen at new times, creating a mismatch. The clock gradually shifts, and the direction and number of time zones affect adjustment."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Local light, meals, and activity happen at new times, creating a mismatch. The clock gradually shifts, and the direction and number of time zones affect adjustment.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Local light, meals, and activity happen at new times, creating a mismatch. The clock gradually shifts, and the direction and number of time zones affect adjustment.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Local light, meals, and activity happen at new times, creating a mismatch. The clock gradually shifts, and the direction and number of time zones affect adjustment.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Local light, meals, and activity happen at new times, creating a mismatch. The clock gradually shifts, and the direction and number of time zones affect adjustment.",
+          "correctAnswers": [
+            "Local light, meals, and activity happen at new times, creating a mismatch. The clock gradually shifts, and the direction and number of time zones affect adjustment."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Local light, meals, and activity happen at new times, creating a mismatch. The clock gradually shifts, and the direction and number of time zones affect adjustment.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "melatonin-extra-2": {
+      "id": "melatonin-extra-2",
+      "parentId": "melatonin",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Melatonin is a hormone whose levels usually rise in dim evening conditions under circadian control.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Melatonin is a hormone whose levels usually rise in dim evening conditions under circadian control.",
+          "correctAnswers": [
+            "Melatonin is a hormone whose levels usually rise in dim evening conditions under circadian control."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Melatonin is a hormone whose levels usually rise in dim evening conditions under circadian control.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Melatonin is a hormone whose levels usually rise in dim evening conditions under circadian control.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Melatonin is a hormone whose levels usually rise in dim evening conditions under circadian control.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Melatonin is a hormone whose levels usually rise in dim evening conditions under circadian control.",
+          "correctAnswers": [
+            "Melatonin is a hormone whose levels usually rise in dim evening conditions under circadian control."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Melatonin is a hormone whose levels usually rise in dim evening conditions under circadian control.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "melatonin-extra-3": {
+      "id": "melatonin-extra-3",
+      "parentId": "melatonin",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "It signals that biological night has begun and can support sleep timing. It is not a general knockout drug, and light exposure can affect its timing.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "It signals that biological night has begun and can support sleep timing. It is not a general knockout drug, and light exposure can affect its timing.",
+          "correctAnswers": [
+            "It signals that biological night has begun and can support sleep timing. It is not a general knockout drug, and light exposure can affect its timing."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "It signals that biological night has begun and can support sleep timing. It is not a general knockout drug, and light exposure can affect its timing.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "It signals that biological night has begun and can support sleep timing. It is not a general knockout drug, and light exposure can affect its timing.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: It signals that biological night has begun and can support sleep timing. It is not a general knockout drug, and light exposure can affect its timing.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "It signals that biological night has begun and can support sleep timing. It is not a general knockout drug, and light exposure can affect its timing.",
+          "correctAnswers": [
+            "It signals that biological night has begun and can support sleep timing. It is not a general knockout drug, and light exposure can affect its timing."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "It signals that biological night has begun and can support sleep timing. It is not a general knockout drug, and light exposure can affect its timing.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "light-clock-extra-2": {
+      "id": "light-clock-extra-2",
+      "parentId": "light-clock",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Light reaches specialized cells in the retina, which send timing information to the brain\u0027s circadian clock.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Light reaches specialized cells in the retina, which send timing information to the brain\u0027s circadian clock.",
+          "correctAnswers": [
+            "Light reaches specialized cells in the retina, which send timing information to the brain\u0027s circadian clock."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Light reaches specialized cells in the retina, which send timing information to the brain\u0027s circadian clock.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Light reaches specialized cells in the retina, which send timing information to the brain\u0027s circadian clock.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Light reaches specialized cells in the retina, which send timing information to the brain\u0027s circadian clock.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Light reaches specialized cells in the retina, which send timing information to the brain\u0027s circadian clock.",
+          "correctAnswers": [
+            "Light reaches specialized cells in the retina, which send timing information to the brain\u0027s circadian clock."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Light reaches specialized cells in the retina, which send timing information to the brain\u0027s circadian clock.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "light-clock-extra-3": {
+      "id": "light-clock-extra-3",
+      "parentId": "light-clock",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Morning light often shifts the clock earlier, while bright light late at night can shift it later. The effect depends on when the light arrives.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Morning light often shifts the clock earlier, while bright light late at night can shift it later. The effect depends on when the light arrives.",
+          "correctAnswers": [
+            "Morning light often shifts the clock earlier, while bright light late at night can shift it later. The effect depends on when the light arrives."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Morning light often shifts the clock earlier, while bright light late at night can shift it later. The effect depends on when the light arrives.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Morning light often shifts the clock earlier, while bright light late at night can shift it later. The effect depends on when the light arrives.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Morning light often shifts the clock earlier, while bright light late at night can shift it later. The effect depends on when the light arrives.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Morning light often shifts the clock earlier, while bright light late at night can shift it later. The effect depends on when the light arrives.",
+          "correctAnswers": [
+            "Morning light often shifts the clock earlier, while bright light late at night can shift it later. The effect depends on when the light arrives."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Morning light often shifts the clock earlier, while bright light late at night can shift it later. The effect depends on when the light arrives.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "memory-links-extra-2": {
+      "id": "memory-links-extra-2",
+      "parentId": "memory-links",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Learning changes connections among neurons.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Learning changes connections among neurons.",
+          "correctAnswers": [
+            "Learning changes connections among neurons."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Learning changes connections among neurons.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Learning changes connections among neurons.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Learning changes connections among neurons.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Learning changes connections among neurons.",
+          "correctAnswers": [
+            "Learning changes connections among neurons."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Learning changes connections among neurons.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "memory-links-extra-3": {
+      "id": "memory-links-extra-3",
+      "parentId": "memory-links",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Sleep may help the brain reorganize some of these patterns, making it easier to link new information with existing knowledge. This process is not a simple filing system, and researchers are still uncovering how different sleep stages contribute.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Sleep may help the brain reorganize some of these patterns, making it easier to link new information with existing knowledge. This process is not a simple filing system, and researchers are still uncovering how different sleep stages contribute.",
+          "correctAnswers": [
+            "Sleep may help the brain reorganize some of these patterns, making it easier to link new information with existing knowledge. This process is not a simple filing system, and researchers are still uncovering how different sleep stages contribute."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Sleep may help the brain reorganize some of these patterns, making it easier to link new information with existing knowledge. This process is not a simple filing system, and researchers are still uncovering how different sleep stages contribute.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Sleep may help the brain reorganize some of these patterns, making it easier to link new information with existing knowledge. This process is not a simple filing system, and researchers are still uncovering how different sleep stages contribute.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Sleep may help the brain reorganize some of these patterns, making it easier to link new information with existing knowledge. This process is not a simple filing system, and researchers are still uncovering how different sleep stages contribute.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Sleep may help the brain reorganize some of these patterns, making it easier to link new information with existing knowledge. This process is not a simple filing system, and researchers are still uncovering how different sleep stages contribute.",
+          "correctAnswers": [
+            "Sleep may help the brain reorganize some of these patterns, making it easier to link new information with existing knowledge. This process is not a simple filing system, and researchers are still uncovering how different sleep stages contribute."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Sleep may help the brain reorganize some of these patterns, making it easier to link new information with existing knowledge. This process is not a simple filing system, and researchers are still uncovering how different sleep stages contribute.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "forgetting-extra-2": {
+      "id": "forgetting-extra-2",
+      "parentId": "forgetting",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "A nap can reduce sleepiness and may support memory, especially when it includes useful sleep stages.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "A nap can reduce sleepiness and may support memory, especially when it includes useful sleep stages.",
+          "correctAnswers": [
+            "A nap can reduce sleepiness and may support memory, especially when it includes useful sleep stages."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "A nap can reduce sleepiness and may support memory, especially when it includes useful sleep stages.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "A nap can reduce sleepiness and may support memory, especially when it includes useful sleep stages.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: A nap can reduce sleepiness and may support memory, especially when it includes useful sleep stages.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "A nap can reduce sleepiness and may support memory, especially when it includes useful sleep stages.",
+          "correctAnswers": [
+            "A nap can reduce sleepiness and may support memory, especially when it includes useful sleep stages."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "A nap can reduce sleepiness and may support memory, especially when it includes useful sleep stages.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "forgetting-extra-3": {
+      "id": "forgetting-extra-3",
+      "parentId": "forgetting",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "The effect depends on nap timing and length, prior sleep, and the task. A nap cannot replace the benefits of consistently adequate nighttime sleep.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "The effect depends on nap timing and length, prior sleep, and the task. A nap cannot replace the benefits of consistently adequate nighttime sleep.",
+          "correctAnswers": [
+            "The effect depends on nap timing and length, prior sleep, and the task. A nap cannot replace the benefits of consistently adequate nighttime sleep."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "The effect depends on nap timing and length, prior sleep, and the task. A nap cannot replace the benefits of consistently adequate nighttime sleep.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "The effect depends on nap timing and length, prior sleep, and the task. A nap cannot replace the benefits of consistently adequate nighttime sleep.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: The effect depends on nap timing and length, prior sleep, and the task. A nap cannot replace the benefits of consistently adequate nighttime sleep.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "The effect depends on nap timing and length, prior sleep, and the task. A nap cannot replace the benefits of consistently adequate nighttime sleep.",
+          "correctAnswers": [
+            "The effect depends on nap timing and length, prior sleep, and the task. A nap cannot replace the benefits of consistently adequate nighttime sleep."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "The effect depends on nap timing and length, prior sleep, and the task. A nap cannot replace the benefits of consistently adequate nighttime sleep.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "memory-replay-extra-2": {
+      "id": "memory-replay-extra-2",
+      "parentId": "memory-replay",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Some brain activity during sleep resembles patterns from recent experiences, but this is not a complete replay of the day.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Some brain activity during sleep resembles patterns from recent experiences, but this is not a complete replay of the day.",
+          "correctAnswers": [
+            "Some brain activity during sleep resembles patterns from recent experiences, but this is not a complete replay of the day."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Some brain activity during sleep resembles patterns from recent experiences, but this is not a complete replay of the day.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Some brain activity during sleep resembles patterns from recent experiences, but this is not a complete replay of the day.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Some brain activity during sleep resembles patterns from recent experiences, but this is not a complete replay of the day.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Some brain activity during sleep resembles patterns from recent experiences, but this is not a complete replay of the day.",
+          "correctAnswers": [
+            "Some brain activity during sleep resembles patterns from recent experiences, but this is not a complete replay of the day."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Some brain activity during sleep resembles patterns from recent experiences, but this is not a complete replay of the day.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "memory-replay-extra-3": {
+      "id": "memory-replay-extra-3",
+      "parentId": "memory-replay",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Researchers study how sleep helps selected memories become stable and how the brain prioritizes information. Not every event is stored equally.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Researchers study how sleep helps selected memories become stable and how the brain prioritizes information. Not every event is stored equally.",
+          "correctAnswers": [
+            "Researchers study how sleep helps selected memories become stable and how the brain prioritizes information. Not every event is stored equally."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Researchers study how sleep helps selected memories become stable and how the brain prioritizes information. Not every event is stored equally.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Researchers study how sleep helps selected memories become stable and how the brain prioritizes information. Not every event is stored equally.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Researchers study how sleep helps selected memories become stable and how the brain prioritizes information. Not every event is stored equally.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Researchers study how sleep helps selected memories become stable and how the brain prioritizes information. Not every event is stored equally.",
+          "correctAnswers": [
+            "Researchers study how sleep helps selected memories become stable and how the brain prioritizes information. Not every event is stored equally."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Researchers study how sleep helps selected memories become stable and how the brain prioritizes information. Not every event is stored equally.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "sleep-rem-extra-2": {
+      "id": "sleep-rem-extra-2",
+      "parentId": "sleep-rem",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "REM means rapid eye movement.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "REM means rapid eye movement.",
+          "correctAnswers": [
+            "REM means rapid eye movement."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "REM means rapid eye movement.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "REM means rapid eye movement.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: REM means rapid eye movement.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "REM means rapid eye movement.",
+          "correctAnswers": [
+            "REM means rapid eye movement."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "REM means rapid eye movement.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "sleep-rem-extra-3": {
+      "id": "sleep-rem-extra-3",
+      "parentId": "sleep-rem",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "During this stage, the eyes move beneath closed lids, brain activity resembles some waking patterns, and most skeletal muscles are temporarily inhibited. The exact relationship between eye movements and dream content is still being studied.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "During this stage, the eyes move beneath closed lids, brain activity resembles some waking patterns, and most skeletal muscles are temporarily inhibited. The exact relationship between eye movements and dream content is still being studied.",
+          "correctAnswers": [
+            "During this stage, the eyes move beneath closed lids, brain activity resembles some waking patterns, and most skeletal muscles are temporarily inhibited. The exact relationship between eye movements and dream content is still being studied."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "During this stage, the eyes move beneath closed lids, brain activity resembles some waking patterns, and most skeletal muscles are temporarily inhibited. The exact relationship between eye movements and dream content is still being studied.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "During this stage, the eyes move beneath closed lids, brain activity resembles some waking patterns, and most skeletal muscles are temporarily inhibited. The exact relationship between eye movements and dream content is still being studied.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: During this stage, the eyes move beneath closed lids, brain activity resembles some waking patterns, and most skeletal muscles are temporarily inhibited. The exact relationship between eye movements and dream content is still being studied.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "During this stage, the eyes move beneath closed lids, brain activity resembles some waking patterns, and most skeletal muscles are temporarily inhibited. The exact relationship between eye movements and dream content is still being studied.",
+          "correctAnswers": [
+            "During this stage, the eyes move beneath closed lids, brain activity resembles some waking patterns, and most skeletal muscles are temporarily inhibited. The exact relationship between eye movements and dream content is still being studied."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "During this stage, the eyes move beneath closed lids, brain activity resembles some waking patterns, and most skeletal muscles are temporarily inhibited. The exact relationship between eye movements and dream content is still being studied.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "deep-sleep-extra-2": {
+      "id": "deep-sleep-extra-2",
+      "parentId": "deep-sleep",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Deep sleep is a stage of non-REM sleep with slow, synchronized brain waves.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Deep sleep is a stage of non-REM sleep with slow, synchronized brain waves.",
+          "correctAnswers": [
+            "Deep sleep is a stage of non-REM sleep with slow, synchronized brain waves."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Deep sleep is a stage of non-REM sleep with slow, synchronized brain waves.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Deep sleep is a stage of non-REM sleep with slow, synchronized brain waves.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Deep sleep is a stage of non-REM sleep with slow, synchronized brain waves.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Deep sleep is a stage of non-REM sleep with slow, synchronized brain waves.",
+          "correctAnswers": [
+            "Deep sleep is a stage of non-REM sleep with slow, synchronized brain waves."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Deep sleep is a stage of non-REM sleep with slow, synchronized brain waves.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "deep-sleep-extra-3": {
+      "id": "deep-sleep-extra-3",
+      "parentId": "deep-sleep",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "A person can be less responsive to outside sounds during this stage. Deep sleep is especially common earlier in the night, though sleep architecture changes with age and other factors.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "A person can be less responsive to outside sounds during this stage. Deep sleep is especially common earlier in the night, though sleep architecture changes with age and other factors.",
+          "correctAnswers": [
+            "A person can be less responsive to outside sounds during this stage. Deep sleep is especially common earlier in the night, though sleep architecture changes with age and other factors."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "A person can be less responsive to outside sounds during this stage. Deep sleep is especially common earlier in the night, though sleep architecture changes with age and other factors.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "A person can be less responsive to outside sounds during this stage. Deep sleep is especially common earlier in the night, though sleep architecture changes with age and other factors.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: A person can be less responsive to outside sounds during this stage. Deep sleep is especially common earlier in the night, though sleep architecture changes with age and other factors.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "A person can be less responsive to outside sounds during this stage. Deep sleep is especially common earlier in the night, though sleep architecture changes with age and other factors.",
+          "correctAnswers": [
+            "A person can be less responsive to outside sounds during this stage. Deep sleep is especially common earlier in the night, though sleep architecture changes with age and other factors."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "A person can be less responsive to outside sounds during this stage. Deep sleep is especially common earlier in the night, though sleep architecture changes with age and other factors.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "dreams-extra-2": {
+      "id": "dreams-extra-2",
+      "parentId": "dreams",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Dreams can occur in several sleep stages and are often vivid in REM sleep.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Dreams can occur in several sleep stages and are often vivid in REM sleep.",
+          "correctAnswers": [
+            "Dreams can occur in several sleep stages and are often vivid in REM sleep."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Dreams can occur in several sleep stages and are often vivid in REM sleep.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Dreams can occur in several sleep stages and are often vivid in REM sleep.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Dreams can occur in several sleep stages and are often vivid in REM sleep.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Dreams can occur in several sleep stages and are often vivid in REM sleep.",
+          "correctAnswers": [
+            "Dreams can occur in several sleep stages and are often vivid in REM sleep."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Dreams can occur in several sleep stages and are often vivid in REM sleep.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "dreams-extra-3": {
+      "id": "dreams-extra-3",
+      "parentId": "dreams",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Brain regions involved in imagery and emotion can be active while parts involved in checking reality work differently. Scientists study dreaming, and no single theory explains every dream.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Brain regions involved in imagery and emotion can be active while parts involved in checking reality work differently. Scientists study dreaming, and no single theory explains every dream.",
+          "correctAnswers": [
+            "Brain regions involved in imagery and emotion can be active while parts involved in checking reality work differently. Scientists study dreaming, and no single theory explains every dream."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Brain regions involved in imagery and emotion can be active while parts involved in checking reality work differently. Scientists study dreaming, and no single theory explains every dream.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Brain regions involved in imagery and emotion can be active while parts involved in checking reality work differently. Scientists study dreaming, and no single theory explains every dream.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Brain regions involved in imagery and emotion can be active while parts involved in checking reality work differently. Scientists study dreaming, and no single theory explains every dream.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Brain regions involved in imagery and emotion can be active while parts involved in checking reality work differently. Scientists study dreaming, and no single theory explains every dream.",
+          "correctAnswers": [
+            "Brain regions involved in imagery and emotion can be active while parts involved in checking reality work differently. Scientists study dreaming, and no single theory explains every dream."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Brain regions involved in imagery and emotion can be active while parts involved in checking reality work differently. Scientists study dreaming, and no single theory explains every dream.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "fever-variation-extra-2": {
+      "id": "fever-variation-extra-2",
+      "parentId": "fever-variation",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Temperature is only one clue about illness.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Temperature is only one clue about illness.",
+          "correctAnswers": [
+            "Temperature is only one clue about illness."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Temperature is only one clue about illness.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Temperature is only one clue about illness.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Temperature is only one clue about illness.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Temperature is only one clue about illness.",
+          "correctAnswers": [
+            "Temperature is only one clue about illness."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Temperature is only one clue about illness.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "fever-variation-extra-3": {
+      "id": "fever-variation-extra-3",
+      "parentId": "fever-variation",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Age, measurement method, time of day, medicines, and the cause all matter. A person\u0027s overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Age, measurement method, time of day, medicines, and the cause all matter. A person\u0027s overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned.",
+          "correctAnswers": [
+            "Age, measurement method, time of day, medicines, and the cause all matter. A person\u0027s overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Age, measurement method, time of day, medicines, and the cause all matter. A person\u0027s overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Age, measurement method, time of day, medicines, and the cause all matter. A person\u0027s overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Age, measurement method, time of day, medicines, and the cause all matter. A person\u0027s overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Age, measurement method, time of day, medicines, and the cause all matter. A person\u0027s overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned.",
+          "correctAnswers": [
+            "Age, measurement method, time of day, medicines, and the cause all matter. A person\u0027s overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Age, measurement method, time of day, medicines, and the cause all matter. A person\u0027s overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "fever-shivers-extra-2": {
+      "id": "fever-shivers-extra-2",
+      "parentId": "fever-shivers",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "If the body\u0027s temperature set point rises, the current temperature can feel too low to the brain.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "If the body\u0027s temperature set point rises, the current temperature can feel too low to the brain.",
+          "correctAnswers": [
+            "If the body\u0027s temperature set point rises, the current temperature can feel too low to the brain."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "If the body\u0027s temperature set point rises, the current temperature can feel too low to the brain.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "If the body\u0027s temperature set point rises, the current temperature can feel too low to the brain.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: If the body\u0027s temperature set point rises, the current temperature can feel too low to the brain.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "If the body\u0027s temperature set point rises, the current temperature can feel too low to the brain.",
+          "correctAnswers": [
+            "If the body\u0027s temperature set point rises, the current temperature can feel too low to the brain."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "If the body\u0027s temperature set point rises, the current temperature can feel too low to the brain.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "fever-shivers-extra-3": {
+      "id": "fever-shivers-extra-3",
+      "parentId": "fever-shivers",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Muscles may shiver and blood vessels near the skin may narrow, generating and conserving heat. When the set point falls, sweating can help release heat.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Muscles may shiver and blood vessels near the skin may narrow, generating and conserving heat. When the set point falls, sweating can help release heat.",
+          "correctAnswers": [
+            "Muscles may shiver and blood vessels near the skin may narrow, generating and conserving heat. When the set point falls, sweating can help release heat."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Muscles may shiver and blood vessels near the skin may narrow, generating and conserving heat. When the set point falls, sweating can help release heat.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Muscles may shiver and blood vessels near the skin may narrow, generating and conserving heat. When the set point falls, sweating can help release heat.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Muscles may shiver and blood vessels near the skin may narrow, generating and conserving heat. When the set point falls, sweating can help release heat.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Muscles may shiver and blood vessels near the skin may narrow, generating and conserving heat. When the set point falls, sweating can help release heat.",
+          "correctAnswers": [
+            "Muscles may shiver and blood vessels near the skin may narrow, generating and conserving heat. When the set point falls, sweating can help release heat."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Muscles may shiver and blood vessels near the skin may narrow, generating and conserving heat. When the set point falls, sweating can help release heat.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "fever-setpoint-extra-2": {
+      "id": "fever-setpoint-extra-2",
+      "parentId": "fever-setpoint",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Immune molecules called pyrogens can influence the hypothalamus, a brain region that helps regulate body temperature.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Immune molecules called pyrogens can influence the hypothalamus, a brain region that helps regulate body temperature.",
+          "correctAnswers": [
+            "Immune molecules called pyrogens can influence the hypothalamus, a brain region that helps regulate body temperature."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Immune molecules called pyrogens can influence the hypothalamus, a brain region that helps regulate body temperature.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Immune molecules called pyrogens can influence the hypothalamus, a brain region that helps regulate body temperature.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Immune molecules called pyrogens can influence the hypothalamus, a brain region that helps regulate body temperature.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Immune molecules called pyrogens can influence the hypothalamus, a brain region that helps regulate body temperature.",
+          "correctAnswers": [
+            "Immune molecules called pyrogens can influence the hypothalamus, a brain region that helps regulate body temperature."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Immune molecules called pyrogens can influence the hypothalamus, a brain region that helps regulate body temperature.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "fever-setpoint-extra-3": {
+      "id": "fever-setpoint-extra-3",
+      "parentId": "fever-setpoint",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "The hypothalamus changes the body\u0027s temperature set point. Shivering and seeking warmth can then help the body approach that new set point.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "The hypothalamus changes the body\u0027s temperature set point. Shivering and seeking warmth can then help the body approach that new set point.",
+          "correctAnswers": [
+            "The hypothalamus changes the body\u0027s temperature set point. Shivering and seeking warmth can then help the body approach that new set point."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "The hypothalamus changes the body\u0027s temperature set point. Shivering and seeking warmth can then help the body approach that new set point.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "The hypothalamus changes the body\u0027s temperature set point. Shivering and seeking warmth can then help the body approach that new set point.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: The hypothalamus changes the body\u0027s temperature set point. Shivering and seeking warmth can then help the body approach that new set point.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "The hypothalamus changes the body\u0027s temperature set point. Shivering and seeking warmth can then help the body approach that new set point.",
+          "correctAnswers": [
+            "The hypothalamus changes the body\u0027s temperature set point. Shivering and seeking warmth can then help the body approach that new set point."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "The hypothalamus changes the body\u0027s temperature set point. Shivering and seeking warmth can then help the body approach that new set point.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "memory-cells-extra-2": {
+      "id": "memory-cells-extra-2",
+      "parentId": "memory-cells",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Some immune memory lasts a long time, while protection against other threats decreases as antibody levels and immune-cell responses change.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Some immune memory lasts a long time, while protection against other threats decreases as antibody levels and immune-cell responses change.",
+          "correctAnswers": [
+            "Some immune memory lasts a long time, while protection against other threats decreases as antibody levels and immune-cell responses change."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Some immune memory lasts a long time, while protection against other threats decreases as antibody levels and immune-cell responses change.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Some immune memory lasts a long time, while protection against other threats decreases as antibody levels and immune-cell responses change.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Some immune memory lasts a long time, while protection against other threats decreases as antibody levels and immune-cell responses change.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Some immune memory lasts a long time, while protection against other threats decreases as antibody levels and immune-cell responses change.",
+          "correctAnswers": [
+            "Some immune memory lasts a long time, while protection against other threats decreases as antibody levels and immune-cell responses change."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Some immune memory lasts a long time, while protection against other threats decreases as antibody levels and immune-cell responses change.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "memory-cells-extra-3": {
+      "id": "memory-cells-extra-3",
+      "parentId": "memory-cells",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Germs can also evolve. This is why protection depends on the disease, vaccine, person, and time since exposure.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Germs can also evolve. This is why protection depends on the disease, vaccine, person, and time since exposure.",
+          "correctAnswers": [
+            "Germs can also evolve. This is why protection depends on the disease, vaccine, person, and time since exposure."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Germs can also evolve. This is why protection depends on the disease, vaccine, person, and time since exposure.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Germs can also evolve. This is why protection depends on the disease, vaccine, person, and time since exposure.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Germs can also evolve. This is why protection depends on the disease, vaccine, person, and time since exposure.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Germs can also evolve. This is why protection depends on the disease, vaccine, person, and time since exposure.",
+          "correctAnswers": [
+            "Germs can also evolve. This is why protection depends on the disease, vaccine, person, and time since exposure."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Germs can also evolve. This is why protection depends on the disease, vaccine, person, and time since exposure.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "t-cells-extra-2": {
+      "id": "t-cells-extra-2",
+      "parentId": "t-cells",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Different T cells have different jobs.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Different T cells have different jobs.",
+          "correctAnswers": [
+            "Different T cells have different jobs."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Different T cells have different jobs.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Different T cells have different jobs.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Different T cells have different jobs.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Different T cells have different jobs.",
+          "correctAnswers": [
+            "Different T cells have different jobs."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Different T cells have different jobs.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "t-cells-extra-3": {
+      "id": "t-cells-extra-3",
+      "parentId": "t-cells",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Helper T cells coordinate parts of the immune response, while cytotoxic T cells can destroy infected body cells. Memory T cells can persist after an infection or vaccination and help with later recognition.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Helper T cells coordinate parts of the immune response, while cytotoxic T cells can destroy infected body cells. Memory T cells can persist after an infection or vaccination and help with later recognition.",
+          "correctAnswers": [
+            "Helper T cells coordinate parts of the immune response, while cytotoxic T cells can destroy infected body cells. Memory T cells can persist after an infection or vaccination and help with later recognition."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Helper T cells coordinate parts of the immune response, while cytotoxic T cells can destroy infected body cells. Memory T cells can persist after an infection or vaccination and help with later recognition.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Helper T cells coordinate parts of the immune response, while cytotoxic T cells can destroy infected body cells. Memory T cells can persist after an infection or vaccination and help with later recognition.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Helper T cells coordinate parts of the immune response, while cytotoxic T cells can destroy infected body cells. Memory T cells can persist after an infection or vaccination and help with later recognition.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Helper T cells coordinate parts of the immune response, while cytotoxic T cells can destroy infected body cells. Memory T cells can persist after an infection or vaccination and help with later recognition.",
+          "correctAnswers": [
+            "Helper T cells coordinate parts of the immune response, while cytotoxic T cells can destroy infected body cells. Memory T cells can persist after an infection or vaccination and help with later recognition."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Helper T cells coordinate parts of the immune response, while cytotoxic T cells can destroy infected body cells. Memory T cells can persist after an infection or vaccination and help with later recognition.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "b-cells-extra-2": {
+      "id": "b-cells-extra-2",
+      "parentId": "b-cells",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Some B cells can become plasma cells that release antibodies, proteins that bind particular targets.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Some B cells can become plasma cells that release antibodies, proteins that bind particular targets.",
+          "correctAnswers": [
+            "Some B cells can become plasma cells that release antibodies, proteins that bind particular targets."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Some B cells can become plasma cells that release antibodies, proteins that bind particular targets.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Some B cells can become plasma cells that release antibodies, proteins that bind particular targets.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Some B cells can become plasma cells that release antibodies, proteins that bind particular targets.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Some B cells can become plasma cells that release antibodies, proteins that bind particular targets.",
+          "correctAnswers": [
+            "Some B cells can become plasma cells that release antibodies, proteins that bind particular targets."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Some B cells can become plasma cells that release antibodies, proteins that bind particular targets.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "b-cells-extra-3": {
+      "id": "b-cells-extra-3",
+      "parentId": "b-cells",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Other B cells become memory cells. Antibodies can help neutralize microbes or mark them for other immune defenses, but they are only one part of immunity.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Other B cells become memory cells. Antibodies can help neutralize microbes or mark them for other immune defenses, but they are only one part of immunity.",
+          "correctAnswers": [
+            "Other B cells become memory cells. Antibodies can help neutralize microbes or mark them for other immune defenses, but they are only one part of immunity."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Other B cells become memory cells. Antibodies can help neutralize microbes or mark them for other immune defenses, but they are only one part of immunity.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Other B cells become memory cells. Antibodies can help neutralize microbes or mark them for other immune defenses, but they are only one part of immunity.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Other B cells become memory cells. Antibodies can help neutralize microbes or mark them for other immune defenses, but they are only one part of immunity.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Other B cells become memory cells. Antibodies can help neutralize microbes or mark them for other immune defenses, but they are only one part of immunity.",
+          "correctAnswers": [
+            "Other B cells become memory cells. Antibodies can help neutralize microbes or mark them for other immune defenses, but they are only one part of immunity."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Other B cells become memory cells. Antibodies can help neutralize microbes or mark them for other immune defenses, but they are only one part of immunity.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "inflammation-extra-2": {
+      "id": "inflammation-extra-2",
+      "parentId": "inflammation",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Injury and infection can trigger inflammation.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Injury and infection can trigger inflammation.",
+          "correctAnswers": [
+            "Injury and infection can trigger inflammation."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Injury and infection can trigger inflammation.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Injury and infection can trigger inflammation.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Injury and infection can trigger inflammation.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Injury and infection can trigger inflammation.",
+          "correctAnswers": [
+            "Injury and infection can trigger inflammation."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Injury and infection can trigger inflammation.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "inflammation-extra-3": {
+      "id": "inflammation-extra-3",
+      "parentId": "inflammation",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Local signals widen blood vessels and make them more permeable, allowing immune cells and fluid to reach the area. The extra blood flow can cause warmth and redness; inflammation helps repair, but excessive inflammation can harm tissue.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Local signals widen blood vessels and make them more permeable, allowing immune cells and fluid to reach the area. The extra blood flow can cause warmth and redness; inflammation helps repair, but excessive inflammation can harm tissue.",
+          "correctAnswers": [
+            "Local signals widen blood vessels and make them more permeable, allowing immune cells and fluid to reach the area. The extra blood flow can cause warmth and redness; inflammation helps repair, but excessive inflammation can harm tissue."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Local signals widen blood vessels and make them more permeable, allowing immune cells and fluid to reach the area. The extra blood flow can cause warmth and redness; inflammation helps repair, but excessive inflammation can harm tissue.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Local signals widen blood vessels and make them more permeable, allowing immune cells and fluid to reach the area. The extra blood flow can cause warmth and redness; inflammation helps repair, but excessive inflammation can harm tissue.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Local signals widen blood vessels and make them more permeable, allowing immune cells and fluid to reach the area. The extra blood flow can cause warmth and redness; inflammation helps repair, but excessive inflammation can harm tissue.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Local signals widen blood vessels and make them more permeable, allowing immune cells and fluid to reach the area. The extra blood flow can cause warmth and redness; inflammation helps repair, but excessive inflammation can harm tissue.",
+          "correctAnswers": [
+            "Local signals widen blood vessels and make them more permeable, allowing immune cells and fluid to reach the area. The extra blood flow can cause warmth and redness; inflammation helps repair, but excessive inflammation can harm tissue."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Local signals widen blood vessels and make them more permeable, allowing immune cells and fluid to reach the area. The extra blood flow can cause warmth and redness; inflammation helps repair, but excessive inflammation can harm tissue.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "barriers-extra-2": {
+      "id": "barriers-extra-2",
+      "parentId": "barriers",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Skin forms a physical barrier, and its surface conditions make it difficult for many microbes to grow.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Skin forms a physical barrier, and its surface conditions make it difficult for many microbes to grow.",
+          "correctAnswers": [
+            "Skin forms a physical barrier, and its surface conditions make it difficult for many microbes to grow."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Skin forms a physical barrier, and its surface conditions make it difficult for many microbes to grow.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Skin forms a physical barrier, and its surface conditions make it difficult for many microbes to grow.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Skin forms a physical barrier, and its surface conditions make it difficult for many microbes to grow.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Skin forms a physical barrier, and its surface conditions make it difficult for many microbes to grow.",
+          "correctAnswers": [
+            "Skin forms a physical barrier, and its surface conditions make it difficult for many microbes to grow."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Skin forms a physical barrier, and its surface conditions make it difficult for many microbes to grow.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "barriers-extra-3": {
+      "id": "barriers-extra-3",
+      "parentId": "barriers",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Mucus, tears, and other secretions also trap or wash away microbes. These first-line defenses work alongside immune cells deeper in the body.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Mucus, tears, and other secretions also trap or wash away microbes. These first-line defenses work alongside immune cells deeper in the body.",
+          "correctAnswers": [
+            "Mucus, tears, and other secretions also trap or wash away microbes. These first-line defenses work alongside immune cells deeper in the body."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Mucus, tears, and other secretions also trap or wash away microbes. These first-line defenses work alongside immune cells deeper in the body.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Mucus, tears, and other secretions also trap or wash away microbes. These first-line defenses work alongside immune cells deeper in the body.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Mucus, tears, and other secretions also trap or wash away microbes. These first-line defenses work alongside immune cells deeper in the body.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Mucus, tears, and other secretions also trap or wash away microbes. These first-line defenses work alongside immune cells deeper in the body.",
+          "correctAnswers": [
+            "Mucus, tears, and other secretions also trap or wash away microbes. These first-line defenses work alongside immune cells deeper in the body."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Mucus, tears, and other secretions also trap or wash away microbes. These first-line defenses work alongside immune cells deeper in the body.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "antigens-extra-2": {
+      "id": "antigens-extra-2",
+      "parentId": "antigens",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "An antigen is a molecule or molecular piece that can be recognized by parts of the immune system.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "An antigen is a molecule or molecular piece that can be recognized by parts of the immune system.",
+          "correctAnswers": [
+            "An antigen is a molecule or molecular piece that can be recognized by parts of the immune system."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "An antigen is a molecule or molecular piece that can be recognized by parts of the immune system.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "An antigen is a molecule or molecular piece that can be recognized by parts of the immune system.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: An antigen is a molecule or molecular piece that can be recognized by parts of the immune system.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "An antigen is a molecule or molecular piece that can be recognized by parts of the immune system.",
+          "correctAnswers": [
+            "An antigen is a molecule or molecular piece that can be recognized by parts of the immune system."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "An antigen is a molecule or molecular piece that can be recognized by parts of the immune system.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "antigens-extra-3": {
+      "id": "antigens-extra-3",
+      "parentId": "antigens",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Many antigens come from microbes, but the immune system also encounters harmless substances and the body\u0027s own molecules. Context helps shape the response.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Many antigens come from microbes, but the immune system also encounters harmless substances and the body\u0027s own molecules. Context helps shape the response.",
+          "correctAnswers": [
+            "Many antigens come from microbes, but the immune system also encounters harmless substances and the body\u0027s own molecules. Context helps shape the response."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Many antigens come from microbes, but the immune system also encounters harmless substances and the body\u0027s own molecules. Context helps shape the response.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Many antigens come from microbes, but the immune system also encounters harmless substances and the body\u0027s own molecules. Context helps shape the response.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Many antigens come from microbes, but the immune system also encounters harmless substances and the body\u0027s own molecules. Context helps shape the response.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Many antigens come from microbes, but the immune system also encounters harmless substances and the body\u0027s own molecules. Context helps shape the response.",
+          "correctAnswers": [
+            "Many antigens come from microbes, but the immune system also encounters harmless substances and the body\u0027s own molecules. Context helps shape the response."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Many antigens come from microbes, but the immune system also encounters harmless substances and the body\u0027s own molecules. Context helps shape the response.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "capillaries-extra-2": {
+      "id": "capillaries-extra-2",
+      "parentId": "capillaries",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Capillaries are the smallest blood vessels.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Capillaries are the smallest blood vessels.",
+          "correctAnswers": [
+            "Capillaries are the smallest blood vessels."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Capillaries are the smallest blood vessels.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Capillaries are the smallest blood vessels.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Capillaries are the smallest blood vessels.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Capillaries are the smallest blood vessels.",
+          "correctAnswers": [
+            "Capillaries are the smallest blood vessels."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Capillaries are the smallest blood vessels.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "capillaries-extra-3": {
+      "id": "capillaries-extra-3",
+      "parentId": "capillaries",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Their walls are very thin, often one cell layer, so oxygen, nutrients, and waste products can move between blood and nearby tissues over a short distance. Their enormous network reaches almost every active part of the body.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Their walls are very thin, often one cell layer, so oxygen, nutrients, and waste products can move between blood and nearby tissues over a short distance. Their enormous network reaches almost every active part of the body.",
+          "correctAnswers": [
+            "Their walls are very thin, often one cell layer, so oxygen, nutrients, and waste products can move between blood and nearby tissues over a short distance. Their enormous network reaches almost every active part of the body."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Their walls are very thin, often one cell layer, so oxygen, nutrients, and waste products can move between blood and nearby tissues over a short distance. Their enormous network reaches almost every active part of the body.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Their walls are very thin, often one cell layer, so oxygen, nutrients, and waste products can move between blood and nearby tissues over a short distance. Their enormous network reaches almost every active part of the body.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Their walls are very thin, often one cell layer, so oxygen, nutrients, and waste products can move between blood and nearby tissues over a short distance. Their enormous network reaches almost every active part of the body.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Their walls are very thin, often one cell layer, so oxygen, nutrients, and waste products can move between blood and nearby tissues over a short distance. Their enormous network reaches almost every active part of the body.",
+          "correctAnswers": [
+            "Their walls are very thin, often one cell layer, so oxygen, nutrients, and waste products can move between blood and nearby tissues over a short distance. Their enormous network reaches almost every active part of the body."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Their walls are very thin, often one cell layer, so oxygen, nutrients, and waste products can move between blood and nearby tissues over a short distance. Their enormous network reaches almost every active part of the body.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "hemoglobin-extra-2": {
+      "id": "hemoglobin-extra-2",
+      "parentId": "hemoglobin",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Hemoglobin contains iron-bearing heme groups that can bind oxygen reversibly.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Hemoglobin contains iron-bearing heme groups that can bind oxygen reversibly.",
+          "correctAnswers": [
+            "Hemoglobin contains iron-bearing heme groups that can bind oxygen reversibly."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Hemoglobin contains iron-bearing heme groups that can bind oxygen reversibly.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Hemoglobin contains iron-bearing heme groups that can bind oxygen reversibly.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Hemoglobin contains iron-bearing heme groups that can bind oxygen reversibly.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Hemoglobin contains iron-bearing heme groups that can bind oxygen reversibly.",
+          "correctAnswers": [
+            "Hemoglobin contains iron-bearing heme groups that can bind oxygen reversibly."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Hemoglobin contains iron-bearing heme groups that can bind oxygen reversibly.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "hemoglobin-extra-3": {
+      "id": "hemoglobin-extra-3",
+      "parentId": "hemoglobin",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "In the lungs, where oxygen is abundant, hemoglobin tends to pick it up. In tissues where oxygen is lower, it releases more, helping deliver oxygen where cells need it.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "In the lungs, where oxygen is abundant, hemoglobin tends to pick it up. In tissues where oxygen is lower, it releases more, helping deliver oxygen where cells need it.",
+          "correctAnswers": [
+            "In the lungs, where oxygen is abundant, hemoglobin tends to pick it up. In tissues where oxygen is lower, it releases more, helping deliver oxygen where cells need it."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "In the lungs, where oxygen is abundant, hemoglobin tends to pick it up. In tissues where oxygen is lower, it releases more, helping deliver oxygen where cells need it.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "In the lungs, where oxygen is abundant, hemoglobin tends to pick it up. In tissues where oxygen is lower, it releases more, helping deliver oxygen where cells need it.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: In the lungs, where oxygen is abundant, hemoglobin tends to pick it up. In tissues where oxygen is lower, it releases more, helping deliver oxygen where cells need it.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "In the lungs, where oxygen is abundant, hemoglobin tends to pick it up. In tissues where oxygen is lower, it releases more, helping deliver oxygen where cells need it.",
+          "correctAnswers": [
+            "In the lungs, where oxygen is abundant, hemoglobin tends to pick it up. In tissues where oxygen is lower, it releases more, helping deliver oxygen where cells need it."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "In the lungs, where oxygen is abundant, hemoglobin tends to pick it up. In tissues where oxygen is lower, it releases more, helping deliver oxygen where cells need it.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "red-cells-extra-2": {
+      "id": "red-cells-extra-2",
+      "parentId": "red-cells",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Most red blood cells are flexible, flattened discs with a dip on both sides.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Most red blood cells are flexible, flattened discs with a dip on both sides.",
+          "correctAnswers": [
+            "Most red blood cells are flexible, flattened discs with a dip on both sides."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Most red blood cells are flexible, flattened discs with a dip on both sides.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Most red blood cells are flexible, flattened discs with a dip on both sides.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Most red blood cells are flexible, flattened discs with a dip on both sides.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Most red blood cells are flexible, flattened discs with a dip on both sides.",
+          "correctAnswers": [
+            "Most red blood cells are flexible, flattened discs with a dip on both sides."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Most red blood cells are flexible, flattened discs with a dip on both sides.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "red-cells-extra-3": {
+      "id": "red-cells-extra-3",
+      "parentId": "red-cells",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "This shape gives them a large surface area for gas exchange and helps them squeeze through narrow capillaries. Mature human red blood cells lack a nucleus, leaving more room for hemoglobin.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "This shape gives them a large surface area for gas exchange and helps them squeeze through narrow capillaries. Mature human red blood cells lack a nucleus, leaving more room for hemoglobin.",
+          "correctAnswers": [
+            "This shape gives them a large surface area for gas exchange and helps them squeeze through narrow capillaries. Mature human red blood cells lack a nucleus, leaving more room for hemoglobin."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "This shape gives them a large surface area for gas exchange and helps them squeeze through narrow capillaries. Mature human red blood cells lack a nucleus, leaving more room for hemoglobin.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "This shape gives them a large surface area for gas exchange and helps them squeeze through narrow capillaries. Mature human red blood cells lack a nucleus, leaving more room for hemoglobin.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: This shape gives them a large surface area for gas exchange and helps them squeeze through narrow capillaries. Mature human red blood cells lack a nucleus, leaving more room for hemoglobin.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "This shape gives them a large surface area for gas exchange and helps them squeeze through narrow capillaries. Mature human red blood cells lack a nucleus, leaving more room for hemoglobin.",
+          "correctAnswers": [
+            "This shape gives them a large surface area for gas exchange and helps them squeeze through narrow capillaries. Mature human red blood cells lack a nucleus, leaving more room for hemoglobin."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "This shape gives them a large surface area for gas exchange and helps them squeeze through narrow capillaries. Mature human red blood cells lack a nucleus, leaving more room for hemoglobin.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "blood-vessels-extra-2": {
+      "id": "blood-vessels-extra-2",
+      "parentId": "blood-vessels",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Blood vessels can widen or narrow to help direct blood where it is needed.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Blood vessels can widen or narrow to help direct blood where it is needed.",
+          "correctAnswers": [
+            "Blood vessels can widen or narrow to help direct blood where it is needed."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Blood vessels can widen or narrow to help direct blood where it is needed.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Blood vessels can widen or narrow to help direct blood where it is needed.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Blood vessels can widen or narrow to help direct blood where it is needed.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Blood vessels can widen or narrow to help direct blood where it is needed.",
+          "correctAnswers": [
+            "Blood vessels can widen or narrow to help direct blood where it is needed."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Blood vessels can widen or narrow to help direct blood where it is needed.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "blood-vessels-extra-3": {
+      "id": "blood-vessels-extra-3",
+      "parentId": "blood-vessels",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "During exercise, vessels supplying working muscles widen, increasing blood flow. Other signals help maintain blood pressure so blood can still reach organs throughout the body.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "During exercise, vessels supplying working muscles widen, increasing blood flow. Other signals help maintain blood pressure so blood can still reach organs throughout the body.",
+          "correctAnswers": [
+            "During exercise, vessels supplying working muscles widen, increasing blood flow. Other signals help maintain blood pressure so blood can still reach organs throughout the body."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "During exercise, vessels supplying working muscles widen, increasing blood flow. Other signals help maintain blood pressure so blood can still reach organs throughout the body.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "During exercise, vessels supplying working muscles widen, increasing blood flow. Other signals help maintain blood pressure so blood can still reach organs throughout the body.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: During exercise, vessels supplying working muscles widen, increasing blood flow. Other signals help maintain blood pressure so blood can still reach organs throughout the body.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "During exercise, vessels supplying working muscles widen, increasing blood flow. Other signals help maintain blood pressure so blood can still reach organs throughout the body.",
+          "correctAnswers": [
+            "During exercise, vessels supplying working muscles widen, increasing blood flow. Other signals help maintain blood pressure so blood can still reach organs throughout the body."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "During exercise, vessels supplying working muscles widen, increasing blood flow. Other signals help maintain blood pressure so blood can still reach organs throughout the body.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "heart-recovery-extra-2": {
+      "id": "heart-recovery-extra-2",
+      "parentId": "heart-recovery",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "When a threat passes, parasympathetic nerves help restore a calmer state.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "When a threat passes, parasympathetic nerves help restore a calmer state.",
+          "correctAnswers": [
+            "When a threat passes, parasympathetic nerves help restore a calmer state."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "When a threat passes, parasympathetic nerves help restore a calmer state.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "When a threat passes, parasympathetic nerves help restore a calmer state.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: When a threat passes, parasympathetic nerves help restore a calmer state.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "When a threat passes, parasympathetic nerves help restore a calmer state.",
+          "correctAnswers": [
+            "When a threat passes, parasympathetic nerves help restore a calmer state."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "When a threat passes, parasympathetic nerves help restore a calmer state.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "heart-recovery-extra-3": {
+      "id": "heart-recovery-extra-3",
+      "parentId": "heart-recovery",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "The heart\u0027s rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "The heart\u0027s rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing.",
+          "correctAnswers": [
+            "The heart\u0027s rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "The heart\u0027s rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "The heart\u0027s rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: The heart\u0027s rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "The heart\u0027s rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing.",
+          "correctAnswers": [
+            "The heart\u0027s rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "The heart\u0027s rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "adrenaline-extra-2": {
+      "id": "adrenaline-extra-2",
+      "parentId": "adrenaline",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Adrenaline is released during some stressful situations.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Adrenaline is released during some stressful situations.",
+          "correctAnswers": [
+            "Adrenaline is released during some stressful situations."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Adrenaline is released during some stressful situations.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Adrenaline is released during some stressful situations.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Adrenaline is released during some stressful situations.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Adrenaline is released during some stressful situations.",
+          "correctAnswers": [
+            "Adrenaline is released during some stressful situations."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Adrenaline is released during some stressful situations.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "adrenaline-extra-3": {
+      "id": "adrenaline-extra-3",
+      "parentId": "adrenaline",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "It can increase heart rate, widen airways, and make stored energy more available. These short-term changes can help with action, although a stress response is not always useful when it stays switched on.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "It can increase heart rate, widen airways, and make stored energy more available. These short-term changes can help with action, although a stress response is not always useful when it stays switched on.",
+          "correctAnswers": [
+            "It can increase heart rate, widen airways, and make stored energy more available. These short-term changes can help with action, although a stress response is not always useful when it stays switched on."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "It can increase heart rate, widen airways, and make stored energy more available. These short-term changes can help with action, although a stress response is not always useful when it stays switched on.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "It can increase heart rate, widen airways, and make stored energy more available. These short-term changes can help with action, although a stress response is not always useful when it stays switched on.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: It can increase heart rate, widen airways, and make stored energy more available. These short-term changes can help with action, although a stress response is not always useful when it stays switched on.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "It can increase heart rate, widen airways, and make stored energy more available. These short-term changes can help with action, although a stress response is not always useful when it stays switched on.",
+          "correctAnswers": [
+            "It can increase heart rate, widen airways, and make stored energy more available. These short-term changes can help with action, although a stress response is not always useful when it stays switched on."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "It can increase heart rate, widen airways, and make stored energy more available. These short-term changes can help with action, although a stress response is not always useful when it stays switched on.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "heart-ecg-extra-2": {
+      "id": "heart-ecg-extra-2",
+      "parentId": "heart-ecg",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "An electrocardiogram records electrical changes at the skin using electrodes.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "An electrocardiogram records electrical changes at the skin using electrodes.",
+          "correctAnswers": [
+            "An electrocardiogram records electrical changes at the skin using electrodes."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "An electrocardiogram records electrical changes at the skin using electrodes.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "An electrocardiogram records electrical changes at the skin using electrodes.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: An electrocardiogram records electrical changes at the skin using electrodes.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "An electrocardiogram records electrical changes at the skin using electrodes.",
+          "correctAnswers": [
+            "An electrocardiogram records electrical changes at the skin using electrodes."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "An electrocardiogram records electrical changes at the skin using electrodes.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "heart-ecg-extra-3": {
+      "id": "heart-ecg-extra-3",
+      "parentId": "heart-ecg",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Its wave patterns help clinicians assess heart rate and rhythm and can provide clues about heart problems. An ECG is one piece of evidence; clinicians interpret it with symptoms and other tests.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Its wave patterns help clinicians assess heart rate and rhythm and can provide clues about heart problems. An ECG is one piece of evidence; clinicians interpret it with symptoms and other tests.",
+          "correctAnswers": [
+            "Its wave patterns help clinicians assess heart rate and rhythm and can provide clues about heart problems. An ECG is one piece of evidence; clinicians interpret it with symptoms and other tests."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Its wave patterns help clinicians assess heart rate and rhythm and can provide clues about heart problems. An ECG is one piece of evidence; clinicians interpret it with symptoms and other tests.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Its wave patterns help clinicians assess heart rate and rhythm and can provide clues about heart problems. An ECG is one piece of evidence; clinicians interpret it with symptoms and other tests.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Its wave patterns help clinicians assess heart rate and rhythm and can provide clues about heart problems. An ECG is one piece of evidence; clinicians interpret it with symptoms and other tests.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Its wave patterns help clinicians assess heart rate and rhythm and can provide clues about heart problems. An ECG is one piece of evidence; clinicians interpret it with symptoms and other tests.",
+          "correctAnswers": [
+            "Its wave patterns help clinicians assess heart rate and rhythm and can provide clues about heart problems. An ECG is one piece of evidence; clinicians interpret it with symptoms and other tests."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Its wave patterns help clinicians assess heart rate and rhythm and can provide clues about heart problems. An ECG is one piece of evidence; clinicians interpret it with symptoms and other tests.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "heartbeat-route-extra-2": {
+      "id": "heartbeat-route-extra-2",
+      "parentId": "heartbeat-route",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "The signal briefly slows at the atrioventricular node.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "The signal briefly slows at the atrioventricular node.",
+          "correctAnswers": [
+            "The signal briefly slows at the atrioventricular node."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "The signal briefly slows at the atrioventricular node.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "The signal briefly slows at the atrioventricular node.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: The signal briefly slows at the atrioventricular node.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "The signal briefly slows at the atrioventricular node.",
+          "correctAnswers": [
+            "The signal briefly slows at the atrioventricular node."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "The signal briefly slows at the atrioventricular node.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "heartbeat-route-extra-3": {
+      "id": "heartbeat-route-extra-3",
+      "parentId": "heartbeat-route",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "This pause lets the atria finish pushing blood into the ventricles before the ventricles contract. If the chambers squeezed at the same time, pumping would be less coordinated.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "This pause lets the atria finish pushing blood into the ventricles before the ventricles contract. If the chambers squeezed at the same time, pumping would be less coordinated.",
+          "correctAnswers": [
+            "This pause lets the atria finish pushing blood into the ventricles before the ventricles contract. If the chambers squeezed at the same time, pumping would be less coordinated."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "This pause lets the atria finish pushing blood into the ventricles before the ventricles contract. If the chambers squeezed at the same time, pumping would be less coordinated.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "This pause lets the atria finish pushing blood into the ventricles before the ventricles contract. If the chambers squeezed at the same time, pumping would be less coordinated.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: This pause lets the atria finish pushing blood into the ventricles before the ventricles contract. If the chambers squeezed at the same time, pumping would be less coordinated.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "This pause lets the atria finish pushing blood into the ventricles before the ventricles contract. If the chambers squeezed at the same time, pumping would be less coordinated.",
+          "correctAnswers": [
+            "This pause lets the atria finish pushing blood into the ventricles before the ventricles contract. If the chambers squeezed at the same time, pumping would be less coordinated."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "This pause lets the atria finish pushing blood into the ventricles before the ventricles contract. If the chambers squeezed at the same time, pumping would be less coordinated.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "pacemaker-extra-2": {
+      "id": "pacemaker-extra-2",
+      "parentId": "pacemaker",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "Pacemaker cells have ion channels that let charged particles move across their membranes.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "Pacemaker cells have ion channels that let charged particles move across their membranes.",
+          "correctAnswers": [
+            "Pacemaker cells have ion channels that let charged particles move across their membranes."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "Pacemaker cells have ion channels that let charged particles move across their membranes.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "Pacemaker cells have ion channels that let charged particles move across their membranes.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: Pacemaker cells have ion channels that let charged particles move across their membranes.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "Pacemaker cells have ion channels that let charged particles move across their membranes.",
+          "correctAnswers": [
+            "Pacemaker cells have ion channels that let charged particles move across their membranes."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "Pacemaker cells have ion channels that let charged particles move across their membranes.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "pacemaker-extra-3": {
+      "id": "pacemaker-extra-3",
+      "parentId": "pacemaker",
+      "question": "A closer look: What is the main point to remember?",
+      "content": "This gradually changes their electrical voltage until an impulse fires. The autonomic nerves can speed up or slow down this rhythm, but the heart has a built-in rhythm source.",
+      "level": 4,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "explanation": "This gradually changes their electrical voltage until an impulse fires. The autonomic nerves can speed up or slow down this rhythm, but the heart has a built-in rhythm source.",
+          "correctAnswers": [
+            "This gradually changes their electrical voltage until an impulse fires. The autonomic nerves can speed up or slow down this rhythm, but the heart has a built-in rhythm source."
+          ],
+          "prompt": "Which statement best explains the key idea?",
+          "type": "singleChoice",
+          "options": [
+            "This gradually changes their electrical voltage until an impulse fires. The autonomic nerves can speed up or slow down this rhythm, but the heart has a built-in rhythm source.",
+            "This process happens only outside the human body.",
+            "The body never responds to or regulates this process."
+          ]
+        },
+        {
+          "explanation": "This gradually changes their electrical voltage until an impulse fires. The autonomic nerves can speed up or slow down this rhythm, but the heart has a built-in rhythm source.",
+          "correctAnswers": [
+            "True"
+          ],
+          "prompt": "True or false: This gradually changes their electrical voltage until an impulse fires. The autonomic nerves can speed up or slow down this rhythm, but the heart has a built-in rhythm source.",
+          "type": "singleChoice",
+          "options": [
+            "True",
+            "False"
+          ]
+        },
+        {
+          "explanation": "This gradually changes their electrical voltage until an impulse fires. The autonomic nerves can speed up or slow down this rhythm, but the heart has a built-in rhythm source.",
+          "correctAnswers": [
+            "This gradually changes their electrical voltage until an impulse fires. The autonomic nerves can speed up or slow down this rhythm, but the heart has a built-in rhythm source."
+          ],
+          "prompt": "What is the main point to remember?",
+          "type": "singleChoice",
+          "options": [
+            "This gradually changes their electrical voltage until an impulse fires. The autonomic nerves can speed up or slow down this rhythm, but the heart has a built-in rhythm source.",
+            "The body never responds to or regulates this process.",
+            "This process happens only outside the human body."
+          ]
         }
       ],
       "extraLessons": []

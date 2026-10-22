@@ -346,28 +346,16 @@ class _AdminLearningAnalyticsSectionState
           ),
           const SizedBox(height: 16),
           _Panel(
-            title: 'Popular topics',
-            subtitle:
-                'All ${(_data['popularTopics'] as List<dynamic>? ?? const []).length} selectable topics, ranked by users who chose them from the tree. Each user counts once per topic.',
-            child: _topicList(
-              _data['popularTopics'] as List<dynamic>? ?? const [],
-              popular: true,
-            ),
-          ),
-          const SizedBox(height: 16),
-          _Panel(
-            title: 'Course completion rates',
-            subtitle:
-                'A course is complete when a user finishes all available lessons for that topic.',
-            child: _topicList(
+            title: 'Topic interest and completion',
+            subtitle: 'All topics in the 3 + 9 + 27 learning tree. Each user is counted once per topic.',
+            child: _topicProgressList(
               _data['topics'] as List<dynamic>? ?? const [],
-              popular: false,
             ),
           ),
           const Padding(
             padding: EdgeInsets.only(top: 10),
             child: Text(
-              'Completion and retention are based on completed lessons. Topic popularity is based on topic selections.',
+              'Interest means a user completed at least one lesson in the topic. Completion means they completed its final lesson.',
               style: TextStyle(color: _muted, fontSize: 12),
             ),
           ),
@@ -376,17 +364,24 @@ class _AdminLearningAnalyticsSectionState
     ),
   );
 
-  Widget _topicList(List<dynamic> values, {required bool popular}) {
+  Widget _topicProgressList(List<dynamic> values) {
     final topics = values.cast<Map<String, dynamic>>();
-    if (topics.isEmpty)
+    if (topics.isEmpty) {
       return const Text(
-        'No lesson activity yet.',
+        'No topics found.',
         style: TextStyle(color: _muted),
       );
+    }
     return Column(
       children: topics.map((topic) {
         final label = topic['title']?.toString() ?? topic['id'].toString();
-        final rate = (topic['completionRatePercent'] as num? ?? 0).toDouble();
+        final interested = topic['interestedUsers'] as int? ?? 0;
+        final completed = topic['lastLessonUsers'] as int? ?? 0;
+        final interestRate =
+            (topic['interestRatePercent'] as num? ?? 0).toDouble();
+        final completionRate =
+            (topic['completionRatePercent'] as num? ?? 0).toDouble();
+        final level = topic['level'] as int? ?? 1;
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 9),
           child: Column(
@@ -394,6 +389,7 @@ class _AdminLearningAnalyticsSectionState
             children: [
               Row(
                 children: [
+                  SizedBox(width: (level - 1) * 14),
                   Expanded(
                     child: Text(
                       label,
@@ -404,32 +400,30 @@ class _AdminLearningAnalyticsSectionState
                     ),
                   ),
                   Text(
-                    popular
-                        ? '${topic['usersSelected'] ?? 0} users chose this'
-                        : '${rate.toStringAsFixed(1)}%',
-                    style: const TextStyle(
-                      color: _muted,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    '${topic['lessonCount']} lessons',
+                    style: const TextStyle(color: _muted, fontSize: 12),
                   ),
                 ],
               ),
-              if (!popular) ...[
-                const SizedBox(height: 7),
+              const SizedBox(height: 4),
+              Text(
+                'Interest: $interested users completed at least one lesson (${interestRate.toStringAsFixed(1)}% of users)',
+                style: const TextStyle(color: _muted, fontSize: 12),
+              ),
+              Text(
+                'Completion: $completed users completed the last lesson (${completionRate.toStringAsFixed(1)}% of interested users)',
+                style: const TextStyle(color: _muted, fontSize: 12),
+              ),
+              if (interested > 0) ...[
+                const SizedBox(height: 6),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(6),
                   child: LinearProgressIndicator(
-                    value: rate / 100,
-                    minHeight: 7,
+                    value: (completionRate / 100).clamp(0, 1),
+                    minHeight: 6,
                     backgroundColor: const Color(0xFFF0F1F5),
                     color: _accent,
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${topic['usersCompleted']} of ${topic['usersActive']} learners completed all ${topic['lessonCount']} lessons',
-                  style: const TextStyle(color: _muted, fontSize: 11),
                 ),
               ],
               const Divider(height: 14),

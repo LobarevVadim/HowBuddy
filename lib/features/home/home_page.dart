@@ -191,7 +191,6 @@ class _HomePageState extends State<HomePage> {
       _selectedIndex = 0;
     });
     AuthApi().saveLastTopicId(topicId).catchError((_) {});
-    AuthApi().recordTopicSelection(topicId).catchError((_) {});
   }
 
   void _refreshNotepadProgress() {

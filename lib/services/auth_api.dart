@@ -35,15 +35,6 @@ class AuthApi {
     _readBody(response);
   }
 
-  Future<void> recordTopicSelection(String topicId) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/analytics/topic-selected'),
-      headers: ApiSession.authenticatedHeaders,
-      body: jsonEncode({'topicId': topicId}),
-    );
-    _readBody(response);
-  }
-
   Future<int> saveAvatarPalette(int paletteIndex) async {
     final response = await http.put(
       Uri.parse('$baseUrl/account/avatar-palette'),

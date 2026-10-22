@@ -170,58 +170,44 @@ app.get('/admin/users', requireAuth, requireAdmin, async (request, response) => 
 });
 
 app.get('/admin/learning-analytics', requireAuth, requireAdmin, async (_request, response) => {
-  const courses = Object.values(lessonContent.nodes).map((node) => ({
-    id: node.id,
-    title: node.question,
-    lesson_count: Number(node.lessonCount) || 1,
-  }));
+  const analyticsTopics = [];
+  const addTreeTopic = (topicId) => {
+    const node = lessonContent.nodes[topicId];
+    if (!node) return;
+    analyticsTopics.push({
+      id: node.id,
+      title: node.question,
+      level: Number(node.level) || 1,
+      lesson_count: Number(node.lessonCount) || 1,
+    });
+    for (const childId of node.children ?? []) addTreeTopic(childId);
+  };
+  for (const rootId of lessonContent.roots) addTreeTopic(rootId);
   try {
     const [topicsResult, retentionResult] = await Promise.all([
       pool.query(
-        `WITH courses AS (
+        `WITH topics AS (
            SELECT * FROM jsonb_to_recordset($1::jsonb)
-             AS course(id text, title text, lesson_count integer)
+             AS topic(id text, title text, level integer, lesson_count integer)
          ),
-         selections AS (
-           SELECT ts.topic_id, COUNT(*)::int AS users_selected
-           FROM topic_selections ts JOIN accounts a ON a.id = ts.account_id
-           WHERE a.auth_provider <> 'demo' GROUP BY ts.topic_id
-         ),
-         completions AS (
-           SELECT lp.topic_id, COUNT(*)::int AS lessons_completed
-           FROM lesson_progress lp JOIN accounts a ON a.id = lp.account_id
-           WHERE a.auth_provider <> 'demo' GROUP BY lp.topic_id
-         ),
-         user_activity AS (
-           SELECT lp.topic_id, lp.account_id, COUNT(*)::int AS lessons_completed
-           FROM lesson_progress lp JOIN accounts a ON a.id = lp.account_id
-           WHERE a.auth_provider <> 'demo' GROUP BY lp.topic_id, lp.account_id
-         ),
-         active_users AS (
-           SELECT lp.topic_id, lp.account_id FROM lesson_progress lp
-           JOIN accounts a ON a.id = lp.account_id WHERE a.auth_provider <> 'demo'
-         ),
-         course_rates AS (
-           SELECT c.id AS topic_id,
-                  COUNT(s.account_id)::int AS users_active,
-                  COUNT(s.account_id) FILTER (
-                    WHERE COALESCE(u.lessons_completed, 0) >= c.lesson_count
-                  )::int AS users_completed
-           FROM courses c
-           LEFT JOIN active_users s ON s.topic_id = c.id
-           LEFT JOIN user_activity u ON u.topic_id = c.id AND u.account_id = s.account_id
-           GROUP BY c.id, c.lesson_count
+         lesson_activity AS (
+           SELECT lp.topic_id,
+                  COUNT(DISTINCT lp.account_id)::int AS interested_users,
+                  COUNT(DISTINCT lp.account_id) FILTER (
+                    WHERE lp.lesson_id = 'lesson-' || topics.lesson_count::text
+                  )::int AS last_lesson_users
+           FROM lesson_progress lp
+           JOIN accounts a ON a.id = lp.account_id
+           JOIN topics ON topics.id = lp.topic_id
+           WHERE a.auth_provider <> 'demo'
+           GROUP BY lp.topic_id, topics.lesson_count
          )
-         SELECT c.id, c.title, c.lesson_count,
-                COALESCE(p.lessons_completed, 0)::int AS lessons_completed,
-                COALESCE(sel.users_selected, 0)::int AS users_selected,
-                COALESCE(r.users_active, 0)::int AS users_active,
-                COALESCE(r.users_completed, 0)::int AS users_completed
-         FROM courses c
-         LEFT JOIN completions p ON p.topic_id = c.id
-         LEFT JOIN selections sel ON sel.topic_id = c.id
-         LEFT JOIN course_rates r ON r.topic_id = c.id`,
-        [JSON.stringify(courses)],
+         SELECT topics.id, topics.title, topics.level, topics.lesson_count,
+                COALESCE(activity.interested_users, 0)::int AS interested_users,
+                COALESCE(activity.last_lesson_users, 0)::int AS last_lesson_users
+         FROM topics
+         LEFT JOIN lesson_activity activity ON activity.topic_id = topics.id`,
+        [JSON.stringify(analyticsTopics)],
       ),
       pool.query(`
         WITH cohort AS (
@@ -248,22 +234,14 @@ app.get('/admin/learning-analytics', requireAuth, requireAdmin, async (_request,
         FROM cohort CROSS JOIN offsets
         GROUP BY offsets.day_number ORDER BY offsets.day_number`),
     ]);
-    const topics = topicsResult.rows.map((row) => {
-      const usersActive = Number(row.users_active);
-      const usersCompleted = Number(row.users_completed);
-      return {
-        id: row.id,
-        title: row.title,
-        lessonCount: Number(row.lesson_count),
-        lessonsCompleted: Number(row.lessons_completed),
-        usersSelected: Number(row.users_selected),
-        usersActive,
-        usersCompleted,
-        completionRatePercent: usersActive
-          ? Math.round((usersCompleted / usersActive) * 1000) / 10
-          : 0,
-      };
-    });
+    const topics = topicsResult.rows.map((row) => ({
+      id: row.id,
+      title: row.title,
+      level: Number(row.level),
+      lessonCount: Number(row.lesson_count),
+      interestedUsers: Number(row.interested_users),
+      lastLessonUsers: Number(row.last_lesson_users),
+    }));
     const retention = retentionResult.rows.map((row) => ({
       day: Number(row.day_number),
       eligibleUsers: Number(row.eligible_users),
@@ -272,15 +250,26 @@ app.get('/admin/learning-analytics', requireAuth, requireAdmin, async (_request,
         ? Math.round((Number(row.retained_users) / Number(row.eligible_users)) * 1000) / 10
         : 0,
     }));
-    const totals = topics.reduce((sum, topic) => ({
-      lessonsCompleted: sum.lessonsCompleted + topic.lessonsCompleted,
-    }), {lessonsCompleted: 0});
-    const popularTopics = [...topics]
-      .sort((a, b) => b.usersSelected - a.usersSelected || a.title.localeCompare(b.title));
+    const totals = await pool.query(
+      `SELECT COUNT(DISTINCT a.id)::int AS users,
+              COUNT(lp.lesson_id)::int AS lessons_completed
+       FROM accounts a
+       LEFT JOIN lesson_progress lp ON lp.account_id = a.id
+       WHERE a.auth_provider <> 'demo'`,
+    );
+    const totalUsers = Number(totals.rows[0].users);
+    const topicsWithRates = topics.map((topic) => ({
+      ...topic,
+      interestRatePercent: totalUsers
+        ? Math.round((topic.interestedUsers / totalUsers) * 1000) / 10
+        : 0,
+      completionRatePercent: topic.interestedUsers
+        ? Math.round((topic.lastLessonUsers / topic.interestedUsers) * 1000) / 10
+        : 0,
+    }));
     return response.json({
-      ...totals,
-      topics,
-      popularTopics,
+      lessonsCompleted: Number(totals.rows[0].lessons_completed),
+      topics: topicsWithRates,
       retention,
     });
   } catch (error) {
@@ -645,25 +634,6 @@ app.put('/account/last-topic', requireAuth, async (request, response) => {
   } catch (error) {
     console.error(error);
     return response.status(500).json({message: 'Could not save your last lesson topic.'});
-  }
-});
-
-app.post('/analytics/topic-selected', requireAuth, async (request, response) => {
-  const topicId = String(request.body.topicId ?? '').trim();
-  if (!findTopic(topicId)) {
-    return response.status(400).json({message: 'This lesson topic was not found.'});
-  }
-  try {
-    await pool.query(
-      `INSERT INTO topic_selections (account_id, topic_id)
-       VALUES ($1, $2) ON CONFLICT (account_id, topic_id) DO NOTHING`,
-      [request.accountId, topicId],
-    );
-    await pool.query('UPDATE accounts SET last_active_at = now() WHERE id = $1', [request.accountId]);
-    return response.json({ok: true});
-  } catch (error) {
-    console.error('Could not record topic selection:', error.message);
-    return response.status(500).json({message: 'Could not record this topic selection.'});
   }
 });
 
