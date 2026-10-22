@@ -79,11 +79,218 @@ app.post('/webhooks/resend', express.raw({type: 'application/json', limit: '2mb'
     return response.status(500).json({message: 'Could not process inbound email.'});
   }
 });
-app.use(express.json());
+const standardJsonParser = express.json({limit: '1mb'});
+app.use((request, response, next) => {
+  if (request.method === 'POST' && /^\/admin\/conversations\/[^/]+\/reply\/?$/.test(request.path)) {
+    return next();
+  }
+  return standardJsonParser(request, response, next);
+});
 
 app.get('/admin/session', requireAuth, requireAdmin, async (request, response) => {
   const result = await pool.query('SELECT full_name, email FROM accounts WHERE id = $1', [request.accountId]);
   return response.json({account: result.rows[0] ?? null, inboxes: SUPPORT_INBOXES});
+});
+
+app.get('/admin/overview', requireAuth, requireAdmin, async (_request, response) => {
+  try {
+    const result = await pool.query(`
+      WITH people AS (
+        SELECT a.created_at, a.last_active_at,
+               COALESCE(NULLIF(s.time_zone, ''), 'UTC') AS time_zone
+        FROM accounts a
+        LEFT JOIN account_notification_settings s ON s.account_id = a.id
+        WHERE a.auth_provider <> 'demo'
+      )
+      SELECT COUNT(*)::int AS total_users,
+             COUNT(*) FILTER (WHERE created_at >= now() - interval '7 days')::int AS new_users_7d,
+             COUNT(*) FILTER (WHERE created_at >= now() - interval '30 days')::int AS new_users_30d,
+             COUNT(*) FILTER (
+               WHERE last_active_at >= (
+                 date_trunc('day', now() AT TIME ZONE time_zone) AT TIME ZONE time_zone
+               )
+             )::int AS dau,
+             COUNT(*) FILTER (
+               WHERE last_active_at >= (
+                 ((now() AT TIME ZONE time_zone)::date - 29)::timestamp AT TIME ZONE time_zone
+               )
+             )::int AS mau
+      FROM people`);
+    const row = result.rows[0];
+    const dau = Number(row.dau);
+    const mau = Number(row.mau);
+    return response.json({
+      totalUsers: Number(row.total_users),
+      newUsers7d: Number(row.new_users_7d),
+      newUsers30d: Number(row.new_users_30d),
+      dau,
+      mau,
+      dauMauPercent: mau ? Math.round((dau / mau) * 1000) / 10 : 0,
+    });
+  } catch (error) {
+    console.error('Could not load admin overview:', error.message);
+    return response.status(500).json({message: 'Could not load user overview.'});
+  }
+});
+
+app.get('/admin/users', requireAuth, requireAdmin, async (request, response) => {
+  const search = String(request.query.search ?? '').trim().slice(0, 200);
+  const limit = Math.max(1, Math.min(100, Number.parseInt(request.query.limit, 10) || 25));
+  const offset = Math.max(0, Number.parseInt(request.query.offset, 10) || 0);
+  try {
+    const result = await pool.query(
+      `WITH filtered AS (
+         SELECT id, full_name, email, created_at, last_active_at
+         FROM accounts
+         WHERE auth_provider <> 'demo'
+           AND ($1 = '' OR full_name ILIKE $2 OR email ILIKE $2)
+       )
+       SELECT *, COUNT(*) OVER()::int AS total_count
+       FROM filtered
+       ORDER BY last_active_at DESC NULLS LAST, created_at DESC
+       LIMIT $3 OFFSET $4`,
+      [search, `%${search}%`, limit, offset],
+    );
+    return response.json({
+      users: result.rows.map((row) => ({
+        id: row.id,
+        fullName: row.full_name,
+        email: row.email,
+        createdAt: row.created_at,
+        lastActiveAt: row.last_active_at,
+      })),
+      total: result.rows.length ? Number(result.rows[0].total_count) : 0,
+      limit,
+      offset,
+    });
+  } catch (error) {
+    console.error('Could not search admin users:', error.message);
+    return response.status(500).json({message: 'Could not load users.'});
+  }
+});
+
+app.get('/admin/learning-analytics', requireAuth, requireAdmin, async (_request, response) => {
+  const courses = Object.values(lessonContent.nodes).map((node) => ({
+    id: node.id,
+    title: node.question,
+    lesson_count: Number(node.lessonCount) || 1,
+  }));
+  try {
+    const [topicsResult, retentionResult] = await Promise.all([
+      pool.query(
+        `WITH courses AS (
+           SELECT * FROM jsonb_to_recordset($1::jsonb)
+             AS course(id text, title text, lesson_count integer)
+         ),
+         starts AS (
+           SELECT ls.topic_id, COUNT(*)::int AS lessons_started
+           FROM lesson_starts ls JOIN accounts a ON a.id = ls.account_id
+           WHERE a.auth_provider <> 'demo' GROUP BY ls.topic_id
+         ),
+         completions AS (
+           SELECT lp.topic_id, COUNT(*)::int AS lessons_completed
+           FROM lesson_progress lp JOIN accounts a ON a.id = lp.account_id
+           WHERE a.auth_provider <> 'demo' GROUP BY lp.topic_id
+         ),
+         user_activity AS (
+           SELECT lp.topic_id, lp.account_id, COUNT(*)::int AS lessons_completed
+           FROM lesson_progress lp JOIN accounts a ON a.id = lp.account_id
+           WHERE a.auth_provider <> 'demo' GROUP BY lp.topic_id, lp.account_id
+         ),
+         started_users AS (
+           SELECT ls.topic_id, ls.account_id FROM lesson_starts ls
+           JOIN accounts a ON a.id = ls.account_id WHERE a.auth_provider <> 'demo'
+           UNION
+           SELECT lp.topic_id, lp.account_id FROM lesson_progress lp
+           JOIN accounts a ON a.id = lp.account_id WHERE a.auth_provider <> 'demo'
+         ),
+         course_rates AS (
+           SELECT c.id AS topic_id,
+                  COUNT(s.account_id)::int AS users_started,
+                  COUNT(s.account_id) FILTER (
+                    WHERE COALESCE(u.lessons_completed, 0) >= c.lesson_count
+                  )::int AS users_completed
+           FROM courses c
+           LEFT JOIN started_users s ON s.topic_id = c.id
+           LEFT JOIN user_activity u ON u.topic_id = c.id AND u.account_id = s.account_id
+           GROUP BY c.id, c.lesson_count
+         )
+         SELECT c.id, c.title, c.lesson_count,
+                COALESCE(s.lessons_started, 0)::int AS lessons_started,
+                COALESCE(p.lessons_completed, 0)::int AS lessons_completed,
+                COALESCE(r.users_started, 0)::int AS users_started,
+                COALESCE(r.users_completed, 0)::int AS users_completed
+         FROM courses c
+         LEFT JOIN starts s ON s.topic_id = c.id
+         LEFT JOIN completions p ON p.topic_id = c.id
+         LEFT JOIN course_rates r ON r.topic_id = c.id`,
+        [JSON.stringify(courses)],
+      ),
+      pool.query(`
+        WITH cohort AS (
+          SELECT a.id,
+                 (a.created_at AT TIME ZONE COALESCE(NULLIF(s.time_zone, ''), 'UTC'))::date AS registration_day
+          FROM accounts a
+          LEFT JOIN account_notification_settings s ON s.account_id = a.id
+          WHERE a.auth_provider <> 'demo'
+        ),
+        offsets(day_number) AS (VALUES (1), (7), (30))
+        SELECT offsets.day_number,
+               COUNT(*) FILTER (
+                 WHERE cohort.registration_day <= CURRENT_DATE - offsets.day_number
+               )::int AS eligible_users,
+               COUNT(*) FILTER (
+                 WHERE cohort.registration_day <= CURRENT_DATE - offsets.day_number
+                   AND EXISTS (
+                     SELECT 1 FROM study_days activity
+                     WHERE activity.account_id = cohort.id
+                       AND activity.study_date = cohort.registration_day + offsets.day_number
+                   )
+               )::int AS retained_users
+        FROM cohort CROSS JOIN offsets
+        GROUP BY offsets.day_number ORDER BY offsets.day_number`),
+    ]);
+    const topics = topicsResult.rows.map((row) => {
+      const usersStarted = Number(row.users_started);
+      const usersCompleted = Number(row.users_completed);
+      return {
+        id: row.id,
+        title: row.title,
+        lessonCount: Number(row.lesson_count),
+        lessonsStarted: Number(row.lessons_started),
+        lessonsCompleted: Number(row.lessons_completed),
+        usersStarted,
+        usersCompleted,
+        completionRatePercent: usersStarted
+          ? Math.round((usersCompleted / usersStarted) * 1000) / 10
+          : 0,
+      };
+    });
+    const retention = retentionResult.rows.map((row) => ({
+      day: Number(row.day_number),
+      eligibleUsers: Number(row.eligible_users),
+      retainedUsers: Number(row.retained_users),
+      ratePercent: Number(row.eligible_users)
+        ? Math.round((Number(row.retained_users) / Number(row.eligible_users)) * 1000) / 10
+        : 0,
+    }));
+    const totals = topics.reduce((sum, topic) => ({
+      lessonsStarted: sum.lessonsStarted + topic.lessonsStarted,
+      lessonsCompleted: sum.lessonsCompleted + topic.lessonsCompleted,
+    }), {lessonsStarted: 0, lessonsCompleted: 0});
+    const popularTopics = [...topics]
+      .sort((a, b) => (b.lessonsStarted + b.lessonsCompleted) - (a.lessonsStarted + a.lessonsCompleted))
+      .slice(0, 10);
+    return response.json({
+      ...totals,
+      topics,
+      popularTopics,
+      retention,
+    });
+  } catch (error) {
+    console.error('Could not load learning analytics:', error.message);
+    return response.status(500).json({message: 'Could not load learning analytics.'});
+  }
 });
 
 app.get('/admin/conversations', requireAuth, requireAdmin, async (request, response) => {
@@ -119,12 +326,14 @@ app.post('/admin/conversations/:id/read', requireAuth, requireAdmin, async (requ
   }
 });
 
-app.post('/admin/conversations/:id/reply', requireAuth, requireAdmin, async (request, response) => {
+app.post('/admin/conversations/:id/reply', requireAuth, requireAdmin, express.json({limit: '36mb'}), async (request, response) => {
   try {
-    return response.json(await supportInbox.reply(request.params.id, request.body.text));
+    return response.json(await supportInbox.reply(
+      request.params.id, request.body.text, request.body.attachments,
+    ));
   } catch (error) {
     const status = error.message === 'Conversation not found.' ? 404
-      : /Write a reply|Invalid support inbox/.test(error.message) ? 400 : 502;
+      : /Write a reply|Invalid support inbox|[Aa]ttach/.test(error.message) ? 400 : 502;
     return response.status(status).json({message: error.message || 'Could not send reply.'});
   }
 });
@@ -165,9 +374,19 @@ app.get('/gamification', requireAuth, async (request, response) => {
 
 app.post('/gamification/lesson-start', requireAuth, async (request, response) => {
   const accountId = request.accountId;
+  const topicId = String(request.body.topicId ?? '').trim();
+  const lessonId = String(request.body.lessonId ?? '').trim();
+  const hasLessonIdentity = topicId.length > 0 || lessonId.length > 0;
+  const topic = topicId ? findTopic(topicId) : null;
+  const lessonNumber = Number(lessonId.replace('lesson-', ''));
+  if (hasLessonIdentity && (!topic || !Number.isInteger(lessonNumber) ||
+      lessonNumber < 1 || lessonNumber > topic.lessonCount)) {
+    return response.status(400).json({message: 'This lesson is not available.'});
+  }
   try {
     await ensureGameRow(accountId);
     await refreshHearts(accountId);
+    await pool.query('UPDATE accounts SET last_active_at = now() WHERE id = $1', [accountId]);
     const result = await pool.query(
       `UPDATE account_gamification
        SET hearts = hearts - 1,
@@ -178,6 +397,13 @@ app.post('/gamification/lesson-start', requireAuth, async (request, response) =>
        WHERE account_id = $1 AND hearts > 0 RETURNING hearts`,
       [accountId],
     );
+    if (result.rowCount === 1 && topic && lessonId) {
+      await pool.query(
+        `INSERT INTO lesson_starts (account_id, topic_id, lesson_id)
+         VALUES ($1, $2, $3) ON CONFLICT (account_id, topic_id, lesson_id) DO NOTHING`,
+        [accountId, topic.id, lessonId],
+      );
+    }
     return response.json({
       lessonAllowed: result.rowCount === 1,
       ...await getGameState(accountId, clientStudyDate(request)),
@@ -265,8 +491,8 @@ app.post('/auth/register', async (request, response) => {
 
   try {
     const result = await pool.query(
-      `INSERT INTO accounts (full_name, email, password_hash, auth_provider)
-       VALUES ($1, $2, $3, 'password')
+      `INSERT INTO accounts (full_name, email, password_hash, auth_provider, last_active_at)
+       VALUES ($1, $2, $3, 'password', now())
        RETURNING id, full_name, email, avatar_palette_index, glasses_accessory_index,
                  avatar_emoji,
                  preferred_language, age_years`,
@@ -382,6 +608,7 @@ app.post('/auth/google', async (request, response) => {
       }
     }
 
+    await pool.query('UPDATE accounts SET last_active_at = now() WHERE id = $1', [account.id]);
     return response.status(isNewUser ? 201 : 200).json({
       account: toAccount(account),
       sessionToken: issueSession(account.id),
@@ -751,6 +978,7 @@ app.post('/lessons/complete', requireAuth, async (request, response) => {
       'SELECT COALESCE(SUM(xp), 0)::int AS total_xp FROM lesson_xp WHERE account_id = $1',
       [accountId],
     );
+    await pool.query('UPDATE accounts SET last_active_at = now() WHERE id = $1', [accountId]);
     return response.json({
       ok: true,
       topicCompleted,
@@ -882,6 +1110,7 @@ app.post('/auth/login', async (request, response) => {
     return response.status(401).json({message: 'Invalid email, username, or password.'});
   }
 
+  await pool.query('UPDATE accounts SET last_active_at = now() WHERE id = $1', [account.id]);
   return response.json({
     account: toAccount(account),
     sessionToken: issueSession(account.id),

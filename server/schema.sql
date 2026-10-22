@@ -31,6 +31,7 @@ EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
 ALTER TABLE accounts ADD COLUMN IF NOT EXISTS last_topic_id TEXT;
+ALTER TABLE accounts ADD COLUMN IF NOT EXISTS last_active_at TIMESTAMPTZ;
 ALTER TABLE accounts
   ADD COLUMN IF NOT EXISTS avatar_palette_index INTEGER NOT NULL DEFAULT 0
   CHECK (avatar_palette_index BETWEEN 0 AND 20);
@@ -99,6 +100,37 @@ CREATE TABLE IF NOT EXISTS study_days (
   PRIMARY KEY (account_id, study_date)
 );
 
+-- Preserve existing activity using the records already collected by HowBuddy.
+WITH activity AS (
+  SELECT account_id, MAX(active_at) AS last_active_at
+  FROM (
+    SELECT account_id, completed_at AS active_at FROM lesson_progress
+    UNION ALL
+    SELECT account_id, last_seen_at AS active_at FROM notification_devices
+    UNION ALL
+    SELECT account_id, study_date::timestamp AT TIME ZONE 'UTC' AS active_at
+    FROM study_days WHERE study_date <= CURRENT_DATE
+  ) AS existing_activity
+  GROUP BY account_id
+)
+UPDATE accounts AS account
+SET last_active_at = COALESCE(activity.last_active_at, account.created_at)
+FROM activity
+WHERE account.id = activity.account_id AND account.last_active_at IS NULL;
+
+UPDATE accounts
+SET last_active_at = created_at
+WHERE last_active_at IS NULL;
+
+CREATE TABLE IF NOT EXISTS lesson_starts (
+  account_id UUID NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+  topic_id TEXT NOT NULL,
+  lesson_id TEXT NOT NULL,
+  started_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (account_id, topic_id, lesson_id)
+);
+CREATE INDEX IF NOT EXISTS lesson_starts_topic_idx ON lesson_starts(topic_id, started_at DESC);
+
 CREATE TABLE IF NOT EXISTS account_gamification (
   account_id UUID PRIMARY KEY REFERENCES accounts(id) ON DELETE CASCADE,
   hearts INTEGER NOT NULL DEFAULT 5 CHECK (hearts BETWEEN 0 AND 5),
@@ -139,6 +171,7 @@ CREATE TABLE IF NOT EXISTS support_messages (
   subject TEXT NOT NULL DEFAULT '',
   text_body TEXT NOT NULL DEFAULT '',
   html_body TEXT NOT NULL DEFAULT '',
+  sent_attachments JSONB NOT NULL DEFAULT '[]'::jsonb,
   provider_email_id TEXT UNIQUE,
   message_id TEXT,
   in_reply_to TEXT,
@@ -153,6 +186,7 @@ ALTER TABLE support_messages ADD COLUMN IF NOT EXISTS reply_to_emails TEXT[] NOT
 ALTER TABLE support_messages ADD COLUMN IF NOT EXISTS received_for TEXT[] NOT NULL DEFAULT '{}';
 ALTER TABLE support_messages ADD COLUMN IF NOT EXISTS email_headers JSONB NOT NULL DEFAULT '{}'::jsonb;
 ALTER TABLE support_messages ADD COLUMN IF NOT EXISTS forwarded_at TIMESTAMPTZ;
+ALTER TABLE support_messages ADD COLUMN IF NOT EXISTS sent_attachments JSONB NOT NULL DEFAULT '[]'::jsonb;
 CREATE INDEX IF NOT EXISTS support_messages_conversation_idx ON support_messages(conversation_id, received_at);
 CREATE INDEX IF NOT EXISTS support_messages_message_id_idx ON support_messages(message_id);
 CREATE TABLE IF NOT EXISTS support_attachments (

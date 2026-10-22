@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
 
 import '../auth/google_auth_button.dart';
@@ -9,6 +11,7 @@ import '../../services/api_session.dart';
 import '../../services/auth_api.dart';
 import '../../models/app_models.dart';
 import 'support_download.dart';
+import 'admin_analytics_sections.dart';
 
 class AdminPage extends StatefulWidget {
   const AdminPage({super.key});
@@ -24,6 +27,7 @@ class _AdminPageState extends State<AdminPage> {
   final _search = TextEditingController();
   bool _loading = false;
   bool _authorized = false;
+  int _section = 0;
   String? _error;
   String _inbox = '';
   List<String> _inboxes = const [];
@@ -31,6 +35,7 @@ class _AdminPageState extends State<AdminPage> {
   Map<String, dynamic>? _active;
   final Set<String> _plainTextMessageIds = {};
   final _reply = TextEditingController();
+  final List<_ReplyAttachment> _replyAttachments = [];
 
   @override
   void dispose() {
@@ -160,7 +165,10 @@ class _AdminPageState extends State<AdminPage> {
 
   Future<void> _sendReply() async {
     final current = _active;
-    if (current == null || _reply.text.trim().isEmpty) return;
+    if (current == null ||
+        (_reply.text.trim().isEmpty && _replyAttachments.isEmpty)) {
+      return;
+    }
     setState(() {
       _loading = true;
       _error = null;
@@ -169,9 +177,21 @@ class _AdminPageState extends State<AdminPage> {
       await _api(
         '/admin/conversations/${current['id']}/reply',
         method: 'POST',
-        data: {'text': _reply.text},
+        data: {
+          'text': _reply.text,
+          'attachments': _replyAttachments
+              .map(
+                (attachment) => {
+                  'filename': attachment.name,
+                  'contentType': attachment.contentType,
+                  'content': base64Encode(attachment.bytes),
+                },
+              )
+              .toList(),
+        },
       );
       _reply.clear();
+      _replyAttachments.clear();
       await _selectConversation(current);
       await _loadConversations();
     } catch (error) {
@@ -179,6 +199,69 @@ class _AdminPageState extends State<AdminPage> {
     } finally {
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  Future<void> _pickReplyAttachments() async {
+    try {
+      final files = await FilePicker.pickFiles();
+      if (files.isEmpty) return;
+      if (_replyAttachments.length + files.length > 10) {
+        throw Exception('Attach up to 10 files per reply.');
+      }
+      var totalBytes = _replyAttachments.fold<int>(
+        0,
+        (sum, item) => sum + item.bytes.lengthInBytes,
+      );
+      final added = <_ReplyAttachment>[];
+      for (final file in files) {
+        final size = file.lengthSync() ?? await file.length() ?? 0;
+        if (totalBytes + size > 25 * 1024 * 1024) {
+          throw Exception('Attachments must total 25 MB or less.');
+        }
+        final bytes = await file.readAsBytes();
+        if (totalBytes + bytes.lengthInBytes > 25 * 1024 * 1024) {
+          throw Exception('Attachments must total 25 MB or less.');
+        }
+        totalBytes += bytes.lengthInBytes;
+        added.add(
+          _ReplyAttachment(
+            name: file.name,
+            bytes: bytes,
+            contentType: _contentType(file.name),
+          ),
+        );
+      }
+      if (mounted) setState(() => _replyAttachments.addAll(added));
+    } catch (error) {
+      if (mounted) {
+        setState(
+          () => _error = error.toString().replaceFirst('Exception: ', ''),
+        );
+      }
+    }
+  }
+
+  String _contentType(String filename) {
+    final extension = filename.split('.').last.toLowerCase();
+    return const {
+          'pdf': 'application/pdf',
+          'txt': 'text/plain',
+          'csv': 'text/csv',
+          'json': 'application/json',
+          'png': 'image/png',
+          'jpg': 'image/jpeg',
+          'jpeg': 'image/jpeg',
+          'gif': 'image/gif',
+          'webp': 'image/webp',
+          'doc': 'application/msword',
+          'docx':
+              'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          'xls': 'application/vnd.ms-excel',
+          'xlsx':
+              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          'zip': 'application/zip',
+        }[extension] ??
+        'application/octet-stream';
   }
 
   @override
@@ -190,30 +273,42 @@ class _AdminPageState extends State<AdminPage> {
         child: Column(
           children: [
             _header(),
+            _sectionNavigation(),
             if (_error != null) _errorBanner(),
-            Expanded(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final narrow = constraints.maxWidth < 800;
-                  if (narrow && _active != null) return _conversationPane();
-                  return Row(
-                    children: [
-                      SizedBox(
-                        width: narrow ? constraints.maxWidth : 350,
-                        child: _listPane(),
-                      ),
-                      if (!narrow) const VerticalDivider(width: 1),
-                      if (!narrow)
-                        Expanded(
-                          child: _active == null
-                              ? _emptyPane()
-                              : _conversationPane(),
+            if (_section == 0)
+              Expanded(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final narrow = constraints.maxWidth < 800;
+                    if (narrow && _active != null) return _conversationPane();
+                    return Row(
+                      children: [
+                        SizedBox(
+                          width: narrow ? constraints.maxWidth : 350,
+                          child: _listPane(),
                         ),
-                    ],
-                  );
-                },
+                        if (!narrow) const VerticalDivider(width: 1),
+                        if (!narrow)
+                          Expanded(
+                            child: _active == null
+                                ? _emptyPane()
+                                : _conversationPane(),
+                          ),
+                      ],
+                    );
+                  },
+                ),
+              )
+            else if (_section == 1)
+              Expanded(
+                child: AdminUsersSection(onRequest: (path) => _api(path)),
+              )
+            else
+              Expanded(
+                child: AdminLearningAnalyticsSection(
+                  onRequest: (path) => _api(path),
+                ),
               ),
-            ),
           ],
         ),
       ),
@@ -335,7 +430,7 @@ class _AdminPageState extends State<AdminPage> {
               style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
             ),
             Text(
-              'SUPPORT DESK',
+              'ADMIN CONSOLE',
               style: TextStyle(
                 fontSize: 10,
                 letterSpacing: 1.2,
@@ -345,11 +440,12 @@ class _AdminPageState extends State<AdminPage> {
           ],
         ),
         const Spacer(),
-        IconButton(
-          tooltip: 'Refresh',
-          onPressed: _loadConversations,
-          icon: const Icon(Icons.refresh_rounded),
-        ),
+        if (_section == 0)
+          IconButton(
+            tooltip: 'Refresh inbox',
+            onPressed: _loadConversations,
+            icon: const Icon(Icons.refresh_rounded),
+          ),
         IconButton(
           tooltip: 'Sign out',
           onPressed: () {
@@ -364,6 +460,39 @@ class _AdminPageState extends State<AdminPage> {
       ],
     ),
   );
+
+  Widget _sectionNavigation() => Container(
+    color: Colors.white,
+    padding: const EdgeInsets.fromLTRB(18, 4, 18, 10),
+    child: Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        _sectionButton(0, Icons.inbox_outlined, 'Inbox'),
+        _sectionButton(1, Icons.people_outline_rounded, 'Users'),
+        _sectionButton(2, Icons.insights_rounded, 'Learning analytics'),
+      ],
+    ),
+  );
+
+  Widget _sectionButton(int section, IconData icon, String label) {
+    final selected = _section == section;
+    return TextButton.icon(
+      onPressed: () => setState(() => _section = section),
+      icon: Icon(icon, size: 18),
+      label: Text(label),
+      style: TextButton.styleFrom(
+        foregroundColor: selected
+            ? const Color(0xFF7056D8)
+            : const Color(0xFF697386),
+        backgroundColor: selected
+            ? const Color(0xFFF2F0FF)
+            : Colors.transparent,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
 
   Widget _listPane() => Container(
     color: Colors.white,
@@ -561,6 +690,7 @@ class _AdminPageState extends State<AdminPage> {
               const SizedBox(height: 10),
               TextField(
                 controller: _reply,
+                onChanged: (_) => setState(() {}),
                 minLines: 3,
                 maxLines: 8,
                 maxLength: 50000,
@@ -571,13 +701,51 @@ class _AdminPageState extends State<AdminPage> {
                   ),
                 ),
               ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: FilledButton.icon(
-                  onPressed: _loading ? null : _sendReply,
-                  icon: const Icon(Icons.send_rounded),
-                  label: const Text('Send reply'),
+              if (_replyAttachments.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: _replyAttachments
+                      .asMap()
+                      .entries
+                      .map(
+                        (entry) => InputChip(
+                          avatar: const Icon(Icons.attach_file, size: 16),
+                          label: Text(
+                            '${entry.value.name} (${_size(entry.value.bytes.lengthInBytes)})',
+                          ),
+                          onDeleted: _loading
+                              ? null
+                              : () => setState(
+                                  () => _replyAttachments.removeAt(entry.key),
+                                ),
+                        ),
+                      )
+                      .toList(),
                 ),
+              ],
+              Row(
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: _loading || _replyAttachments.length >= 10
+                        ? null
+                        : _pickReplyAttachments,
+                    icon: const Icon(Icons.attach_file_rounded),
+                    label: const Text('Attach files'),
+                  ),
+                  const Spacer(),
+                  FilledButton.icon(
+                    onPressed:
+                        _loading ||
+                            (_reply.text.trim().isEmpty &&
+                                _replyAttachments.isEmpty)
+                        ? null
+                        : _sendReply,
+                    icon: const Icon(Icons.send_rounded),
+                    label: const Text('Send reply'),
+                  ),
+                ],
               ),
             ],
           ),
@@ -621,41 +789,59 @@ class _AdminPageState extends State<AdminPage> {
                     Expanded(
                       child: Text(
                         [
-                          if ((message['senderName']?.toString() ?? '').isNotEmpty)
+                          if ((message['senderName']?.toString() ?? '')
+                              .isNotEmpty)
                             message['senderName'].toString(),
                           message['senderEmail']?.toString() ?? '',
                         ].where((value) => value.isNotEmpty).join(' · '),
                         style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                     ),
-                    Text(_date(message['receivedAt']), style: const TextStyle(
-                      fontSize: 12, color: Color(0xFF788091),
-                    )),
+                    Text(
+                      _date(message['receivedAt']),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF788091),
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 12),
-                _messageDetailLine('To', message['recipientEmail']?.toString() ?? ''),
+                _messageDetailLine(
+                  'To',
+                  message['recipientEmail']?.toString() ?? '',
+                ),
                 if (cc.isNotEmpty) _messageDetailLine('Cc', cc),
                 if (bcc.isNotEmpty) _messageDetailLine('Bcc', bcc),
                 if (replyTo.isNotEmpty) _messageDetailLine('Reply-to', replyTo),
-                if (receivedFor.isNotEmpty) _messageDetailLine('Delivered to', receivedFor),
+                if (receivedFor.isNotEmpty)
+                  _messageDetailLine('Delivered to', receivedFor),
                 if ((message['subject']?.toString() ?? '').isNotEmpty)
                   _messageDetailLine('Subject', message['subject'].toString()),
                 if (inbound && message['forwardedAt'] != null) ...[
                   const SizedBox(height: 7),
-                  const Text('Forwarded to vlobarev823@gmail.com', style: TextStyle(
-                    fontSize: 12, color: Color(0xFF32855A),
-                  )),
+                  const Text(
+                    'Forwarded to vlobarev823@gmail.com',
+                    style: TextStyle(fontSize: 12, color: Color(0xFF32855A)),
+                  ),
                 ],
                 if (inbound && headers.isNotEmpty)
                   ExpansionTile(
                     tilePadding: EdgeInsets.zero,
                     childrenPadding: const EdgeInsets.only(bottom: 8),
                     dense: true,
-                    title: const Text('Message headers', style: TextStyle(fontSize: 13)),
-                    children: headers.entries.map((entry) => _messageDetailLine(
-                      entry.key, entry.value?.toString() ?? '',
-                    )).toList(),
+                    title: const Text(
+                      'Message headers',
+                      style: TextStyle(fontSize: 13),
+                    ),
+                    children: headers.entries
+                        .map(
+                          (entry) => _messageDetailLine(
+                            entry.key,
+                            entry.value?.toString() ?? '',
+                          ),
+                        )
+                        .toList(),
                   ),
                 if (htmlBody.isNotEmpty && text.isNotEmpty) ...[
                   const SizedBox(height: 8),
@@ -669,8 +855,17 @@ class _AdminPageState extends State<AdminPage> {
                           _plainTextMessageIds.add(messageId);
                         }
                       }),
-                      icon: Icon(showPlainText ? Icons.web_asset_rounded : Icons.notes_rounded, size: 16),
-                      label: Text(showPlainText ? 'Show formatted email' : 'Show plain text'),
+                      icon: Icon(
+                        showPlainText
+                            ? Icons.web_asset_rounded
+                            : Icons.notes_rounded,
+                        size: 16,
+                      ),
+                      label: Text(
+                        showPlainText
+                            ? 'Show formatted email'
+                            : 'Show plain text',
+                      ),
                     ),
                   ),
                 ],
@@ -690,46 +885,76 @@ class _AdminPageState extends State<AdminPage> {
                   SelectableText(text),
                 if (attachments.isNotEmpty) ...[
                   const Divider(height: 24),
-                  Text('Attachments (${attachments.length})',
-                    style: const TextStyle(fontWeight: FontWeight.w700)),
+                  Text(
+                    'Attachments (${attachments.length})',
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
                   const SizedBox(height: 8),
                   ...attachments.map((item) {
-                    final contentType = item['contentType']?.toString() ?? 'file';
-                    final isImage = contentType.toLowerCase().startsWith('image/');
+                    final contentType =
+                        item['contentType']?.toString() ?? 'file';
+                    final isImage = contentType.toLowerCase().startsWith(
+                      'image/',
+                    );
                     return Container(
                       margin: const EdgeInsets.only(bottom: 8),
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFFF6F7FA),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(color: const Color(0xFFE6E9EF)),
                       ),
-                      child: Row(children: [
-                        Icon(isImage ? Icons.image_outlined : Icons.insert_drive_file_outlined,
-                          color: const Color(0xFF788091)),
-                        const SizedBox(width: 10),
-                        Expanded(child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(item['filename']?.toString() ?? 'attachment',
-                              maxLines: 1, overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(fontWeight: FontWeight.w600)),
-                            Text('$contentType · ${_size(item['size'])} · ${item['contentDisposition'] ?? 'attachment'}',
-                              maxLines: 1, overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(fontSize: 11, color: Color(0xFF788091))),
-                          ],
-                        )),
-                        if (isImage) IconButton(
-                          tooltip: 'Preview image',
-                          onPressed: () => _openAttachment(item, preview: true),
-                          icon: const Icon(Icons.visibility_outlined),
-                        ),
-                        IconButton(
-                          tooltip: 'Open or download',
-                          onPressed: () => _openAttachment(item),
-                          icon: const Icon(Icons.download_outlined),
-                        ),
-                      ]),
+                      child: Row(
+                        children: [
+                          Icon(
+                            isImage
+                                ? Icons.image_outlined
+                                : Icons.insert_drive_file_outlined,
+                            color: const Color(0xFF788091),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item['filename']?.toString() ?? 'attachment',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                Text(
+                                  '$contentType · ${_size(item['size'])} · ${item['contentDisposition'] ?? 'attachment'}',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: Color(0xFF788091),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (isImage && inbound && item['id'] != null)
+                            IconButton(
+                              tooltip: 'Preview image',
+                              onPressed: () =>
+                                  _openAttachment(item, preview: true),
+                              icon: const Icon(Icons.visibility_outlined),
+                            ),
+                          if (inbound && item['id'] != null)
+                            IconButton(
+                              tooltip: 'Open or download',
+                              onPressed: () => _openAttachment(item),
+                              icon: const Icon(Icons.download_outlined),
+                            ),
+                        ],
+                      ),
                     );
                   }),
                 ],
@@ -745,19 +970,34 @@ class _AdminPageState extends State<AdminPage> {
     if (value.trim().isEmpty) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
-      child: SelectableText.rich(TextSpan(children: [
-        TextSpan(text: '$label: ', style: const TextStyle(fontWeight: FontWeight.w600)),
-        TextSpan(text: value),
-      ]), style: const TextStyle(fontSize: 12, color: Color(0xFF687184))),
+      child: SelectableText.rich(
+        TextSpan(
+          children: [
+            TextSpan(
+              text: '$label: ',
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+            TextSpan(text: value),
+          ],
+        ),
+        style: const TextStyle(fontSize: 12, color: Color(0xFF687184)),
+      ),
     );
   }
 
   String _emailAddresses(dynamic value) {
-    if (value is List) return value.map((item) => item.toString()).where((item) => item.isNotEmpty).join(', ');
+    if (value is List)
+      return value
+          .map((item) => item.toString())
+          .where((item) => item.isNotEmpty)
+          .join(', ');
     return value?.toString() ?? '';
   }
 
-  Future<void> _openAttachment(Map<String, dynamic> item, {bool preview = false}) async {
+  Future<void> _openAttachment(
+    Map<String, dynamic> item, {
+    bool preview = false,
+  }) async {
     try {
       final link = await _api('/admin/attachments/${item['id']}');
       final url = link['url'].toString();
@@ -772,14 +1012,22 @@ class _AdminPageState extends State<AdminPage> {
           title: Text(item['filename']?.toString() ?? 'Image preview'),
           content: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 720, maxHeight: 560),
-            child: Image.network(url, fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) => const Text('This image preview could not be loaded.'),
+            child: Image.network(
+              url,
+              fit: BoxFit.contain,
+              errorBuilder: (_, __, ___) =>
+                  const Text('This image preview could not be loaded.'),
               loadingBuilder: (context, child, progress) => progress == null
                   ? child
                   : const Center(child: CircularProgressIndicator()),
             ),
           ),
-          actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close'))],
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close'),
+            ),
+          ],
         ),
       );
     } catch (error) {
@@ -847,4 +1095,16 @@ class _AdminPageState extends State<AdminPage> {
     if (error is AuthException) return error.message;
     return 'The request could not be completed.';
   }
+}
+
+class _ReplyAttachment {
+  const _ReplyAttachment({
+    required this.name,
+    required this.bytes,
+    required this.contentType,
+  });
+
+  final String name;
+  final Uint8List bytes;
+  final String contentType;
 }

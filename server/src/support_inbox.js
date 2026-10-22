@@ -319,11 +319,12 @@ export function createSupportInbox({pool, apiKey = '', fetchImpl = fetch, logger
             'text', m.text_body, 'html', m.html_body, 'messageId', m.message_id,
             'inReplyTo', m.in_reply_to, 'references', m.references_header,
             'receivedAt', m.received_at,
-            'attachments', COALESCE((SELECT json_agg(json_build_object(
+            'attachments', COALESCE((SELECT jsonb_agg(jsonb_build_object(
               'id', a.id, 'filename', a.filename, 'contentType', a.content_type,
               'size', a.size_bytes, 'contentDisposition', a.content_disposition,
               'contentId', a.content_id
-            )) FROM support_attachments a WHERE a.message_id = m.id), '[]'::json)
+            )) FROM support_attachments a WHERE a.message_id = m.id), '[]'::jsonb)
+              || COALESCE(m.sent_attachments, '[]'::jsonb)
           ) ORDER BY m.received_at) FILTER (WHERE m.id IS NOT NULL), '[]'::json) AS messages
          FROM support_conversations c LEFT JOIN support_messages m ON m.conversation_id = c.id
          WHERE c.id = $1 GROUP BY c.id`, [id],
@@ -338,9 +339,35 @@ export function createSupportInbox({pool, apiKey = '', fetchImpl = fetch, logger
       return result.rowCount === 1;
     },
 
-    async reply(id, text) {
+    async reply(id, text, requestedAttachments = []) {
       const body = String(text ?? '').trim();
-      if (!body || body.length > 50_000) throw new Error('Write a reply under 50,000 characters.');
+      if (requestedAttachments == null) requestedAttachments = [];
+      if ((!body && !requestedAttachments.length) || body.length > 50_000) {
+        throw new Error('Write a reply or attach a file. Replies must be under 50,000 characters.');
+      }
+      if (!Array.isArray(requestedAttachments) || requestedAttachments.length > 10) {
+        throw new Error('Attach up to 10 files per reply.');
+      }
+      const attachments = [];
+      let totalBytes = 0;
+      for (const item of requestedAttachments) {
+        const filename = String(item?.filename ?? 'attachment')
+          .replace(/[\\/]/g, '_').replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, 255) || 'attachment';
+        const encoded = item?.content;
+        if (typeof encoded !== 'string' || encoded.length % 4 !== 0 || !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(encoded)) {
+          throw new Error(`The attachment ${filename} is not valid.`);
+        }
+        const content = Buffer.from(encoded, 'base64');
+        totalBytes += content.length;
+        if (totalBytes > 25 * 1024 * 1024) {
+          throw new Error('Attachments must total 25 MB or less.');
+        }
+        const requestedType = String(item?.contentType ?? 'application/octet-stream');
+        const contentType = /^[\w!#$&^_.+-]+\/[\w!#$&^_.+-]+$/.test(requestedType)
+          ? requestedType.slice(0, 255)
+          : 'application/octet-stream';
+        attachments.push({filename, contentType, content});
+      }
       const conversation = await this.getConversation(id);
       if (!conversation) throw new Error('Conversation not found.');
       if (!SUPPORT_INBOXES.includes(conversation.inbox_address)) throw new Error('Invalid support inbox.');
@@ -361,6 +388,11 @@ export function createSupportInbox({pool, apiKey = '', fetchImpl = fetch, logger
           from: `${conversation.inbox_address.split('@')[0]} <${conversation.inbox_address}>`,
           to: [conversation.sender_email], subject, text: body,
           html: `<p>${escapeHtml(body).replace(/\n/g, '<br>')}</p>`, headers,
+          ...(attachments.length ? {attachments: attachments.map((item) => ({
+            filename: item.filename,
+            content_type: item.contentType,
+            content: item.content.toString('base64'),
+          }))} : {}),
         }),
       });
       const providerId = String(sent.id ?? '');
@@ -375,10 +407,16 @@ export function createSupportInbox({pool, apiKey = '', fetchImpl = fetch, logger
       await pool.query(
         `INSERT INTO support_messages
          (conversation_id, direction, sender_email, recipient_email, subject, text_body, provider_email_id,
-          message_id, in_reply_to, references_header, received_at)
-         VALUES ($1, 'outbound', $2, $3, $4, $5, $6, $7, $8, $9, now())`,
+          message_id, in_reply_to, references_header, sent_attachments, received_at)
+         VALUES ($1, 'outbound', $2, $3, $4, $5, $6, $7, $8, $9, $10::jsonb, now())`,
         [id, conversation.inbox_address, conversation.sender_email, subject, body, providerId,
-          providerMessageId, last?.messageId ?? '', references],
+          providerMessageId, last?.messageId ?? '', references,
+          JSON.stringify(attachments.map((item) => ({
+            filename: item.filename,
+            contentType: item.contentType,
+            size: item.content.length,
+            contentDisposition: 'attachment',
+          })))],
       );
       await pool.query('UPDATE support_conversations SET last_activity_at = now() WHERE id = $1', [id]);
       return {sent: true};

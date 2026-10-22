@@ -23,11 +23,19 @@ class GamificationApi {
     return _readState(response);
   }
 
-  Future<LessonStartResult> startLesson(String accountId) async {
+  Future<LessonStartResult> startLesson(
+    String accountId, {
+    required String topicId,
+    required String lessonId,
+  }) async {
     final response = await http.post(
       Uri.parse('$baseUrl/gamification/lesson-start'),
       headers: ApiSession.authenticatedHeaders,
-      body: jsonEncode({'accountId': accountId}),
+      body: jsonEncode({
+        'accountId': accountId,
+        'topicId': topicId,
+        'lessonId': lessonId,
+      }),
     );
     final body = _readBody(response);
     return LessonStartResult(

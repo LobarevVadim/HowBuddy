@@ -55,8 +55,12 @@ class _TreeLessonsPageState extends State<TreeLessonsPage> {
     widget.onTopicCompleted();
   }
 
-  Future<bool> _startLesson() async {
-    final result = await GamificationApi().startLesson(widget.accountId);
+  Future<bool> _startLesson(String lessonId) async {
+    final result = await GamificationApi().startLesson(
+      widget.accountId,
+      topicId: widget.topicId,
+      lessonId: lessonId,
+    );
     widget.onGameStateChanged(result.state);
     return result.lessonAllowed;
   }
@@ -262,7 +266,7 @@ class LessonTree extends StatelessWidget {
   final String accountId;
   final String topicId;
   final List<LessonLevel> levels;
-  final Future<bool> Function() onLessonStarting;
+  final Future<bool> Function(String lessonId) onLessonStarting;
   final VoidCallback onNoHearts;
   final ValueChanged<String> onLessonCompleted;
 
@@ -390,7 +394,7 @@ class LessonNode extends StatelessWidget {
   final String accountId;
   final String topicId;
   final LessonLevel level;
-  final Future<bool> Function() onLessonStarting;
+  final Future<bool> Function(String lessonId) onLessonStarting;
   final VoidCallback onNoHearts;
   final double top;
   final bool isLeft;
@@ -420,7 +424,7 @@ class LessonNode extends StatelessWidget {
           borderRadius: BorderRadius.circular(22),
           onTap: level.isUnlocked
               ? () async {
-                  final hasHeart = await onLessonStarting();
+                  final hasHeart = await onLessonStarting(level.id);
                   if (!context.mounted) return;
                   if (!hasHeart) {
                     onNoHearts();
