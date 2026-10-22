@@ -187,6 +187,11 @@ app.get('/admin/learning-analytics', requireAuth, requireAdmin, async (_request,
            FROM lesson_starts ls JOIN accounts a ON a.id = ls.account_id
            WHERE a.auth_provider <> 'demo' GROUP BY ls.topic_id
          ),
+         selections AS (
+           SELECT ts.topic_id, COUNT(*)::int AS users_selected
+           FROM topic_selections ts JOIN accounts a ON a.id = ts.account_id
+           WHERE a.auth_provider <> 'demo' GROUP BY ts.topic_id
+         ),
          completions AS (
            SELECT lp.topic_id, COUNT(*)::int AS lessons_completed
            FROM lesson_progress lp JOIN accounts a ON a.id = lp.account_id
@@ -218,18 +223,21 @@ app.get('/admin/learning-analytics', requireAuth, requireAdmin, async (_request,
          SELECT c.id, c.title, c.lesson_count,
                 COALESCE(s.lessons_started, 0)::int AS lessons_started,
                 COALESCE(p.lessons_completed, 0)::int AS lessons_completed,
+                COALESCE(sel.users_selected, 0)::int AS users_selected,
                 COALESCE(r.users_started, 0)::int AS users_started,
                 COALESCE(r.users_completed, 0)::int AS users_completed
          FROM courses c
          LEFT JOIN starts s ON s.topic_id = c.id
          LEFT JOIN completions p ON p.topic_id = c.id
+         LEFT JOIN selections sel ON sel.topic_id = c.id
          LEFT JOIN course_rates r ON r.topic_id = c.id`,
         [JSON.stringify(courses)],
       ),
       pool.query(`
         WITH cohort AS (
           SELECT a.id,
-                 (a.created_at AT TIME ZONE COALESCE(NULLIF(s.time_zone, ''), 'UTC'))::date AS registration_day
+                 (a.created_at AT TIME ZONE COALESCE(NULLIF(s.time_zone, ''), 'UTC'))::date AS registration_day,
+                 (now() AT TIME ZONE COALESCE(NULLIF(s.time_zone, ''), 'UTC'))::date AS local_today
           FROM accounts a
           LEFT JOIN account_notification_settings s ON s.account_id = a.id
           WHERE a.auth_provider <> 'demo'
@@ -237,10 +245,10 @@ app.get('/admin/learning-analytics', requireAuth, requireAdmin, async (_request,
         offsets(day_number) AS (VALUES (1), (7), (30))
         SELECT offsets.day_number,
                COUNT(*) FILTER (
-                 WHERE cohort.registration_day <= CURRENT_DATE - offsets.day_number
+                 WHERE cohort.registration_day + offsets.day_number <= cohort.local_today
                )::int AS eligible_users,
                COUNT(*) FILTER (
-                 WHERE cohort.registration_day <= CURRENT_DATE - offsets.day_number
+                 WHERE cohort.registration_day + offsets.day_number <= cohort.local_today
                    AND EXISTS (
                      SELECT 1 FROM study_days activity
                      WHERE activity.account_id = cohort.id
@@ -259,6 +267,7 @@ app.get('/admin/learning-analytics', requireAuth, requireAdmin, async (_request,
         lessonCount: Number(row.lesson_count),
         lessonsStarted: Number(row.lessons_started),
         lessonsCompleted: Number(row.lessons_completed),
+        usersSelected: Number(row.users_selected),
         usersStarted,
         usersCompleted,
         completionRatePercent: usersStarted
@@ -276,10 +285,10 @@ app.get('/admin/learning-analytics', requireAuth, requireAdmin, async (_request,
     }));
     const totals = topics.reduce((sum, topic) => ({
       lessonsStarted: sum.lessonsStarted + topic.lessonsStarted,
-      lessonsCompleted: sum.lessonsCompleted + topic.lessonsCompleted,
-    }), {lessonsStarted: 0, lessonsCompleted: 0});
+        lessonsCompleted: sum.lessonsCompleted + topic.lessonsCompleted,
+      }), {lessonsStarted: 0, lessonsCompleted: 0});
     const popularTopics = [...topics]
-      .sort((a, b) => (b.lessonsStarted + b.lessonsCompleted) - (a.lessonsStarted + a.lessonsCompleted))
+      .sort((a, b) => b.usersSelected - a.usersSelected)
       .slice(0, 10);
     return response.json({
       ...totals,
@@ -397,7 +406,7 @@ app.post('/gamification/lesson-start', requireAuth, async (request, response) =>
        WHERE account_id = $1 AND hearts > 0 RETURNING hearts`,
       [accountId],
     );
-    if (result.rowCount === 1 && topic && lessonId) {
+    if (topic && lessonId) {
       await pool.query(
         `INSERT INTO lesson_starts (account_id, topic_id, lesson_id)
          VALUES ($1, $2, $3) ON CONFLICT (account_id, topic_id, lesson_id) DO NOTHING`,
@@ -660,6 +669,25 @@ app.put('/account/last-topic', requireAuth, async (request, response) => {
   } catch (error) {
     console.error(error);
     return response.status(500).json({message: 'Could not save your last lesson topic.'});
+  }
+});
+
+app.post('/analytics/topic-selected', requireAuth, async (request, response) => {
+  const topicId = String(request.body.topicId ?? '').trim();
+  if (!findTopic(topicId)) {
+    return response.status(400).json({message: 'This lesson topic was not found.'});
+  }
+  try {
+    await pool.query(
+      `INSERT INTO topic_selections (account_id, topic_id)
+       VALUES ($1, $2) ON CONFLICT (account_id, topic_id) DO NOTHING`,
+      [request.accountId, topicId],
+    );
+    await pool.query('UPDATE accounts SET last_active_at = now() WHERE id = $1', [request.accountId]);
+    return response.json({ok: true});
+  } catch (error) {
+    console.error('Could not record topic selection:', error.message);
+    return response.status(500).json({message: 'Could not record this topic selection.'});
   }
 });
 

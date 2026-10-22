@@ -351,7 +351,7 @@ class _AdminLearningAnalyticsSectionState
           const SizedBox(height: 16),
           _Panel(
             title: 'Popular topics',
-            subtitle: 'Ranked by recorded lesson starts and completions.',
+            subtitle: 'Ranked by users who selected each topic from the tree. Each user counts once per topic.',
             child: _topicList(
               _data['popularTopics'] as List<dynamic>? ?? const [],
               popular: true,
@@ -389,8 +389,6 @@ class _AdminLearningAnalyticsSectionState
     return Column(
       children: topics.map((topic) {
         final label = topic['title']?.toString() ?? topic['id'].toString();
-        final started = topic['lessonsStarted'] as int? ?? 0;
-        final completed = topic['lessonsCompleted'] as int? ?? 0;
         final rate = (topic['completionRatePercent'] as num? ?? 0).toDouble();
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 9),
@@ -410,7 +408,7 @@ class _AdminLearningAnalyticsSectionState
                   ),
                   Text(
                     popular
-                        ? '$started starts · $completed done'
+                        ? '${topic['usersSelected'] ?? 0} users chose this'
                         : '${rate.toStringAsFixed(1)}%',
                     style: const TextStyle(
                       color: _muted,

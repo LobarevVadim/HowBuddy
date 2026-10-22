@@ -131,6 +131,14 @@ CREATE TABLE IF NOT EXISTS lesson_starts (
 );
 CREATE INDEX IF NOT EXISTS lesson_starts_topic_idx ON lesson_starts(topic_id, started_at DESC);
 
+CREATE TABLE IF NOT EXISTS topic_selections (
+  account_id UUID NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+  topic_id TEXT NOT NULL,
+  selected_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (account_id, topic_id)
+);
+CREATE INDEX IF NOT EXISTS topic_selections_topic_idx ON topic_selections(topic_id, selected_at DESC);
+
 CREATE TABLE IF NOT EXISTS account_gamification (
   account_id UUID PRIMARY KEY REFERENCES accounts(id) ON DELETE CASCADE,
   hearts INTEGER NOT NULL DEFAULT 5 CHECK (hearts BETWEEN 0 AND 5),
