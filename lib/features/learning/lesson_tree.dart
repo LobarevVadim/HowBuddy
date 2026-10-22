@@ -162,7 +162,18 @@ class _TreeLessonsPageState extends State<TreeLessonsPage> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      TreePanel(
+                      if (!treeData.isSelectableTopic)
+                        TreePanel(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Text(
+                              'Choose a question from the Topics tree to open its lessons.',
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(color: AppColors.mutedText),
+                            ),
+                          ),
+                        ),
+                      if (treeData.isSelectableTopic) TreePanel(
                         child: LessonTree(
                           accountId: widget.accountId,
                           topicId: widget.topicId,

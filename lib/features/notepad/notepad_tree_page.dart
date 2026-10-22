@@ -29,7 +29,7 @@ class _NotepadTreePageState extends State<NotepadTreePage> {
   @override
   Widget build(BuildContext context) {
     ThemePreferencesScope.watch(context);
-    return FutureBuilder<NotepadTreeNode>(
+        return FutureBuilder<NotepadTreeNode>(
       future: _tree,
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
@@ -154,13 +154,6 @@ class _NotepadTreeCanvasState extends State<NotepadTreeCanvas> {
 
   void _openNode(BuildContext context, NotepadTreeNode node) {
     if (node.id == 'main-tree') {
-      return;
-    }
-
-    if (node.children.isEmpty) {
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => DevelopmentPage(title: node.title)),
-      );
       return;
     }
 

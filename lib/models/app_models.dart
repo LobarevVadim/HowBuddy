@@ -234,11 +234,13 @@ class TreeData {
     required this.topic,
     required this.levels,
     required this.nextQuestions,
+    this.isSelectableTopic = false,
   });
 
   final LessonTopic topic;
   final List<LessonLevel> levels;
   final List<LessonQuestion> nextQuestions;
+  final bool isSelectableTopic;
 }
 
 class LessonQuestion {

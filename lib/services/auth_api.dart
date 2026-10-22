@@ -216,7 +216,12 @@ class AuthApi {
         .toList();
     final topic = LessonTopic.fromJson(body['topic'] as Map<String, dynamic>);
 
-    return TreeData(topic: topic, levels: levels, nextQuestions: nextQuestions);
+    return TreeData(
+      topic: topic,
+      levels: levels,
+      nextQuestions: nextQuestions,
+      isSelectableTopic: body['isSelectableTopic'] == true,
+    );
   }
 
   Future<LessonContent> fetchLessonExercises({

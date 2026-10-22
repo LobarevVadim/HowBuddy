@@ -288,8 +288,7 @@ app.get('/admin/learning-analytics', requireAuth, requireAdmin, async (_request,
         lessonsCompleted: sum.lessonsCompleted + topic.lessonsCompleted,
       }), {lessonsStarted: 0, lessonsCompleted: 0});
     const popularTopics = [...topics]
-      .sort((a, b) => b.usersSelected - a.usersSelected)
-      .slice(0, 10);
+      .sort((a, b) => b.usersSelected - a.usersSelected || a.title.localeCompare(b.title));
     return response.json({
       ...totals,
       topics,
@@ -635,7 +634,12 @@ app.get('/lessons/tree', requireAuth, async (request, response) => {
     const topic = findTopic(String(request.query.topic ?? content.roots[0]), content);
     if (!topic) return response.status(404).json({message: 'This lesson topic was not found.'});
     const levels = await buildLessonLevels(topic, request.accountId, content);
-    return response.json({topic, levels, nextQuestions: getNextQuestions(topic.id, content)});
+    return response.json({
+      topic,
+      levels,
+      nextQuestions: getNextQuestions(topic.id, content),
+      isSelectableTopic: content.nodes[topic.id].level > 1,
+    });
   } catch (error) {
     console.error(error);
     return response.status(500).json({message: 'Could not load lesson progress.'});
@@ -926,9 +930,9 @@ app.get('/lessons/exercises', async (request, response) => {
       return response.status(404).json({message: 'No exercises are available for this topic.'});
     }
     const lessonNumber = Number(lessonId.replace('lesson-', ''));
-    const extraNodeId = topicContent.extraLessons[lessonNumber - 2];
+    const extraNodeId = topicContent.extraLessons?.[lessonNumber - 2];
     const lesson = lessonNumber === 1 ? topicContent : content.nodes[extraNodeId];
-    if (!lesson || !Number.isInteger(lessonNumber)) {
+    if (!lesson || !Number.isInteger(lessonNumber) || lessonNumber < 1) {
       return response.status(404).json({message: 'This lesson is not available.'});
     }
     return response.json({topic: topicId, content: lesson.content, exercises: lesson.exercises});
@@ -966,7 +970,7 @@ app.post('/lessons/complete', requireAuth, async (request, response) => {
   }
 
   const lessonNumber = Number(lessonId.replace('lesson-', ''));
-  if (!Number.isInteger(lessonNumber) || lessonNumber < 1 || lessonNumber > topic.lessonCount) {
+  if (!Number.isInteger(lessonNumber) || lessonNumber < 1 || lessonNumber > Math.min(topic.lessonCount, 20)) {
     return response.status(400).json({message: 'This lesson is not available.'});
   }
 
@@ -1237,7 +1241,11 @@ async function getAccountLessonContent(request) {
 
 function findTopic(topicId, content = lessonContent) {
   const node = content.nodes[topicId];
-  return node ? {id: node.id, question: node.question, lessonCount: node.lessonCount} : null;
+  return node ? {
+    id: node.id,
+    question: node.question,
+    lessonCount: Number(node.lessonCount) || 1,
+  } : null;
 }
 
 function rootTopics(content = lessonContent) {
@@ -1253,7 +1261,8 @@ function getNextQuestions(topicId, content = lessonContent) {
 
 async function buildLessonLevels(topic, accountId, content = lessonContent) {
   const shapes = ['star', 'triangle', 'hexagon', 'square', 'circle'];
-  const count = Math.min(topic.lessonCount, 20);
+  const topicNode = content.nodes[topic.id];
+  const count = Math.min(Number(topicNode.lessonCount) || 1, 20);
   const progress = accountId
     ? await pool.query(
         'SELECT lesson_id FROM lesson_progress WHERE account_id = $1 AND topic_id = $2',
@@ -1275,9 +1284,8 @@ async function buildLessonLevels(topic, accountId, content = lessonContent) {
       shape: shapes[index % shapes.length],
       title: level === 1
         ? 'Core lesson'
-        : content.nodes[
-            content.nodes[topic.id].extraLessons[level - 2]
-          ].question,
+        : content.nodes[topicNode.extraLessons?.[level - 2]]?.question
+            ?? 'Extra lesson',
       isCompleted,
       isUnlocked,
     };

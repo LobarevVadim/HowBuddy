@@ -351,7 +351,8 @@ class _AdminLearningAnalyticsSectionState
           const SizedBox(height: 16),
           _Panel(
             title: 'Popular topics',
-            subtitle: 'Ranked by users who selected each topic from the tree. Each user counts once per topic.',
+            subtitle:
+                'All ${(_data['popularTopics'] as List<dynamic>? ?? const []).length} selectable topics, ranked by users who chose them from the tree. Each user counts once per topic.',
             child: _topicList(
               _data['popularTopics'] as List<dynamic>? ?? const [],
               popular: true,
