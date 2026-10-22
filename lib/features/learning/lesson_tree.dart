@@ -55,12 +55,8 @@ class _TreeLessonsPageState extends State<TreeLessonsPage> {
     widget.onTopicCompleted();
   }
 
-  Future<bool> _startLesson(String lessonId) async {
-    final result = await GamificationApi().startLesson(
-      widget.accountId,
-      topicId: widget.topicId,
-      lessonId: lessonId,
-    );
+  Future<bool> _consumeLessonHeart() async {
+    final result = await GamificationApi().consumeLessonHeart(widget.accountId);
     widget.onGameStateChanged(result.state);
     return result.lessonAllowed;
   }
@@ -178,7 +174,7 @@ class _TreeLessonsPageState extends State<TreeLessonsPage> {
                           accountId: widget.accountId,
                           topicId: widget.topicId,
                           levels: _levelsWithLocalCompletions(treeData.levels),
-                          onLessonStarting: _startLesson,
+                          onHeartConsumption: _consumeLessonHeart,
                           onNoHearts: widget.onNoHearts,
                           onLessonCompleted: _handleLessonCompleted,
                         ),
@@ -268,7 +264,7 @@ class LessonTree extends StatelessWidget {
     required this.accountId,
     required this.topicId,
     required this.levels,
-    required this.onLessonStarting,
+    required this.onHeartConsumption,
     required this.onNoHearts,
     required this.onLessonCompleted,
     super.key,
@@ -277,7 +273,7 @@ class LessonTree extends StatelessWidget {
   final String accountId;
   final String topicId;
   final List<LessonLevel> levels;
-  final Future<bool> Function(String lessonId) onLessonStarting;
+  final Future<bool> Function() onHeartConsumption;
   final VoidCallback onNoHearts;
   final ValueChanged<String> onLessonCompleted;
 
@@ -309,7 +305,7 @@ class LessonTree extends StatelessWidget {
               accountId: accountId,
               topicId: topicId,
               level: levels[index],
-              onLessonStarting: onLessonStarting,
+              onHeartConsumption: onHeartConsumption,
               onNoHearts: onNoHearts,
               top: _topPadding + (index * _levelGap) - 38,
               isLeft: index.isOdd,
@@ -394,7 +390,7 @@ class LessonNode extends StatelessWidget {
     required this.accountId,
     required this.topicId,
     required this.level,
-    required this.onLessonStarting,
+    required this.onHeartConsumption,
     required this.onNoHearts,
     required this.top,
     required this.isLeft,
@@ -405,7 +401,7 @@ class LessonNode extends StatelessWidget {
   final String accountId;
   final String topicId;
   final LessonLevel level;
-  final Future<bool> Function(String lessonId) onLessonStarting;
+  final Future<bool> Function() onHeartConsumption;
   final VoidCallback onNoHearts;
   final double top;
   final bool isLeft;
@@ -435,7 +431,7 @@ class LessonNode extends StatelessWidget {
           borderRadius: BorderRadius.circular(22),
           onTap: level.isUnlocked
               ? () async {
-                  final hasHeart = await onLessonStarting(level.id);
+                  final hasHeart = await onHeartConsumption();
                   if (!context.mounted) return;
                   if (!hasHeart) {
                     onNoHearts();

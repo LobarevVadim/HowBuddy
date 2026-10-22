@@ -122,14 +122,7 @@ UPDATE accounts
 SET last_active_at = created_at
 WHERE last_active_at IS NULL;
 
-CREATE TABLE IF NOT EXISTS lesson_starts (
-  account_id UUID NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
-  topic_id TEXT NOT NULL,
-  lesson_id TEXT NOT NULL,
-  started_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  PRIMARY KEY (account_id, topic_id, lesson_id)
-);
-CREATE INDEX IF NOT EXISTS lesson_starts_topic_idx ON lesson_starts(topic_id, started_at DESC);
+DROP TABLE IF EXISTS lesson_starts;
 
 CREATE TABLE IF NOT EXISTS topic_selections (
   account_id UUID NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,

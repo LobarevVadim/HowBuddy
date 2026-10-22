@@ -203,7 +203,7 @@ const server = createServer(async (request, response) => {
     return;
   }
 
-  if (url.pathname === '/gamification/lesson-start' && request.method === 'POST') {
+  if (url.pathname === '/gamification/consume-heart' && request.method === 'POST') {
     const body = await readJson(request);
     const accountId = String(body.accountId ?? '').trim();
     if (!accountId) {

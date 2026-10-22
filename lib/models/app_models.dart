@@ -202,8 +202,8 @@ class GameState {
   }
 }
 
-class LessonStartResult {
-  const LessonStartResult({required this.lessonAllowed, required this.state});
+class LessonHeartResult {
+  const LessonHeartResult({required this.lessonAllowed, required this.state});
 
   final bool lessonAllowed;
   final GameState state;

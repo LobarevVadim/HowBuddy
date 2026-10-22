@@ -318,10 +318,6 @@ class _AdminLearningAnalyticsSectionState
             runSpacing: 12,
             children: [
               _MetricCard(
-                label: 'Lessons started',
-                value: '${_data['lessonsStarted'] ?? 0}',
-              ),
-              _MetricCard(
                 label: 'Lessons completed',
                 value: '${_data['lessonsCompleted'] ?? 0}',
               ),
@@ -371,7 +367,7 @@ class _AdminLearningAnalyticsSectionState
           const Padding(
             padding: EdgeInsets.only(top: 10),
             child: Text(
-              'Lesson starts are counted once per user and lesson from this analytics release onward. Completion history uses existing progress records.',
+              'Completion and retention are based on completed lessons. Topic popularity is based on topic selections.',
               style: TextStyle(color: _muted, fontSize: 12),
             ),
           ),
@@ -432,7 +428,7 @@ class _AdminLearningAnalyticsSectionState
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${topic['usersCompleted']} of ${topic['usersStarted']} starters completed ${topic['lessonCount']} lessons',
+                  '${topic['usersCompleted']} of ${topic['usersActive']} learners completed all ${topic['lessonCount']} lessons',
                   style: const TextStyle(color: _muted, fontSize: 11),
                 ),
               ],

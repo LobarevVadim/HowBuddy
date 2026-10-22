@@ -23,22 +23,14 @@ class GamificationApi {
     return _readState(response);
   }
 
-  Future<LessonStartResult> startLesson(
-    String accountId, {
-    required String topicId,
-    required String lessonId,
-  }) async {
+  Future<LessonHeartResult> consumeLessonHeart(String accountId) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/gamification/lesson-start'),
+      Uri.parse('$baseUrl/gamification/consume-heart'),
       headers: ApiSession.authenticatedHeaders,
-      body: jsonEncode({
-        'accountId': accountId,
-        'topicId': topicId,
-        'lessonId': lessonId,
-      }),
+      body: jsonEncode({'accountId': accountId}),
     );
     final body = _readBody(response);
-    return LessonStartResult(
+    return LessonHeartResult(
       lessonAllowed: body['lessonAllowed'] == true,
       state: GameState.fromJson(body),
     );

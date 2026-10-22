@@ -182,11 +182,6 @@ app.get('/admin/learning-analytics', requireAuth, requireAdmin, async (_request,
            SELECT * FROM jsonb_to_recordset($1::jsonb)
              AS course(id text, title text, lesson_count integer)
          ),
-         starts AS (
-           SELECT ls.topic_id, COUNT(*)::int AS lessons_started
-           FROM lesson_starts ls JOIN accounts a ON a.id = ls.account_id
-           WHERE a.auth_provider <> 'demo' GROUP BY ls.topic_id
-         ),
          selections AS (
            SELECT ts.topic_id, COUNT(*)::int AS users_selected
            FROM topic_selections ts JOIN accounts a ON a.id = ts.account_id
@@ -202,32 +197,27 @@ app.get('/admin/learning-analytics', requireAuth, requireAdmin, async (_request,
            FROM lesson_progress lp JOIN accounts a ON a.id = lp.account_id
            WHERE a.auth_provider <> 'demo' GROUP BY lp.topic_id, lp.account_id
          ),
-         started_users AS (
-           SELECT ls.topic_id, ls.account_id FROM lesson_starts ls
-           JOIN accounts a ON a.id = ls.account_id WHERE a.auth_provider <> 'demo'
-           UNION
+         active_users AS (
            SELECT lp.topic_id, lp.account_id FROM lesson_progress lp
            JOIN accounts a ON a.id = lp.account_id WHERE a.auth_provider <> 'demo'
          ),
          course_rates AS (
            SELECT c.id AS topic_id,
-                  COUNT(s.account_id)::int AS users_started,
+                  COUNT(s.account_id)::int AS users_active,
                   COUNT(s.account_id) FILTER (
                     WHERE COALESCE(u.lessons_completed, 0) >= c.lesson_count
                   )::int AS users_completed
            FROM courses c
-           LEFT JOIN started_users s ON s.topic_id = c.id
+           LEFT JOIN active_users s ON s.topic_id = c.id
            LEFT JOIN user_activity u ON u.topic_id = c.id AND u.account_id = s.account_id
            GROUP BY c.id, c.lesson_count
          )
          SELECT c.id, c.title, c.lesson_count,
-                COALESCE(s.lessons_started, 0)::int AS lessons_started,
                 COALESCE(p.lessons_completed, 0)::int AS lessons_completed,
                 COALESCE(sel.users_selected, 0)::int AS users_selected,
-                COALESCE(r.users_started, 0)::int AS users_started,
+                COALESCE(r.users_active, 0)::int AS users_active,
                 COALESCE(r.users_completed, 0)::int AS users_completed
          FROM courses c
-         LEFT JOIN starts s ON s.topic_id = c.id
          LEFT JOIN completions p ON p.topic_id = c.id
          LEFT JOIN selections sel ON sel.topic_id = c.id
          LEFT JOIN course_rates r ON r.topic_id = c.id`,
@@ -259,19 +249,18 @@ app.get('/admin/learning-analytics', requireAuth, requireAdmin, async (_request,
         GROUP BY offsets.day_number ORDER BY offsets.day_number`),
     ]);
     const topics = topicsResult.rows.map((row) => {
-      const usersStarted = Number(row.users_started);
+      const usersActive = Number(row.users_active);
       const usersCompleted = Number(row.users_completed);
       return {
         id: row.id,
         title: row.title,
         lessonCount: Number(row.lesson_count),
-        lessonsStarted: Number(row.lessons_started),
         lessonsCompleted: Number(row.lessons_completed),
         usersSelected: Number(row.users_selected),
-        usersStarted,
+        usersActive,
         usersCompleted,
-        completionRatePercent: usersStarted
-          ? Math.round((usersCompleted / usersStarted) * 1000) / 10
+        completionRatePercent: usersActive
+          ? Math.round((usersCompleted / usersActive) * 1000) / 10
           : 0,
       };
     });
@@ -284,9 +273,8 @@ app.get('/admin/learning-analytics', requireAuth, requireAdmin, async (_request,
         : 0,
     }));
     const totals = topics.reduce((sum, topic) => ({
-      lessonsStarted: sum.lessonsStarted + topic.lessonsStarted,
-        lessonsCompleted: sum.lessonsCompleted + topic.lessonsCompleted,
-      }), {lessonsStarted: 0, lessonsCompleted: 0});
+      lessonsCompleted: sum.lessonsCompleted + topic.lessonsCompleted,
+    }), {lessonsCompleted: 0});
     const popularTopics = [...topics]
       .sort((a, b) => b.usersSelected - a.usersSelected || a.title.localeCompare(b.title));
     return response.json({
@@ -380,28 +368,12 @@ app.get('/gamification', requireAuth, async (request, response) => {
   }
 });
 
-app.post('/gamification/lesson-start', requireAuth, async (request, response) => {
+app.post('/gamification/consume-heart', requireAuth, async (request, response) => {
   const accountId = request.accountId;
-  const topicId = String(request.body.topicId ?? '').trim();
-  const lessonId = String(request.body.lessonId ?? '').trim();
-  const hasLessonIdentity = topicId.length > 0 || lessonId.length > 0;
-  const topic = topicId ? findTopic(topicId) : null;
-  const lessonNumber = Number(lessonId.replace('lesson-', ''));
-  if (hasLessonIdentity && (!topic || !Number.isInteger(lessonNumber) ||
-      lessonNumber < 1 || lessonNumber > Math.min(topic.lessonCount, 20))) {
-    return response.status(400).json({message: 'This lesson is not available.'});
-  }
   try {
     await ensureGameRow(accountId);
     await refreshHearts(accountId);
     await pool.query('UPDATE accounts SET last_active_at = now() WHERE id = $1', [accountId]);
-    if (topic && lessonId) {
-      await pool.query(
-        `INSERT INTO lesson_starts (account_id, topic_id, lesson_id)
-         VALUES ($1, $2, $3) ON CONFLICT (account_id, topic_id, lesson_id) DO NOTHING`,
-        [accountId, topic.id, lessonId],
-      );
-    }
     const result = await pool.query(
       `UPDATE account_gamification
        SET hearts = hearts - 1,
@@ -1438,7 +1410,7 @@ pool.query(readFileSync(new URL('../schema.sql', import.meta.url), 'utf8')).then
   });
   notificationScheduler.start();
 }).catch((error) => {
-  console.error('Could not initialize the XP table.', error);
+  console.error('Could not initialize the API database schema.', error);
   process.exitCode = 1;
 });
 
