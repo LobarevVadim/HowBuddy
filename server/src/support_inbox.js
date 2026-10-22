@@ -6,14 +6,21 @@ export const SUPPORT_INBOXES = [
   'support@howbuddy.app',
   'contact@howbuddy.app',
 ];
+export const SUPPORT_FORWARD_TO = 'vlobarev823@gmail.com';
 
 const safeHtmlOptions = {
   allowedTags: [
-    'a', 'b', 'blockquote', 'br', 'code', 'div', 'em', 'h1', 'h2', 'h3',
-    'hr', 'i', 'li', 'ol', 'p', 'pre', 'span', 'strong', 'table', 'tbody',
+    'a', 'b', 'blockquote', 'br', 'code', 'div', 'em', 'font', 'h1', 'h2', 'h3',
+    'hr', 'i', 'img', 'li', 'ol', 'p', 'pre', 'span', 'strong', 'table', 'tbody',
     'td', 'th', 'thead', 'tr', 'ul',
   ],
-  allowedAttributes: {a: ['href', 'title'], td: ['colspan', 'rowspan'], th: ['colspan', 'rowspan']},
+  allowedAttributes: {
+    a: ['href', 'title'],
+    font: ['color', 'face', 'size'],
+    img: ['src', 'alt', 'width', 'height'],
+    td: ['colspan', 'rowspan'],
+    th: ['colspan', 'rowspan'],
+  },
   allowedSchemes: ['http', 'https', 'mailto'],
   disallowedTagsMode: 'discard',
 };
@@ -69,23 +76,35 @@ export function createSupportInbox({pool, apiKey = '', fetchImpl = fetch, logger
     const stored = await pool.query(
       'SELECT id FROM support_messages WHERE provider_email_id = $1', [emailId],
     );
-    if (stored.rowCount) return {duplicate: true};
+    if (stored.rowCount) {
+      await forwardStoredEmail(emailId);
+      return {duplicate: true};
+    }
 
     const email = await resend(`/emails/receiving/${encodeURIComponent(emailId)}`);
-    const recipients = normalizeAddresses(email.to);
+    const recipients = [...new Set([
+      ...normalizeAddresses(email.to), ...normalizeAddresses(email.received_for),
+    ])];
     const inbox = recipients.find((address) => SUPPORT_INBOXES.includes(address));
     if (!inbox) return {ignored: true};
     const sender = normalizeAddress(email.from);
     if (!sender) return {ignored: true};
+    const toAddresses = normalizeAddresses(email.to);
+    const ccAddresses = normalizeAddresses(email.cc);
+    const bccAddresses = normalizeAddresses(email.bcc);
+    const replyToAddresses = normalizeAddresses(email.reply_to ?? email.replyTo);
+    const receivedFor = normalizeAddresses(email.received_for);
+    const senderName = extractDisplayName(email.from);
     const headers = lowerCaseHeaders(email.headers);
     const messageId = String(email.message_id ?? headers['message-id'] ?? '').trim();
     const inReplyTo = String(email.in_reply_to ?? headers['in-reply-to'] ?? '').trim();
     const references = parseReferences(email.references ?? headers.references ?? '');
-    const subject = String(email.subject ?? '').slice(0, 998);
+    const subject = String(email.subject ?? '').replace(/[\r\n]+/g, ' ').slice(0, 998);
     const textBody = String(email.text ?? email.text_body ?? '').slice(0, 1_000_000);
     const htmlBody = sanitizeEmailHtml(email.html ?? email.html_body ?? '').slice(0, 1_000_000);
     const receivedAt = validDate(email.created_at ?? email.received_at);
     const client = await pool.connect();
+    let clientReleased = false;
     try {
       await client.query('BEGIN');
       await client.query('SELECT pg_advisory_xact_lock(hashtextextended($1, 0))', [emailId]);
@@ -94,6 +113,9 @@ export function createSupportInbox({pool, apiKey = '', fetchImpl = fetch, logger
       );
       if (duplicate.rowCount) {
         await client.query('ROLLBACK');
+        client.release();
+        clientReleased = true;
+        await forwardStoredEmail(emailId);
         return {duplicate: true};
       }
       const relatedIds = [...new Set([inReplyTo, ...references].filter(Boolean))];
@@ -121,31 +143,133 @@ export function createSupportInbox({pool, apiKey = '', fetchImpl = fetch, logger
       }
       const inserted = await client.query(
         `INSERT INTO support_messages
-         (conversation_id, direction, sender_email, recipient_email, subject, text_body, html_body,
+         (conversation_id, direction, sender_email, sender_name, recipient_email, cc_emails,
+          bcc_emails, reply_to_emails, received_for, email_headers, subject, text_body, html_body,
           provider_email_id, message_id, in_reply_to, references_header, received_at)
-         VALUES ($1, 'inbound', $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+         VALUES ($1, 'inbound', $2, $3, $4, $5, $6, $7, $8, $9::jsonb, $10, $11, $12, $13, $14, $15, $16, $17)
          ON CONFLICT (provider_email_id) DO NOTHING RETURNING id`,
-        [conversation.id, sender, inbox, subject, textBody, htmlBody, emailId, messageId,
-          inReplyTo, references, receivedAt],
+        [conversation.id, sender, senderName, toAddresses.join(', ') || inbox,
+          ccAddresses, bccAddresses, replyToAddresses, receivedFor,
+          JSON.stringify(headersForStorage(email.headers)), subject, textBody, htmlBody,
+          emailId, messageId, inReplyTo, references, receivedAt],
       );
       for (const attachment of (inserted.rows[0] ? (email.attachments ?? []) : [])) {
         const attachmentId = String(attachment.id ?? attachment.attachment_id ?? '');
         if (!attachmentId) continue;
         await client.query(
-          `INSERT INTO support_attachments (message_id, provider_attachment_id, filename, content_type, size_bytes)
-           VALUES ($1, $2, $3, $4, $5) ON CONFLICT DO NOTHING`,
+          `INSERT INTO support_attachments
+           (message_id, provider_attachment_id, filename, content_type, size_bytes, content_disposition, content_id)
+           VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT DO NOTHING`,
           [inserted.rows[0]?.id, attachmentId,
             String(attachment.filename ?? 'attachment').slice(0, 255),
             String(attachment.content_type ?? attachment.contentType ?? 'application/octet-stream').slice(0, 255),
-            Math.max(0, Number(attachment.size ?? 0))],
+            Math.max(0, Number(attachment.size ?? 0)),
+            String(attachment.content_disposition ?? 'attachment').slice(0, 100),
+            String(attachment.content_id ?? '').slice(0, 500)],
         );
       }
       await client.query('COMMIT');
-      return {stored: Boolean(inserted.rowCount)};
+      client.release();
+      clientReleased = true;
+      const forwarded = await forwardStoredEmail(emailId);
+      return {stored: Boolean(inserted.rowCount), forwarded};
     } catch (error) {
-      await client.query('ROLLBACK');
+      if (!clientReleased) await client.query('ROLLBACK');
       throw error;
     } finally {
+      if (!clientReleased) client.release();
+    }
+  }
+
+  async function forwardStoredEmail(emailId) {
+    // Serialize webhook retries for this message and use Resend's idempotency
+    // key in case the provider accepts a send just before a network timeout.
+    const client = await pool.connect();
+    try {
+      await client.query('SELECT pg_advisory_lock(hashtextextended($1, 0))', [`forward:${emailId}`]);
+      const result = await client.query(
+        `SELECT m.id, m.sender_email, m.sender_name, m.recipient_email, m.cc_emails,
+          m.bcc_emails, m.reply_to_emails, m.subject, m.text_body, m.html_body,
+          m.received_at, m.forwarded_at, m.provider_email_id,
+          COALESCE((SELECT json_agg(json_build_object(
+            'id', a.provider_attachment_id, 'filename', a.filename,
+            'contentType', a.content_type, 'size', a.size_bytes
+          )) FROM support_attachments a WHERE a.message_id = m.id), '[]'::json) AS attachments
+         FROM support_messages m WHERE m.provider_email_id = $1 AND m.direction = 'inbound'`,
+        [emailId],
+      );
+      const message = result.rows[0];
+      if (!message || message.forwarded_at) return Boolean(message?.forwarded_at);
+      const inbox = normalizeAddresses(message.recipient_email)
+        .find((address) => SUPPORT_INBOXES.includes(address)) ?? SUPPORT_INBOXES[0];
+      const forwardedAttachments = [];
+      const omittedAttachments = [];
+      let attachmentBytes = 0;
+      for (const item of message.attachments ?? []) {
+        try {
+          const details = await resend(
+            `/emails/receiving/${encodeURIComponent(message.provider_email_id)}/attachments/${encodeURIComponent(item.id)}`,
+          );
+          const url = new URL(details.download_url);
+          if (url.protocol !== 'https:' || url.hostname !== 'inbound-cdn.resend.com' || url.username || url.password) {
+            throw new Error('Unsafe attachment download URL.');
+          }
+          const response = await fetchImpl(url, {signal: AbortSignal.timeout(20_000)});
+          if (!response.ok) throw new Error(`Attachment download failed (${response.status}).`);
+          const data = Buffer.from(await response.arrayBuffer());
+          if (attachmentBytes + data.length > 25 * 1024 * 1024) {
+            omittedAttachments.push(item.filename);
+            continue;
+          }
+          attachmentBytes += data.length;
+          forwardedAttachments.push({
+            filename: String(item.filename || 'attachment').slice(0, 255),
+            content_type: String(item.contentType || 'application/octet-stream').slice(0, 255),
+            content: data.toString('base64'),
+          });
+        } catch (error) {
+          logger.warn(`Could not include inbound attachment ${item.filename}:`, error.message);
+          omittedAttachments.push(item.filename);
+        }
+      }
+      const originalText = message.text_body || stripHtml(message.html_body);
+      const cc = (message.cc_emails ?? []).join(', ');
+      const bcc = (message.bcc_emails ?? []).join(', ');
+      const replyTo = (message.reply_to_emails ?? []).join(', ');
+      const extra = omittedAttachments.length
+        ? `\n\nSome attachments could not be included: ${omittedAttachments.join(', ')}. They remain available in the HowBuddy admin inbox.`
+        : '';
+      const text = [
+        `Forwarded from: ${message.sender_name ? `${message.sender_name} ` : ''}<${message.sender_email}>`,
+        `Received by: ${message.recipient_email}`,
+        ...(cc ? [`Cc: ${cc}`] : []),
+        ...(bcc ? [`Bcc: ${bcc}`] : []),
+        ...(replyTo ? [`Reply-to: ${replyTo}`] : []),
+        `Received at: ${new Date(message.received_at).toISOString()}`,
+        `Subject: ${message.subject || '(no subject)'}`,
+        '',
+        originalText,
+        extra,
+      ].join('\n');
+      const originalHtml = message.html_body || `<pre>${escapeHtml(originalText)}</pre>`;
+      const sent = await resend('/emails', {
+        method: 'POST',
+        headers: {'Idempotency-Key': `howbuddy-inbound-${message.id}`},
+        body: JSON.stringify({
+          from: `${inbox.split('@')[0]} <${inbox}>`,
+          to: [SUPPORT_FORWARD_TO],
+          reply_to: message.sender_email,
+          subject: `[HowBuddy] ${message.subject || '(no subject)'}`.slice(0, 998),
+          text,
+          html: `<p><strong>Forwarded from:</strong> ${escapeHtml(message.sender_name ? `${message.sender_name} ` : '')}&lt;${escapeHtml(message.sender_email)}&gt;</p><p><strong>Received by:</strong> ${escapeHtml(message.recipient_email)}</p>${cc ? `<p><strong>Cc:</strong> ${escapeHtml(cc)}</p>` : ''}${bcc ? `<p><strong>Bcc:</strong> ${escapeHtml(bcc)}</p>` : ''}${replyTo ? `<p><strong>Reply-to:</strong> ${escapeHtml(replyTo)}</p>` : ''}<p><strong>Received at:</strong> ${escapeHtml(new Date(message.received_at).toISOString())}</p><p><strong>Subject:</strong> ${escapeHtml(message.subject || '(no subject)')}</p><hr>${originalHtml}${omittedAttachments.length ? `<p>Some attachments were omitted: ${escapeHtml(omittedAttachments.join(', '))}. They remain available in the HowBuddy admin inbox.</p>` : ''}`,
+          attachments: forwardedAttachments,
+        }),
+      });
+      if (!sent.id) throw new Error('Resend did not confirm the forwarded email.');
+      await client.query('UPDATE support_messages SET forwarded_at = now() WHERE id = $1', [message.id]);
+      return true;
+    } finally {
+      await client.query('SELECT pg_advisory_unlock(hashtextextended($1, 0))', [`forward:${emailId}`]);
       client.release();
     }
   }
@@ -173,7 +297,8 @@ export function createSupportInbox({pool, apiKey = '', fetchImpl = fetch, logger
       const result = await pool.query(
         `SELECT c.id, c.inbox_address, c.sender_email, c.subject, c.is_read, c.last_activity_at,
           (SELECT count(*)::int FROM support_messages m WHERE m.conversation_id = c.id) AS message_count,
-          (SELECT m.text_body FROM support_messages m WHERE m.conversation_id = c.id
+          (SELECT COALESCE(NULLIF(m.text_body, ''), regexp_replace(m.html_body, '<[^>]*>', ' ', 'g'))
+           FROM support_messages m WHERE m.conversation_id = c.id
             ORDER BY m.received_at DESC LIMIT 1) AS preview
          FROM support_conversations c ${where.length ? `WHERE ${where.join(' AND ')}` : ''}
          ORDER BY c.last_activity_at DESC LIMIT 200`, values,
@@ -186,12 +311,18 @@ export function createSupportInbox({pool, apiKey = '', fetchImpl = fetch, logger
         `SELECT c.id, c.inbox_address, c.sender_email, c.subject, c.is_read, c.last_activity_at,
           COALESCE(json_agg(json_build_object(
             'id', m.id, 'direction', m.direction, 'senderEmail', m.sender_email,
-            'recipientEmail', m.recipient_email, 'subject', m.subject,
+            'senderName', m.sender_name, 'recipientEmail', m.recipient_email,
+            'ccEmails', m.cc_emails, 'bccEmails', m.bcc_emails,
+            'replyToEmails', m.reply_to_emails, 'receivedFor', m.received_for,
+            'headers', m.email_headers, 'forwardedAt', m.forwarded_at,
+            'subject', m.subject,
             'text', m.text_body, 'html', m.html_body, 'messageId', m.message_id,
             'inReplyTo', m.in_reply_to, 'references', m.references_header,
             'receivedAt', m.received_at,
             'attachments', COALESCE((SELECT json_agg(json_build_object(
-              'id', a.id, 'filename', a.filename, 'contentType', a.content_type, 'size', a.size_bytes
+              'id', a.id, 'filename', a.filename, 'contentType', a.content_type,
+              'size', a.size_bytes, 'contentDisposition', a.content_disposition,
+              'contentId', a.content_id
             )) FROM support_attachments a WHERE a.message_id = m.id), '[]'::json)
           ) ORDER BY m.received_at) FILTER (WHERE m.id IS NOT NULL), '[]'::json) AS messages
          FROM support_conversations c LEFT JOIN support_messages m ON m.conversation_id = c.id
@@ -276,6 +407,16 @@ function normalizeAddress(value) {
   return values[0] ?? '';
 }
 
+function extractDisplayName(value) {
+  const entry = Array.isArray(value) ? value[0] : value;
+  if (entry && typeof entry === 'object') {
+    return String(entry.name ?? entry.display_name ?? '').trim().slice(0, 255);
+  }
+  const raw = String(entry ?? '');
+  const match = raw.match(/^\s*(.*?)\s*<[^<>]+>\s*$/);
+  return String(match?.[1] ?? '').replace(/^['"]|['"]$/g, '').trim().slice(0, 255);
+}
+
 function normalizeAddresses(value) {
   const list = Array.isArray(value) ? value : [value];
   return list.flatMap((entry) => {
@@ -286,7 +427,24 @@ function normalizeAddresses(value) {
 }
 
 function lowerCaseHeaders(headers = {}) {
-  return Object.fromEntries(Object.entries(headers).map(([key, value]) => [key.toLowerCase(), value]));
+  const source = headers && typeof headers === 'object' ? headers : {};
+  return Object.fromEntries(Object.entries(source).map(([key, value]) => [key.toLowerCase(), value]));
+}
+
+function headersForStorage(headers = {}) {
+  const source = headers && typeof headers === 'object' ? headers : {};
+  return Object.fromEntries(Object.entries(source).slice(0, 100).map(([key, value]) => [
+    String(key).slice(0, 255),
+    (Array.isArray(value) ? value : [value])
+      .map((item) => String(item ?? '').slice(0, 4000))
+      .join('\n')
+      .slice(0, 4000),
+  ]));
+}
+
+function stripHtml(value) {
+  return sanitizeHtml(String(value ?? ''), {allowedTags: [], allowedAttributes: {}})
+    .replace(/\s+/g, ' ').trim();
 }
 
 function parseReferences(value) {

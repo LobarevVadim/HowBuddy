@@ -129,7 +129,13 @@ CREATE TABLE IF NOT EXISTS support_messages (
   conversation_id UUID NOT NULL REFERENCES support_conversations(id) ON DELETE CASCADE,
   direction TEXT NOT NULL CHECK (direction IN ('inbound', 'outbound')),
   sender_email TEXT NOT NULL,
+  sender_name TEXT NOT NULL DEFAULT '',
   recipient_email TEXT NOT NULL,
+  cc_emails TEXT[] NOT NULL DEFAULT '{}',
+  bcc_emails TEXT[] NOT NULL DEFAULT '{}',
+  reply_to_emails TEXT[] NOT NULL DEFAULT '{}',
+  received_for TEXT[] NOT NULL DEFAULT '{}',
+  email_headers JSONB NOT NULL DEFAULT '{}'::jsonb,
   subject TEXT NOT NULL DEFAULT '',
   text_body TEXT NOT NULL DEFAULT '',
   html_body TEXT NOT NULL DEFAULT '',
@@ -137,8 +143,16 @@ CREATE TABLE IF NOT EXISTS support_messages (
   message_id TEXT,
   in_reply_to TEXT,
   references_header TEXT[] NOT NULL DEFAULT '{}',
+  forwarded_at TIMESTAMPTZ,
   received_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+ALTER TABLE support_messages ADD COLUMN IF NOT EXISTS sender_name TEXT NOT NULL DEFAULT '';
+ALTER TABLE support_messages ADD COLUMN IF NOT EXISTS cc_emails TEXT[] NOT NULL DEFAULT '{}';
+ALTER TABLE support_messages ADD COLUMN IF NOT EXISTS bcc_emails TEXT[] NOT NULL DEFAULT '{}';
+ALTER TABLE support_messages ADD COLUMN IF NOT EXISTS reply_to_emails TEXT[] NOT NULL DEFAULT '{}';
+ALTER TABLE support_messages ADD COLUMN IF NOT EXISTS received_for TEXT[] NOT NULL DEFAULT '{}';
+ALTER TABLE support_messages ADD COLUMN IF NOT EXISTS email_headers JSONB NOT NULL DEFAULT '{}'::jsonb;
+ALTER TABLE support_messages ADD COLUMN IF NOT EXISTS forwarded_at TIMESTAMPTZ;
 CREATE INDEX IF NOT EXISTS support_messages_conversation_idx ON support_messages(conversation_id, received_at);
 CREATE INDEX IF NOT EXISTS support_messages_message_id_idx ON support_messages(message_id);
 CREATE TABLE IF NOT EXISTS support_attachments (
@@ -148,5 +162,9 @@ CREATE TABLE IF NOT EXISTS support_attachments (
   filename TEXT NOT NULL,
   content_type TEXT NOT NULL DEFAULT 'application/octet-stream',
   size_bytes BIGINT NOT NULL DEFAULT 0,
+  content_disposition TEXT NOT NULL DEFAULT 'attachment',
+  content_id TEXT NOT NULL DEFAULT '',
   UNIQUE (message_id, provider_attachment_id)
 );
+ALTER TABLE support_attachments ADD COLUMN IF NOT EXISTS content_disposition TEXT NOT NULL DEFAULT 'attachment';
+ALTER TABLE support_attachments ADD COLUMN IF NOT EXISTS content_id TEXT NOT NULL DEFAULT '';
