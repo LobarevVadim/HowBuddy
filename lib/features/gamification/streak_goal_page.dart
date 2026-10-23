@@ -43,7 +43,7 @@ class _StreakGoalPageState extends State<StreakGoalPage> {
     try {
       final state = await GamificationApi().fetchState(widget.account.id);
       if (!mounted) return;
-      if (state.streakCount > 0 || state.studyDays.isEmpty) {
+      if (state.streakCount > 0) {
         _continueToApp();
         return;
       }
