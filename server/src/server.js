@@ -12,8 +12,12 @@ import {createNotificationScheduler} from './notification_scheduler.js';
 import {createNotificationEmailSender} from './notification_email.js';
 import {isValidTimeZone, localClock} from './notification_policy.js';
 import {
+  claimStreakFreezeAlert,
   countStreakThroughToday,
+  isStreakFreezeAlertDue,
   planMissedStreakFreezeDays,
+  streakFreezeAlertCopy,
+  streakFreezeAlertDate,
 } from './streak_freeze_policy.js';
 import {createSupportInbox, verifyResendWebhook, SUPPORT_INBOXES} from './support_inbox.js';
 
@@ -887,14 +891,21 @@ app.post('/notifications/tick', async (request, response) => {
     timingSafeEqual(secretBytes, suppliedBytes);
   if (!authorized) return response.status(secret ? 401 : 503).json({message: 'Scheduler is not authorized.'});
   let streakFreezeDays = 0;
+  let streakFreezeAlerts = 0;
   try {
     streakFreezeDays = (await processDueStreakFreezes()).days;
   } catch (error) {
     console.error('Could not process due streak freezes:', error.message);
   }
+  try {
+    streakFreezeAlerts = await sendDueStreakFreezeAlerts();
+  } catch (error) {
+    console.error('Could not send streak freeze alerts:', error.message);
+  }
   return response.json({
     ...await notificationScheduler.tick(),
     streakFreezeDays,
+    streakFreezeAlerts,
   });
 });
 
@@ -1423,6 +1434,7 @@ async function processAccountStreakFreezes(accountId, now = new Date()) {
       lastActivityDate: activityResult.rows[0]?.last_activity_date ?? null,
       freezeBalance: game.streak_freezes_remaining,
     });
+    const notifyOn = streakFreezeAlertDate(now, timeZone);
 
     let consumed = 0;
     for (const date of dates) {
@@ -1444,6 +1456,12 @@ async function processAccountStreakFreezes(accountId, now = new Date()) {
       if (deduction.rowCount !== 1) {
         throw new Error('Freeze balance changed during the locked deduction.');
       }
+      await client.query(
+        `INSERT INTO streak_freeze_alerts (account_id, frozen_date, notify_on)
+         VALUES ($1, $2::date, $3::date)
+         ON CONFLICT (account_id, frozen_date) DO NOTHING`,
+        [accountId, date, notifyOn],
+      );
       consumed++;
     }
     await client.query('COMMIT');
@@ -1454,6 +1472,89 @@ async function processAccountStreakFreezes(accountId, now = new Date()) {
   } finally {
     client.release();
   }
+}
+
+async function sendDueStreakFreezeAlerts(now = new Date()) {
+  const result = await pool.query(
+    `SELECT alert.account_id, alert.frozen_date::text AS frozen_date,
+            alert.notify_on::text AS notify_on,
+            COALESCE(NULLIF(settings.time_zone, ''), 'UTC') AS time_zone,
+            accounts.email AS account_email,
+            COALESCE(accounts.preferred_language, 'en') AS language,
+            game.streak_freezes_remaining,
+            array_remove(array_agg(DISTINCT devices.token), NULL) AS tokens
+     FROM streak_freeze_alerts alert
+     JOIN accounts ON accounts.id = alert.account_id
+     JOIN account_gamification game ON game.account_id = alert.account_id
+     LEFT JOIN account_notification_settings settings ON settings.account_id = alert.account_id
+     LEFT JOIN notification_devices devices ON devices.account_id = alert.account_id
+     WHERE alert.claimed_at IS NULL
+     GROUP BY alert.account_id, alert.frozen_date, alert.notify_on,
+              settings.time_zone, accounts.email, accounts.preferred_language,
+              game.streak_freezes_remaining`,
+  );
+  let claimed = 0;
+  for (const alert of result.rows) {
+    const timeZone = isValidTimeZone(alert.time_zone) ? alert.time_zone : 'UTC';
+    if (!isStreakFreezeAlertDue({now, timeZone, notifyOn: alert.notify_on})) continue;
+    if (!await claimStreakFreezeAlert(pool, alert.account_id, alert.frozen_date)) continue;
+    claimed++;
+    const copy = streakFreezeAlertCopy(
+      alert.streak_freezes_remaining,
+      alert.language,
+    );
+    const tokens = [...new Set(alert.tokens ?? [])];
+    if (pushMessaging && tokens.length) {
+      for (let offset = 0; offset < tokens.length; offset += 500) {
+        const batch = tokens.slice(offset, offset + 500);
+        try {
+          const pushResult = await pushMessaging.sendEachForMulticast({
+            tokens: batch,
+            notification: {title: copy.title, body: copy.body},
+            data: {type: 'streak_freeze_saved', topicId: ''},
+            android: {priority: 'high', notification: {channelId: 'howbuddy_reminders'}},
+            apns: {payload: {aps: {sound: 'default', threadId: 'howbuddy-reminders'}}},
+            webpush: {
+              headers: {Urgency: 'high'},
+              fcmOptions: {link: 'https://howbuddy.app/'},
+            },
+          });
+          if (pushResult.successCount === 0) {
+            console.error('Streak freeze push was rejected by every device token.');
+          }
+          const invalidTokens = [];
+          pushResult.responses.forEach((item, index) => {
+            if (!item.success && [
+              'messaging/invalid-registration-token',
+              'messaging/registration-token-not-registered',
+            ].includes(item.error?.code)) invalidTokens.push(batch[index]);
+          });
+          if (invalidTokens.length) {
+            await pool.query(
+              'DELETE FROM notification_devices WHERE token = ANY($1::text[])',
+              [invalidTokens],
+            );
+          }
+        } catch (error) {
+          console.error('Streak freeze push failed:', error.message);
+        }
+      }
+    }
+    try {
+      const emailResult = await notificationEmailSender({
+        email: alert.account_email,
+        title: copy.title,
+        body: copy.body,
+        type: 'streak_freeze_saved',
+      });
+      if (!emailResult.sent && emailResult.reason !== 'recipient-filtered') {
+        console.warn(`Streak freeze email was not sent (${emailResult.reason ?? 'unknown reason'}).`);
+      }
+    } catch (error) {
+      console.error('Streak freeze email failed:', error.message);
+    }
+  }
+  return claimed;
 }
 
 async function syncClientTimeZone(request) {

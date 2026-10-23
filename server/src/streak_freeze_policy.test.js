@@ -1,8 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  claimStreakFreezeAlert,
   countStreakThroughToday,
+  isStreakFreezeAlertDue,
   planMissedStreakFreezeDays,
+  streakFreezeAlertCopy,
+  streakFreezeAlertDate,
 } from './streak_freeze_policy.js';
 import {localClock} from './notification_policy.js';
 
@@ -74,4 +78,55 @@ test('local calendar date follows the configured zone across daylight-saving cha
     localClock(new Date('2026-11-01T06:00:00.000Z'), 'America/Toronto').date,
     '2026-11-01',
   );
+});
+
+test('a freeze created before 9 a.m. alerts that morning in the account timezone', () => {
+  assert.equal(
+    streakFreezeAlertDate(new Date('2026-10-24T12:00:00.000Z'), 'America/Toronto'),
+    '2026-10-24',
+  );
+  assert.equal(isStreakFreezeAlertDue({
+    now: new Date('2026-10-24T13:00:00.000Z'),
+    timeZone: 'America/Toronto',
+    notifyOn: '2026-10-24',
+  }), true);
+});
+
+test('a freeze created after 9 a.m. alerts the next local morning', () => {
+  assert.equal(
+    streakFreezeAlertDate(new Date('2026-10-24T15:00:00.000Z'), 'America/Toronto'),
+    '2026-10-25',
+  );
+  assert.equal(isStreakFreezeAlertDue({
+    now: new Date('2026-10-25T13:00:00.000Z'),
+    timeZone: 'America/Toronto',
+    notifyOn: '2026-10-25',
+  }), true);
+});
+
+test('freeze saved alert has the requested copy and remaining balance', () => {
+  const copy = streakFreezeAlertCopy(2);
+  assert.equal(copy.title, '❄️ Your streak was saved!');
+  assert.equal(copy.body, 'Bobo used 1 streak freeze to protect your progress. 🔥 Complete a lesson today to keep going! You have 2 freezes left.');
+});
+
+test('freeze saved alert copy is available in each supported language', () => {
+  for (const language of ['en', 'fr', 'ru', 'es', 'hi']) {
+    const copy = streakFreezeAlertCopy(3, language);
+    assert.ok(copy.title.startsWith('❄️'));
+    assert.ok(copy.body.includes('3'));
+  }
+});
+
+test('a frozen-day alert claim can only succeed once', async () => {
+  let isClaimed = false;
+  const pool = {
+    async query() {
+      if (isClaimed) return {rowCount: 0};
+      isClaimed = true;
+      return {rowCount: 1};
+    },
+  };
+  assert.equal(await claimStreakFreezeAlert(pool, 'account-1', '2026-10-23'), true);
+  assert.equal(await claimStreakFreezeAlert(pool, 'account-1', '2026-10-23'), false);
 });

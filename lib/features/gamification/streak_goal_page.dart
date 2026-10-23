@@ -5,6 +5,12 @@ import '../../models/app_models.dart';
 import '../../services/gamification_api.dart';
 import '../../services/ui_translations.dart';
 
+bool shouldPromptForStreakGoal({
+  required int streakCount,
+  required String? goalStartedAt,
+  required String today,
+}) => streakCount == 0 && goalStartedAt != today;
+
 class StreakGoalPage extends StatefulWidget {
   const StreakGoalPage({
     super.key,
@@ -44,7 +50,11 @@ class _StreakGoalPageState extends State<StreakGoalPage> {
     try {
       final state = await GamificationApi().fetchState(widget.account.id);
       if (!mounted) return;
-      if (state.streakCount > 0 || state.streakGoalStartedAt == _localToday()) {
+      if (!shouldPromptForStreakGoal(
+        streakCount: state.streakCount,
+        goalStartedAt: state.streakGoalStartedAt,
+        today: _localToday(),
+      )) {
         _continueToApp();
         return;
       }

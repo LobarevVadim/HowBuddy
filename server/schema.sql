@@ -109,6 +109,18 @@ CREATE TABLE IF NOT EXISTS streak_freeze_calendar_days (
 CREATE INDEX IF NOT EXISTS streak_freeze_calendar_days_date_idx
   ON streak_freeze_calendar_days(account_id, frozen_date);
 
+CREATE TABLE IF NOT EXISTS streak_freeze_alerts (
+  account_id UUID NOT NULL,
+  frozen_date DATE NOT NULL,
+  notify_on DATE NOT NULL,
+  claimed_at TIMESTAMPTZ,
+  PRIMARY KEY (account_id, frozen_date),
+  FOREIGN KEY (account_id, frozen_date)
+    REFERENCES streak_freeze_calendar_days(account_id, frozen_date) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS streak_freeze_alerts_pending_idx
+  ON streak_freeze_alerts(notify_on) WHERE claimed_at IS NULL;
+
 -- Preserve existing activity using the records already collected by HowBuddy.
 WITH activity AS (
   SELECT account_id, MAX(active_at) AS last_active_at
