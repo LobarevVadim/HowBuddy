@@ -100,14 +100,14 @@ CREATE TABLE IF NOT EXISTS study_days (
   PRIMARY KEY (account_id, study_date)
 );
 
-CREATE TABLE IF NOT EXISTS streak_freeze_days (
+CREATE TABLE IF NOT EXISTS streak_freeze_calendar_days (
   account_id UUID NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
   frozen_date DATE NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   PRIMARY KEY (account_id, frozen_date)
 );
-CREATE INDEX IF NOT EXISTS streak_freeze_days_date_idx
-  ON streak_freeze_days(account_id, frozen_date);
+CREATE INDEX IF NOT EXISTS streak_freeze_calendar_days_date_idx
+  ON streak_freeze_calendar_days(account_id, frozen_date);
 
 -- Preserve existing activity using the records already collected by HowBuddy.
 WITH activity AS (

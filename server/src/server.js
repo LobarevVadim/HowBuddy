@@ -1350,7 +1350,7 @@ async function getGameState(accountId, today = new Date().toISOString().slice(0,
       [accountId],
     ),
     pool.query(
-      'SELECT frozen_date::text AS day FROM streak_freeze_days WHERE account_id = $1 ORDER BY frozen_date',
+      'SELECT frozen_date::text AS day FROM streak_freeze_calendar_days WHERE account_id = $1 ORDER BY frozen_date',
       [accountId],
     ),
   ]);
@@ -1414,7 +1414,7 @@ async function processAccountStreakFreezes(accountId, now = new Date()) {
     const activityResult = await client.query(
       `SELECT GREATEST(
          (SELECT MAX(study_date) FROM study_days WHERE account_id = $1),
-         (SELECT MAX(frozen_date) FROM streak_freeze_days WHERE account_id = $1)
+         (SELECT MAX(frozen_date) FROM streak_freeze_calendar_days WHERE account_id = $1)
        )::text AS last_activity_date`,
       [accountId],
     );
@@ -1427,7 +1427,7 @@ async function processAccountStreakFreezes(accountId, now = new Date()) {
     let consumed = 0;
     for (const date of dates) {
       const inserted = await client.query(
-        `INSERT INTO streak_freeze_days (account_id, frozen_date)
+        `INSERT INTO streak_freeze_calendar_days (account_id, frozen_date)
          VALUES ($1, $2::date)
          ON CONFLICT (account_id, frozen_date) DO NOTHING
          RETURNING frozen_date`,
