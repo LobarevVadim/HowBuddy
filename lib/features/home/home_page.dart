@@ -152,8 +152,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _openStreak(GameState state) async {
+    await _refreshGameState();
+    if (!mounted) return;
+    final currentState = _currentGameState ?? state;
     await Navigator.of(context).push<void>(
-      MaterialPageRoute(builder: (_) => StreakCalendarPage(state: state)),
+      MaterialPageRoute(
+        builder: (_) => StreakCalendarPage(state: currentState),
+      ),
     );
     await _refreshGameState();
   }

@@ -151,6 +151,7 @@ class NotificationService with WidgetsBindingObserver {
   }
 
   Future<void> syncAccount(String accountId) async {
+    await ApiSession.loadClientTimeZone();
     if (!await initialize() || _messaging == null) return;
     _activeAccountId = accountId;
     try {

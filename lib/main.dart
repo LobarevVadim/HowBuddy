@@ -8,9 +8,11 @@ import 'features/auth/auth_pages.dart';
 import 'services/theme_preferences.dart';
 import 'services/ui_translations.dart';
 import 'services/notification_service.dart';
+import 'services/api_session.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await ApiSession.loadClientTimeZone();
   await UiTranslations.loadSavedLanguage();
   await NotificationService.instance.initialize();
   if (!kIsWeb) {

@@ -560,11 +560,15 @@ class _StreakCalendarPageState extends State<StreakCalendarPage> {
                     }
                     final date = DateTime(_month.year, _month.month, day);
                     final key = _dateKey(date);
-                    final studied = widget.state.studyDays.contains(key);
+                    final frozen = widget.state.frozenDays.contains(key);
+                    final studied =
+                        !frozen && widget.state.studyDays.contains(key);
                     final isToday = _sameDay(date, today);
                     return Container(
                       decoration: BoxDecoration(
-                        color: studied
+                        color: frozen
+                            ? const Color(0xFF54A9E8)
+                            : studied
                             ? AppColors.success
                             : AppColors.authPanelBackground,
                         borderRadius: BorderRadius.circular(12),
@@ -575,9 +579,11 @@ class _StreakCalendarPageState extends State<StreakCalendarPage> {
                       ),
                       child: Center(
                         child: Text(
-                          '$day',
+                          frozen ? '\u{2744}\u{FE0F}' : '$day',
                           style: TextStyle(
-                            color: studied ? Colors.white : AppColors.text,
+                            color: frozen || studied
+                                ? Colors.white
+                                : AppColors.text,
                             fontWeight: studied || isToday
                                 ? FontWeight.w900
                                 : FontWeight.w600,
@@ -600,7 +606,10 @@ class _StreakCalendarPageState extends State<StreakCalendarPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.ac_unit_rounded, color: AppColors.primary),
+                    const Text(
+                      '\u{2744}\u{FE0F}',
+                      style: TextStyle(fontSize: 20),
+                    ),
                     const SizedBox(width: 8),
                     Text(
                       widget.state.streakFreezesRemaining == 1

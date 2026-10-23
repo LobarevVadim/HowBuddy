@@ -1,17 +1,27 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:flutter_timezone/flutter_timezone.dart';
 
 class ApiSession {
   ApiSession._();
 
   static String? _token;
+  static String _clientTimeZone = 'UTC';
   static const _baseUrl = String.fromEnvironment(
     'API_URL',
     defaultValue: 'http://localhost:3000',
   );
 
   static void setToken(String token) => _token = token;
+
+  static Future<void> loadClientTimeZone() async {
+    try {
+      _clientTimeZone = (await FlutterTimezone.getLocalTimezone()).identifier;
+    } catch (_) {
+      // Keep UTC as a safe fallback if the platform cannot report its zone.
+    }
+  }
 
   static void clear() => _token = null;
 
@@ -26,6 +36,7 @@ class ApiSession {
     'Content-Type': 'application/json',
     'X-Client-Date': _localDate,
     'X-Client-UTC-Offset-Minutes': '${DateTime.now().timeZoneOffset.inMinutes}',
+    'X-Client-Time-Zone': _clientTimeZone,
     if (_token != null) 'Authorization': 'Bearer $_token',
   };
 

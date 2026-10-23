@@ -10,7 +10,11 @@ import {getApps, initializeApp, cert} from 'firebase-admin/app';
 import {getMessaging} from 'firebase-admin/messaging';
 import {createNotificationScheduler} from './notification_scheduler.js';
 import {createNotificationEmailSender} from './notification_email.js';
-import {isValidTimeZone} from './notification_policy.js';
+import {isValidTimeZone, localClock} from './notification_policy.js';
+import {
+  countStreakThroughToday,
+  planMissedStreakFreezeDays,
+} from './streak_freeze_policy.js';
 import {createSupportInbox, verifyResendWebhook, SUPPORT_INBOXES} from './support_inbox.js';
 
 dotenv.config();
@@ -350,6 +354,7 @@ app.get('/onboarding/topics', (request, response) => {
 app.get('/gamification', requireAuth, async (request, response) => {
   const accountId = request.accountId;
   try {
+    await syncClientTimeZone(request);
     return response.json(await getGameState(accountId, clientStudyDate(request)));
   } catch (error) {
     console.error(error);
@@ -364,6 +369,7 @@ app.post('/gamification/streak-goal', requireAuth, async (request, response) => 
   }
   const today = clientStudyDate(request);
   try {
+    await syncClientTimeZone(request);
     await ensureGameRow(request.accountId);
     await pool.query(
       `UPDATE account_gamification
@@ -880,7 +886,16 @@ app.post('/notifications/tick', async (request, response) => {
     secretBytes.length === suppliedBytes.length &&
     timingSafeEqual(secretBytes, suppliedBytes);
   if (!authorized) return response.status(secret ? 401 : 503).json({message: 'Scheduler is not authorized.'});
-  return response.json(await notificationScheduler.tick());
+  let streakFreezeDays = 0;
+  try {
+    streakFreezeDays = (await processDueStreakFreezes()).days;
+  } catch (error) {
+    console.error('Could not process due streak freezes:', error.message);
+  }
+  return response.json({
+    ...await notificationScheduler.tick(),
+    streakFreezeDays,
+  });
 });
 
 app.get('/lessons/exercises', async (request, response) => {
@@ -941,6 +956,8 @@ app.post('/lessons/complete', requireAuth, async (request, response) => {
 
   try {
     await ensureGameRow(accountId);
+    await syncClientTimeZone(request);
+    await processAccountStreakFreezes(accountId);
     await pool.query(
       `INSERT INTO lesson_progress (account_id, topic_id, lesson_id)
        VALUES ($1, $2, $3) ON CONFLICT (account_id, topic_id, lesson_id) DO NOTHING`,
@@ -1307,6 +1324,7 @@ async function ensureGameRow(accountId) {
 
 async function getGameState(accountId, today = new Date().toISOString().slice(0, 10)) {
   await ensureGameRow(accountId);
+  await processAccountStreakFreezes(accountId);
   await refreshHearts(accountId);
   await pool.query(
     `WITH moved AS (
@@ -1319,7 +1337,7 @@ async function getGameState(accountId, today = new Date().toISOString().slice(0,
      ON CONFLICT DO NOTHING`,
     [accountId, today],
   );
-  const [result, studyResult] = await Promise.all([
+  const [result, studyResult, frozenResult] = await Promise.all([
     pool.query(
       `SELECT hearts, heart_recharge_at, emeralds, xp_boost_until,
               streak_goal_days, streak_goal_started_at::text AS streak_goal_started_at,
@@ -1331,20 +1349,18 @@ async function getGameState(accountId, today = new Date().toISOString().slice(0,
       'SELECT study_date::text AS day FROM study_days WHERE account_id = $1 ORDER BY study_date',
       [accountId],
     ),
+    pool.query(
+      'SELECT frozen_date::text AS day FROM streak_freeze_days WHERE account_id = $1 ORDER BY frozen_date',
+      [accountId],
+    ),
   ]);
   const studyDays = studyResult.rows
     .map((row) => row.day)
     .filter((day) => day <= today);
-  const studied = new Set(studyDays);
-  let cursor = new Date(`${today}T00:00:00.000Z`);
-  if (!studied.has(cursor.toISOString().slice(0, 10))) {
-    cursor.setUTCDate(cursor.getUTCDate() - 1);
-  }
-  let streakCount = 0;
-  while (studied.has(cursor.toISOString().slice(0, 10))) {
-    streakCount++;
-    cursor.setUTCDate(cursor.getUTCDate() - 1);
-  }
+  const frozenDays = frozenResult.rows
+    .map((row) => row.day)
+    .filter((day) => day <= today);
+  const streakCount = countStreakThroughToday({today, studyDays, frozenDays});
   const game = result.rows[0];
   return {
     hearts: game.hearts,
@@ -1352,11 +1368,103 @@ async function getGameState(accountId, today = new Date().toISOString().slice(0,
     emeralds: game.emeralds,
     streakCount,
     studyDays,
+    frozenDays,
     streakGoalDays: game.streak_goal_days,
     streakGoalStartedAt: game.streak_goal_started_at,
     streakFreezesRemaining: game.streak_freezes_remaining,
     xpBoostUntil: game.xp_boost_until?.toISOString() ?? null,
   };
+}
+
+async function processDueStreakFreezes(now = new Date()) {
+  const accounts = await pool.query(
+    `SELECT game.account_id, COALESCE(NULLIF(settings.time_zone, ''), 'UTC') AS time_zone
+     FROM account_gamification game
+     LEFT JOIN account_notification_settings settings ON settings.account_id = game.account_id
+     WHERE game.streak_freezes_remaining > 0`,
+  );
+  let days = 0;
+  for (const account of accounts.rows) {
+    days += await processAccountStreakFreezes(account.account_id, now);
+  }
+  return {accounts: accounts.rowCount, days};
+}
+
+async function processAccountStreakFreezes(accountId, now = new Date()) {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const gameResult = await client.query(
+      `SELECT game.streak_freezes_remaining,
+              COALESCE(NULLIF(settings.time_zone, ''), 'UTC') AS time_zone
+       FROM account_gamification game
+       LEFT JOIN account_notification_settings settings ON settings.account_id = game.account_id
+       WHERE game.account_id = $1
+       FOR UPDATE OF game`,
+      [accountId],
+    );
+    const game = gameResult.rows[0];
+    if (!game || game.streak_freezes_remaining < 1) {
+      await client.query('COMMIT');
+      return 0;
+    }
+
+    const timeZone = isValidTimeZone(game.time_zone) ? game.time_zone : 'UTC';
+    const today = localClock(now, timeZone).date;
+    const activityResult = await client.query(
+      `SELECT GREATEST(
+         (SELECT MAX(study_date) FROM study_days WHERE account_id = $1),
+         (SELECT MAX(frozen_date) FROM streak_freeze_days WHERE account_id = $1)
+       )::text AS last_activity_date`,
+      [accountId],
+    );
+    const dates = planMissedStreakFreezeDays({
+      today,
+      lastActivityDate: activityResult.rows[0]?.last_activity_date ?? null,
+      freezeBalance: game.streak_freezes_remaining,
+    });
+
+    let consumed = 0;
+    for (const date of dates) {
+      const inserted = await client.query(
+        `INSERT INTO streak_freeze_days (account_id, frozen_date)
+         VALUES ($1, $2::date)
+         ON CONFLICT (account_id, frozen_date) DO NOTHING
+         RETURNING frozen_date`,
+        [accountId, date],
+      );
+      if (inserted.rowCount !== 1) continue;
+      const deduction = await client.query(
+        `UPDATE account_gamification
+         SET streak_freezes_remaining = streak_freezes_remaining - 1
+         WHERE account_id = $1 AND streak_freezes_remaining > 0
+         RETURNING streak_freezes_remaining`,
+        [accountId],
+      );
+      if (deduction.rowCount !== 1) {
+        throw new Error('Freeze balance changed during the locked deduction.');
+      }
+      consumed++;
+    }
+    await client.query('COMMIT');
+    return consumed;
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+async function syncClientTimeZone(request) {
+  const timeZone = String(request.get('X-Client-Time-Zone') ?? '');
+  if (!isValidTimeZone(timeZone)) return;
+  await ensureNotificationSettings(request.accountId);
+  await pool.query(
+    `UPDATE account_notification_settings SET time_zone = $1, updated_at = now()
+     WHERE account_id = $2 AND time_zone IS DISTINCT FROM $1`,
+    [timeZone, request.accountId],
+  );
 }
 
 async function refreshHearts(accountId) {

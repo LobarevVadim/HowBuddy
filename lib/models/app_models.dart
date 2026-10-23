@@ -170,6 +170,7 @@ class GameState {
     required this.emeralds,
     required this.streakCount,
     required this.studyDays,
+    required this.frozenDays,
     required this.streakGoalDays,
     required this.streakGoalStartedAt,
     required this.streakFreezesRemaining,
@@ -181,6 +182,7 @@ class GameState {
   final int emeralds;
   final int streakCount;
   final Set<String> studyDays;
+  final Set<String> frozenDays;
   final int? streakGoalDays;
   final String? streakGoalStartedAt;
   final int streakFreezesRemaining;
@@ -199,6 +201,9 @@ class GameState {
       emeralds: int.tryParse(json['emeralds'].toString()) ?? 100,
       streakCount: int.tryParse(json['streakCount'].toString()) ?? 0,
       studyDays: (json['studyDays'] as List<dynamic>? ?? [])
+          .map((day) => day.toString())
+          .toSet(),
+      frozenDays: (json['frozenDays'] as List<dynamic>? ?? [])
           .map((day) => day.toString())
           .toSet(),
       streakGoalDays: int.tryParse(json['streakGoalDays']?.toString() ?? ''),
