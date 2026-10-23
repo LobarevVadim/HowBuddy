@@ -61,6 +61,53 @@ class UiTranslations {
   }
 
   static const Map<String, Map<String, String>> _strings = {
+    'Choose your streak goal': {
+      'fr': 'Choisissez votre objectif de série',
+      'es': 'Elige tu objetivo de racha',
+      'hi':
+          '\u0905\u092a\u0928\u093e \u0938\u094d\u091f\u094d\u0930\u0940\u0915 \u0932\u0915\u094d\u0937\u094d\u092f \u091a\u0941\u0928\u0947\u0902',
+      'ru':
+          '\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u0446\u0435\u043b\u044c \u0441\u0435\u0440\u0438\u0438',
+    },
+    'Build a learning streak with a goal that feels right for you.': {
+      'fr':
+          'Cr\u00e9ez une s\u00e9rie d\u2019apprentissage avec un objectif qui vous convient.',
+      'es': 'Crea una racha de aprendizaje con un objetivo que te guste.',
+      'hi':
+          '\u0905\u092a\u0928\u0947 \u0932\u093f\u090f \u0938\u0939\u0940 \u0932\u0915\u094d\u0937\u094d\u092f \u091a\u0941\u0928\u0915\u0930 \u0938\u0940\u0916\u0928\u0947 \u0915\u0940 \u0938\u094d\u091f\u094d\u0930\u0940\u0915 \u092c\u0928\u093e\u090f\u0901\u0964',
+      'ru':
+          '\u0421\u043e\u0437\u0434\u0430\u0439\u0442\u0435 \u0441\u0435\u0440\u0438\u044e \u0437\u0430\u043d\u044f\u0442\u0438\u0439 \u0441 \u043f\u043e\u0434\u0445\u043e\u0434\u044f\u0449\u0435\u0439 \u0432\u0430\u043c \u0446\u0435\u043b\u044c\u044e.',
+    },
+    '{count} days': {
+      'fr': '{count} jours',
+      'es': '{count} d\u00edas',
+      'hi': '{count} \u0926\u093f\u0928',
+      'ru': '{count} \u0434\u043d\u0435\u0439',
+    },
+    '1 streak freeze': {
+      'fr': '1 gel de s\u00e9rie',
+      'es': '1 protecci\u00f3n de racha',
+      'hi':
+          '1 \u0938\u094d\u091f\u094d\u0930\u0940\u0915 \u092b\u094d\u0930\u0940\u091c',
+      'ru':
+          '1 \u0437\u0430\u043c\u043e\u0440\u043e\u0437\u043a\u0430 \u0441\u0435\u0440\u0438\u0438',
+    },
+    '{count} streak freezes': {
+      'fr': '{count} gels de s\u00e9rie',
+      'es': '{count} protecciones de racha',
+      'hi':
+          '{count} \u0938\u094d\u091f\u094d\u0930\u0940\u0915 \u092b\u094d\u0930\u0940\u091c',
+      'ru':
+          '{count} \u0437\u0430\u043c\u043e\u0440\u043e\u0437\u043a\u0438 \u0441\u0435\u0440\u0438\u0438',
+    },
+    'Start my goal': {
+      'fr': 'Commencer mon objectif',
+      'es': 'Iniciar mi objetivo',
+      'hi':
+          '\u092e\u0947\u0930\u093e \u0932\u0915\u094d\u0937\u094d\u092f \u0936\u0941\u0930\u0942 \u0915\u0930\u0947\u0902',
+      'ru':
+          '\u041d\u0430\u0447\u0430\u0442\u044c \u043c\u043e\u044e \u0446\u0435\u043b\u044c',
+    },
     'Create your account': {
       'fr': 'Créez votre compte',
       'es': 'Crea tu cuenta',

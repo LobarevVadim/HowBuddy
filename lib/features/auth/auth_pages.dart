@@ -13,6 +13,7 @@ import '../home/home_page.dart';
 import '../../services/theme_preferences.dart';
 import '../../services/ui_translations.dart';
 import '../../services/notification_service.dart';
+import '../gamification/streak_goal_page.dart';
 
 Future<void> _returnToLogin(NavigatorState navigator, String accountId) async {
   await NotificationService.instance.unregister(accountId);
@@ -27,21 +28,32 @@ Widget _accountDestination(
   NavigatorState navigator, {
   required bool isNewUser,
 }) {
-  Widget nextPage(Account savedAccount) => isNewUser
-      ? OnboardingPage(account: savedAccount)
-      : HomePage(
-          account: savedAccount,
-          topicId: NotificationService.instance.takePendingTopicId() ?? 'heart',
-          onLogout: () => unawaited(_returnToLogin(navigator, savedAccount.id)),
-        );
+  Widget accountPages(Account savedAccount) {
+    Widget nextPage(Account updatedAccount) => isNewUser
+        ? OnboardingPage(account: updatedAccount)
+        : HomePage(
+            account: updatedAccount,
+            topicId:
+                NotificationService.instance.takePendingTopicId() ?? 'heart',
+            onLogout: () =>
+                unawaited(_returnToLogin(navigator, updatedAccount.id)),
+          );
 
-  if (account.preferredLanguage == null || account.ageYears == null) {
-    return AccountPreferencesPage(
-      account: account,
-      nextPageBuilder: (_, savedAccount) => nextPage(savedAccount),
-    );
+    if (savedAccount.preferredLanguage == null ||
+        savedAccount.ageYears == null) {
+      return AccountPreferencesPage(
+        account: savedAccount,
+        nextPageBuilder: (_, updatedAccount) => nextPage(updatedAccount),
+      );
+    }
+    return nextPage(savedAccount);
   }
-  return nextPage(account);
+
+  return StreakGoalPage(
+    account: account,
+    isNewAccount: isNewUser,
+    destinationBuilder: (_, savedAccount) => accountPages(savedAccount),
+  );
 }
 
 class RegistrationPage extends StatefulWidget {
@@ -496,8 +508,11 @@ class _LoginPageState extends State<LoginPage> {
       final navigator = Navigator.of(context);
       navigator.pushReplacement(
         MaterialPageRoute(
-          builder: (_) =>
-              _accountDestination(result.account, navigator, isNewUser: false),
+          builder: (_) => _accountDestination(
+            result.account,
+            navigator,
+            isNewUser: result.isNewUser,
+          ),
         ),
       );
     } on AuthException catch (error) {
