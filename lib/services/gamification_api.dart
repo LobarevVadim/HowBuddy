@@ -23,6 +23,15 @@ class GamificationApi {
     return _readState(response);
   }
 
+  Future<GameState> saveStreakGoal(String accountId, int goalDays) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/gamification/streak-goal'),
+      headers: ApiSession.authenticatedHeaders,
+      body: jsonEncode({'goalDays': goalDays}),
+    );
+    return GameState.fromJson(_readBody(response));
+  }
+
   Future<LessonHeartResult> consumeLessonHeart(String accountId) async {
     final response = await http.post(
       Uri.parse('$baseUrl/gamification/consume-heart'),

@@ -131,11 +131,24 @@ CREATE TABLE IF NOT EXISTS account_gamification (
   hearts INTEGER NOT NULL DEFAULT 5 CHECK (hearts BETWEEN 0 AND 5),
   heart_recharge_at TIMESTAMPTZ,
   emeralds INTEGER NOT NULL DEFAULT 100 CHECK (emeralds >= 0),
-  xp_boost_until TIMESTAMPTZ
+  xp_boost_until TIMESTAMPTZ,
+  streak_goal_days SMALLINT CHECK (streak_goal_days IN (7, 14, 30)),
+  streak_goal_started_at DATE
 );
 
 ALTER TABLE account_gamification
   ADD COLUMN IF NOT EXISTS heart_recharge_at TIMESTAMPTZ;
+ALTER TABLE account_gamification
+  ADD COLUMN IF NOT EXISTS streak_goal_days SMALLINT;
+ALTER TABLE account_gamification
+  ADD COLUMN IF NOT EXISTS streak_goal_started_at DATE;
+
+DO $$
+BEGIN
+  ALTER TABLE account_gamification ADD CONSTRAINT account_gamification_streak_goal_days_check
+    CHECK (streak_goal_days IS NULL OR streak_goal_days IN (7, 14, 30));
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 UPDATE account_gamification
 SET heart_recharge_at = now() + interval '3 hours'

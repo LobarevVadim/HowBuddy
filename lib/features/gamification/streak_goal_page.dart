@@ -25,6 +25,7 @@ class _StreakGoalPageState extends State<StreakGoalPage> {
   static const _goals = [(7, 1), (14, 3), (30, 7)];
   int? _selectedGoal;
   bool _loading = true;
+  bool _saving = false;
 
   @override
   void initState() {
@@ -43,11 +44,14 @@ class _StreakGoalPageState extends State<StreakGoalPage> {
     try {
       final state = await GamificationApi().fetchState(widget.account.id);
       if (!mounted) return;
-      if (state.streakCount > 0) {
+      if (state.streakCount > 0 || state.streakGoalStartedAt == _localToday()) {
         _continueToApp();
         return;
       }
-      setState(() => _loading = false);
+      setState(() {
+        _selectedGoal = state.streakGoalDays;
+        _loading = false;
+      });
     } catch (_) {
       // If the streak cannot be checked, do not block sign-in or guess that
       // the user qualifies for the goal prompt.
@@ -62,6 +66,31 @@ class _StreakGoalPageState extends State<StreakGoalPage> {
             widget.destinationBuilder(context, widget.account),
       ),
     );
+  }
+
+  String _localToday() {
+    final now = DateTime.now();
+    return '${now.year.toString().padLeft(4, '0')}-'
+        '${now.month.toString().padLeft(2, '0')}-'
+        '${now.day.toString().padLeft(2, '0')}';
+  }
+
+  Future<void> _startGoal() async {
+    final goalDays = _selectedGoal;
+    if (goalDays == null || _saving) return;
+    setState(() => _saving = true);
+    try {
+      await GamificationApi().saveStreakGoal(widget.account.id, goalDays);
+      if (mounted) _continueToApp();
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _saving = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(uiText(context, 'Could not save your streak goal.')),
+        ),
+      );
+    }
   }
 
   @override
@@ -119,7 +148,9 @@ class _StreakGoalPageState extends State<StreakGoalPage> {
                   SizedBox(
                     height: AppSizes.primaryButtonHeight,
                     child: FilledButton(
-                      onPressed: _selectedGoal == null ? null : _continueToApp,
+                      onPressed: _selectedGoal == null || _saving
+                          ? null
+                          : _startGoal,
                       style: FilledButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
@@ -127,7 +158,16 @@ class _StreakGoalPageState extends State<StreakGoalPage> {
                           borderRadius: BorderRadius.circular(AppRadii.button),
                         ),
                       ),
-                      child: Text(uiText(context, 'Start my goal')),
+                      child: _saving
+                          ? const SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : Text(uiText(context, 'Start my goal')),
                     ),
                   ),
                 ],
@@ -173,7 +213,7 @@ class _GoalOption extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Text('🔥', style: const TextStyle(fontSize: 23)),
+                Text('\u{1F525}', style: const TextStyle(fontSize: 23)),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -185,7 +225,7 @@ class _GoalOption extends StatelessWidget {
                     ),
                   ),
                 ),
-                Text('❄️', style: const TextStyle(fontSize: 20)),
+                Text('\u{2744}\u{FE0F}', style: const TextStyle(fontSize: 20)),
                 const SizedBox(width: 7),
                 Text(
                   freezes == 1

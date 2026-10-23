@@ -170,6 +170,8 @@ class GameState {
     required this.emeralds,
     required this.streakCount,
     required this.studyDays,
+    required this.streakGoalDays,
+    required this.streakGoalStartedAt,
     required this.xpBoostUntil,
   });
 
@@ -178,6 +180,8 @@ class GameState {
   final int emeralds;
   final int streakCount;
   final Set<String> studyDays;
+  final int? streakGoalDays;
+  final String? streakGoalStartedAt;
   final DateTime? xpBoostUntil;
 
   bool get hasActiveXpBoost =>
@@ -195,6 +199,8 @@ class GameState {
       studyDays: (json['studyDays'] as List<dynamic>? ?? [])
           .map((day) => day.toString())
           .toSet(),
+      streakGoalDays: int.tryParse(json['streakGoalDays']?.toString() ?? ''),
+      streakGoalStartedAt: json['streakGoalStartedAt']?.toString(),
       xpBoostUntil: rawBoostEnd == null || rawBoostEnd == 'null'
           ? null
           : DateTime.tryParse(rawBoostEnd),

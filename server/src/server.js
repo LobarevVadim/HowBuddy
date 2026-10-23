@@ -357,6 +357,27 @@ app.get('/gamification', requireAuth, async (request, response) => {
   }
 });
 
+app.post('/gamification/streak-goal', requireAuth, async (request, response) => {
+  const goalDays = Number(request.body?.goalDays);
+  if (![7, 14, 30].includes(goalDays)) {
+    return response.status(400).json({message: 'Choose a 7, 14, or 30-day goal.'});
+  }
+  const today = clientStudyDate(request);
+  try {
+    await ensureGameRow(request.accountId);
+    await pool.query(
+      `UPDATE account_gamification
+       SET streak_goal_days = $2, streak_goal_started_at = $3::date
+       WHERE account_id = $1`,
+      [request.accountId, goalDays, today],
+    );
+    return response.json(await getGameState(request.accountId, today));
+  } catch (error) {
+    console.error(error);
+    return response.status(500).json({message: 'Could not save your streak goal.'});
+  }
+});
+
 app.post('/gamification/consume-heart', requireAuth, async (request, response) => {
   const accountId = request.accountId;
   try {
@@ -1285,7 +1306,9 @@ async function getGameState(accountId, today = new Date().toISOString().slice(0,
   );
   const [result, studyResult] = await Promise.all([
     pool.query(
-      'SELECT hearts, heart_recharge_at, emeralds, xp_boost_until FROM account_gamification WHERE account_id = $1',
+      `SELECT hearts, heart_recharge_at, emeralds, xp_boost_until,
+              streak_goal_days, streak_goal_started_at::text AS streak_goal_started_at
+       FROM account_gamification WHERE account_id = $1`,
       [accountId],
     ),
     pool.query(
@@ -1313,6 +1336,8 @@ async function getGameState(accountId, today = new Date().toISOString().slice(0,
     emeralds: game.emeralds,
     streakCount,
     studyDays,
+    streakGoalDays: game.streak_goal_days,
+    streakGoalStartedAt: game.streak_goal_started_at,
     xpBoostUntil: game.xp_boost_until?.toISOString() ?? null,
   };
 }

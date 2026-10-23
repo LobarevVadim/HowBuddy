@@ -108,6 +108,14 @@ class UiTranslations {
       'ru':
           '\u041d\u0430\u0447\u0430\u0442\u044c \u043c\u043e\u044e \u0446\u0435\u043b\u044c',
     },
+    'Could not save your streak goal.': {
+      'fr': 'Impossible d\u2019enregistrer votre objectif de s\u00e9rie.',
+      'es': 'No se pudo guardar tu objetivo de racha.',
+      'hi':
+          '\u0906\u092a\u0915\u093e \u0938\u094d\u091f\u094d\u0930\u0940\u0915 \u0932\u0915\u094d\u0937\u094d\u092f \u0938\u0947\u0935 \u0928\u0939\u0940\u0902 \u0939\u0941\u0906\u0964',
+      'ru':
+          '\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0441\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c \u0446\u0435\u043b\u044c \u0441\u0435\u0440\u0438\u0438.',
+    },
     'Create your account': {
       'fr': 'Créez votre compte',
       'es': 'Crea tu cuenta',
