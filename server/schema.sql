@@ -132,6 +132,7 @@ CREATE TABLE IF NOT EXISTS account_gamification (
   heart_recharge_at TIMESTAMPTZ,
   emeralds INTEGER NOT NULL DEFAULT 100 CHECK (emeralds >= 0),
   xp_boost_until TIMESTAMPTZ,
+  streak_freezes_remaining INTEGER NOT NULL DEFAULT 0 CHECK (streak_freezes_remaining >= 0),
   streak_goal_days SMALLINT CHECK (streak_goal_days IN (7, 14, 30)),
   streak_goal_started_at DATE
 );
@@ -142,11 +143,27 @@ ALTER TABLE account_gamification
   ADD COLUMN IF NOT EXISTS streak_goal_days SMALLINT;
 ALTER TABLE account_gamification
   ADD COLUMN IF NOT EXISTS streak_goal_started_at DATE;
+ALTER TABLE account_gamification
+  ADD COLUMN IF NOT EXISTS streak_freezes_remaining INTEGER NOT NULL DEFAULT 0;
+UPDATE account_gamification
+SET streak_freezes_remaining = 0
+WHERE streak_freezes_remaining IS NULL;
+ALTER TABLE account_gamification
+  ALTER COLUMN streak_freezes_remaining SET DEFAULT 0;
+ALTER TABLE account_gamification
+  ALTER COLUMN streak_freezes_remaining SET NOT NULL;
 
 DO $$
 BEGIN
   ALTER TABLE account_gamification ADD CONSTRAINT account_gamification_streak_goal_days_check
     CHECK (streak_goal_days IS NULL OR streak_goal_days IN (7, 14, 30));
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$
+BEGIN
+  ALTER TABLE account_gamification ADD CONSTRAINT account_gamification_streak_freezes_remaining_check
+    CHECK (streak_freezes_remaining >= 0);
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 

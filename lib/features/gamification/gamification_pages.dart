@@ -596,6 +596,30 @@ class _StreakCalendarPageState extends State<StreakCalendarPage> {
                   textAlign: TextAlign.center,
                   style: TextStyle(color: AppColors.mutedText),
                 ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.ac_unit_rounded, color: AppColors.primary),
+                    const SizedBox(width: 8),
+                    Text(
+                      widget.state.streakFreezesRemaining == 1
+                          ? uiText(context, '1 streak freeze')
+                          : uiText(
+                              context,
+                              '{count} streak freezes',
+                              args: {
+                                'count':
+                                    '${widget.state.streakFreezesRemaining}',
+                              },
+                            ),
+                      style: TextStyle(
+                        color: AppColors.text,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),

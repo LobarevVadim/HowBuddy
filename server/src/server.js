@@ -951,10 +951,25 @@ app.post('/lessons/complete', requireAuth, async (request, response) => {
       [accountId, topic.id],
     );
     const topicCompleted = completionCount.rows[0].count >= Math.min(topic.lessonCount, 20);
+    const today = clientStudyDate(request);
     await pool.query(
       'INSERT INTO study_days (account_id, study_date) VALUES ($1, $2::date) ON CONFLICT DO NOTHING',
-      [accountId, clientStudyDate(request)],
+      [accountId, today],
     );
+    const streakState = await getGameState(accountId, today);
+    const freezeReward = new Map([[7, 1], [14, 3], [30, 7]]).get(
+      streakState.streakGoalDays,
+    );
+    if (freezeReward && streakState.streakCount === streakState.streakGoalDays) {
+      await pool.query(
+        `UPDATE account_gamification
+         SET streak_freezes_remaining = streak_freezes_remaining + $3,
+             streak_goal_days = NULL,
+             streak_goal_started_at = NULL
+         WHERE account_id = $1 AND streak_goal_days = $2`,
+        [accountId, streakState.streakGoalDays, freezeReward],
+      );
+    }
     const game = await pool.query(
       'SELECT xp_boost_until > now() AS boost_active FROM account_gamification WHERE account_id = $1',
       [accountId],
@@ -1307,7 +1322,8 @@ async function getGameState(accountId, today = new Date().toISOString().slice(0,
   const [result, studyResult] = await Promise.all([
     pool.query(
       `SELECT hearts, heart_recharge_at, emeralds, xp_boost_until,
-              streak_goal_days, streak_goal_started_at::text AS streak_goal_started_at
+              streak_goal_days, streak_goal_started_at::text AS streak_goal_started_at,
+              streak_freezes_remaining
        FROM account_gamification WHERE account_id = $1`,
       [accountId],
     ),
@@ -1338,6 +1354,7 @@ async function getGameState(accountId, today = new Date().toISOString().slice(0,
     studyDays,
     streakGoalDays: game.streak_goal_days,
     streakGoalStartedAt: game.streak_goal_started_at,
+    streakFreezesRemaining: game.streak_freezes_remaining,
     xpBoostUntil: game.xp_boost_until?.toISOString() ?? null,
   };
 }
