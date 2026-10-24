@@ -9,8 +9,8 @@
     "heart": {
       "id": "heart",
       "parentId": null,
-      "question": "How does your body keep you alive?",
-      "content": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients.",
+      "question": "What Are You Actually Made Of?",
+      "content": "The human body contains tens of trillions of cells, with one common estimate around 30 to 40 trillion. Cells vary in size: many are about 10 to 30 micrometers across. Since one millimeter is 1,000 micrometers, dozens of these cells could fit across a millimeter. A cell is the smallest living structural unit. Different cells have different shapes and functions: neurons communicate, muscle cells contract, red blood cells carry oxygen, and skin cells help protect the body. Most human cells cannot survive independently for long because they rely on the body for stable temperature, water, nutrients, oxygen, chemical signals, and waste removal. Cells cooperate in tissues, organs, and systems to keep the organism alive.",
       "level": 1,
       "children": [
         "heart-electric",
@@ -21,87 +21,43 @@
       "exercises": [
         {
           "type": "singleChoice",
-          "prompt": "Oxygen reaches body cells: What route brings oxygen to cells?",
+          "prompt": "The human body is often estimated to contain about how many cells?",
           "options": [
-            "Lungs ? blood ? heart ? body cells",
-            "Stomach ? bones ? lungs",
-            "Kidneys ? skin ? brain"
+            "A few thousand",
+            "Around 30 to 40 trillion",
+            "Exactly 206",
+            "One cell for every organ"
           ],
           "correctAnswers": [
-            "Lungs ? blood ? heart ? body cells"
+            "Around 30 to 40 trillion"
           ],
-          "explanation": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients."
-        },
-        {
-          "type": "multipleSelect",
-          "prompt": "Oxygen reaches body cells: Which two jobs help oxygen reach cells?",
-          "options": [
-            "Lungs exchange gases",
-            "Heart pumps blood",
-            "Kidneys make oxygen",
-            "Bones push air"
-          ],
-          "correctAnswers": [
-            "Lungs exchange gases",
-            "Heart pumps blood"
-          ],
-          "explanation": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients."
+          "correctOrder": [],
+          "pairs": [],
+          "paragraphParts": [],
+          "consequences": {},
+          "categories": [],
+          "visualStages": [],
+          "explanation": "Your body contains tens of trillions of cells; a commonly used estimate is around 30 to 40 trillion. The exact count varies because cells and body size vary."
         },
         {
           "type": "shortAnswer",
-          "prompt": "Oxygen reaches body cells: Name the gas carried from lungs to cells.",
+          "prompt": "What is the smallest living structural unit of the human body?",
           "options": [],
           "correctAnswers": [
-            "oxygen"
+            "cell",
+            "a cell"
           ],
-          "explanation": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients."
-        },
-        {
-          "type": "orderSteps",
-          "prompt": "Oxygen reaches body cells: Arrange these biological events in sequence.",
-          "options": [
-            "Blood delivers oxygen to cells",
-            "Heart pumps blood",
-            "Oxygen crosses into blood",
-            "Air enters lungs"
-          ],
-          "correctOrder": [
-            "Air enters lungs",
-            "Oxygen crosses into blood",
-            "Heart pumps blood",
-            "Blood delivers oxygen to cells"
-          ],
-          "correctAnswers": [],
-          "explanation": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients."
-        },
-        {
-          "type": "matching",
-          "prompt": "Oxygen reaches body cells: Match each structure to its main role.",
-          "options": [
-            "Exchange gases",
-            "Pump blood",
-            "Carry oxygen"
-          ],
-          "pairs": [
-            {
-              "left": "Lungs",
-              "right": "Exchange gases"
-            },
-            {
-              "left": "Heart",
-              "right": "Pump blood"
-            },
-            {
-              "left": "Blood",
-              "right": "Carry oxygen"
-            }
-          ],
-          "correctAnswers": [],
-          "explanation": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients."
+          "correctOrder": [],
+          "pairs": [],
+          "paragraphParts": [],
+          "consequences": {},
+          "categories": [],
+          "visualStages": [],
+          "explanation": "A cell is the smallest unit that is alive and can carry out the basic processes of life. Smaller pieces such as DNA and mitochondria are important, but they are parts of cells."
         },
         {
           "type": "trueFalse",
-          "prompt": "Oxygen reaches body cells: True or false: The lungs move oxygen into blood.",
+          "prompt": "True or false: A mitochondrion is smaller than a cell, but it is not itself a complete living cell.",
           "options": [
             "True",
             "False"
@@ -109,151 +65,325 @@
           "correctAnswers": [
             "True"
           ],
-          "explanation": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients."
+          "correctOrder": [],
+          "pairs": [],
+          "paragraphParts": [],
+          "consequences": {},
+          "categories": [],
+          "visualStages": [],
+          "explanation": "A cell is the smallest unit that is alive and can carry out the basic processes of life. Smaller pieces such as DNA and mitochondria are important, but they are parts of cells."
+        },
+        {
+          "type": "multipleSelect",
+          "prompt": "Which statements about body cells are true? Choose all that apply.",
+          "options": [
+            "Cells are the smallest living structural units of the body.",
+            "Different cell types can have different shapes.",
+            "Every cell has exactly the same job.",
+            "Cells cooperate to support the body."
+          ],
+          "correctAnswers": [
+            "Cells are the smallest living structural units of the body.",
+            "Different cell types can have different shapes.",
+            "Cells cooperate to support the body."
+          ],
+          "correctOrder": [],
+          "pairs": [],
+          "paragraphParts": [],
+          "consequences": {},
+          "categories": [],
+          "visualStages": [],
+          "explanation": "Different cell types have structures and functions suited to their roles. Neurons communicate, muscle cells contract, red blood cells carry oxygen, and skin cells contribute to the protective outer layer."
+        },
+        {
+          "type": "matching",
+          "prompt": "Match each cell to the job it is especially suited for.",
+          "options": [
+            "Carries oxygen",
+            "Sends messages",
+            "Contracts to create force",
+            "Forms a protective covering"
+          ],
+          "correctAnswers": [],
+          "correctOrder": [],
+          "pairs": [
+            {
+              "left": "Red blood cell",
+              "right": "Carries oxygen"
+            },
+            {
+              "left": "Neuron",
+              "right": "Sends messages"
+            },
+            {
+              "left": "Muscle cell",
+              "right": "Contracts to create force"
+            },
+            {
+              "left": "Skin cell",
+              "right": "Forms a protective covering"
+            }
+          ],
+          "paragraphParts": [],
+          "consequences": {},
+          "categories": [],
+          "visualStages": [],
+          "explanation": "Different cell types have structures and functions suited to their roles. Neurons communicate, muscle cells contract, red blood cells carry oxygen, and skin cells contribute to the protective outer layer."
         },
         {
           "type": "fillInTheBlank",
-          "prompt": "Oxygen reaches body cells: Fill each missing word in this paragraph.",
+          "prompt": "Complete the idea: Similar cells can work together in ___, and the whole body is an ___.",
           "options": [],
+          "correctAnswers": [],
+          "correctOrder": [
+            "tissues",
+            "organism"
+          ],
+          "pairs": [],
           "paragraphParts": [
-            "Air enters the ",
-            ". Oxygen crosses into the ",
-            " and travels to body ",
+            "Similar cells can work together in ",
+            ", and the whole body is an ",
             "."
           ],
-          "correctOrder": [
-            "lungs",
-            "blood",
-            "cells"
-          ],
-          "correctAnswers": [],
-          "explanation": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients."
-        },
-        {
-          "type": "spotTheMistake",
-          "prompt": "Oxygen reaches body cells: Tap the scientifically incorrect word in this paragraph.",
-          "options": [
-            "During",
-            "exercise,",
-            "breathing",
-            "may",
-            "speed",
-            "up.",
-            "The",
-            "heart",
-            "pumps",
-            "blood.",
-            "The",
-            "lungs",
-            "pump",
-            "urine."
-          ],
-          "correctAnswers": [
-            "urine."
-          ],
-          "explanation": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients."
+          "consequences": {},
+          "categories": [],
+          "visualStages": [],
+          "explanation": "Cells cooperate in tissues, tissues form organs, organs work in systems, and systems support the whole organism. The body works because these levels coordinate."
         },
         {
           "type": "categorization",
-          "prompt": "Oxygen reaches body cells: Drag each card into its correct category box.",
+          "prompt": "Sort each cell into the job it is best known for.",
           "options": [
-            "Respiratory",
-            "Circulatory",
-            "Digestive"
-          ],
-          "pairs": [
-            {
-              "left": "Lungs",
-              "right": "Respiratory"
-            },
-            {
-              "left": "Heart",
-              "right": "Circulatory"
-            },
-            {
-              "left": "Blood vessels",
-              "right": "Circulatory"
-            },
-            {
-              "left": "Stomach",
-              "right": "Digestive"
-            }
+            "Communication",
+            "Movement",
+            "Oxygen delivery",
+            "Protection"
           ],
           "correctAnswers": [],
-          "explanation": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients."
+          "correctOrder": [],
+          "pairs": [
+            {
+              "left": "Neuron",
+              "right": "Communication"
+            },
+            {
+              "left": "Muscle cell",
+              "right": "Movement"
+            },
+            {
+              "left": "Red blood cell",
+              "right": "Oxygen delivery"
+            },
+            {
+              "left": "Skin cell",
+              "right": "Protection"
+            }
+          ],
+          "paragraphParts": [],
+          "consequences": {},
+          "categories": [],
+          "visualStages": [],
+          "explanation": "Different cell types have structures and functions suited to their roles. Neurons communicate, muscle cells contract, red blood cells carry oxygen, and skin cells contribute to the protective outer layer."
+        },
+        {
+          "type": "spotTheMistake",
+          "prompt": "Tap the scientifically incorrect word in this paragraph: \"A neuron stores oxygen, while a red blood cell carries oxygen to tissues.\"",
+          "options": [
+            "A",
+            "neuron",
+            "stores",
+            "oxygen,",
+            "while",
+            "a",
+            "red",
+            "blood",
+            "cell",
+            "carries",
+            "oxygen",
+            "to",
+            "tissues."
+          ],
+          "correctAnswers": [
+            "stores"
+          ],
+          "correctOrder": [],
+          "pairs": [],
+          "paragraphParts": [],
+          "consequences": {},
+          "categories": [],
+          "visualStages": [],
+          "explanation": "Neurons send information using electrical and chemical signals. Red blood cells carry oxygen through the blood; describing a neuron as an oxygen-storage cell confuses its job."
+        },
+        {
+          "type": "orderSteps",
+          "prompt": "Arrange the levels of body organization from smallest to largest.",
+          "options": [
+            "Organ system",
+            "Cell",
+            "Organism",
+            "Tissue",
+            "Organ"
+          ],
+          "correctAnswers": [],
+          "correctOrder": [
+            "Cell",
+            "Tissue",
+            "Organ",
+            "Organ system",
+            "Organism"
+          ],
+          "pairs": [],
+          "paragraphParts": [],
+          "consequences": {},
+          "categories": [],
+          "visualStages": [],
+          "explanation": "Cells cooperate in tissues, tissues form organs, organs work in systems, and systems support the whole organism. The body works because these levels coordinate."
         },
         {
           "type": "causeAndEffect",
-          "prompt": "Oxygen reaches body cells: Drag each cause to its effect to connect them.",
+          "prompt": "Connect each cell event to a likely result.",
           "options": [
-            "More air moves through the lungs",
-            "Blood moves faster to active muscles",
-            "Working cells can release energy"
-          ],
-          "pairs": [
-            {
-              "left": "Breathing rate rises",
-              "right": "More air moves through the lungs"
-            },
-            {
-              "left": "Heart rate rises",
-              "right": "Blood moves faster to active muscles"
-            },
-            {
-              "left": "Blood carries oxygen",
-              "right": "Working cells can release energy"
-            }
+            "A muscle shortens and pulls",
+            "A message reaches another cell",
+            "Less oxygen is delivered to tissues"
           ],
           "correctAnswers": [],
-          "explanation": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients."
+          "correctOrder": [],
+          "pairs": [
+            {
+              "left": "A muscle cell contracts",
+              "right": "A muscle shortens and pulls"
+            },
+            {
+              "left": "A neuron sends a signal",
+              "right": "A message reaches another cell"
+            },
+            {
+              "left": "Red blood cells carry less oxygen",
+              "right": "Less oxygen is delivered to tissues"
+            }
+          ],
+          "paragraphParts": [],
+          "consequences": {},
+          "categories": [],
+          "visualStages": [],
+          "explanation": "Different cell types have structures and functions suited to their roles. Neurons communicate, muscle cells contract, red blood cells carry oxygen, and skin cells contribute to the protective outer layer."
         },
         {
           "type": "compareAndContrast",
-          "prompt": "Oxygen reaches body cells: Drag each statement into the correct Venn diagram region.",
+          "prompt": "Place each statement in the Venn diagram: red blood cell, neuron, or both.",
           "options": [
-            "Arteries",
-            "Veins",
+            "Red blood cell",
+            "Neuron",
             "Both"
           ],
-          "categories": [
-            "Arteries",
-            "Veins",
-            "Both"
-          ],
+          "correctAnswers": [],
+          "correctOrder": [],
           "pairs": [
             {
-              "left": "Carries blood away from the heart",
-              "right": "Arteries"
+              "left": "Carries oxygen through the blood",
+              "right": "Red blood cell"
             },
             {
-              "left": "Carries blood toward the heart",
-              "right": "Veins"
+              "left": "Can have long branching extensions",
+              "right": "Neuron"
             },
             {
-              "left": "Is part of circulation",
+              "left": "Has a cell membrane",
               "right": "Both"
             }
           ],
-          "correctAnswers": [],
-          "explanation": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients."
+          "paragraphParts": [],
+          "consequences": {},
+          "categories": [
+            "Red blood cell",
+            "Both",
+            "Neuron"
+          ],
+          "visualStages": [],
+          "explanation": "Red blood cells carry oxygen through the blood, while neurons communicate using electrical and chemical signals. Both are cells with a cell membrane."
         },
         {
           "type": "buildTheProcess",
-          "prompt": "Oxygen reaches body cells: Drag components into the flowchart to build the process.",
+          "prompt": "Build a simple energy-use sequence inside a working body cell.",
           "options": [
-            "Blood delivers oxygen to cells",
-            "Heart pumps blood",
-            "Oxygen crosses into blood",
-            "Air enters lungs"
-          ],
-          "correctOrder": [
-            "Air enters lungs",
-            "Oxygen crosses into blood",
-            "Heart pumps blood",
-            "Blood delivers oxygen to cells"
+            "The cell uses the released energy to do its job",
+            "Oxygen and nutrients arrive at the cell",
+            "Cell reactions release usable energy",
+            "Waste products are carried away"
           ],
           "correctAnswers": [],
-          "explanation": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients."
+          "correctOrder": [
+            "Oxygen and nutrients arrive at the cell",
+            "Cell reactions release usable energy",
+            "The cell uses the released energy to do its job",
+            "Waste products are carried away"
+          ],
+          "pairs": [],
+          "paragraphParts": [],
+          "consequences": {},
+          "categories": [],
+          "visualStages": [],
+          "explanation": "Cells need inputs and a way to remove waste. Energy-releasing reactions provide usable energy for cell functions."
+        },
+        {
+          "type": "multipleSelect",
+          "prompt": "Why do most human cells struggle to survive independently outside the body? Choose all that apply.",
+          "options": [
+            "They need a stable internal environment.",
+            "They often rely on the body to deliver oxygen and nutrients.",
+            "They may depend on signals from other cells.",
+            "They can all make unlimited food from sunlight."
+          ],
+          "correctAnswers": [
+            "They need a stable internal environment.",
+            "They often rely on the body to deliver oxygen and nutrients.",
+            "They may depend on signals from other cells."
+          ],
+          "correctOrder": [],
+          "pairs": [],
+          "paragraphParts": [],
+          "consequences": {},
+          "categories": [],
+          "visualStages": [],
+          "explanation": "Most human cells need tightly controlled conditions and supplies that the body provides. Some cells can be kept alive in carefully controlled laboratory conditions, so \"most\" is more accurate than \"all.\""
+        },
+        {
+          "type": "fillInTheBlank",
+          "prompt": "Complete the size statement below.",
+          "options": [],
+          "correctAnswers": [],
+          "correctOrder": [
+            "1000"
+          ],
+          "pairs": [],
+          "paragraphParts": [
+            "Many body cells are about 10 to 30 micrometers across. One millimeter equals ",
+            " micrometers."
+          ],
+          "consequences": {},
+          "categories": [],
+          "visualStages": [],
+          "explanation": "One millimeter is 1,000 micrometers. Since many body cells are around 10 to 30 micrometers across, dozens could fit across one millimeter."
+        },
+        {
+          "type": "singleChoice",
+          "prompt": "Why is a muscle cell shaped and equipped differently from a neuron?",
+          "options": [
+            "Each cell type is specialized for a different job.",
+            "Cells choose random shapes with no relationship to function.",
+            "Muscle cells are not living cells."
+          ],
+          "correctAnswers": [
+            "Each cell type is specialized for a different job."
+          ],
+          "correctOrder": [],
+          "pairs": [],
+          "paragraphParts": [],
+          "consequences": {},
+          "categories": [],
+          "visualStages": [],
+          "explanation": "Different cell types have structures and functions suited to their roles. Neurons communicate, muscle cells contract, red blood cells carry oxygen, and skin cells contribute to the protective outer layer."
         }
       ],
       "extraLessons": [
