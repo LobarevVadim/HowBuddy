@@ -45,6 +45,10 @@ class LessonExercise {
     required this.correctAnswers,
     required this.correctOrder,
     required this.pairs,
+    required this.paragraphParts,
+    required this.consequences,
+    required this.categories,
+    required this.visualStages,
     required this.explanation,
   });
 
@@ -54,6 +58,10 @@ class LessonExercise {
   final Set<String> correctAnswers;
   final List<String> correctOrder;
   final List<ExercisePair> pairs;
+  final List<String> paragraphParts;
+  final Map<String, String> consequences;
+  final List<String> categories;
+  final List<String> visualStages;
   final String explanation;
 
   factory LessonExercise.fromJson(Map<String, dynamic> json) {
@@ -71,6 +79,18 @@ class LessonExercise {
           .toList(),
       pairs: (json['pairs'] as List<dynamic>? ?? [])
           .map((pair) => ExercisePair.fromJson(pair as Map<String, dynamic>))
+          .toList(),
+      paragraphParts: (json['paragraphParts'] as List<dynamic>? ?? [])
+          .map((part) => part.toString())
+          .toList(),
+      consequences: (json['consequences'] as Map<String, dynamic>? ?? {}).map(
+        (action, consequence) => MapEntry(action, consequence.toString()),
+      ),
+      categories: (json['categories'] as List<dynamic>? ?? [])
+          .map((category) => category.toString())
+          .toList(),
+      visualStages: (json['visualStages'] as List<dynamic>? ?? [])
+          .map((stage) => stage.toString())
           .toList(),
       explanation: json['explanation'].toString(),
     );

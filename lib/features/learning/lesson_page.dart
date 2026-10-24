@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app_style.dart';
 import '../../models/app_models.dart';
 import '../../services/auth_api.dart';
+import 'exercise_interactions.dart';
 import 'lesson_exercises.dart';
 import '../../services/theme_preferences.dart';
 
@@ -30,6 +31,9 @@ class _LessonPageState extends State<LessonPage> {
   final Set<String> _selectedAnswers = <String>{};
   final Map<String, String> _selectedMatches = <String, String>{};
   List<String> _orderedAnswers = <String>[];
+  List<String> _blankAnswers = <String>[];
+  List<String?> _flowchartSlots = <String?>[];
+  bool _predictionPaused = false;
   int _exerciseIndex = 0;
   int _correctAnswers = 0;
   bool? _answerWasCorrect;
@@ -64,9 +68,16 @@ class _LessonPageState extends State<LessonPage> {
       setState(() {
         _exercises = lesson.exercises;
         _lessonContent = lesson.content;
-        _orderedAnswers = _usesOrdering(lesson.exercises.first.type)
+        _orderedAnswers =
+            lesson.exercises.first.type == LessonExerciseType.orderSteps
             ? List<String>.from(lesson.exercises.first.options)
             : <String>[];
+        _flowchartSlots = _usesFlowchart(lesson.exercises.first.type)
+            ? List<String?>.filled(
+                lesson.exercises.first.correctOrder.length,
+                null,
+              )
+            : <String?>[];
         _isLoadingExercises = false;
         _exerciseLoadError = null;
       });
@@ -101,15 +112,30 @@ class _LessonPageState extends State<LessonPage> {
       return false;
     }
     final type = _exercises[_exerciseIndex].type;
-    if (type == LessonExerciseType.shortAnswer ||
-        type == LessonExerciseType.fillInTheBlank) {
+    if (type == LessonExerciseType.shortAnswer) {
       return _answerController.text.trim().isNotEmpty;
     }
-    if (_usesOrdering(type)) {
+    if (type == LessonExerciseType.fillInTheBlank) {
+      return _blankAnswers.length ==
+              _exercises[_exerciseIndex].correctOrder.length &&
+          _blankAnswers.every((answer) => answer.trim().isNotEmpty);
+    }
+    if (type == LessonExerciseType.orderSteps) {
       return _orderedAnswers.isNotEmpty;
     }
-    if (_usesPairAssignment(type)) {
+    if (type == LessonExerciseType.buildTheProcess) {
+      return _flowchartSlots.isNotEmpty &&
+          _flowchartSlots.every((slot) => slot != null);
+    }
+    if (type == LessonExerciseType.matching ||
+        type == LessonExerciseType.diagramLabeling ||
+        type == LessonExerciseType.categorization ||
+        type == LessonExerciseType.causeAndEffect ||
+        type == LessonExerciseType.compareAndContrast) {
       return _selectedMatches.length == _exercises[_exerciseIndex].pairs.length;
+    }
+    if (type == LessonExerciseType.prediction) {
+      return _predictionPaused && _selectedAnswers.isNotEmpty;
     }
     return _selectedAnswers.isNotEmpty;
   }
@@ -149,19 +175,19 @@ class _LessonPageState extends State<LessonPage> {
         (answer) =>
             answer.toLowerCase() == _answerController.text.trim().toLowerCase(),
       ),
-      LessonExerciseType.fillInTheBlank => exercise.correctAnswers.any(
-        (answer) =>
-            _normalizeAnswer(answer) ==
-            _normalizeAnswer(_answerController.text),
-      ),
+      LessonExerciseType.fillInTheBlank =>
+        _blankAnswers.length == exercise.correctOrder.length &&
+            List.generate(exercise.correctOrder.length, (index) => index).every(
+              (index) =>
+                  _normalizeAnswer(_blankAnswers[index]) ==
+                  _normalizeAnswer(exercise.correctOrder[index]),
+            ),
       LessonExerciseType.multipleSelect =>
         _selectedAnswers.length == exercise.correctAnswers.length &&
             _selectedAnswers.containsAll(exercise.correctAnswers),
       LessonExerciseType.singleChoice =>
         _selectedAnswers.firstOrNull == exercise.correctAnswers.firstOrNull,
       LessonExerciseType.orderSteps =>
-        _orderedAnswers.join('\u0000') == exercise.correctOrder.join('\u0000'),
-      LessonExerciseType.buildTheProcess =>
         _orderedAnswers.join('\u0000') == exercise.correctOrder.join('\u0000'),
       LessonExerciseType.matching ||
       LessonExerciseType.diagramLabeling ||
@@ -176,6 +202,11 @@ class _LessonPageState extends State<LessonPage> {
       LessonExerciseType.spotTheMistake ||
       LessonExerciseType.prediction =>
         _selectedAnswers.firstOrNull == exercise.correctAnswers.firstOrNull,
+      LessonExerciseType.buildTheProcess =>
+        _flowchartSlots.length == exercise.correctOrder.length &&
+            List.generate(exercise.correctOrder.length, (index) => index).every(
+              (index) => _flowchartSlots[index] == exercise.correctOrder[index],
+            ),
     };
 
     setState(() {
@@ -192,11 +223,21 @@ class _LessonPageState extends State<LessonPage> {
       _exerciseIndex = nextIndex;
       _selectedAnswers.clear();
       _selectedMatches.clear();
+      _blankAnswers = <String>[];
+      _predictionPaused = false;
       _orderedAnswers =
           nextIndex < _exercises.length &&
-              _usesOrdering(_exercises[nextIndex].type)
+              _exercises[nextIndex].type == LessonExerciseType.orderSteps
           ? List<String>.from(_exercises[nextIndex].options)
           : <String>[];
+      _flowchartSlots =
+          nextIndex < _exercises.length &&
+              _usesFlowchart(_exercises[nextIndex].type)
+          ? List<String?>.filled(
+              _exercises[nextIndex].correctOrder.length,
+              null,
+            )
+          : <String?>[];
       _answerController.clear();
       _answerWasCorrect = null;
     });
@@ -238,16 +279,8 @@ class _LessonPageState extends State<LessonPage> {
     ).showSnackBar(SnackBar(content: Text(message)));
   }
 
-  bool _usesOrdering(LessonExerciseType type) =>
-      type == LessonExerciseType.orderSteps ||
+  bool _usesFlowchart(LessonExerciseType type) =>
       type == LessonExerciseType.buildTheProcess;
-
-  bool _usesPairAssignment(LessonExerciseType type) =>
-      type == LessonExerciseType.matching ||
-      type == LessonExerciseType.diagramLabeling ||
-      type == LessonExerciseType.categorization ||
-      type == LessonExerciseType.causeAndEffect ||
-      type == LessonExerciseType.compareAndContrast;
 
   String _normalizeAnswer(String value) =>
       value.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
@@ -348,108 +381,7 @@ class _LessonPageState extends State<LessonPage> {
                 ),
               ),
               const SizedBox(height: 24),
-              if (exercise.type == LessonExerciseType.shortAnswer ||
-                  exercise.type == LessonExerciseType.fillInTheBlank)
-                TextField(
-                  controller: _answerController,
-                  enabled: _answerWasCorrect == null,
-                  textInputAction: TextInputAction.done,
-                  onChanged: (_) => setState(() {}),
-                  onSubmitted: (_) {
-                    if (_answerWasCorrect == null && _hasAnswer) {
-                      _checkAnswer();
-                    }
-                  },
-                  decoration: const InputDecoration(
-                    labelText: 'Your answer',
-                    hintText: 'Type your answer',
-                  ),
-                )
-              else if (_usesOrdering(exercise.type))
-                ReorderableListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  buildDefaultDragHandles: false,
-                  itemCount: _orderedAnswers.length,
-                  onReorder: (oldIndex, newIndex) {
-                    if (_answerWasCorrect != null) return;
-                    setState(() {
-                      if (newIndex > oldIndex) newIndex--;
-                      final item = _orderedAnswers.removeAt(oldIndex);
-                      _orderedAnswers.insert(newIndex, item);
-                    });
-                  },
-                  itemBuilder: (context, index) => ReorderableDragStartListener(
-                    key: ValueKey(_orderedAnswers[index]),
-                    index: index,
-                    child: Card(
-                      child: ListTile(
-                        leading: const Icon(Icons.drag_handle_rounded),
-                        title: Text(_orderedAnswers[index]),
-                      ),
-                    ),
-                  ),
-                )
-              else if (_usesPairAssignment(exercise.type))
-                Column(
-                  children: exercise.pairs
-                      .map(
-                        (pair) => Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: DropdownButtonFormField<String>(
-                            value: _selectedMatches[pair.left],
-                            decoration: InputDecoration(labelText: pair.left),
-                            items: exercise.options
-                                .map(
-                                  (option) => DropdownMenuItem(
-                                    value: option,
-                                    child: Text(option),
-                                  ),
-                                )
-                                .toList(),
-                            onChanged: _answerWasCorrect == null
-                                ? (value) => setState(() {
-                                    if (value == null) {
-                                      _selectedMatches.remove(pair.left);
-                                    } else {
-                                      _selectedMatches[pair.left] = value;
-                                    }
-                                  })
-                                : null,
-                          ),
-                        ),
-                      )
-                      .toList(),
-                )
-              else
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: exercise.options.map((option) {
-                    if (exercise.type == LessonExerciseType.multipleSelect) {
-                      return FilterChip(
-                        label: Text(option),
-                        selected: _selectedAnswers.contains(option),
-                        onSelected: _answerWasCorrect == null
-                            ? (selected) => _toggleAnswer(option, selected)
-                            : null,
-                        selectedColor: AppColors.success.withValues(alpha: 0.2),
-                        checkmarkColor: AppColors.success,
-                      );
-                    }
-
-                    return ChoiceChip(
-                      label: Text(option),
-                      selected: _selectedAnswers.contains(option),
-                      onSelected: _answerWasCorrect == null
-                          ? (_) => _selectSingleAnswer(option)
-                          : null,
-                      selectedColor: AppColors.primaryLight.withValues(
-                        alpha: 0.35,
-                      ),
-                    );
-                  }).toList(),
-                ),
+              _buildInteraction(exercise),
               if (_answerWasCorrect != null) ...[
                 const SizedBox(height: 20),
                 Container(
@@ -505,6 +437,199 @@ class _LessonPageState extends State<LessonPage> {
         ),
       ),
     );
+  }
+
+  Widget _buildInteraction(LessonExercise exercise) {
+    final locked = _answerWasCorrect != null;
+    switch (exercise.type) {
+      case LessonExerciseType.singleChoice:
+      case LessonExerciseType.trueFalse:
+        return Column(
+          children: exercise.options
+              .map(
+                (option) => Card(
+                  color: _selectedAnswers.contains(option)
+                      ? AppColors.primaryLight.withValues(alpha: 0.22)
+                      : null,
+                  child: ListTile(
+                    leading: Icon(
+                      _selectedAnswers.contains(option)
+                          ? Icons.radio_button_checked
+                          : Icons.radio_button_off,
+                    ),
+                    title: Text(option),
+                    onTap: locked ? null : () => _selectSingleAnswer(option),
+                  ),
+                ),
+              )
+              .toList(),
+        );
+      case LessonExerciseType.multipleSelect:
+        return Column(
+          children: exercise.options
+              .map(
+                (option) => Card(
+                  child: CheckboxListTile(
+                    value: _selectedAnswers.contains(option),
+                    title: Text(option),
+                    controlAffinity: ListTileControlAffinity.leading,
+                    onChanged: locked
+                        ? null
+                        : (value) => _toggleAnswer(option, value ?? false),
+                  ),
+                ),
+              )
+              .toList(),
+        );
+      case LessonExerciseType.shortAnswer:
+        return TextField(
+          controller: _answerController,
+          enabled: !locked,
+          textInputAction: TextInputAction.done,
+          onChanged: (_) => setState(() {}),
+          decoration: const InputDecoration(
+            labelText: 'Your answer',
+            hintText: 'Type your answer',
+          ),
+        );
+      case LessonExerciseType.orderSteps:
+        return ReorderableListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          buildDefaultDragHandles: false,
+          itemCount: _orderedAnswers.length,
+          onReorder: locked
+              ? (_, _) {}
+              : (oldIndex, newIndex) {
+                  setState(() {
+                    if (newIndex > oldIndex) newIndex--;
+                    final item = _orderedAnswers.removeAt(oldIndex);
+                    _orderedAnswers.insert(newIndex, item);
+                  });
+                },
+          itemBuilder: (context, index) => ReorderableDragStartListener(
+            key: ValueKey(_orderedAnswers[index]),
+            index: index,
+            child: Card(
+              child: ListTile(
+                leading: const Icon(Icons.drag_handle_rounded),
+                title: Text(_orderedAnswers[index]),
+              ),
+            ),
+          ),
+        );
+      case LessonExerciseType.matching:
+        return Column(
+          children: exercise.pairs
+              .map(
+                (pair) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: DropdownButtonFormField<String>(
+                    initialValue: _selectedMatches[pair.left],
+                    decoration: InputDecoration(labelText: pair.left),
+                    items: exercise.options
+                        .map(
+                          (option) => DropdownMenuItem(
+                            value: option,
+                            child: Text(option),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: locked
+                        ? null
+                        : (value) => setState(() {
+                            if (value == null) {
+                              _selectedMatches.remove(pair.left);
+                            } else {
+                              _selectedMatches[pair.left] = value;
+                            }
+                          }),
+                  ),
+                ),
+              )
+              .toList(),
+        );
+      case LessonExerciseType.scenarioBasedDecision:
+        return ScenarioDecisionInteraction(
+          exercise: exercise,
+          selected: _selectedAnswers.firstOrNull,
+          locked: locked,
+          onSelect: _selectSingleAnswer,
+        );
+      case LessonExerciseType.fillInTheBlank:
+        return InlineFillBlankInteraction(
+          key: ValueKey('fill-$_exerciseIndex'),
+          parts: exercise.paragraphParts,
+          locked: locked,
+          onChanged: (answers) => setState(() => _blankAnswers = answers),
+        );
+      case LessonExerciseType.spotTheMistake:
+        return SpotMistakeInteraction(
+          tokens: exercise.options,
+          selected: _selectedAnswers.firstOrNull,
+          locked: locked,
+          onSelect: _selectSingleAnswer,
+        );
+      case LessonExerciseType.diagramLabeling:
+        return DiagramLabelingInteraction(
+          exercise: exercise,
+          assignments: _selectedMatches,
+          locked: locked,
+          onAssign: (target, label) => setState(() {
+            _selectedMatches.removeWhere((key, value) => value == label);
+            _selectedMatches[target] = label;
+          }),
+        );
+      case LessonExerciseType.categorization:
+        return CategorizationInteraction(
+          exercise: exercise,
+          assignments: _selectedMatches,
+          locked: locked,
+          onAssign: (card, category) => setState(() {
+            _selectedMatches[card] = category;
+          }),
+        );
+      case LessonExerciseType.causeAndEffect:
+        return CauseEffectLinesInteraction(
+          exercise: exercise,
+          connections: _selectedMatches,
+          locked: locked,
+          onConnect: (cause, effect) => setState(() {
+            _selectedMatches.removeWhere((key, value) => value == effect);
+            _selectedMatches[cause] = effect;
+          }),
+        );
+      case LessonExerciseType.compareAndContrast:
+        return VennDiagramInteraction(
+          exercise: exercise,
+          assignments: _selectedMatches,
+          locked: locked,
+          onAssign: (statement, region) => setState(() {
+            _selectedMatches[statement] = region;
+          }),
+        );
+      case LessonExerciseType.prediction:
+        return PredictionProcessInteraction(
+          key: ValueKey('prediction-$_exerciseIndex'),
+          exercise: exercise,
+          selected: _selectedAnswers.firstOrNull,
+          locked: locked,
+          onSelect: _selectSingleAnswer,
+          onPaused: (paused) => setState(() => _predictionPaused = paused),
+        );
+      case LessonExerciseType.buildTheProcess:
+        return BuildProcessInteraction(
+          exercise: exercise,
+          slots: _flowchartSlots,
+          locked: locked,
+          onPlace: (slot, component) => setState(() {
+            _flowchartSlots = _flowchartSlots
+                .map((value) => value == component ? null : value)
+                .toList();
+            _flowchartSlots[slot] = component;
+          }),
+        );
+    }
   }
 
   Widget _buildSummary() {

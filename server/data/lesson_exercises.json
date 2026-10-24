@@ -10,7 +10,7 @@
       "id": "heart",
       "parentId": null,
       "question": "How does your body keep you alive?",
-      "content": "The heart, lungs, blood, and kidneys work together to keep cells supplied and the body balanced.",
+      "content": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients.",
       "level": 1,
       "children": [
         "heart-electric",
@@ -21,132 +21,87 @@
       "exercises": [
         {
           "type": "singleChoice",
-          "prompt": "Which statement best describes how body systems work?",
+          "prompt": "Oxygen reaches body cells: What route brings oxygen to cells?",
           "options": [
-            "Body systems cooperate to keep cells working.",
-            "Every organ works alone.",
-            "The body only works when you think about it."
+            "Lungs ? blood ? heart ? body cells",
+            "Stomach ? bones ? lungs",
+            "Kidneys ? skin ? brain"
           ],
           "correctAnswers": [
-            "Body systems cooperate to keep cells working."
+            "Lungs ? blood ? heart ? body cells"
           ],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients."
         },
         {
           "type": "multipleSelect",
-          "prompt": "Choose two things blood helps deliver or carry.",
+          "prompt": "Oxygen reaches body cells: Which two jobs help oxygen reach cells?",
           "options": [
-            "Oxygen to cells",
-            "Nutrients to cells",
-            "Sunlight to bones",
-            "Air directly into the stomach"
+            "Lungs exchange gases",
+            "Heart pumps blood",
+            "Kidneys make oxygen",
+            "Bones push air"
           ],
           "correctAnswers": [
-            "Oxygen to cells",
-            "Nutrients to cells"
+            "Lungs exchange gases",
+            "Heart pumps blood"
           ],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients."
         },
         {
           "type": "shortAnswer",
-          "prompt": "Type one gas that blood carries from the lungs to body cells.",
+          "prompt": "Oxygen reaches body cells: Name the gas carried from lungs to cells.",
           "options": [],
           "correctAnswers": [
             "oxygen"
           ],
-          "explanation": "Blood carries oxygen from the lungs to cells, where it is used to release energy from food."
+          "explanation": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients."
         },
         {
           "type": "orderSteps",
-          "prompt": "Put these steps in order for oxygen to reach body cells.",
+          "prompt": "Oxygen reaches body cells: Arrange these biological events in sequence.",
           "options": [
             "Blood delivers oxygen to cells",
-            "Air enters the lungs",
-            "Oxygen moves into the blood"
+            "Heart pumps blood",
+            "Oxygen crosses into blood",
+            "Air enters lungs"
           ],
           "correctOrder": [
-            "Air enters the lungs",
-            "Oxygen moves into the blood",
+            "Air enters lungs",
+            "Oxygen crosses into blood",
+            "Heart pumps blood",
             "Blood delivers oxygen to cells"
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients."
         },
         {
           "type": "matching",
-          "prompt": "Match each organ with a basic job.",
+          "prompt": "Oxygen reaches body cells: Match each structure to its main role.",
           "options": [
-            "Pumps blood",
-            "Exchanges gases",
-            "Filters blood"
+            "Exchange gases",
+            "Pump blood",
+            "Carry oxygen"
           ],
           "pairs": [
             {
-              "left": "Heart",
-              "right": "Pumps blood"
-            },
-            {
               "left": "Lungs",
-              "right": "Exchanges gases"
+              "right": "Exchange gases"
             },
             {
-              "left": "Kidneys",
-              "right": "Filters blood"
+              "left": "Heart",
+              "right": "Pump blood"
+            },
+            {
+              "left": "Blood",
+              "right": "Carry oxygen"
             }
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
-        },
-        {
-          "type": "fillInTheBlank",
-          "prompt": "Fill in the blank: Blood carries ____ from the lungs to body cells.",
-          "options": [],
-          "correctAnswers": [
-            "oxygen"
-          ],
-          "explanation": "Oxygen travels from the lungs into the blood and then to body cells."
-        },
-        {
-          "type": "scenarioBasedDecision",
-          "prompt": "Scenario: You start running. What is a normal response that helps active muscles?",
-          "options": [
-            "Heart rate and breathing increase.",
-            "The heart stops pumping.",
-            "The lungs stop exchanging gases."
-          ],
-          "correctAnswers": [
-            "Heart rate and breathing increase."
-          ],
-          "explanation": "The body can increase heart rate and breathing to help deliver more oxygen during activity."
-        },
-        {
-          "type": "diagramLabeling",
-          "prompt": "Label each part of this simple body-system diagram by matching it to its job.",
-          "options": [
-            "Moves blood around the body",
-            "Exchanges oxygen and carbon dioxide",
-            "Filters some waste from blood"
-          ],
-          "pairs": [
-            {
-              "left": "Heart",
-              "right": "Moves blood around the body"
-            },
-            {
-              "left": "Lungs",
-              "right": "Exchanges oxygen and carbon dioxide"
-            },
-            {
-              "left": "Kidneys",
-              "right": "Filters some waste from blood"
-            }
-          ],
-          "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients."
         },
         {
           "type": "trueFalse",
-          "prompt": "True or false: Body cells use oxygen to help release energy from food.",
+          "prompt": "Oxygen reaches body cells: True or false: The lungs move oxygen into blood.",
           "options": [
             "True",
             "False"
@@ -154,24 +109,94 @@
           "correctAnswers": [
             "True"
           ],
-          "explanation": "Cells use oxygen in processes that release energy from nutrients."
+          "explanation": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients."
+        },
+        {
+          "type": "scenarioBasedDecision",
+          "prompt": "Oxygen reaches body cells: undefined",
+          "options": [
+            "Slow down briefly and let breathing catch up",
+            "Hold your breath to save oxygen"
+          ],
+          "correctAnswers": [
+            "Slow down briefly and let breathing catch up"
+          ],
+          "consequences": {
+            "Slow down briefly and let breathing catch up": "This gives your body time to match oxygen supply to effort.",
+            "Hold your breath to save oxygen": "Holding your breath reduces oxygen intake."
+          },
+          "explanation": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients."
+        },
+        {
+          "type": "fillInTheBlank",
+          "prompt": "Oxygen reaches body cells: Fill each missing word in this paragraph.",
+          "options": [],
+          "paragraphParts": [
+            "Air enters the ",
+            ". Oxygen crosses into the ",
+            " and travels to body ",
+            "."
+          ],
+          "correctOrder": [
+            "lungs",
+            "blood",
+            "cells"
+          ],
+          "correctAnswers": [],
+          "explanation": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients."
         },
         {
           "type": "spotTheMistake",
-          "prompt": "Which sentence contains the mistake?",
+          "prompt": "Oxygen reaches body cells: Tap the scientifically incorrect word in this paragraph.",
           "options": [
-            "The heart pumps blood.",
-            "The lungs exchange gases.",
-            "The kidneys pump air into the blood."
+            "During",
+            "exercise,",
+            "breathing",
+            "may",
+            "speed",
+            "up.",
+            "The",
+            "heart",
+            "pumps",
+            "blood.",
+            "The",
+            "lungs",
+            "pump",
+            "urine."
           ],
           "correctAnswers": [
-            "The kidneys pump air into the blood."
+            "urine."
           ],
-          "explanation": "The kidneys filter blood; the lungs exchange gases."
+          "explanation": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients."
+        },
+        {
+          "type": "diagramLabeling",
+          "prompt": "Oxygen reaches body cells: Drag labels onto the matching parts of the body diagram.",
+          "options": [
+            "Lungs",
+            "Heart",
+            "Blood vessels"
+          ],
+          "pairs": [
+            {
+              "left": "Lungs",
+              "right": "Lungs"
+            },
+            {
+              "left": "Heart",
+              "right": "Heart"
+            },
+            {
+              "left": "Blood vessels",
+              "right": "Blood vessels"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients."
         },
         {
           "type": "categorization",
-          "prompt": "Match each organ to the system category shown.",
+          "prompt": "Oxygen reaches body cells: Drag each card into its correct category box.",
           "options": [
             "Respiratory",
             "Circulatory",
@@ -187,81 +212,105 @@
               "right": "Circulatory"
             },
             {
+              "left": "Blood vessels",
+              "right": "Circulatory"
+            },
+            {
               "left": "Stomach",
               "right": "Digestive"
             }
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients."
         },
         {
           "type": "causeAndEffect",
-          "prompt": "Match each change with a likely effect.",
+          "prompt": "Oxygen reaches body cells: Drag each cause to its effect to connect them.",
           "options": [
-            "More oxygen can enter the blood",
-            "Oxygen reaches active muscles faster"
+            "More air moves through the lungs",
+            "Blood moves faster to active muscles",
+            "Working cells can release energy"
           ],
           "pairs": [
             {
-              "left": "Breathing rate increases",
-              "right": "More oxygen can enter the blood"
+              "left": "Breathing rate rises",
+              "right": "More air moves through the lungs"
             },
             {
-              "left": "Blood flow to working muscles increases",
-              "right": "Oxygen reaches active muscles faster"
+              "left": "Heart rate rises",
+              "right": "Blood moves faster to active muscles"
+            },
+            {
+              "left": "Blood carries oxygen",
+              "right": "Working cells can release energy"
             }
           ],
           "correctAnswers": [],
-          "explanation": "Breathing and circulation adjust to help meet the body?s needs."
+          "explanation": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients."
         },
         {
           "type": "compareAndContrast",
-          "prompt": "Match each blood vessel with its main direction of flow.",
+          "prompt": "Oxygen reaches body cells: Drag each statement into the correct Venn diagram region.",
           "options": [
-            "Carries blood away from the heart",
-            "Carries blood toward the heart"
+            "Arteries",
+            "Veins",
+            "Both"
+          ],
+          "categories": [
+            "Arteries",
+            "Veins",
+            "Both"
           ],
           "pairs": [
             {
-              "left": "Artery",
-              "right": "Carries blood away from the heart"
+              "left": "Carries blood away from the heart",
+              "right": "Arteries"
             },
             {
-              "left": "Vein",
-              "right": "Carries blood toward the heart"
+              "left": "Carries blood toward the heart",
+              "right": "Veins"
+            },
+            {
+              "left": "Is part of circulation",
+              "right": "Both"
             }
           ],
           "correctAnswers": [],
-          "explanation": "Arteries carry blood away from the heart; veins return blood toward it."
+          "explanation": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients."
         },
         {
           "type": "prediction",
-          "prompt": "Prediction: If blood flow to a group of cells drops greatly, what is most likely?",
+          "prompt": "Oxygen reaches body cells: Watch the process, pause it, and predict what happens next.",
           "options": [
-            "Those cells may receive less oxygen.",
-            "Those cells receive unlimited oxygen.",
-            "The cells become lungs."
+            "Oxygen moves into the blood",
+            "Oxygen disappears from the body"
+          ],
+          "visualStages": [
+            "Oxygen enters the lungs",
+            "Oxygen crosses into the blood"
           ],
           "correctAnswers": [
-            "Those cells may receive less oxygen."
+            "Oxygen moves into the blood"
           ],
-          "explanation": "Blood transports oxygen, so reduced flow can reduce oxygen delivery."
+          "explanation": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients."
         },
         {
           "type": "buildTheProcess",
-          "prompt": "Build the process that moves oxygen from air to body cells.",
+          "prompt": "Oxygen reaches body cells: Drag components into the flowchart to build the process.",
           "options": [
             "Blood delivers oxygen to cells",
-            "Oxygen moves into the blood",
-            "Air enters the lungs"
+            "Heart pumps blood",
+            "Oxygen crosses into blood",
+            "Air enters lungs"
           ],
           "correctOrder": [
-            "Air enters the lungs",
-            "Oxygen moves into the blood",
+            "Air enters lungs",
+            "Oxygen crosses into blood",
+            "Heart pumps blood",
             "Blood delivers oxygen to cells"
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients."
         }
       ],
       "extraLessons": [
@@ -273,7 +322,7 @@
       "id": "immune",
       "parentId": null,
       "question": "Can you survive with only half your brain?",
-      "content": "The brain controls many body functions, while the heart and lungs keep supplying it with oxygen.",
+      "content": "The brain has two hemispheres connected by nerve fibers. Many tasks use networks across both sides, and the hemispheres exchange information.",
       "level": 1,
       "children": [
         "immune-detection",
@@ -284,132 +333,87 @@
       "exercises": [
         {
           "type": "singleChoice",
-          "prompt": "Which statement best describes how body systems work?",
+          "prompt": "Two brain hemispheres: How do the brain?s two hemispheres work?",
           "options": [
-            "Body systems cooperate to keep cells working.",
-            "Every organ works alone.",
-            "The body only works when you think about it."
+            "They exchange information in connected networks",
+            "They never communicate",
+            "One side controls every body function alone"
           ],
           "correctAnswers": [
-            "Body systems cooperate to keep cells working."
+            "They exchange information in connected networks"
           ],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "The brain has two hemispheres connected by nerve fibers. Many tasks use networks across both sides, and the hemispheres exchange information."
         },
         {
           "type": "multipleSelect",
-          "prompt": "Choose two things blood helps deliver or carry.",
+          "prompt": "Two brain hemispheres: Which two facts about hemispheres are reasonable?",
           "options": [
-            "Oxygen to cells",
-            "Nutrients to cells",
-            "Sunlight to bones",
-            "Air directly into the stomach"
+            "They connect through nerve fibers",
+            "Many tasks involve both sides",
+            "Each side works completely alone",
+            "They are separate organs"
           ],
           "correctAnswers": [
-            "Oxygen to cells",
-            "Nutrients to cells"
+            "They connect through nerve fibers",
+            "Many tasks involve both sides"
           ],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "The brain has two hemispheres connected by nerve fibers. Many tasks use networks across both sides, and the hemispheres exchange information."
         },
         {
           "type": "shortAnswer",
-          "prompt": "Type one gas that blood carries from the lungs to body cells.",
+          "prompt": "Two brain hemispheres: What organ contains the two hemispheres?",
           "options": [],
           "correctAnswers": [
-            "oxygen"
+            "brain"
           ],
-          "explanation": "Blood carries oxygen from the lungs to cells, where it is used to release energy from food."
+          "explanation": "The brain has two hemispheres connected by nerve fibers. Many tasks use networks across both sides, and the hemispheres exchange information."
         },
         {
           "type": "orderSteps",
-          "prompt": "Put these steps in order for oxygen to reach body cells.",
+          "prompt": "Two brain hemispheres: Arrange these biological events in sequence.",
           "options": [
-            "Blood delivers oxygen to cells",
-            "Air enters the lungs",
-            "Oxygen moves into the blood"
+            "A coordinated response is produced",
+            "Brain networks combine information",
+            "Connecting fibers carry information",
+            "A signal reaches a brain region"
           ],
           "correctOrder": [
-            "Air enters the lungs",
-            "Oxygen moves into the blood",
-            "Blood delivers oxygen to cells"
+            "A signal reaches a brain region",
+            "Connecting fibers carry information",
+            "Brain networks combine information",
+            "A coordinated response is produced"
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "The brain has two hemispheres connected by nerve fibers. Many tasks use networks across both sides, and the hemispheres exchange information."
         },
         {
           "type": "matching",
-          "prompt": "Match each organ with a basic job.",
+          "prompt": "Two brain hemispheres: Match each structure to its main role.",
           "options": [
-            "Pumps blood",
-            "Exchanges gases",
-            "Filters blood"
+            "Supports thought and perception",
+            "Carry signals between regions",
+            "Helps control vital functions"
           ],
           "pairs": [
             {
-              "left": "Heart",
-              "right": "Pumps blood"
+              "left": "Cerebrum",
+              "right": "Supports thought and perception"
             },
             {
-              "left": "Lungs",
-              "right": "Exchanges gases"
+              "left": "Nerve fibers",
+              "right": "Carry signals between regions"
             },
             {
-              "left": "Kidneys",
-              "right": "Filters blood"
+              "left": "Brainstem",
+              "right": "Helps control vital functions"
             }
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
-        },
-        {
-          "type": "fillInTheBlank",
-          "prompt": "Fill in the blank: Blood carries ____ from the lungs to body cells.",
-          "options": [],
-          "correctAnswers": [
-            "oxygen"
-          ],
-          "explanation": "Oxygen travels from the lungs into the blood and then to body cells."
-        },
-        {
-          "type": "scenarioBasedDecision",
-          "prompt": "Scenario: You start running. What is a normal response that helps active muscles?",
-          "options": [
-            "Heart rate and breathing increase.",
-            "The heart stops pumping.",
-            "The lungs stop exchanging gases."
-          ],
-          "correctAnswers": [
-            "Heart rate and breathing increase."
-          ],
-          "explanation": "The body can increase heart rate and breathing to help deliver more oxygen during activity."
-        },
-        {
-          "type": "diagramLabeling",
-          "prompt": "Label each part of this simple body-system diagram by matching it to its job.",
-          "options": [
-            "Moves blood around the body",
-            "Exchanges oxygen and carbon dioxide",
-            "Filters some waste from blood"
-          ],
-          "pairs": [
-            {
-              "left": "Heart",
-              "right": "Moves blood around the body"
-            },
-            {
-              "left": "Lungs",
-              "right": "Exchanges oxygen and carbon dioxide"
-            },
-            {
-              "left": "Kidneys",
-              "right": "Filters some waste from blood"
-            }
-          ],
-          "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "The brain has two hemispheres connected by nerve fibers. Many tasks use networks across both sides, and the hemispheres exchange information."
         },
         {
           "type": "trueFalse",
-          "prompt": "True or false: Body cells use oxygen to help release energy from food.",
+          "prompt": "Two brain hemispheres: True or false: The brain has two hemispheres connected by nerve fibers.",
           "options": [
             "True",
             "False"
@@ -417,114 +421,206 @@
           "correctAnswers": [
             "True"
           ],
-          "explanation": "Cells use oxygen in processes that release energy from nutrients."
+          "explanation": "The brain has two hemispheres connected by nerve fibers. Many tasks use networks across both sides, and the hemispheres exchange information."
+        },
+        {
+          "type": "scenarioBasedDecision",
+          "prompt": "Two brain hemispheres: undefined",
+          "options": [
+            "Explain that nerve connections let the hemispheres exchange information",
+            "Say each side is a separate organ"
+          ],
+          "correctAnswers": [
+            "Explain that nerve connections let the hemispheres exchange information"
+          ],
+          "consequences": {
+            "Explain that nerve connections let the hemispheres exchange information": "This describes the brain?s connected networks.",
+            "Say each side is a separate organ": "The hemispheres are connected parts of one brain."
+          },
+          "explanation": "The brain has two hemispheres connected by nerve fibers. Many tasks use networks across both sides, and the hemispheres exchange information."
+        },
+        {
+          "type": "fillInTheBlank",
+          "prompt": "Two brain hemispheres: Fill each missing word in this paragraph.",
+          "options": [],
+          "paragraphParts": [
+            "The brain has two ",
+            " connected by nerve ",
+            " that let information ",
+            " between them."
+          ],
+          "correctOrder": [
+            "hemispheres",
+            "fibers",
+            "travel"
+          ],
+          "correctAnswers": [],
+          "explanation": "The brain has two hemispheres connected by nerve fibers. Many tasks use networks across both sides, and the hemispheres exchange information."
         },
         {
           "type": "spotTheMistake",
-          "prompt": "Which sentence contains the mistake?",
+          "prompt": "Two brain hemispheres: Tap the scientifically incorrect word in this paragraph.",
           "options": [
-            "The heart pumps blood.",
-            "The lungs exchange gases.",
-            "The kidneys pump air into the blood."
+            "The",
+            "brain",
+            "has",
+            "two",
+            "hemispheres.",
+            "Nerve",
+            "fibers",
+            "connect",
+            "them.",
+            "They",
+            "never",
+            "share",
+            "information."
           ],
           "correctAnswers": [
-            "The kidneys pump air into the blood."
+            "never"
           ],
-          "explanation": "The kidneys filter blood; the lungs exchange gases."
+          "explanation": "The brain has two hemispheres connected by nerve fibers. Many tasks use networks across both sides, and the hemispheres exchange information."
+        },
+        {
+          "type": "diagramLabeling",
+          "prompt": "Two brain hemispheres: Drag labels onto the matching parts of the body diagram.",
+          "options": [
+            "Cerebrum",
+            "Brainstem",
+            "Cerebellum"
+          ],
+          "pairs": [
+            {
+              "left": "Cerebrum",
+              "right": "Cerebrum"
+            },
+            {
+              "left": "Brainstem",
+              "right": "Brainstem"
+            },
+            {
+              "left": "Cerebellum",
+              "right": "Cerebellum"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "The brain has two hemispheres connected by nerve fibers. Many tasks use networks across both sides, and the hemispheres exchange information."
         },
         {
           "type": "categorization",
-          "prompt": "Match each organ to the system category shown.",
+          "prompt": "Two brain hemispheres: Drag each card into its correct category box.",
           "options": [
-            "Respiratory",
-            "Circulatory",
-            "Digestive"
+            "Brain region",
+            "Bone"
           ],
           "pairs": [
             {
-              "left": "Lungs",
-              "right": "Respiratory"
+              "left": "Cerebrum",
+              "right": "Brain region"
             },
             {
-              "left": "Heart",
-              "right": "Circulatory"
+              "left": "Brainstem",
+              "right": "Brain region"
             },
             {
-              "left": "Stomach",
-              "right": "Digestive"
+              "left": "Cerebellum",
+              "right": "Brain region"
+            },
+            {
+              "left": "Femur",
+              "right": "Bone"
             }
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "The brain has two hemispheres connected by nerve fibers. Many tasks use networks across both sides, and the hemispheres exchange information."
         },
         {
           "type": "causeAndEffect",
-          "prompt": "Match each change with a likely effect.",
+          "prompt": "Two brain hemispheres: Drag each cause to its effect to connect them.",
           "options": [
-            "More oxygen can enter the blood",
-            "Oxygen reaches active muscles faster"
+            "Brain networks process information",
+            "Information can be combined",
+            "Signals travel toward muscles"
           ],
           "pairs": [
             {
-              "left": "Breathing rate increases",
-              "right": "More oxygen can enter the blood"
+              "left": "A sensory signal arrives",
+              "right": "Brain networks process information"
             },
             {
-              "left": "Blood flow to working muscles increases",
-              "right": "Oxygen reaches active muscles faster"
+              "left": "Brain regions exchange signals",
+              "right": "Information can be combined"
+            },
+            {
+              "left": "A response is planned",
+              "right": "Signals travel toward muscles"
             }
           ],
           "correctAnswers": [],
-          "explanation": "Breathing and circulation adjust to help meet the body?s needs."
+          "explanation": "The brain has two hemispheres connected by nerve fibers. Many tasks use networks across both sides, and the hemispheres exchange information."
         },
         {
           "type": "compareAndContrast",
-          "prompt": "Match each blood vessel with its main direction of flow.",
+          "prompt": "Two brain hemispheres: Drag each statement into the correct Venn diagram region.",
           "options": [
-            "Carries blood away from the heart",
-            "Carries blood toward the heart"
+            "Left hemisphere",
+            "Right hemisphere",
+            "Both"
+          ],
+          "categories": [
+            "Left hemisphere",
+            "Right hemisphere",
+            "Both"
           ],
           "pairs": [
             {
-              "left": "Artery",
-              "right": "Carries blood away from the heart"
+              "left": "Connected by nerve fibers",
+              "right": "Both"
             },
             {
-              "left": "Vein",
-              "right": "Carries blood toward the heart"
+              "left": "Can contribute to language tasks",
+              "right": "Both"
+            },
+            {
+              "left": "Can contribute to spatial tasks",
+              "right": "Both"
             }
           ],
           "correctAnswers": [],
-          "explanation": "Arteries carry blood away from the heart; veins return blood toward it."
+          "explanation": "The brain has two hemispheres connected by nerve fibers. Many tasks use networks across both sides, and the hemispheres exchange information."
         },
         {
           "type": "prediction",
-          "prompt": "Prediction: If blood flow to a group of cells drops greatly, what is most likely?",
+          "prompt": "Two brain hemispheres: Watch the process, pause it, and predict what happens next.",
           "options": [
-            "Those cells may receive less oxygen.",
-            "Those cells receive unlimited oxygen.",
-            "The cells become lungs."
+            "Other brain networks can contribute",
+            "The signal must stop at one side"
+          ],
+          "visualStages": [
+            "A signal reaches one hemisphere",
+            "Information travels through connecting fibers"
           ],
           "correctAnswers": [
-            "Those cells may receive less oxygen."
+            "Other brain networks can contribute"
           ],
-          "explanation": "Blood transports oxygen, so reduced flow can reduce oxygen delivery."
+          "explanation": "The brain has two hemispheres connected by nerve fibers. Many tasks use networks across both sides, and the hemispheres exchange information."
         },
         {
           "type": "buildTheProcess",
-          "prompt": "Build the process that moves oxygen from air to body cells.",
+          "prompt": "Two brain hemispheres: Drag components into the flowchart to build the process.",
           "options": [
-            "Blood delivers oxygen to cells",
-            "Oxygen moves into the blood",
-            "Air enters the lungs"
+            "A coordinated response is produced",
+            "Brain networks combine information",
+            "Connecting fibers carry information",
+            "A signal reaches a brain region"
           ],
           "correctOrder": [
-            "Air enters the lungs",
-            "Oxygen moves into the blood",
-            "Blood delivers oxygen to cells"
+            "A signal reaches a brain region",
+            "Connecting fibers carry information",
+            "Brain networks combine information",
+            "A coordinated response is produced"
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "The brain has two hemispheres connected by nerve fibers. Many tasks use networks across both sides, and the hemispheres exchange information."
         }
       ],
       "extraLessons": [
@@ -536,7 +632,7 @@
       "id": "sleep",
       "parentId": null,
       "question": "Can we stop our bodies from aging?",
-      "content": "Aging involves many body changes over time, including changes in cells, tissues, and repair.",
+      "content": "Cells maintain internal parts and replace some damaged molecules. With age, repair and regulation change, but many processes contribute to aging.",
       "level": 1,
       "children": [
         "sleep-stages",
@@ -547,132 +643,87 @@
       "exercises": [
         {
           "type": "singleChoice",
-          "prompt": "Which statement best describes how body systems work?",
+          "prompt": "Cell repair and aging: What is one way cells maintain themselves?",
           "options": [
-            "Body systems cooperate to keep cells working.",
-            "Every organ works alone.",
-            "The body only works when you think about it."
+            "They repair or replace some damaged parts",
+            "They never change",
+            "They stop using energy after childhood"
           ],
           "correctAnswers": [
-            "Body systems cooperate to keep cells working."
+            "They repair or replace some damaged parts"
           ],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "Cells maintain internal parts and replace some damaged molecules. With age, repair and regulation change, but many processes contribute to aging."
         },
         {
           "type": "multipleSelect",
-          "prompt": "Choose two things blood helps deliver or carry.",
+          "prompt": "Cell repair and aging: Which two statements about aging are accurate?",
           "options": [
-            "Oxygen to cells",
-            "Nutrients to cells",
-            "Sunlight to bones",
-            "Air directly into the stomach"
+            "Many biological processes contribute",
+            "Cell maintenance changes over time",
+            "One habit can stop all aging",
+            "All cells age identically"
           ],
           "correctAnswers": [
-            "Oxygen to cells",
-            "Nutrients to cells"
+            "Many biological processes contribute",
+            "Cell maintenance changes over time"
           ],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "Cells maintain internal parts and replace some damaged molecules. With age, repair and regulation change, but many processes contribute to aging."
         },
         {
           "type": "shortAnswer",
-          "prompt": "Type one gas that blood carries from the lungs to body cells.",
+          "prompt": "Cell repair and aging: What tiny living units make up much of the body?",
           "options": [],
           "correctAnswers": [
-            "oxygen"
+            "cells"
           ],
-          "explanation": "Blood carries oxygen from the lungs to cells, where it is used to release energy from food."
+          "explanation": "Cells maintain internal parts and replace some damaged molecules. With age, repair and regulation change, but many processes contribute to aging."
         },
         {
           "type": "orderSteps",
-          "prompt": "Put these steps in order for oxygen to reach body cells.",
+          "prompt": "Cell repair and aging: Arrange these biological events in sequence.",
           "options": [
-            "Blood delivers oxygen to cells",
-            "Air enters the lungs",
-            "Oxygen moves into the blood"
+            "The cell continues functioning",
+            "Parts are repaired or replaced",
+            "Repair systems detect it",
+            "Cell damage occurs"
           ],
           "correctOrder": [
-            "Air enters the lungs",
-            "Oxygen moves into the blood",
-            "Blood delivers oxygen to cells"
+            "Cell damage occurs",
+            "Repair systems detect it",
+            "Parts are repaired or replaced",
+            "The cell continues functioning"
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "Cells maintain internal parts and replace some damaged molecules. With age, repair and regulation change, but many processes contribute to aging."
         },
         {
           "type": "matching",
-          "prompt": "Match each organ with a basic job.",
+          "prompt": "Cell repair and aging: Match each structure to its main role.",
           "options": [
-            "Pumps blood",
-            "Exchanges gases",
-            "Filters blood"
+            "Basic living unit",
+            "Stores genetic instructions",
+            "Performs many cell jobs"
           ],
           "pairs": [
             {
-              "left": "Heart",
-              "right": "Pumps blood"
+              "left": "Cell",
+              "right": "Basic living unit"
             },
             {
-              "left": "Lungs",
-              "right": "Exchanges gases"
+              "left": "DNA",
+              "right": "Stores genetic instructions"
             },
             {
-              "left": "Kidneys",
-              "right": "Filters blood"
+              "left": "Protein",
+              "right": "Performs many cell jobs"
             }
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
-        },
-        {
-          "type": "fillInTheBlank",
-          "prompt": "Fill in the blank: Blood carries ____ from the lungs to body cells.",
-          "options": [],
-          "correctAnswers": [
-            "oxygen"
-          ],
-          "explanation": "Oxygen travels from the lungs into the blood and then to body cells."
-        },
-        {
-          "type": "scenarioBasedDecision",
-          "prompt": "Scenario: You start running. What is a normal response that helps active muscles?",
-          "options": [
-            "Heart rate and breathing increase.",
-            "The heart stops pumping.",
-            "The lungs stop exchanging gases."
-          ],
-          "correctAnswers": [
-            "Heart rate and breathing increase."
-          ],
-          "explanation": "The body can increase heart rate and breathing to help deliver more oxygen during activity."
-        },
-        {
-          "type": "diagramLabeling",
-          "prompt": "Label each part of this simple body-system diagram by matching it to its job.",
-          "options": [
-            "Moves blood around the body",
-            "Exchanges oxygen and carbon dioxide",
-            "Filters some waste from blood"
-          ],
-          "pairs": [
-            {
-              "left": "Heart",
-              "right": "Moves blood around the body"
-            },
-            {
-              "left": "Lungs",
-              "right": "Exchanges oxygen and carbon dioxide"
-            },
-            {
-              "left": "Kidneys",
-              "right": "Filters some waste from blood"
-            }
-          ],
-          "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "Cells maintain internal parts and replace some damaged molecules. With age, repair and regulation change, but many processes contribute to aging."
         },
         {
           "type": "trueFalse",
-          "prompt": "True or false: Body cells use oxygen to help release energy from food.",
+          "prompt": "Cell repair and aging: True or false: Cells maintain internal parts and replace some damaged molecules.",
           "options": [
             "True",
             "False"
@@ -680,114 +731,212 @@
           "correctAnswers": [
             "True"
           ],
-          "explanation": "Cells use oxygen in processes that release energy from nutrients."
+          "explanation": "Cells maintain internal parts and replace some damaged molecules. With age, repair and regulation change, but many processes contribute to aging."
+        },
+        {
+          "type": "scenarioBasedDecision",
+          "prompt": "Cell repair and aging: undefined",
+          "options": [
+            "Be skeptical and look for reliable evidence",
+            "Assume one product stops every aging process"
+          ],
+          "correctAnswers": [
+            "Be skeptical and look for reliable evidence"
+          ],
+          "consequences": {
+            "Be skeptical and look for reliable evidence": "Aging has many causes and no single proven cure.",
+            "Assume one product stops every aging process": "A broad health claim needs strong evidence."
+          },
+          "explanation": "Cells maintain internal parts and replace some damaged molecules. With age, repair and regulation change, but many processes contribute to aging."
+        },
+        {
+          "type": "fillInTheBlank",
+          "prompt": "Cell repair and aging: Fill each missing word in this paragraph.",
+          "options": [],
+          "paragraphParts": [
+            "The body is made of ",
+            ". Cells repair damaged ",
+            " and replace some molecules. These processes change with ",
+            "."
+          ],
+          "correctOrder": [
+            "cells",
+            "parts",
+            "age"
+          ],
+          "correctAnswers": [],
+          "explanation": "Cells maintain internal parts and replace some damaged molecules. With age, repair and regulation change, but many processes contribute to aging."
         },
         {
           "type": "spotTheMistake",
-          "prompt": "Which sentence contains the mistake?",
+          "prompt": "Cell repair and aging: Tap the scientifically incorrect word in this paragraph.",
           "options": [
-            "The heart pumps blood.",
-            "The lungs exchange gases.",
-            "The kidneys pump air into the blood."
+            "Cells",
+            "maintain",
+            "and",
+            "repair",
+            "some",
+            "of",
+            "their",
+            "parts.",
+            "Aging",
+            "involves",
+            "many",
+            "processes.",
+            "One",
+            "supplement",
+            "stops",
+            "all",
+            "human",
+            "aging."
           ],
           "correctAnswers": [
-            "The kidneys pump air into the blood."
+            "stops"
           ],
-          "explanation": "The kidneys filter blood; the lungs exchange gases."
+          "explanation": "Cells maintain internal parts and replace some damaged molecules. With age, repair and regulation change, but many processes contribute to aging."
         },
         {
-          "type": "categorization",
-          "prompt": "Match each organ to the system category shown.",
+          "type": "diagramLabeling",
+          "prompt": "Cell repair and aging: Drag labels onto the matching parts of the body diagram.",
           "options": [
-            "Respiratory",
-            "Circulatory",
-            "Digestive"
+            "Brain",
+            "Heart",
+            "Kidneys"
           ],
           "pairs": [
             {
-              "left": "Lungs",
-              "right": "Respiratory"
+              "left": "Brain",
+              "right": "Brain"
             },
             {
               "left": "Heart",
-              "right": "Circulatory"
+              "right": "Heart"
             },
             {
-              "left": "Stomach",
-              "right": "Digestive"
+              "left": "Kidneys",
+              "right": "Kidneys"
             }
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "Cells maintain internal parts and replace some damaged molecules. With age, repair and regulation change, but many processes contribute to aging."
+        },
+        {
+          "type": "categorization",
+          "prompt": "Cell repair and aging: Drag each card into its correct category box.",
+          "options": [
+            "Cell process",
+            "Organ process",
+            "Body movement"
+          ],
+          "pairs": [
+            {
+              "left": "Cell repair",
+              "right": "Cell process"
+            },
+            {
+              "left": "DNA copying",
+              "right": "Cell process"
+            },
+            {
+              "left": "Blood pumping",
+              "right": "Organ process"
+            },
+            {
+              "left": "Bone movement",
+              "right": "Body movement"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "Cells maintain internal parts and replace some damaged molecules. With age, repair and regulation change, but many processes contribute to aging."
         },
         {
           "type": "causeAndEffect",
-          "prompt": "Match each change with a likely effect.",
+          "prompt": "Cell repair and aging: Drag each cause to its effect to connect them.",
           "options": [
-            "More oxygen can enter the blood",
-            "Oxygen reaches active muscles faster"
+            "Repair systems respond",
+            "Some changes may remain",
+            "Tissues can work differently over time"
           ],
           "pairs": [
             {
-              "left": "Breathing rate increases",
-              "right": "More oxygen can enter the blood"
+              "left": "Cell damage builds up",
+              "right": "Repair systems respond"
             },
             {
-              "left": "Blood flow to working muscles increases",
-              "right": "Oxygen reaches active muscles faster"
+              "left": "Repair is incomplete",
+              "right": "Some changes may remain"
+            },
+            {
+              "left": "Many changes accumulate",
+              "right": "Tissues can work differently over time"
             }
           ],
           "correctAnswers": [],
-          "explanation": "Breathing and circulation adjust to help meet the body?s needs."
+          "explanation": "Cells maintain internal parts and replace some damaged molecules. With age, repair and regulation change, but many processes contribute to aging."
         },
         {
           "type": "compareAndContrast",
-          "prompt": "Match each blood vessel with its main direction of flow.",
+          "prompt": "Cell repair and aging: Drag each statement into the correct Venn diagram region.",
           "options": [
-            "Carries blood away from the heart",
-            "Carries blood toward the heart"
+            "Repair",
+            "Replacement",
+            "Both"
+          ],
+          "categories": [
+            "Repair",
+            "Replacement",
+            "Both"
           ],
           "pairs": [
             {
-              "left": "Artery",
-              "right": "Carries blood away from the heart"
+              "left": "Can help maintain tissues",
+              "right": "Both"
             },
             {
-              "left": "Vein",
-              "right": "Carries blood toward the heart"
+              "left": "Fixes a damaged structure",
+              "right": "Repair"
+            },
+            {
+              "left": "Makes a new cell or molecule",
+              "right": "Replacement"
             }
           ],
           "correctAnswers": [],
-          "explanation": "Arteries carry blood away from the heart; veins return blood toward it."
+          "explanation": "Cells maintain internal parts and replace some damaged molecules. With age, repair and regulation change, but many processes contribute to aging."
         },
         {
           "type": "prediction",
-          "prompt": "Prediction: If blood flow to a group of cells drops greatly, what is most likely?",
+          "prompt": "Cell repair and aging: Watch the process, pause it, and predict what happens next.",
           "options": [
-            "Those cells may receive less oxygen.",
-            "Those cells receive unlimited oxygen.",
-            "The cells become lungs."
+            "Some damage may be fixed",
+            "The whole body becomes younger instantly"
+          ],
+          "visualStages": [
+            "A cell detects damage",
+            "Repair systems begin responding"
           ],
           "correctAnswers": [
-            "Those cells may receive less oxygen."
+            "Some damage may be fixed"
           ],
-          "explanation": "Blood transports oxygen, so reduced flow can reduce oxygen delivery."
+          "explanation": "Cells maintain internal parts and replace some damaged molecules. With age, repair and regulation change, but many processes contribute to aging."
         },
         {
           "type": "buildTheProcess",
-          "prompt": "Build the process that moves oxygen from air to body cells.",
+          "prompt": "Cell repair and aging: Drag components into the flowchart to build the process.",
           "options": [
-            "Blood delivers oxygen to cells",
-            "Oxygen moves into the blood",
-            "Air enters the lungs"
+            "The cell continues functioning",
+            "Parts are repaired or replaced",
+            "Repair systems detect it",
+            "Cell damage occurs"
           ],
           "correctOrder": [
-            "Air enters the lungs",
-            "Oxygen moves into the blood",
-            "Blood delivers oxygen to cells"
+            "Cell damage occurs",
+            "Repair systems detect it",
+            "Parts are repaired or replaced",
+            "The cell continues functioning"
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "Cells maintain internal parts and replace some damaged molecules. With age, repair and regulation change, but many processes contribute to aging."
         }
       ],
       "extraLessons": [
@@ -5578,140 +5727,95 @@
     "heart-dummy-lesson-2": {
       "id": "heart-dummy-lesson-2",
       "parentId": "heart",
-      "question": "How does your body keep you alive? ? Practice 1",
-      "content": "When you move, your heart and breathing can speed up so oxygen reaches active cells.",
+      "question": "Kidneys and water balance: How does your body keep you alive?",
+      "content": "Kidneys filter blood and help regulate water and salts. They remove some waste through urine, while the body adjusts how much water it keeps.",
       "level": 2,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
           "type": "singleChoice",
-          "prompt": "Which statement best describes how body systems work?",
+          "prompt": "Kidneys and water balance: What is one kidney job?",
           "options": [
-            "Body systems cooperate to keep cells working.",
-            "Every organ works alone.",
-            "The body only works when you think about it."
+            "Filter blood and help remove waste",
+            "Pump air into lungs",
+            "Create all body water"
           ],
           "correctAnswers": [
-            "Body systems cooperate to keep cells working."
+            "Filter blood and help remove waste"
           ],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "Kidneys filter blood and help regulate water and salts. They remove some waste through urine, while the body adjusts how much water it keeps."
         },
         {
           "type": "multipleSelect",
-          "prompt": "Choose two things blood helps deliver or carry.",
+          "prompt": "Kidneys and water balance: Which two changes can help conserve water?",
           "options": [
-            "Oxygen to cells",
-            "Nutrients to cells",
-            "Sunlight to bones",
-            "Air directly into the stomach"
+            "Kidneys make less urine",
+            "The body feels thirsty",
+            "Lungs stop working",
+            "Bones absorb blood"
           ],
           "correctAnswers": [
-            "Oxygen to cells",
-            "Nutrients to cells"
+            "Kidneys make less urine",
+            "The body feels thirsty"
           ],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "Kidneys filter blood and help regulate water and salts. They remove some waste through urine, while the body adjusts how much water it keeps."
         },
         {
           "type": "shortAnswer",
-          "prompt": "Type one gas that blood carries from the lungs to body cells.",
+          "prompt": "Kidneys and water balance: What liquid carries filtered waste out of the body?",
           "options": [],
           "correctAnswers": [
-            "oxygen"
+            "urine"
           ],
-          "explanation": "Blood carries oxygen from the lungs to cells, where it is used to release energy from food."
+          "explanation": "Kidneys filter blood and help regulate water and salts. They remove some waste through urine, while the body adjusts how much water it keeps."
         },
         {
           "type": "orderSteps",
-          "prompt": "Put these steps in order for oxygen to reach body cells.",
+          "prompt": "Kidneys and water balance: Arrange these biological events in sequence.",
           "options": [
-            "Blood delivers oxygen to cells",
-            "Air enters the lungs",
-            "Oxygen moves into the blood"
+            "Urine collects in bladder",
+            "Urine travels through ureters",
+            "Kidneys filter water and waste",
+            "Blood reaches kidneys"
           ],
           "correctOrder": [
-            "Air enters the lungs",
-            "Oxygen moves into the blood",
-            "Blood delivers oxygen to cells"
+            "Blood reaches kidneys",
+            "Kidneys filter water and waste",
+            "Urine travels through ureters",
+            "Urine collects in bladder"
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "Kidneys filter blood and help regulate water and salts. They remove some waste through urine, while the body adjusts how much water it keeps."
         },
         {
           "type": "matching",
-          "prompt": "Match each organ with a basic job.",
+          "prompt": "Kidneys and water balance: Match each structure to its main role.",
           "options": [
-            "Pumps blood",
-            "Exchanges gases",
-            "Filters blood"
+            "Filter blood",
+            "Carry urine",
+            "Store urine"
           ],
           "pairs": [
             {
-              "left": "Heart",
-              "right": "Pumps blood"
-            },
-            {
-              "left": "Lungs",
-              "right": "Exchanges gases"
-            },
-            {
               "left": "Kidneys",
-              "right": "Filters blood"
+              "right": "Filter blood"
+            },
+            {
+              "left": "Ureters",
+              "right": "Carry urine"
+            },
+            {
+              "left": "Bladder",
+              "right": "Store urine"
             }
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
-        },
-        {
-          "type": "fillInTheBlank",
-          "prompt": "Fill in the blank: Blood carries ____ from the lungs to body cells.",
-          "options": [],
-          "correctAnswers": [
-            "oxygen"
-          ],
-          "explanation": "Oxygen travels from the lungs into the blood and then to body cells."
-        },
-        {
-          "type": "scenarioBasedDecision",
-          "prompt": "Scenario: You start running. What is a normal response that helps active muscles?",
-          "options": [
-            "Heart rate and breathing increase.",
-            "The heart stops pumping.",
-            "The lungs stop exchanging gases."
-          ],
-          "correctAnswers": [
-            "Heart rate and breathing increase."
-          ],
-          "explanation": "The body can increase heart rate and breathing to help deliver more oxygen during activity."
-        },
-        {
-          "type": "diagramLabeling",
-          "prompt": "Label each part of this simple body-system diagram by matching it to its job.",
-          "options": [
-            "Moves blood around the body",
-            "Exchanges oxygen and carbon dioxide",
-            "Filters some waste from blood"
-          ],
-          "pairs": [
-            {
-              "left": "Heart",
-              "right": "Moves blood around the body"
-            },
-            {
-              "left": "Lungs",
-              "right": "Exchanges oxygen and carbon dioxide"
-            },
-            {
-              "left": "Kidneys",
-              "right": "Filters some waste from blood"
-            }
-          ],
-          "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "Kidneys filter blood and help regulate water and salts. They remove some waste through urine, while the body adjusts how much water it keeps."
         },
         {
           "type": "trueFalse",
-          "prompt": "True or false: Body cells use oxygen to help release energy from food.",
+          "prompt": "Kidneys and water balance: True or false: Kidneys filter blood and help regulate water and salts.",
           "options": [
             "True",
             "False"
@@ -5719,114 +5823,209 @@
           "correctAnswers": [
             "True"
           ],
-          "explanation": "Cells use oxygen in processes that release energy from nutrients."
+          "explanation": "Kidneys filter blood and help regulate water and salts. They remove some waste through urine, while the body adjusts how much water it keeps."
+        },
+        {
+          "type": "scenarioBasedDecision",
+          "prompt": "Kidneys and water balance: undefined",
+          "options": [
+            "Rest somewhere cool and drink water",
+            "Ignore thirst and keep exercising"
+          ],
+          "correctAnswers": [
+            "Rest somewhere cool and drink water"
+          ],
+          "consequences": {
+            "Rest somewhere cool and drink water": "Rest and fluids can help replace water lost through sweating.",
+            "Ignore thirst and keep exercising": "Continuing without fluids can worsen dehydration."
+          },
+          "explanation": "Kidneys filter blood and help regulate water and salts. They remove some waste through urine, while the body adjusts how much water it keeps."
+        },
+        {
+          "type": "fillInTheBlank",
+          "prompt": "Kidneys and water balance: Fill each missing word in this paragraph.",
+          "options": [],
+          "paragraphParts": [
+            "The kidneys filter the ",
+            " and remove some ",
+            " in the form of ",
+            "."
+          ],
+          "correctOrder": [
+            "blood",
+            "waste",
+            "urine"
+          ],
+          "correctAnswers": [],
+          "explanation": "Kidneys filter blood and help regulate water and salts. They remove some waste through urine, while the body adjusts how much water it keeps."
         },
         {
           "type": "spotTheMistake",
-          "prompt": "Which sentence contains the mistake?",
+          "prompt": "Kidneys and water balance: Tap the scientifically incorrect word in this paragraph.",
           "options": [
-            "The heart pumps blood.",
-            "The lungs exchange gases.",
-            "The kidneys pump air into the blood."
+            "The",
+            "kidneys",
+            "filter",
+            "blood.",
+            "Urine",
+            "travels",
+            "through",
+            "the",
+            "ureters",
+            "to",
+            "the",
+            "bladder.",
+            "The",
+            "bladder",
+            "filters",
+            "blood."
           ],
           "correctAnswers": [
-            "The kidneys pump air into the blood."
+            "filters"
           ],
-          "explanation": "The kidneys filter blood; the lungs exchange gases."
+          "explanation": "Kidneys filter blood and help regulate water and salts. They remove some waste through urine, while the body adjusts how much water it keeps."
+        },
+        {
+          "type": "diagramLabeling",
+          "prompt": "Kidneys and water balance: Drag labels onto the matching parts of the body diagram.",
+          "options": [
+            "Kidneys",
+            "Bladder",
+            "Ureters"
+          ],
+          "pairs": [
+            {
+              "left": "Kidneys",
+              "right": "Kidneys"
+            },
+            {
+              "left": "Bladder",
+              "right": "Bladder"
+            },
+            {
+              "left": "Ureters",
+              "right": "Ureters"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "Kidneys filter blood and help regulate water and salts. They remove some waste through urine, while the body adjusts how much water it keeps."
         },
         {
           "type": "categorization",
-          "prompt": "Match each organ to the system category shown.",
+          "prompt": "Kidneys and water balance: Drag each card into its correct category box.",
           "options": [
-            "Respiratory",
-            "Circulatory",
-            "Digestive"
+            "Urinary",
+            "Respiratory"
           ],
           "pairs": [
+            {
+              "left": "Kidneys",
+              "right": "Urinary"
+            },
+            {
+              "left": "Bladder",
+              "right": "Urinary"
+            },
+            {
+              "left": "Ureters",
+              "right": "Urinary"
+            },
             {
               "left": "Lungs",
               "right": "Respiratory"
-            },
-            {
-              "left": "Heart",
-              "right": "Circulatory"
-            },
-            {
-              "left": "Stomach",
-              "right": "Digestive"
             }
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "Kidneys filter blood and help regulate water and salts. They remove some waste through urine, while the body adjusts how much water it keeps."
         },
         {
           "type": "causeAndEffect",
-          "prompt": "Match each change with a likely effect.",
+          "prompt": "Kidneys and water balance: Drag each cause to its effect to connect them.",
           "options": [
-            "More oxygen can enter the blood",
-            "Oxygen reaches active muscles faster"
+            "The body may conserve more water",
+            "Some waste enters urine",
+            "A person feels the urge to urinate"
           ],
           "pairs": [
             {
-              "left": "Breathing rate increases",
-              "right": "More oxygen can enter the blood"
+              "left": "Less water is available",
+              "right": "The body may conserve more water"
             },
             {
-              "left": "Blood flow to working muscles increases",
-              "right": "Oxygen reaches active muscles faster"
+              "left": "Kidneys filter blood",
+              "right": "Some waste enters urine"
+            },
+            {
+              "left": "Bladder fills",
+              "right": "A person feels the urge to urinate"
             }
           ],
           "correctAnswers": [],
-          "explanation": "Breathing and circulation adjust to help meet the body?s needs."
+          "explanation": "Kidneys filter blood and help regulate water and salts. They remove some waste through urine, while the body adjusts how much water it keeps."
         },
         {
           "type": "compareAndContrast",
-          "prompt": "Match each blood vessel with its main direction of flow.",
+          "prompt": "Kidneys and water balance: Drag each statement into the correct Venn diagram region.",
           "options": [
-            "Carries blood away from the heart",
-            "Carries blood toward the heart"
+            "Kidneys",
+            "Liver",
+            "Both"
+          ],
+          "categories": [
+            "Kidneys",
+            "Liver",
+            "Both"
           ],
           "pairs": [
             {
-              "left": "Artery",
-              "right": "Carries blood away from the heart"
+              "left": "Filters some substances from blood",
+              "right": "Both"
             },
             {
-              "left": "Vein",
-              "right": "Carries blood toward the heart"
+              "left": "Makes urine",
+              "right": "Kidneys"
+            },
+            {
+              "left": "Makes bile",
+              "right": "Liver"
             }
           ],
           "correctAnswers": [],
-          "explanation": "Arteries carry blood away from the heart; veins return blood toward it."
+          "explanation": "Kidneys filter blood and help regulate water and salts. They remove some waste through urine, while the body adjusts how much water it keeps."
         },
         {
           "type": "prediction",
-          "prompt": "Prediction: If blood flow to a group of cells drops greatly, what is most likely?",
+          "prompt": "Kidneys and water balance: Watch the process, pause it, and predict what happens next.",
           "options": [
-            "Those cells may receive less oxygen.",
-            "Those cells receive unlimited oxygen.",
-            "The cells become lungs."
+            "Urine becomes more concentrated",
+            "The kidneys stop filtering forever"
+          ],
+          "visualStages": [
+            "Kidneys filter blood",
+            "Filtered waste collects in urine"
           ],
           "correctAnswers": [
-            "Those cells may receive less oxygen."
+            "Urine becomes more concentrated"
           ],
-          "explanation": "Blood transports oxygen, so reduced flow can reduce oxygen delivery."
+          "explanation": "Kidneys filter blood and help regulate water and salts. They remove some waste through urine, while the body adjusts how much water it keeps."
         },
         {
           "type": "buildTheProcess",
-          "prompt": "Build the process that moves oxygen from air to body cells.",
+          "prompt": "Kidneys and water balance: Drag components into the flowchart to build the process.",
           "options": [
-            "Blood delivers oxygen to cells",
-            "Oxygen moves into the blood",
-            "Air enters the lungs"
+            "Urine collects in bladder",
+            "Urine travels through ureters",
+            "Kidneys filter water and waste",
+            "Blood reaches kidneys"
           ],
           "correctOrder": [
-            "Air enters the lungs",
-            "Oxygen moves into the blood",
-            "Blood delivers oxygen to cells"
+            "Blood reaches kidneys",
+            "Kidneys filter water and waste",
+            "Urine travels through ureters",
+            "Urine collects in bladder"
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "Kidneys filter blood and help regulate water and salts. They remove some waste through urine, while the body adjusts how much water it keeps."
         }
       ],
       "extraLessons": []
@@ -5834,72 +6033,74 @@
     "heart-dummy-lesson-3": {
       "id": "heart-dummy-lesson-3",
       "parentId": "heart",
-      "question": "How does your body keep you alive? ? Practice 2",
-      "content": "Body systems share jobs: lungs exchange gases, blood transports materials, and kidneys filter waste.",
+      "question": "A steady heartbeat: How does your body keep you alive?",
+      "content": "The heart is a muscular pump. Its electrical system coordinates contractions that move blood through the lungs and around the body.",
       "level": 2,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
           "type": "singleChoice",
-          "prompt": "Which statement best describes how body systems work?",
+          "prompt": "A steady heartbeat: What keeps blood moving around the body?",
           "options": [
-            "Body systems cooperate to keep cells working.",
-            "Every organ works alone.",
-            "The body only works when you think about it."
+            "The heart?s repeated pumping",
+            "The stomach squeezing lungs",
+            "The kidneys pulling on blood"
           ],
           "correctAnswers": [
-            "Body systems cooperate to keep cells working."
+            "The heart?s repeated pumping"
           ],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "The heart is a muscular pump. Its electrical system coordinates contractions that move blood through the lungs and around the body."
         },
         {
           "type": "multipleSelect",
-          "prompt": "Choose two things blood helps deliver or carry.",
+          "prompt": "A steady heartbeat: Which two structures are part of circulation?",
           "options": [
-            "Oxygen to cells",
-            "Nutrients to cells",
-            "Sunlight to bones",
-            "Air directly into the stomach"
+            "Heart",
+            "Blood vessels",
+            "Air sacs in lungs",
+            "Food in the stomach"
           ],
           "correctAnswers": [
-            "Oxygen to cells",
-            "Nutrients to cells"
+            "Heart",
+            "Blood vessels"
           ],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "The heart is a muscular pump. Its electrical system coordinates contractions that move blood through the lungs and around the body."
         },
         {
           "type": "shortAnswer",
-          "prompt": "Type one gas that blood carries from the lungs to body cells.",
+          "prompt": "A steady heartbeat: What muscular organ pumps blood?",
           "options": [],
           "correctAnswers": [
-            "oxygen"
+            "heart"
           ],
-          "explanation": "Blood carries oxygen from the lungs to cells, where it is used to release energy from food."
+          "explanation": "The heart is a muscular pump. Its electrical system coordinates contractions that move blood through the lungs and around the body."
         },
         {
           "type": "orderSteps",
-          "prompt": "Put these steps in order for oxygen to reach body cells.",
+          "prompt": "A steady heartbeat: Arrange these biological events in sequence.",
           "options": [
-            "Blood delivers oxygen to cells",
-            "Air enters the lungs",
-            "Oxygen moves into the blood"
+            "Blood returns through veins",
+            "Blood enters arteries",
+            "Heart muscle contracts",
+            "Heart chambers fill"
           ],
           "correctOrder": [
-            "Air enters the lungs",
-            "Oxygen moves into the blood",
-            "Blood delivers oxygen to cells"
+            "Heart chambers fill",
+            "Heart muscle contracts",
+            "Blood enters arteries",
+            "Blood returns through veins"
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "The heart is a muscular pump. Its electrical system coordinates contractions that move blood through the lungs and around the body."
         },
         {
           "type": "matching",
-          "prompt": "Match each organ with a basic job.",
+          "prompt": "A steady heartbeat: Match each structure to its main role.",
           "options": [
             "Pumps blood",
-            "Exchanges gases",
-            "Filters blood"
+            "Carry blood away",
+            "Return blood"
           ],
           "pairs": [
             {
@@ -5907,67 +6108,20 @@
               "right": "Pumps blood"
             },
             {
-              "left": "Lungs",
-              "right": "Exchanges gases"
+              "left": "Arteries",
+              "right": "Carry blood away"
             },
             {
-              "left": "Kidneys",
-              "right": "Filters blood"
+              "left": "Veins",
+              "right": "Return blood"
             }
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
-        },
-        {
-          "type": "fillInTheBlank",
-          "prompt": "Fill in the blank: Blood carries ____ from the lungs to body cells.",
-          "options": [],
-          "correctAnswers": [
-            "oxygen"
-          ],
-          "explanation": "Oxygen travels from the lungs into the blood and then to body cells."
-        },
-        {
-          "type": "scenarioBasedDecision",
-          "prompt": "Scenario: You start running. What is a normal response that helps active muscles?",
-          "options": [
-            "Heart rate and breathing increase.",
-            "The heart stops pumping.",
-            "The lungs stop exchanging gases."
-          ],
-          "correctAnswers": [
-            "Heart rate and breathing increase."
-          ],
-          "explanation": "The body can increase heart rate and breathing to help deliver more oxygen during activity."
-        },
-        {
-          "type": "diagramLabeling",
-          "prompt": "Label each part of this simple body-system diagram by matching it to its job.",
-          "options": [
-            "Moves blood around the body",
-            "Exchanges oxygen and carbon dioxide",
-            "Filters some waste from blood"
-          ],
-          "pairs": [
-            {
-              "left": "Heart",
-              "right": "Moves blood around the body"
-            },
-            {
-              "left": "Lungs",
-              "right": "Exchanges oxygen and carbon dioxide"
-            },
-            {
-              "left": "Kidneys",
-              "right": "Filters some waste from blood"
-            }
-          ],
-          "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "The heart is a muscular pump. Its electrical system coordinates contractions that move blood through the lungs and around the body."
         },
         {
           "type": "trueFalse",
-          "prompt": "True or false: Body cells use oxygen to help release energy from food.",
+          "prompt": "A steady heartbeat: True or false: The heart is a muscular pump.",
           "options": [
             "True",
             "False"
@@ -5975,114 +6129,206 @@
           "correctAnswers": [
             "True"
           ],
-          "explanation": "Cells use oxygen in processes that release energy from nutrients."
+          "explanation": "The heart is a muscular pump. Its electrical system coordinates contractions that move blood through the lungs and around the body."
+        },
+        {
+          "type": "scenarioBasedDecision",
+          "prompt": "A steady heartbeat: undefined",
+          "options": [
+            "Call emergency services right away",
+            "Ask the person to exercise to test their heart"
+          ],
+          "correctAnswers": [
+            "Call emergency services right away"
+          ],
+          "consequences": {
+            "Call emergency services right away": "Sudden chest pain can be an emergency and needs urgent medical help.",
+            "Ask the person to exercise to test their heart": "Exercise could make a serious problem worse."
+          },
+          "explanation": "The heart is a muscular pump. Its electrical system coordinates contractions that move blood through the lungs and around the body."
+        },
+        {
+          "type": "fillInTheBlank",
+          "prompt": "A steady heartbeat: Fill each missing word in this paragraph.",
+          "options": [],
+          "paragraphParts": [
+            "The ",
+            " is a muscular pump. It sends ",
+            " through blood ",
+            " to the body."
+          ],
+          "correctOrder": [
+            "heart",
+            "blood",
+            "vessels"
+          ],
+          "correctAnswers": [],
+          "explanation": "The heart is a muscular pump. Its electrical system coordinates contractions that move blood through the lungs and around the body."
         },
         {
           "type": "spotTheMistake",
-          "prompt": "Which sentence contains the mistake?",
+          "prompt": "A steady heartbeat: Tap the scientifically incorrect word in this paragraph.",
           "options": [
-            "The heart pumps blood.",
-            "The lungs exchange gases.",
-            "The kidneys pump air into the blood."
+            "The",
+            "heart",
+            "pumps",
+            "blood.",
+            "Arteries",
+            "carry",
+            "blood",
+            "away.",
+            "Blood",
+            "vessels",
+            "are",
+            "hollow",
+            "bones."
           ],
           "correctAnswers": [
-            "The kidneys pump air into the blood."
+            "bones."
           ],
-          "explanation": "The kidneys filter blood; the lungs exchange gases."
+          "explanation": "The heart is a muscular pump. Its electrical system coordinates contractions that move blood through the lungs and around the body."
         },
         {
-          "type": "categorization",
-          "prompt": "Match each organ to the system category shown.",
+          "type": "diagramLabeling",
+          "prompt": "A steady heartbeat: Drag labels onto the matching parts of the body diagram.",
           "options": [
-            "Respiratory",
-            "Circulatory",
-            "Digestive"
+            "Heart",
+            "Arteries",
+            "Veins"
           ],
           "pairs": [
             {
-              "left": "Lungs",
-              "right": "Respiratory"
+              "left": "Heart",
+              "right": "Heart"
             },
+            {
+              "left": "Arteries",
+              "right": "Arteries"
+            },
+            {
+              "left": "Veins",
+              "right": "Veins"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "The heart is a muscular pump. Its electrical system coordinates contractions that move blood through the lungs and around the body."
+        },
+        {
+          "type": "categorization",
+          "prompt": "A steady heartbeat: Drag each card into its correct category box.",
+          "options": [
+            "Circulatory",
+            "Respiratory"
+          ],
+          "pairs": [
             {
               "left": "Heart",
               "right": "Circulatory"
             },
             {
-              "left": "Stomach",
-              "right": "Digestive"
+              "left": "Arteries",
+              "right": "Circulatory"
+            },
+            {
+              "left": "Veins",
+              "right": "Circulatory"
+            },
+            {
+              "left": "Trachea",
+              "right": "Respiratory"
             }
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "The heart is a muscular pump. Its electrical system coordinates contractions that move blood through the lungs and around the body."
         },
         {
           "type": "causeAndEffect",
-          "prompt": "Match each change with a likely effect.",
+          "prompt": "A steady heartbeat: Drag each cause to its effect to connect them.",
           "options": [
-            "More oxygen can enter the blood",
-            "Oxygen reaches active muscles faster"
+            "Blood is pushed into arteries",
+            "Blood reaches smaller vessels",
+            "Blood flows toward the heart"
           ],
           "pairs": [
             {
-              "left": "Breathing rate increases",
-              "right": "More oxygen can enter the blood"
+              "left": "Heart contracts",
+              "right": "Blood is pushed into arteries"
             },
             {
-              "left": "Blood flow to working muscles increases",
-              "right": "Oxygen reaches active muscles faster"
+              "left": "Arteries branch",
+              "right": "Blood reaches smaller vessels"
+            },
+            {
+              "left": "Veins return blood",
+              "right": "Blood flows toward the heart"
             }
           ],
           "correctAnswers": [],
-          "explanation": "Breathing and circulation adjust to help meet the body?s needs."
+          "explanation": "The heart is a muscular pump. Its electrical system coordinates contractions that move blood through the lungs and around the body."
         },
         {
           "type": "compareAndContrast",
-          "prompt": "Match each blood vessel with its main direction of flow.",
+          "prompt": "A steady heartbeat: Drag each statement into the correct Venn diagram region.",
           "options": [
-            "Carries blood away from the heart",
-            "Carries blood toward the heart"
+            "Arteries",
+            "Veins",
+            "Both"
+          ],
+          "categories": [
+            "Arteries",
+            "Veins",
+            "Both"
           ],
           "pairs": [
             {
-              "left": "Artery",
-              "right": "Carries blood away from the heart"
+              "left": "Carry blood away from the heart",
+              "right": "Arteries"
             },
             {
-              "left": "Vein",
-              "right": "Carries blood toward the heart"
+              "left": "Carry blood toward the heart",
+              "right": "Veins"
+            },
+            {
+              "left": "Have blood flowing through them",
+              "right": "Both"
             }
           ],
           "correctAnswers": [],
-          "explanation": "Arteries carry blood away from the heart; veins return blood toward it."
+          "explanation": "The heart is a muscular pump. Its electrical system coordinates contractions that move blood through the lungs and around the body."
         },
         {
           "type": "prediction",
-          "prompt": "Prediction: If blood flow to a group of cells drops greatly, what is most likely?",
+          "prompt": "A steady heartbeat: Watch the process, pause it, and predict what happens next.",
           "options": [
-            "Those cells may receive less oxygen.",
-            "Those cells receive unlimited oxygen.",
-            "The cells become lungs."
+            "Blood is pushed toward the body",
+            "Blood is pushed into the stomach"
+          ],
+          "visualStages": [
+            "Heart muscle contracts",
+            "Blood enters the arteries"
           ],
           "correctAnswers": [
-            "Those cells may receive less oxygen."
+            "Blood is pushed toward the body"
           ],
-          "explanation": "Blood transports oxygen, so reduced flow can reduce oxygen delivery."
+          "explanation": "The heart is a muscular pump. Its electrical system coordinates contractions that move blood through the lungs and around the body."
         },
         {
           "type": "buildTheProcess",
-          "prompt": "Build the process that moves oxygen from air to body cells.",
+          "prompt": "A steady heartbeat: Drag components into the flowchart to build the process.",
           "options": [
-            "Blood delivers oxygen to cells",
-            "Oxygen moves into the blood",
-            "Air enters the lungs"
+            "Blood returns through veins",
+            "Blood enters arteries",
+            "Heart muscle contracts",
+            "Heart chambers fill"
           ],
           "correctOrder": [
-            "Air enters the lungs",
-            "Oxygen moves into the blood",
-            "Blood delivers oxygen to cells"
+            "Heart chambers fill",
+            "Heart muscle contracts",
+            "Blood enters arteries",
+            "Blood returns through veins"
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "The heart is a muscular pump. Its electrical system coordinates contractions that move blood through the lungs and around the body."
         }
       ],
       "extraLessons": []
@@ -6090,140 +6336,95 @@
     "immune-dummy-lesson-2": {
       "id": "immune-dummy-lesson-2",
       "parentId": "immune",
-      "question": "Can you survive with only half your brain? ? Practice 1",
-      "content": "The brain depends on steady blood flow, oxygen, and energy to coordinate movement and senses.",
+      "question": "Brain regions and body signals: Can you survive with only half your brain?",
+      "content": "Brain regions contribute to movement, sensation, language, memory, and vital functions. The brainstem helps regulate automatic functions such as breathing.",
       "level": 2,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
           "type": "singleChoice",
-          "prompt": "Which statement best describes how body systems work?",
+          "prompt": "Brain regions and body signals: Which region helps regulate automatic breathing?",
           "options": [
-            "Body systems cooperate to keep cells working.",
-            "Every organ works alone.",
-            "The body only works when you think about it."
+            "Brainstem",
+            "Kneecap",
+            "Earlobe"
           ],
           "correctAnswers": [
-            "Body systems cooperate to keep cells working."
+            "Brainstem"
           ],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "Brain regions contribute to movement, sensation, language, memory, and vital functions. The brainstem helps regulate automatic functions such as breathing."
         },
         {
           "type": "multipleSelect",
-          "prompt": "Choose two things blood helps deliver or carry.",
+          "prompt": "Brain regions and body signals: Which two tasks does the brain help coordinate?",
           "options": [
-            "Oxygen to cells",
-            "Nutrients to cells",
-            "Sunlight to bones",
-            "Air directly into the stomach"
+            "Movement",
+            "Sensation",
+            "Filtering urine",
+            "Making red blood cells"
           ],
           "correctAnswers": [
-            "Oxygen to cells",
-            "Nutrients to cells"
+            "Movement",
+            "Sensation"
           ],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "Brain regions contribute to movement, sensation, language, memory, and vital functions. The brainstem helps regulate automatic functions such as breathing."
         },
         {
           "type": "shortAnswer",
-          "prompt": "Type one gas that blood carries from the lungs to body cells.",
+          "prompt": "Brain regions and body signals: Name the brain region that helps regulate breathing.",
           "options": [],
           "correctAnswers": [
-            "oxygen"
+            "brainstem"
           ],
-          "explanation": "Blood carries oxygen from the lungs to cells, where it is used to release energy from food."
+          "explanation": "Brain regions contribute to movement, sensation, language, memory, and vital functions. The brainstem helps regulate automatic functions such as breathing."
         },
         {
           "type": "orderSteps",
-          "prompt": "Put these steps in order for oxygen to reach body cells.",
+          "prompt": "Brain regions and body signals: Arrange these biological events in sequence.",
           "options": [
-            "Blood delivers oxygen to cells",
-            "Air enters the lungs",
-            "Oxygen moves into the blood"
+            "Signals coordinate a response",
+            "Brain networks process it",
+            "Nerves carry information",
+            "A stimulus is detected"
           ],
           "correctOrder": [
-            "Air enters the lungs",
-            "Oxygen moves into the blood",
-            "Blood delivers oxygen to cells"
+            "A stimulus is detected",
+            "Nerves carry information",
+            "Brain networks process it",
+            "Signals coordinate a response"
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "Brain regions contribute to movement, sensation, language, memory, and vital functions. The brainstem helps regulate automatic functions such as breathing."
         },
         {
           "type": "matching",
-          "prompt": "Match each organ with a basic job.",
+          "prompt": "Brain regions and body signals: Match each structure to its main role.",
           "options": [
-            "Pumps blood",
-            "Exchanges gases",
-            "Filters blood"
+            "Helps coordinate movement",
+            "Supports vital automatic functions",
+            "Supports thought and perception"
           ],
           "pairs": [
             {
-              "left": "Heart",
-              "right": "Pumps blood"
+              "left": "Cerebellum",
+              "right": "Helps coordinate movement"
             },
             {
-              "left": "Lungs",
-              "right": "Exchanges gases"
+              "left": "Brainstem",
+              "right": "Supports vital automatic functions"
             },
             {
-              "left": "Kidneys",
-              "right": "Filters blood"
+              "left": "Cerebrum",
+              "right": "Supports thought and perception"
             }
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
-        },
-        {
-          "type": "fillInTheBlank",
-          "prompt": "Fill in the blank: Blood carries ____ from the lungs to body cells.",
-          "options": [],
-          "correctAnswers": [
-            "oxygen"
-          ],
-          "explanation": "Oxygen travels from the lungs into the blood and then to body cells."
-        },
-        {
-          "type": "scenarioBasedDecision",
-          "prompt": "Scenario: You start running. What is a normal response that helps active muscles?",
-          "options": [
-            "Heart rate and breathing increase.",
-            "The heart stops pumping.",
-            "The lungs stop exchanging gases."
-          ],
-          "correctAnswers": [
-            "Heart rate and breathing increase."
-          ],
-          "explanation": "The body can increase heart rate and breathing to help deliver more oxygen during activity."
-        },
-        {
-          "type": "diagramLabeling",
-          "prompt": "Label each part of this simple body-system diagram by matching it to its job.",
-          "options": [
-            "Moves blood around the body",
-            "Exchanges oxygen and carbon dioxide",
-            "Filters some waste from blood"
-          ],
-          "pairs": [
-            {
-              "left": "Heart",
-              "right": "Moves blood around the body"
-            },
-            {
-              "left": "Lungs",
-              "right": "Exchanges oxygen and carbon dioxide"
-            },
-            {
-              "left": "Kidneys",
-              "right": "Filters some waste from blood"
-            }
-          ],
-          "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "Brain regions contribute to movement, sensation, language, memory, and vital functions. The brainstem helps regulate automatic functions such as breathing."
         },
         {
           "type": "trueFalse",
-          "prompt": "True or false: Body cells use oxygen to help release energy from food.",
+          "prompt": "Brain regions and body signals: True or false: Brain regions contribute to movement, sensation, language, memory, and vital functions.",
           "options": [
             "True",
             "False"
@@ -6231,114 +6432,212 @@
           "correctAnswers": [
             "True"
           ],
-          "explanation": "Cells use oxygen in processes that release energy from nutrients."
+          "explanation": "Brain regions contribute to movement, sensation, language, memory, and vital functions. The brainstem helps regulate automatic functions such as breathing."
+        },
+        {
+          "type": "scenarioBasedDecision",
+          "prompt": "Brain regions and body signals: undefined",
+          "options": [
+            "Notice the danger and coordinate movement away",
+            "Stop all sensory signals"
+          ],
+          "correctAnswers": [
+            "Notice the danger and coordinate movement away"
+          ],
+          "consequences": {
+            "Notice the danger and coordinate movement away": "Sensing and moving away are useful protective responses.",
+            "Stop all sensory signals": "Blocking signals would make it harder to respond."
+          },
+          "explanation": "Brain regions contribute to movement, sensation, language, memory, and vital functions. The brainstem helps regulate automatic functions such as breathing."
+        },
+        {
+          "type": "fillInTheBlank",
+          "prompt": "Brain regions and body signals: Fill each missing word in this paragraph.",
+          "options": [],
+          "paragraphParts": [
+            "The brainstem helps regulate ",
+            " functions such as breathing. Nerves carry ",
+            " to the brain, which can coordinate a ",
+            " ."
+          ],
+          "correctOrder": [
+            "automatic",
+            "signals",
+            "response"
+          ],
+          "correctAnswers": [],
+          "explanation": "Brain regions contribute to movement, sensation, language, memory, and vital functions. The brainstem helps regulate automatic functions such as breathing."
         },
         {
           "type": "spotTheMistake",
-          "prompt": "Which sentence contains the mistake?",
+          "prompt": "Brain regions and body signals: Tap the scientifically incorrect word in this paragraph.",
           "options": [
-            "The heart pumps blood.",
-            "The lungs exchange gases.",
-            "The kidneys pump air into the blood."
+            "The",
+            "brainstem",
+            "helps",
+            "regulate",
+            "breathing.",
+            "The",
+            "cerebellum",
+            "helps",
+            "coordinate",
+            "movement.",
+            "The",
+            "brainstem",
+            "is",
+            "a",
+            "bone",
+            "in",
+            "the",
+            "leg."
           ],
           "correctAnswers": [
-            "The kidneys pump air into the blood."
+            "bone"
           ],
-          "explanation": "The kidneys filter blood; the lungs exchange gases."
+          "explanation": "Brain regions contribute to movement, sensation, language, memory, and vital functions. The brainstem helps regulate automatic functions such as breathing."
+        },
+        {
+          "type": "diagramLabeling",
+          "prompt": "Brain regions and body signals: Drag labels onto the matching parts of the body diagram.",
+          "options": [
+            "Cerebrum",
+            "Brainstem",
+            "Cerebellum"
+          ],
+          "pairs": [
+            {
+              "left": "Cerebrum",
+              "right": "Cerebrum"
+            },
+            {
+              "left": "Brainstem",
+              "right": "Brainstem"
+            },
+            {
+              "left": "Cerebellum",
+              "right": "Cerebellum"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "Brain regions contribute to movement, sensation, language, memory, and vital functions. The brainstem helps regulate automatic functions such as breathing."
         },
         {
           "type": "categorization",
-          "prompt": "Match each organ to the system category shown.",
+          "prompt": "Brain regions and body signals: Drag each card into its correct category box.",
           "options": [
-            "Respiratory",
-            "Circulatory",
-            "Digestive"
+            "Automatic function",
+            "Brain function",
+            "Kidney function"
           ],
           "pairs": [
             {
-              "left": "Lungs",
-              "right": "Respiratory"
+              "left": "Breathing control",
+              "right": "Automatic function"
             },
             {
-              "left": "Heart",
-              "right": "Circulatory"
+              "left": "Movement coordination",
+              "right": "Brain function"
             },
             {
-              "left": "Stomach",
-              "right": "Digestive"
+              "left": "Urine filtration",
+              "right": "Kidney function"
+            },
+            {
+              "left": "Memory",
+              "right": "Brain function"
             }
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "Brain regions contribute to movement, sensation, language, memory, and vital functions. The brainstem helps regulate automatic functions such as breathing."
         },
         {
           "type": "causeAndEffect",
-          "prompt": "Match each change with a likely effect.",
+          "prompt": "Brain regions and body signals: Drag each cause to its effect to connect them.",
           "options": [
-            "More oxygen can enter the blood",
-            "Oxygen reaches active muscles faster"
+            "Sensory nerves send a warning",
+            "A withdrawal movement is coordinated",
+            "The hand moves away"
           ],
           "pairs": [
             {
-              "left": "Breathing rate increases",
-              "right": "More oxygen can enter the blood"
+              "left": "A person touches a hot surface",
+              "right": "Sensory nerves send a warning"
             },
             {
-              "left": "Blood flow to working muscles increases",
-              "right": "Oxygen reaches active muscles faster"
+              "left": "Brain processes the warning",
+              "right": "A withdrawal movement is coordinated"
+            },
+            {
+              "left": "Muscles receive signals",
+              "right": "The hand moves away"
             }
           ],
           "correctAnswers": [],
-          "explanation": "Breathing and circulation adjust to help meet the body?s needs."
+          "explanation": "Brain regions contribute to movement, sensation, language, memory, and vital functions. The brainstem helps regulate automatic functions such as breathing."
         },
         {
           "type": "compareAndContrast",
-          "prompt": "Match each blood vessel with its main direction of flow.",
+          "prompt": "Brain regions and body signals: Drag each statement into the correct Venn diagram region.",
           "options": [
-            "Carries blood away from the heart",
-            "Carries blood toward the heart"
+            "Voluntary actions",
+            "Automatic functions",
+            "Both"
+          ],
+          "categories": [
+            "Voluntary actions",
+            "Automatic functions",
+            "Both"
           ],
           "pairs": [
             {
-              "left": "Artery",
-              "right": "Carries blood away from the heart"
+              "left": "Can involve brain networks",
+              "right": "Both"
             },
             {
-              "left": "Vein",
-              "right": "Carries blood toward the heart"
+              "left": "Breathing continues without conscious effort",
+              "right": "Automatic functions"
+            },
+            {
+              "left": "Picking up a cup is intentional",
+              "right": "Voluntary actions"
             }
           ],
           "correctAnswers": [],
-          "explanation": "Arteries carry blood away from the heart; veins return blood toward it."
+          "explanation": "Brain regions contribute to movement, sensation, language, memory, and vital functions. The brainstem helps regulate automatic functions such as breathing."
         },
         {
           "type": "prediction",
-          "prompt": "Prediction: If blood flow to a group of cells drops greatly, what is most likely?",
+          "prompt": "Brain regions and body signals: Watch the process, pause it, and predict what happens next.",
           "options": [
-            "Those cells may receive less oxygen.",
-            "Those cells receive unlimited oxygen.",
-            "The cells become lungs."
+            "Brain networks can help orient toward the sound",
+            "The ears directly move the legs"
+          ],
+          "visualStages": [
+            "A sound reaches the ears",
+            "Nerve signals travel toward the brain"
           ],
           "correctAnswers": [
-            "Those cells may receive less oxygen."
+            "Brain networks can help orient toward the sound"
           ],
-          "explanation": "Blood transports oxygen, so reduced flow can reduce oxygen delivery."
+          "explanation": "Brain regions contribute to movement, sensation, language, memory, and vital functions. The brainstem helps regulate automatic functions such as breathing."
         },
         {
           "type": "buildTheProcess",
-          "prompt": "Build the process that moves oxygen from air to body cells.",
+          "prompt": "Brain regions and body signals: Drag components into the flowchart to build the process.",
           "options": [
-            "Blood delivers oxygen to cells",
-            "Oxygen moves into the blood",
-            "Air enters the lungs"
+            "Signals coordinate a response",
+            "Brain networks process it",
+            "Nerves carry information",
+            "A stimulus is detected"
           ],
           "correctOrder": [
-            "Air enters the lungs",
-            "Oxygen moves into the blood",
-            "Blood delivers oxygen to cells"
+            "A stimulus is detected",
+            "Nerves carry information",
+            "Brain networks process it",
+            "Signals coordinate a response"
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "Brain regions contribute to movement, sensation, language, memory, and vital functions. The brainstem helps regulate automatic functions such as breathing."
         }
       ],
       "extraLessons": []
@@ -6346,140 +6645,95 @@
     "immune-dummy-lesson-3": {
       "id": "immune-dummy-lesson-3",
       "parentId": "immune",
-      "question": "Can you survive with only half your brain? ? Practice 2",
-      "content": "The brain controls many body functions, while the heart and lungs keep supplying it with oxygen.",
+      "question": "Brain recovery and practice: Can you survive with only half your brain?",
+      "content": "After injury, some people regain abilities through rehabilitation. Recovery varies with the injury and individual factors, and is not guaranteed.",
       "level": 2,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
           "type": "singleChoice",
-          "prompt": "Which statement best describes how body systems work?",
+          "prompt": "Brain recovery and practice: What is realistic about brain recovery?",
           "options": [
-            "Body systems cooperate to keep cells working.",
-            "Every organ works alone.",
-            "The body only works when you think about it."
+            "Rehabilitation may help regain some abilities",
+            "Every injury is completely reversed",
+            "The brain never changes after birth"
           ],
           "correctAnswers": [
-            "Body systems cooperate to keep cells working."
+            "Rehabilitation may help regain some abilities"
           ],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "After injury, some people regain abilities through rehabilitation. Recovery varies with the injury and individual factors, and is not guaranteed."
         },
         {
           "type": "multipleSelect",
-          "prompt": "Choose two things blood helps deliver or carry.",
+          "prompt": "Brain recovery and practice: Which two things can support recovery?",
           "options": [
-            "Oxygen to cells",
-            "Nutrients to cells",
-            "Sunlight to bones",
-            "Air directly into the stomach"
+            "Rehabilitation practice",
+            "Time and medical care",
+            "Ignoring symptoms",
+            "Avoiding all movement"
           ],
           "correctAnswers": [
-            "Oxygen to cells",
-            "Nutrients to cells"
+            "Rehabilitation practice",
+            "Time and medical care"
           ],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "After injury, some people regain abilities through rehabilitation. Recovery varies with the injury and individual factors, and is not guaranteed."
         },
         {
           "type": "shortAnswer",
-          "prompt": "Type one gas that blood carries from the lungs to body cells.",
+          "prompt": "Brain recovery and practice: What guided practice may support recovery?",
           "options": [],
           "correctAnswers": [
-            "oxygen"
+            "rehabilitation"
           ],
-          "explanation": "Blood carries oxygen from the lungs to cells, where it is used to release energy from food."
+          "explanation": "After injury, some people regain abilities through rehabilitation. Recovery varies with the injury and individual factors, and is not guaranteed."
         },
         {
           "type": "orderSteps",
-          "prompt": "Put these steps in order for oxygen to reach body cells.",
+          "prompt": "Brain recovery and practice: Arrange these biological events in sequence.",
           "options": [
-            "Blood delivers oxygen to cells",
-            "Air enters the lungs",
-            "Oxygen moves into the blood"
+            "Progress guides the next step",
+            "A skill is practiced",
+            "A safe practice goal is chosen",
+            "Ability is assessed"
           ],
           "correctOrder": [
-            "Air enters the lungs",
-            "Oxygen moves into the blood",
-            "Blood delivers oxygen to cells"
+            "Ability is assessed",
+            "A safe practice goal is chosen",
+            "A skill is practiced",
+            "Progress guides the next step"
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "After injury, some people regain abilities through rehabilitation. Recovery varies with the injury and individual factors, and is not guaranteed."
         },
         {
           "type": "matching",
-          "prompt": "Match each organ with a basic job.",
+          "prompt": "Brain recovery and practice: Match each structure to its main role.",
           "options": [
-            "Pumps blood",
-            "Exchanges gases",
-            "Filters blood"
+            "Guided practice",
+            "Transmit signals",
+            "Targets recovery goals"
           ],
           "pairs": [
             {
-              "left": "Heart",
-              "right": "Pumps blood"
+              "left": "Rehabilitation",
+              "right": "Guided practice"
             },
             {
-              "left": "Lungs",
-              "right": "Exchanges gases"
+              "left": "Neurons",
+              "right": "Transmit signals"
             },
             {
-              "left": "Kidneys",
-              "right": "Filters blood"
+              "left": "Therapy plan",
+              "right": "Targets recovery goals"
             }
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
-        },
-        {
-          "type": "fillInTheBlank",
-          "prompt": "Fill in the blank: Blood carries ____ from the lungs to body cells.",
-          "options": [],
-          "correctAnswers": [
-            "oxygen"
-          ],
-          "explanation": "Oxygen travels from the lungs into the blood and then to body cells."
-        },
-        {
-          "type": "scenarioBasedDecision",
-          "prompt": "Scenario: You start running. What is a normal response that helps active muscles?",
-          "options": [
-            "Heart rate and breathing increase.",
-            "The heart stops pumping.",
-            "The lungs stop exchanging gases."
-          ],
-          "correctAnswers": [
-            "Heart rate and breathing increase."
-          ],
-          "explanation": "The body can increase heart rate and breathing to help deliver more oxygen during activity."
-        },
-        {
-          "type": "diagramLabeling",
-          "prompt": "Label each part of this simple body-system diagram by matching it to its job.",
-          "options": [
-            "Moves blood around the body",
-            "Exchanges oxygen and carbon dioxide",
-            "Filters some waste from blood"
-          ],
-          "pairs": [
-            {
-              "left": "Heart",
-              "right": "Moves blood around the body"
-            },
-            {
-              "left": "Lungs",
-              "right": "Exchanges oxygen and carbon dioxide"
-            },
-            {
-              "left": "Kidneys",
-              "right": "Filters some waste from blood"
-            }
-          ],
-          "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "After injury, some people regain abilities through rehabilitation. Recovery varies with the injury and individual factors, and is not guaranteed."
         },
         {
           "type": "trueFalse",
-          "prompt": "True or false: Body cells use oxygen to help release energy from food.",
+          "prompt": "Brain recovery and practice: True or false: After injury, some people regain abilities through rehabilitation.",
           "options": [
             "True",
             "False"
@@ -6487,114 +6741,213 @@
           "correctAnswers": [
             "True"
           ],
-          "explanation": "Cells use oxygen in processes that release energy from nutrients."
+          "explanation": "After injury, some people regain abilities through rehabilitation. Recovery varies with the injury and individual factors, and is not guaranteed."
+        },
+        {
+          "type": "scenarioBasedDecision",
+          "prompt": "Brain recovery and practice: undefined",
+          "options": [
+            "Follow a care team?s rehabilitation plan",
+            "Assume recovery is identical for everyone"
+          ],
+          "correctAnswers": [
+            "Follow a care team?s rehabilitation plan"
+          ],
+          "consequences": {
+            "Follow a care team?s rehabilitation plan": "A tailored plan supports safe, measured practice.",
+            "Assume recovery is identical for everyone": "Recovery differs between people and injuries."
+          },
+          "explanation": "After injury, some people regain abilities through rehabilitation. Recovery varies with the injury and individual factors, and is not guaranteed."
+        },
+        {
+          "type": "fillInTheBlank",
+          "prompt": "Brain recovery and practice: Fill each missing word in this paragraph.",
+          "options": [],
+          "paragraphParts": [
+            "Guided ",
+            " can help people practice skills after injury. Recovery varies from person to ",
+            " and may be ",
+            " ."
+          ],
+          "correctOrder": [
+            "rehabilitation",
+            "person",
+            "incomplete"
+          ],
+          "correctAnswers": [],
+          "explanation": "After injury, some people regain abilities through rehabilitation. Recovery varies with the injury and individual factors, and is not guaranteed."
         },
         {
           "type": "spotTheMistake",
-          "prompt": "Which sentence contains the mistake?",
+          "prompt": "Brain recovery and practice: Tap the scientifically incorrect word in this paragraph.",
           "options": [
-            "The heart pumps blood.",
-            "The lungs exchange gases.",
-            "The kidneys pump air into the blood."
+            "Brain",
+            "recovery",
+            "can",
+            "vary",
+            "between",
+            "people.",
+            "Rehabilitation",
+            "may",
+            "help",
+            "practice",
+            "skills.",
+            "Every",
+            "person",
+            "recovers",
+            "fully",
+            "in",
+            "one",
+            "week."
           ],
           "correctAnswers": [
-            "The kidneys pump air into the blood."
+            "fully"
           ],
-          "explanation": "The kidneys filter blood; the lungs exchange gases."
+          "explanation": "After injury, some people regain abilities through rehabilitation. Recovery varies with the injury and individual factors, and is not guaranteed."
+        },
+        {
+          "type": "diagramLabeling",
+          "prompt": "Brain recovery and practice: Drag labels onto the matching parts of the body diagram.",
+          "options": [
+            "Cerebrum",
+            "Brainstem",
+            "Cerebellum"
+          ],
+          "pairs": [
+            {
+              "left": "Cerebrum",
+              "right": "Cerebrum"
+            },
+            {
+              "left": "Brainstem",
+              "right": "Brainstem"
+            },
+            {
+              "left": "Cerebellum",
+              "right": "Cerebellum"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "After injury, some people regain abilities through rehabilitation. Recovery varies with the injury and individual factors, and is not guaranteed."
         },
         {
           "type": "categorization",
-          "prompt": "Match each organ to the system category shown.",
+          "prompt": "Brain recovery and practice: Drag each card into its correct category box.",
           "options": [
-            "Respiratory",
-            "Circulatory",
-            "Digestive"
+            "Rehabilitation",
+            "Medical care",
+            "Nerve cell job",
+            "Kidney job"
           ],
           "pairs": [
             {
-              "left": "Lungs",
-              "right": "Respiratory"
+              "left": "Practice a movement skill",
+              "right": "Rehabilitation"
             },
             {
-              "left": "Heart",
-              "right": "Circulatory"
+              "left": "Review progress with a clinician",
+              "right": "Medical care"
             },
             {
-              "left": "Stomach",
-              "right": "Digestive"
+              "left": "Transmit electrical signals",
+              "right": "Nerve cell job"
+            },
+            {
+              "left": "Filter blood",
+              "right": "Kidney job"
             }
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "After injury, some people regain abilities through rehabilitation. Recovery varies with the injury and individual factors, and is not guaranteed."
         },
         {
           "type": "causeAndEffect",
-          "prompt": "Match each change with a likely effect.",
+          "prompt": "Brain recovery and practice: Drag each cause to its effect to connect them.",
           "options": [
-            "More oxygen can enter the blood",
-            "Oxygen reaches active muscles faster"
+            "A skill may become easier",
+            "A plan can be adjusted",
+            "Recovery may take longer"
           ],
           "pairs": [
             {
-              "left": "Breathing rate increases",
-              "right": "More oxygen can enter the blood"
+              "left": "Repeated guided practice",
+              "right": "A skill may become easier"
             },
             {
-              "left": "Blood flow to working muscles increases",
-              "right": "Oxygen reaches active muscles faster"
+              "left": "Progress is monitored",
+              "right": "A plan can be adjusted"
+            },
+            {
+              "left": "An injury is severe",
+              "right": "Recovery may take longer"
             }
           ],
           "correctAnswers": [],
-          "explanation": "Breathing and circulation adjust to help meet the body?s needs."
+          "explanation": "After injury, some people regain abilities through rehabilitation. Recovery varies with the injury and individual factors, and is not guaranteed."
         },
         {
           "type": "compareAndContrast",
-          "prompt": "Match each blood vessel with its main direction of flow.",
+          "prompt": "Brain recovery and practice: Drag each statement into the correct Venn diagram region.",
           "options": [
-            "Carries blood away from the heart",
-            "Carries blood toward the heart"
+            "Practice",
+            "Medical care",
+            "Both"
+          ],
+          "categories": [
+            "Practice",
+            "Medical care",
+            "Both"
           ],
           "pairs": [
             {
-              "left": "Artery",
-              "right": "Carries blood away from the heart"
+              "left": "Can be part of rehabilitation",
+              "right": "Both"
             },
             {
-              "left": "Vein",
-              "right": "Carries blood toward the heart"
+              "left": "Repeating a movement task",
+              "right": "Practice"
+            },
+            {
+              "left": "Checking safety and progress",
+              "right": "Medical care"
             }
           ],
           "correctAnswers": [],
-          "explanation": "Arteries carry blood away from the heart; veins return blood toward it."
+          "explanation": "After injury, some people regain abilities through rehabilitation. Recovery varies with the injury and individual factors, and is not guaranteed."
         },
         {
           "type": "prediction",
-          "prompt": "Prediction: If blood flow to a group of cells drops greatly, what is most likely?",
+          "prompt": "Brain recovery and practice: Watch the process, pause it, and predict what happens next.",
           "options": [
-            "Those cells may receive less oxygen.",
-            "Those cells receive unlimited oxygen.",
-            "The cells become lungs."
+            "The movement may become more coordinated",
+            "The injury disappears immediately"
+          ],
+          "visualStages": [
+            "A person practices a movement",
+            "Nerve networks receive repeated activity"
           ],
           "correctAnswers": [
-            "Those cells may receive less oxygen."
+            "The movement may become more coordinated"
           ],
-          "explanation": "Blood transports oxygen, so reduced flow can reduce oxygen delivery."
+          "explanation": "After injury, some people regain abilities through rehabilitation. Recovery varies with the injury and individual factors, and is not guaranteed."
         },
         {
           "type": "buildTheProcess",
-          "prompt": "Build the process that moves oxygen from air to body cells.",
+          "prompt": "Brain recovery and practice: Drag components into the flowchart to build the process.",
           "options": [
-            "Blood delivers oxygen to cells",
-            "Oxygen moves into the blood",
-            "Air enters the lungs"
+            "Progress guides the next step",
+            "A skill is practiced",
+            "A safe practice goal is chosen",
+            "Ability is assessed"
           ],
           "correctOrder": [
-            "Air enters the lungs",
-            "Oxygen moves into the blood",
-            "Blood delivers oxygen to cells"
+            "Ability is assessed",
+            "A safe practice goal is chosen",
+            "A skill is practiced",
+            "Progress guides the next step"
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "After injury, some people regain abilities through rehabilitation. Recovery varies with the injury and individual factors, and is not guaranteed."
         }
       ],
       "extraLessons": []
@@ -6602,140 +6955,95 @@
     "sleep-dummy-lesson-2": {
       "id": "sleep-dummy-lesson-2",
       "parentId": "sleep",
-      "question": "Can we stop our bodies from aging? ? Practice 1",
-      "content": "Aging involves many body changes over time, including changes in cells, tissues, and repair.",
+      "question": "Muscles and bones over time: Can we stop our bodies from aging?",
+      "content": "Muscles and bones respond to use. Appropriate movement and nutrition support strength, while age, illness, and inactivity can affect tissues differently.",
       "level": 2,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
           "type": "singleChoice",
-          "prompt": "Which statement best describes how body systems work?",
+          "prompt": "Muscles and bones over time: What can help maintain muscle strength?",
           "options": [
-            "Body systems cooperate to keep cells working.",
-            "Every organ works alone.",
-            "The body only works when you think about it."
+            "Regular appropriate strength activity",
+            "Never moving muscles",
+            "Avoiding all protein foods"
           ],
           "correctAnswers": [
-            "Body systems cooperate to keep cells working."
+            "Regular appropriate strength activity"
           ],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "Muscles and bones respond to use. Appropriate movement and nutrition support strength, while age, illness, and inactivity can affect tissues differently."
         },
         {
           "type": "multipleSelect",
-          "prompt": "Choose two things blood helps deliver or carry.",
+          "prompt": "Muscles and bones over time: Which two habits support bone and muscle health?",
           "options": [
-            "Oxygen to cells",
-            "Nutrients to cells",
-            "Sunlight to bones",
-            "Air directly into the stomach"
+            "Suitable weight-bearing movement",
+            "Adequate nutrition",
+            "Staying immobile",
+            "Skipping medical advice"
           ],
           "correctAnswers": [
-            "Oxygen to cells",
-            "Nutrients to cells"
+            "Suitable weight-bearing movement",
+            "Adequate nutrition"
           ],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "Muscles and bones respond to use. Appropriate movement and nutrition support strength, while age, illness, and inactivity can affect tissues differently."
         },
         {
           "type": "shortAnswer",
-          "prompt": "Type one gas that blood carries from the lungs to body cells.",
+          "prompt": "Muscles and bones over time: What tissue contracts to move your body?",
           "options": [],
           "correctAnswers": [
-            "oxygen"
+            "muscle"
           ],
-          "explanation": "Blood carries oxygen from the lungs to cells, where it is used to release energy from food."
+          "explanation": "Muscles and bones respond to use. Appropriate movement and nutrition support strength, while age, illness, and inactivity can affect tissues differently."
         },
         {
           "type": "orderSteps",
-          "prompt": "Put these steps in order for oxygen to reach body cells.",
+          "prompt": "Muscles and bones over time: Arrange these biological events in sequence.",
           "options": [
-            "Blood delivers oxygen to cells",
-            "Air enters the lungs",
-            "Oxygen moves into the blood"
+            "The action is completed",
+            "Bones move at joints",
+            "Muscles contract",
+            "A movement is planned"
           ],
           "correctOrder": [
-            "Air enters the lungs",
-            "Oxygen moves into the blood",
-            "Blood delivers oxygen to cells"
+            "A movement is planned",
+            "Muscles contract",
+            "Bones move at joints",
+            "The action is completed"
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "Muscles and bones respond to use. Appropriate movement and nutrition support strength, while age, illness, and inactivity can affect tissues differently."
         },
         {
           "type": "matching",
-          "prompt": "Match each organ with a basic job.",
+          "prompt": "Muscles and bones over time: Match each structure to its main role.",
           "options": [
-            "Pumps blood",
-            "Exchanges gases",
-            "Filters blood"
+            "Contracts to create force",
+            "Supports and protects",
+            "Allows connected bones to move"
           ],
           "pairs": [
             {
-              "left": "Heart",
-              "right": "Pumps blood"
+              "left": "Muscle",
+              "right": "Contracts to create force"
             },
             {
-              "left": "Lungs",
-              "right": "Exchanges gases"
+              "left": "Bone",
+              "right": "Supports and protects"
             },
             {
-              "left": "Kidneys",
-              "right": "Filters blood"
+              "left": "Joint",
+              "right": "Allows connected bones to move"
             }
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
-        },
-        {
-          "type": "fillInTheBlank",
-          "prompt": "Fill in the blank: Blood carries ____ from the lungs to body cells.",
-          "options": [],
-          "correctAnswers": [
-            "oxygen"
-          ],
-          "explanation": "Oxygen travels from the lungs into the blood and then to body cells."
-        },
-        {
-          "type": "scenarioBasedDecision",
-          "prompt": "Scenario: You start running. What is a normal response that helps active muscles?",
-          "options": [
-            "Heart rate and breathing increase.",
-            "The heart stops pumping.",
-            "The lungs stop exchanging gases."
-          ],
-          "correctAnswers": [
-            "Heart rate and breathing increase."
-          ],
-          "explanation": "The body can increase heart rate and breathing to help deliver more oxygen during activity."
-        },
-        {
-          "type": "diagramLabeling",
-          "prompt": "Label each part of this simple body-system diagram by matching it to its job.",
-          "options": [
-            "Moves blood around the body",
-            "Exchanges oxygen and carbon dioxide",
-            "Filters some waste from blood"
-          ],
-          "pairs": [
-            {
-              "left": "Heart",
-              "right": "Moves blood around the body"
-            },
-            {
-              "left": "Lungs",
-              "right": "Exchanges oxygen and carbon dioxide"
-            },
-            {
-              "left": "Kidneys",
-              "right": "Filters some waste from blood"
-            }
-          ],
-          "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "Muscles and bones respond to use. Appropriate movement and nutrition support strength, while age, illness, and inactivity can affect tissues differently."
         },
         {
           "type": "trueFalse",
-          "prompt": "True or false: Body cells use oxygen to help release energy from food.",
+          "prompt": "Muscles and bones over time: True or false: Muscles and bones respond to use.",
           "options": [
             "True",
             "False"
@@ -6743,114 +7051,210 @@
           "correctAnswers": [
             "True"
           ],
-          "explanation": "Cells use oxygen in processes that release energy from nutrients."
+          "explanation": "Muscles and bones respond to use. Appropriate movement and nutrition support strength, while age, illness, and inactivity can affect tissues differently."
+        },
+        {
+          "type": "scenarioBasedDecision",
+          "prompt": "Muscles and bones over time: undefined",
+          "options": [
+            "Choose activity suited to health and ask a clinician if unsure",
+            "Start with the heaviest weights immediately"
+          ],
+          "correctAnswers": [
+            "Choose activity suited to health and ask a clinician if unsure"
+          ],
+          "consequences": {
+            "Choose activity suited to health and ask a clinician if unsure": "A gradual plan can build strength while respecting health needs.",
+            "Start with the heaviest weights immediately": "Starting too intensely may increase injury risk."
+          },
+          "explanation": "Muscles and bones respond to use. Appropriate movement and nutrition support strength, while age, illness, and inactivity can affect tissues differently."
+        },
+        {
+          "type": "fillInTheBlank",
+          "prompt": "Muscles and bones over time: Fill each missing word in this paragraph.",
+          "options": [],
+          "paragraphParts": [
+            "A ",
+            " can contract and pull on a ",
+            " across a ",
+            " to create movement."
+          ],
+          "correctOrder": [
+            "muscle",
+            "bone",
+            "joint"
+          ],
+          "correctAnswers": [],
+          "explanation": "Muscles and bones respond to use. Appropriate movement and nutrition support strength, while age, illness, and inactivity can affect tissues differently."
         },
         {
           "type": "spotTheMistake",
-          "prompt": "Which sentence contains the mistake?",
+          "prompt": "Muscles and bones over time: Tap the scientifically incorrect word in this paragraph.",
           "options": [
-            "The heart pumps blood.",
-            "The lungs exchange gases.",
-            "The kidneys pump air into the blood."
+            "Muscles",
+            "can",
+            "adapt",
+            "to",
+            "regular",
+            "activity.",
+            "Bones",
+            "provide",
+            "support.",
+            "Exercise",
+            "always",
+            "prevents",
+            "every",
+            "age-related",
+            "change."
           ],
           "correctAnswers": [
-            "The kidneys pump air into the blood."
+            "always"
           ],
-          "explanation": "The kidneys filter blood; the lungs exchange gases."
+          "explanation": "Muscles and bones respond to use. Appropriate movement and nutrition support strength, while age, illness, and inactivity can affect tissues differently."
+        },
+        {
+          "type": "diagramLabeling",
+          "prompt": "Muscles and bones over time: Drag labels onto the matching parts of the body diagram.",
+          "options": [
+            "Muscle",
+            "Bone",
+            "Joint"
+          ],
+          "pairs": [
+            {
+              "left": "Muscle",
+              "right": "Muscle"
+            },
+            {
+              "left": "Bone",
+              "right": "Bone"
+            },
+            {
+              "left": "Joint",
+              "right": "Joint"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "Muscles and bones respond to use. Appropriate movement and nutrition support strength, while age, illness, and inactivity can affect tissues differently."
         },
         {
           "type": "categorization",
-          "prompt": "Match each organ to the system category shown.",
+          "prompt": "Muscles and bones over time: Drag each card into its correct category box.",
           "options": [
-            "Respiratory",
-            "Circulatory",
-            "Digestive"
+            "Movement tissue",
+            "Support tissue",
+            "Connection point",
+            "Respiratory organ"
           ],
           "pairs": [
             {
-              "left": "Lungs",
-              "right": "Respiratory"
+              "left": "Muscle",
+              "right": "Movement tissue"
             },
             {
-              "left": "Heart",
-              "right": "Circulatory"
+              "left": "Bone",
+              "right": "Support tissue"
             },
             {
-              "left": "Stomach",
-              "right": "Digestive"
+              "left": "Joint",
+              "right": "Connection point"
+            },
+            {
+              "left": "Lung",
+              "right": "Respiratory organ"
             }
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "Muscles and bones respond to use. Appropriate movement and nutrition support strength, while age, illness, and inactivity can affect tissues differently."
         },
         {
           "type": "causeAndEffect",
-          "prompt": "Match each change with a likely effect.",
+          "prompt": "Muscles and bones over time: Drag each cause to its effect to connect them.",
           "options": [
-            "More oxygen can enter the blood",
-            "Oxygen reaches active muscles faster"
+            "They can adapt to activity",
+            "Bone tissue responds over time",
+            "Strength may decrease"
           ],
           "pairs": [
             {
-              "left": "Breathing rate increases",
-              "right": "More oxygen can enter the blood"
+              "left": "Muscles are used regularly",
+              "right": "They can adapt to activity"
             },
             {
-              "left": "Blood flow to working muscles increases",
-              "right": "Oxygen reaches active muscles faster"
+              "left": "Bones experience suitable loading",
+              "right": "Bone tissue responds over time"
+            },
+            {
+              "left": "Inactivity continues",
+              "right": "Strength may decrease"
             }
           ],
           "correctAnswers": [],
-          "explanation": "Breathing and circulation adjust to help meet the body?s needs."
+          "explanation": "Muscles and bones respond to use. Appropriate movement and nutrition support strength, while age, illness, and inactivity can affect tissues differently."
         },
         {
           "type": "compareAndContrast",
-          "prompt": "Match each blood vessel with its main direction of flow.",
+          "prompt": "Muscles and bones over time: Drag each statement into the correct Venn diagram region.",
           "options": [
-            "Carries blood away from the heart",
-            "Carries blood toward the heart"
+            "Muscles",
+            "Bones",
+            "Both"
+          ],
+          "categories": [
+            "Muscles",
+            "Bones",
+            "Both"
           ],
           "pairs": [
             {
-              "left": "Artery",
-              "right": "Carries blood away from the heart"
+              "left": "Can adapt to physical activity",
+              "right": "Both"
             },
             {
-              "left": "Vein",
-              "right": "Carries blood toward the heart"
+              "left": "Contracts to create movement",
+              "right": "Muscles"
+            },
+            {
+              "left": "Provides structural support",
+              "right": "Bones"
             }
           ],
           "correctAnswers": [],
-          "explanation": "Arteries carry blood away from the heart; veins return blood toward it."
+          "explanation": "Muscles and bones respond to use. Appropriate movement and nutrition support strength, while age, illness, and inactivity can affect tissues differently."
         },
         {
           "type": "prediction",
-          "prompt": "Prediction: If blood flow to a group of cells drops greatly, what is most likely?",
+          "prompt": "Muscles and bones over time: Watch the process, pause it, and predict what happens next.",
           "options": [
-            "Those cells may receive less oxygen.",
-            "Those cells receive unlimited oxygen.",
-            "The cells become lungs."
+            "A manageable workload can lead to adaptation",
+            "One repetition creates instant strength"
+          ],
+          "visualStages": [
+            "A muscle receives a movement signal",
+            "Muscle fibers begin contracting"
           ],
           "correctAnswers": [
-            "Those cells may receive less oxygen."
+            "A manageable workload can lead to adaptation"
           ],
-          "explanation": "Blood transports oxygen, so reduced flow can reduce oxygen delivery."
+          "explanation": "Muscles and bones respond to use. Appropriate movement and nutrition support strength, while age, illness, and inactivity can affect tissues differently."
         },
         {
           "type": "buildTheProcess",
-          "prompt": "Build the process that moves oxygen from air to body cells.",
+          "prompt": "Muscles and bones over time: Drag components into the flowchart to build the process.",
           "options": [
-            "Blood delivers oxygen to cells",
-            "Oxygen moves into the blood",
-            "Air enters the lungs"
+            "The action is completed",
+            "Bones move at joints",
+            "Muscles contract",
+            "A movement is planned"
           ],
           "correctOrder": [
-            "Air enters the lungs",
-            "Oxygen moves into the blood",
-            "Blood delivers oxygen to cells"
+            "A movement is planned",
+            "Muscles contract",
+            "Bones move at joints",
+            "The action is completed"
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "Muscles and bones respond to use. Appropriate movement and nutrition support strength, while age, illness, and inactivity can affect tissues differently."
         }
       ],
       "extraLessons": []
@@ -6858,140 +7262,95 @@
     "sleep-dummy-lesson-3": {
       "id": "sleep-dummy-lesson-3",
       "parentId": "sleep",
-      "question": "Can we stop our bodies from aging? ? Practice 2",
-      "content": "Healthy habits support the body, but no single action can stop all biological aging.",
+      "question": "Aging across body systems: Can we stop our bodies from aging?",
+      "content": "Aging is gradual and involves cells, organs, genes, and environment. Healthy choices can support well-being but cannot guarantee a particular lifespan or stop aging.",
       "level": 2,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
           "type": "singleChoice",
-          "prompt": "Which statement best describes how body systems work?",
+          "prompt": "Aging across body systems: Which statement best describes human aging?",
           "options": [
-            "Body systems cooperate to keep cells working.",
-            "Every organ works alone.",
-            "The body only works when you think about it."
+            "It involves many processes and varies",
+            "It is caused by one organ",
+            "One food can stop it"
           ],
           "correctAnswers": [
-            "Body systems cooperate to keep cells working."
+            "It involves many processes and varies"
           ],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "Aging is gradual and involves cells, organs, genes, and environment. Healthy choices can support well-being but cannot guarantee a particular lifespan or stop aging."
         },
         {
           "type": "multipleSelect",
-          "prompt": "Choose two things blood helps deliver or carry.",
+          "prompt": "Aging across body systems: Which two factors can influence health with age?",
           "options": [
-            "Oxygen to cells",
-            "Nutrients to cells",
-            "Sunlight to bones",
-            "Air directly into the stomach"
+            "Genes and environment",
+            "Health habits and medical conditions",
+            "Only hair color",
+            "Only shoe size"
           ],
           "correctAnswers": [
-            "Oxygen to cells",
-            "Nutrients to cells"
+            "Genes and environment",
+            "Health habits and medical conditions"
           ],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "Aging is gradual and involves cells, organs, genes, and environment. Healthy choices can support well-being but cannot guarantee a particular lifespan or stop aging."
         },
         {
           "type": "shortAnswer",
-          "prompt": "Type one gas that blood carries from the lungs to body cells.",
+          "prompt": "Aging across body systems: What word describes inherited biological instructions?",
           "options": [],
           "correctAnswers": [
-            "oxygen"
+            "genes"
           ],
-          "explanation": "Blood carries oxygen from the lungs to cells, where it is used to release energy from food."
+          "explanation": "Aging is gradual and involves cells, organs, genes, and environment. Healthy choices can support well-being but cannot guarantee a particular lifespan or stop aging."
         },
         {
           "type": "orderSteps",
-          "prompt": "Put these steps in order for oxygen to reach body cells.",
+          "prompt": "Aging across body systems: Arrange these biological events in sequence.",
           "options": [
-            "Blood delivers oxygen to cells",
-            "Air enters the lungs",
-            "Oxygen moves into the blood"
+            "Aging experiences vary",
+            "Body systems adapt",
+            "Cells and tissues change",
+            "Genes and environment affect health"
           ],
           "correctOrder": [
-            "Air enters the lungs",
-            "Oxygen moves into the blood",
-            "Blood delivers oxygen to cells"
+            "Genes and environment affect health",
+            "Cells and tissues change",
+            "Body systems adapt",
+            "Aging experiences vary"
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "Aging is gradual and involves cells, organs, genes, and environment. Healthy choices can support well-being but cannot guarantee a particular lifespan or stop aging."
         },
         {
           "type": "matching",
-          "prompt": "Match each organ with a basic job.",
+          "prompt": "Aging across body systems: Match each structure to its main role.",
           "options": [
-            "Pumps blood",
-            "Exchanges gases",
-            "Filters blood"
+            "Inherited instructions",
+            "Conditions around a person",
+            "Repeated health-related habits"
           ],
           "pairs": [
             {
-              "left": "Heart",
-              "right": "Pumps blood"
+              "left": "Genes",
+              "right": "Inherited instructions"
             },
             {
-              "left": "Lungs",
-              "right": "Exchanges gases"
+              "left": "Environment",
+              "right": "Conditions around a person"
             },
             {
-              "left": "Kidneys",
-              "right": "Filters blood"
+              "left": "Lifestyle",
+              "right": "Repeated health-related habits"
             }
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
-        },
-        {
-          "type": "fillInTheBlank",
-          "prompt": "Fill in the blank: Blood carries ____ from the lungs to body cells.",
-          "options": [],
-          "correctAnswers": [
-            "oxygen"
-          ],
-          "explanation": "Oxygen travels from the lungs into the blood and then to body cells."
-        },
-        {
-          "type": "scenarioBasedDecision",
-          "prompt": "Scenario: You start running. What is a normal response that helps active muscles?",
-          "options": [
-            "Heart rate and breathing increase.",
-            "The heart stops pumping.",
-            "The lungs stop exchanging gases."
-          ],
-          "correctAnswers": [
-            "Heart rate and breathing increase."
-          ],
-          "explanation": "The body can increase heart rate and breathing to help deliver more oxygen during activity."
-        },
-        {
-          "type": "diagramLabeling",
-          "prompt": "Label each part of this simple body-system diagram by matching it to its job.",
-          "options": [
-            "Moves blood around the body",
-            "Exchanges oxygen and carbon dioxide",
-            "Filters some waste from blood"
-          ],
-          "pairs": [
-            {
-              "left": "Heart",
-              "right": "Moves blood around the body"
-            },
-            {
-              "left": "Lungs",
-              "right": "Exchanges oxygen and carbon dioxide"
-            },
-            {
-              "left": "Kidneys",
-              "right": "Filters some waste from blood"
-            }
-          ],
-          "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "Aging is gradual and involves cells, organs, genes, and environment. Healthy choices can support well-being but cannot guarantee a particular lifespan or stop aging."
         },
         {
           "type": "trueFalse",
-          "prompt": "True or false: Body cells use oxygen to help release energy from food.",
+          "prompt": "Aging across body systems: True or false: Aging is gradual and involves cells, organs, genes, and environment.",
           "options": [
             "True",
             "False"
@@ -6999,114 +7358,217 @@
           "correctAnswers": [
             "True"
           ],
-          "explanation": "Cells use oxygen in processes that release energy from nutrients."
+          "explanation": "Aging is gradual and involves cells, organs, genes, and environment. Healthy choices can support well-being but cannot guarantee a particular lifespan or stop aging."
+        },
+        {
+          "type": "scenarioBasedDecision",
+          "prompt": "Aging across body systems: undefined",
+          "options": [
+            "Treat the claim cautiously because health outcomes vary",
+            "Believe the guarantee without checking evidence"
+          ],
+          "correctAnswers": [
+            "Treat the claim cautiously because health outcomes vary"
+          ],
+          "consequences": {
+            "Treat the claim cautiously because health outcomes vary": "No routine can guarantee lifespan.",
+            "Believe the guarantee without checking evidence": "Strong health claims need reliable evidence."
+          },
+          "explanation": "Aging is gradual and involves cells, organs, genes, and environment. Healthy choices can support well-being but cannot guarantee a particular lifespan or stop aging."
+        },
+        {
+          "type": "fillInTheBlank",
+          "prompt": "Aging across body systems: Fill each missing word in this paragraph.",
+          "options": [],
+          "paragraphParts": [
+            "Human aging involves many ",
+            " and can vary between ",
+            " . Health choices cannot guarantee a particular ",
+            " ."
+          ],
+          "correctOrder": [
+            "processes",
+            "people",
+            "lifespan"
+          ],
+          "correctAnswers": [],
+          "explanation": "Aging is gradual and involves cells, organs, genes, and environment. Healthy choices can support well-being but cannot guarantee a particular lifespan or stop aging."
         },
         {
           "type": "spotTheMistake",
-          "prompt": "Which sentence contains the mistake?",
+          "prompt": "Aging across body systems: Tap the scientifically incorrect word in this paragraph.",
           "options": [
-            "The heart pumps blood.",
-            "The lungs exchange gases.",
-            "The kidneys pump air into the blood."
+            "Aging",
+            "is",
+            "influenced",
+            "by",
+            "biological",
+            "and",
+            "environmental",
+            "factors.",
+            "People",
+            "can",
+            "differ",
+            "in",
+            "how",
+            "they",
+            "age.",
+            "One",
+            "routine",
+            "guarantees",
+            "the",
+            "same",
+            "lifespan",
+            "for",
+            "everyone."
           ],
           "correctAnswers": [
-            "The kidneys pump air into the blood."
+            "guarantees"
           ],
-          "explanation": "The kidneys filter blood; the lungs exchange gases."
+          "explanation": "Aging is gradual and involves cells, organs, genes, and environment. Healthy choices can support well-being but cannot guarantee a particular lifespan or stop aging."
+        },
+        {
+          "type": "diagramLabeling",
+          "prompt": "Aging across body systems: Drag labels onto the matching parts of the body diagram.",
+          "options": [
+            "Heart",
+            "Brain",
+            "Bones"
+          ],
+          "pairs": [
+            {
+              "left": "Heart",
+              "right": "Heart"
+            },
+            {
+              "left": "Brain",
+              "right": "Brain"
+            },
+            {
+              "left": "Bones",
+              "right": "Bones"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "Aging is gradual and involves cells, organs, genes, and environment. Healthy choices can support well-being but cannot guarantee a particular lifespan or stop aging."
         },
         {
           "type": "categorization",
-          "prompt": "Match each organ to the system category shown.",
+          "prompt": "Aging across body systems: Drag each card into its correct category box.",
           "options": [
-            "Respiratory",
-            "Circulatory",
-            "Digestive"
+            "Cell process",
+            "Body process",
+            "Weather process"
           ],
           "pairs": [
             {
-              "left": "Lungs",
-              "right": "Respiratory"
+              "left": "Gene activity",
+              "right": "Cell process"
             },
             {
-              "left": "Heart",
-              "right": "Circulatory"
+              "left": "Blood flow",
+              "right": "Body process"
             },
             {
-              "left": "Stomach",
-              "right": "Digestive"
+              "left": "Joint movement",
+              "right": "Body process"
+            },
+            {
+              "left": "Cloud formation",
+              "right": "Weather process"
             }
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "Aging is gradual and involves cells, organs, genes, and environment. Healthy choices can support well-being but cannot guarantee a particular lifespan or stop aging."
         },
         {
           "type": "causeAndEffect",
-          "prompt": "Match each change with a likely effect.",
+          "prompt": "Aging across body systems: Drag each cause to its effect to connect them.",
           "options": [
-            "More oxygen can enter the blood",
-            "Oxygen reaches active muscles faster"
+            "Tissues may function differently",
+            "Care plans may be adjusted",
+            "Aging experiences vary"
           ],
           "pairs": [
             {
-              "left": "Breathing rate increases",
-              "right": "More oxygen can enter the blood"
+              "left": "Cells accumulate changes",
+              "right": "Tissues may function differently"
             },
             {
-              "left": "Blood flow to working muscles increases",
-              "right": "Oxygen reaches active muscles faster"
+              "left": "Health needs change",
+              "right": "Care plans may be adjusted"
+            },
+            {
+              "left": "Genes and environments differ",
+              "right": "Aging experiences vary"
             }
           ],
           "correctAnswers": [],
-          "explanation": "Breathing and circulation adjust to help meet the body?s needs."
+          "explanation": "Aging is gradual and involves cells, organs, genes, and environment. Healthy choices can support well-being but cannot guarantee a particular lifespan or stop aging."
         },
         {
           "type": "compareAndContrast",
-          "prompt": "Match each blood vessel with its main direction of flow.",
+          "prompt": "Aging across body systems: Drag each statement into the correct Venn diagram region.",
           "options": [
-            "Carries blood away from the heart",
-            "Carries blood toward the heart"
+            "Genes",
+            "Environment",
+            "Both"
+          ],
+          "categories": [
+            "Genes",
+            "Environment",
+            "Both"
           ],
           "pairs": [
             {
-              "left": "Artery",
-              "right": "Carries blood away from the heart"
+              "left": "Can influence health over time",
+              "right": "Both"
             },
             {
-              "left": "Vein",
-              "right": "Carries blood toward the heart"
+              "left": "Inherited biological information",
+              "right": "Genes"
+            },
+            {
+              "left": "Conditions surrounding a person",
+              "right": "Environment"
             }
           ],
           "correctAnswers": [],
-          "explanation": "Arteries carry blood away from the heart; veins return blood toward it."
+          "explanation": "Aging is gradual and involves cells, organs, genes, and environment. Healthy choices can support well-being but cannot guarantee a particular lifespan or stop aging."
         },
         {
           "type": "prediction",
-          "prompt": "Prediction: If blood flow to a group of cells drops greatly, what is most likely?",
+          "prompt": "Aging across body systems: Watch the process, pause it, and predict what happens next.",
           "options": [
-            "Those cells may receive less oxygen.",
-            "Those cells receive unlimited oxygen.",
-            "The cells become lungs."
+            "Health may be supported, but aging continues",
+            "All age-related changes stop"
+          ],
+          "visualStages": [
+            "Cells and tissues change over time",
+            "Body systems continue adapting"
           ],
           "correctAnswers": [
-            "Those cells may receive less oxygen."
+            "Health may be supported, but aging continues"
           ],
-          "explanation": "Blood transports oxygen, so reduced flow can reduce oxygen delivery."
+          "explanation": "Aging is gradual and involves cells, organs, genes, and environment. Healthy choices can support well-being but cannot guarantee a particular lifespan or stop aging."
         },
         {
           "type": "buildTheProcess",
-          "prompt": "Build the process that moves oxygen from air to body cells.",
+          "prompt": "Aging across body systems: Drag components into the flowchart to build the process.",
           "options": [
-            "Blood delivers oxygen to cells",
-            "Oxygen moves into the blood",
-            "Air enters the lungs"
+            "Aging experiences vary",
+            "Body systems adapt",
+            "Cells and tissues change",
+            "Genes and environment affect health"
           ],
           "correctOrder": [
-            "Air enters the lungs",
-            "Oxygen moves into the blood",
-            "Blood delivers oxygen to cells"
+            "Genes and environment affect health",
+            "Cells and tissues change",
+            "Body systems adapt",
+            "Aging experiences vary"
           ],
           "correctAnswers": [],
-          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+          "explanation": "Aging is gradual and involves cells, organs, genes, and environment. Healthy choices can support well-being but cannot guarantee a particular lifespan or stop aging."
         }
       ],
       "extraLessons": []
