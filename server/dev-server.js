@@ -286,6 +286,8 @@ const server = createServer(async (request, response) => {
       topic,
       levels: buildLessonLevels(topic, content),
       nextQuestions: getNextQuestions(topic.id, content),
+      isSelectableTopic: content.nodes[topic.id].level > 1 ||
+        content.roots.includes(topic.id),
     });
     return;
   }

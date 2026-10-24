@@ -630,7 +630,8 @@ app.get('/lessons/tree', requireAuth, async (request, response) => {
       topic,
       levels,
       nextQuestions: getNextQuestions(topic.id, content),
-      isSelectableTopic: content.nodes[topic.id].level > 1,
+      isSelectableTopic: content.nodes[topic.id].level > 1 ||
+        content.roots.includes(topic.id),
     });
   } catch (error) {
     console.error(error);

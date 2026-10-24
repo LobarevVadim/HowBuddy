@@ -10,165 +10,789 @@
       "id": "heart",
       "parentId": null,
       "question": "How does your body keep you alive?",
-      "content": "Your heart is a muscle pump controlled by electrical signals. A small group of cells starts each beat, while nerves and hormones adjust the pace. During sleep, your heart usually slows because your body needs less energy, but it keeps supplying oxygen and nutrients every second.",
+      "content": "The heart, lungs, blood, and kidneys work together to keep cells supplied and the body balanced.",
       "level": 1,
       "children": [
         "heart-electric",
         "heart-speed",
         "heart-oxygen"
       ],
-      "lessonCount": 4,
+      "lessonCount": 3,
       "exercises": [
         {
-          "prompt": "How does your body keep you alive?",
           "type": "singleChoice",
+          "prompt": "Which statement best describes how body systems work?",
           "options": [
-            "The heart has its own electrical pacing system, and the nervous system adjusts its rate.",
-            "The heart waits for the brain to tell it to make every single beat.",
-            "The heart stops during sleep and restarts at dawn."
+            "Body systems cooperate to keep cells working.",
+            "Every organ works alone.",
+            "The body only works when you think about it."
           ],
           "correctAnswers": [
-            "The heart has its own electrical pacing system, and the nervous system adjusts its rate."
+            "Body systems cooperate to keep cells working."
           ],
-          "explanation": "Your heart is a muscle pump controlled by electrical signals. A small group of cells starts each beat, while nerves and hormones adjust the pace. During sleep, your heart usually slows because your body needs less energy, but it keeps supplying oxygen and nutrients every second."
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
         },
         {
-          "prompt": "True or false: The heart waits for the brain to tell it to make every single beat.",
-          "type": "singleChoice",
+          "type": "multipleSelect",
+          "prompt": "Choose two things blood helps deliver or carry.",
+          "options": [
+            "Oxygen to cells",
+            "Nutrients to cells",
+            "Sunlight to bones",
+            "Air directly into the stomach"
+          ],
+          "correctAnswers": [
+            "Oxygen to cells",
+            "Nutrients to cells"
+          ],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "shortAnswer",
+          "prompt": "Type one gas that blood carries from the lungs to body cells.",
+          "options": [],
+          "correctAnswers": [
+            "oxygen"
+          ],
+          "explanation": "Blood carries oxygen from the lungs to cells, where it is used to release energy from food."
+        },
+        {
+          "type": "orderSteps",
+          "prompt": "Put these steps in order for oxygen to reach body cells.",
+          "options": [
+            "Blood delivers oxygen to cells",
+            "Air enters the lungs",
+            "Oxygen moves into the blood"
+          ],
+          "correctOrder": [
+            "Air enters the lungs",
+            "Oxygen moves into the blood",
+            "Blood delivers oxygen to cells"
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "matching",
+          "prompt": "Match each organ with a basic job.",
+          "options": [
+            "Pumps blood",
+            "Exchanges gases",
+            "Filters blood"
+          ],
+          "pairs": [
+            {
+              "left": "Heart",
+              "right": "Pumps blood"
+            },
+            {
+              "left": "Lungs",
+              "right": "Exchanges gases"
+            },
+            {
+              "left": "Kidneys",
+              "right": "Filters blood"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "fillInTheBlank",
+          "prompt": "Fill in the blank: Blood carries ____ from the lungs to body cells.",
+          "options": [],
+          "correctAnswers": [
+            "oxygen"
+          ],
+          "explanation": "Oxygen travels from the lungs into the blood and then to body cells."
+        },
+        {
+          "type": "scenarioBasedDecision",
+          "prompt": "Scenario: You start running. What is a normal response that helps active muscles?",
+          "options": [
+            "Heart rate and breathing increase.",
+            "The heart stops pumping.",
+            "The lungs stop exchanging gases."
+          ],
+          "correctAnswers": [
+            "Heart rate and breathing increase."
+          ],
+          "explanation": "The body can increase heart rate and breathing to help deliver more oxygen during activity."
+        },
+        {
+          "type": "diagramLabeling",
+          "prompt": "Label each part of this simple body-system diagram by matching it to its job.",
+          "options": [
+            "Moves blood around the body",
+            "Exchanges oxygen and carbon dioxide",
+            "Filters some waste from blood"
+          ],
+          "pairs": [
+            {
+              "left": "Heart",
+              "right": "Moves blood around the body"
+            },
+            {
+              "left": "Lungs",
+              "right": "Exchanges oxygen and carbon dioxide"
+            },
+            {
+              "left": "Kidneys",
+              "right": "Filters some waste from blood"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "trueFalse",
+          "prompt": "True or false: Body cells use oxygen to help release energy from food.",
           "options": [
             "True",
             "False"
           ],
           "correctAnswers": [
-            "False"
+            "True"
           ],
-          "explanation": "Your heart is a muscle pump controlled by electrical signals. A small group of cells starts each beat, while nerves and hormones adjust the pace. During sleep, your heart usually slows because your body needs less energy, but it keeps supplying oxygen and nutrients every second."
+          "explanation": "Cells use oxygen in processes that release energy from nutrients."
         },
         {
-          "prompt": "What is one key takeaway? How does your body keep you alive?",
-          "type": "shortAnswer",
-          "options": [],
-          "correctAnswers": [
-            "The heart has its own electrical pacing system, and the nervous system adjusts its rate."
+          "type": "spotTheMistake",
+          "prompt": "Which sentence contains the mistake?",
+          "options": [
+            "The heart pumps blood.",
+            "The lungs exchange gases.",
+            "The kidneys pump air into the blood."
           ],
-          "explanation": "Your heart is a muscle pump controlled by electrical signals. A small group of cells starts each beat, while nerves and hormones adjust the pace. During sleep, your heart usually slows because your body needs less energy, but it keeps supplying oxygen and nutrients every second."
+          "correctAnswers": [
+            "The kidneys pump air into the blood."
+          ],
+          "explanation": "The kidneys filter blood; the lungs exchange gases."
+        },
+        {
+          "type": "categorization",
+          "prompt": "Match each organ to the system category shown.",
+          "options": [
+            "Respiratory",
+            "Circulatory",
+            "Digestive"
+          ],
+          "pairs": [
+            {
+              "left": "Lungs",
+              "right": "Respiratory"
+            },
+            {
+              "left": "Heart",
+              "right": "Circulatory"
+            },
+            {
+              "left": "Stomach",
+              "right": "Digestive"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "causeAndEffect",
+          "prompt": "Match each change with a likely effect.",
+          "options": [
+            "More oxygen can enter the blood",
+            "Oxygen reaches active muscles faster"
+          ],
+          "pairs": [
+            {
+              "left": "Breathing rate increases",
+              "right": "More oxygen can enter the blood"
+            },
+            {
+              "left": "Blood flow to working muscles increases",
+              "right": "Oxygen reaches active muscles faster"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "Breathing and circulation adjust to help meet the body?s needs."
+        },
+        {
+          "type": "compareAndContrast",
+          "prompt": "Match each blood vessel with its main direction of flow.",
+          "options": [
+            "Carries blood away from the heart",
+            "Carries blood toward the heart"
+          ],
+          "pairs": [
+            {
+              "left": "Artery",
+              "right": "Carries blood away from the heart"
+            },
+            {
+              "left": "Vein",
+              "right": "Carries blood toward the heart"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "Arteries carry blood away from the heart; veins return blood toward it."
+        },
+        {
+          "type": "prediction",
+          "prompt": "Prediction: If blood flow to a group of cells drops greatly, what is most likely?",
+          "options": [
+            "Those cells may receive less oxygen.",
+            "Those cells receive unlimited oxygen.",
+            "The cells become lungs."
+          ],
+          "correctAnswers": [
+            "Those cells may receive less oxygen."
+          ],
+          "explanation": "Blood transports oxygen, so reduced flow can reduce oxygen delivery."
+        },
+        {
+          "type": "buildTheProcess",
+          "prompt": "Build the process that moves oxygen from air to body cells.",
+          "options": [
+            "Blood delivers oxygen to cells",
+            "Oxygen moves into the blood",
+            "Air enters the lungs"
+          ],
+          "correctOrder": [
+            "Air enters the lungs",
+            "Oxygen moves into the blood",
+            "Blood delivers oxygen to cells"
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
         }
       ],
       "extraLessons": [
-        "heart-electric",
-        "heart-speed",
-        "heart-oxygen"
+        "heart-dummy-lesson-2",
+        "heart-dummy-lesson-3"
       ]
     },
     "immune": {
       "id": "immune",
       "parentId": null,
       "question": "Can you survive with only half your brain?",
-      "content": "Your immune system can learn to recognize specific parts of microbes. After an infection or vaccination, some B cells and T cells remain as memory cells. If the same threat appears again, these cells can help the body respond faster.",
+      "content": "The brain controls many body functions, while the heart and lungs keep supplying it with oxygen.",
       "level": 1,
       "children": [
         "immune-detection",
         "immune-memory",
         "fever"
       ],
-      "lessonCount": 7,
+      "lessonCount": 3,
       "exercises": [
         {
-          "prompt": "Can you survive with only half your brain?",
           "type": "singleChoice",
+          "prompt": "Which statement best describes how body systems work?",
           "options": [
-            "Some B cells and T cells persist as memory cells after an infection or vaccination.",
-            "The immune system stores whole germs in the stomach for later.",
-            "Every infection erases the immune system\u0027s previous knowledge."
+            "Body systems cooperate to keep cells working.",
+            "Every organ works alone.",
+            "The body only works when you think about it."
           ],
           "correctAnswers": [
-            "Some B cells and T cells persist as memory cells after an infection or vaccination."
+            "Body systems cooperate to keep cells working."
           ],
-          "explanation": "Your immune system can learn to recognize specific parts of microbes. After an infection or vaccination, some B cells and T cells remain as memory cells. If the same threat appears again, these cells can help the body respond faster."
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
         },
         {
-          "prompt": "True or false: The immune system stores whole germs in the stomach for later.",
-          "type": "singleChoice",
+          "type": "multipleSelect",
+          "prompt": "Choose two things blood helps deliver or carry.",
+          "options": [
+            "Oxygen to cells",
+            "Nutrients to cells",
+            "Sunlight to bones",
+            "Air directly into the stomach"
+          ],
+          "correctAnswers": [
+            "Oxygen to cells",
+            "Nutrients to cells"
+          ],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "shortAnswer",
+          "prompt": "Type one gas that blood carries from the lungs to body cells.",
+          "options": [],
+          "correctAnswers": [
+            "oxygen"
+          ],
+          "explanation": "Blood carries oxygen from the lungs to cells, where it is used to release energy from food."
+        },
+        {
+          "type": "orderSteps",
+          "prompt": "Put these steps in order for oxygen to reach body cells.",
+          "options": [
+            "Blood delivers oxygen to cells",
+            "Air enters the lungs",
+            "Oxygen moves into the blood"
+          ],
+          "correctOrder": [
+            "Air enters the lungs",
+            "Oxygen moves into the blood",
+            "Blood delivers oxygen to cells"
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "matching",
+          "prompt": "Match each organ with a basic job.",
+          "options": [
+            "Pumps blood",
+            "Exchanges gases",
+            "Filters blood"
+          ],
+          "pairs": [
+            {
+              "left": "Heart",
+              "right": "Pumps blood"
+            },
+            {
+              "left": "Lungs",
+              "right": "Exchanges gases"
+            },
+            {
+              "left": "Kidneys",
+              "right": "Filters blood"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "fillInTheBlank",
+          "prompt": "Fill in the blank: Blood carries ____ from the lungs to body cells.",
+          "options": [],
+          "correctAnswers": [
+            "oxygen"
+          ],
+          "explanation": "Oxygen travels from the lungs into the blood and then to body cells."
+        },
+        {
+          "type": "scenarioBasedDecision",
+          "prompt": "Scenario: You start running. What is a normal response that helps active muscles?",
+          "options": [
+            "Heart rate and breathing increase.",
+            "The heart stops pumping.",
+            "The lungs stop exchanging gases."
+          ],
+          "correctAnswers": [
+            "Heart rate and breathing increase."
+          ],
+          "explanation": "The body can increase heart rate and breathing to help deliver more oxygen during activity."
+        },
+        {
+          "type": "diagramLabeling",
+          "prompt": "Label each part of this simple body-system diagram by matching it to its job.",
+          "options": [
+            "Moves blood around the body",
+            "Exchanges oxygen and carbon dioxide",
+            "Filters some waste from blood"
+          ],
+          "pairs": [
+            {
+              "left": "Heart",
+              "right": "Moves blood around the body"
+            },
+            {
+              "left": "Lungs",
+              "right": "Exchanges oxygen and carbon dioxide"
+            },
+            {
+              "left": "Kidneys",
+              "right": "Filters some waste from blood"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "trueFalse",
+          "prompt": "True or false: Body cells use oxygen to help release energy from food.",
           "options": [
             "True",
             "False"
           ],
           "correctAnswers": [
-            "False"
+            "True"
           ],
-          "explanation": "Your immune system can learn to recognize specific parts of microbes. After an infection or vaccination, some B cells and T cells remain as memory cells. If the same threat appears again, these cells can help the body respond faster."
+          "explanation": "Cells use oxygen in processes that release energy from nutrients."
         },
         {
-          "prompt": "What is one key takeaway? Can you survive with only half your brain?",
-          "type": "shortAnswer",
-          "options": [],
-          "correctAnswers": [
-            "Some B cells and T cells persist as memory cells after an infection or vaccination."
+          "type": "spotTheMistake",
+          "prompt": "Which sentence contains the mistake?",
+          "options": [
+            "The heart pumps blood.",
+            "The lungs exchange gases.",
+            "The kidneys pump air into the blood."
           ],
-          "explanation": "Your immune system can learn to recognize specific parts of microbes. After an infection or vaccination, some B cells and T cells remain as memory cells. If the same threat appears again, these cells can help the body respond faster."
+          "correctAnswers": [
+            "The kidneys pump air into the blood."
+          ],
+          "explanation": "The kidneys filter blood; the lungs exchange gases."
+        },
+        {
+          "type": "categorization",
+          "prompt": "Match each organ to the system category shown.",
+          "options": [
+            "Respiratory",
+            "Circulatory",
+            "Digestive"
+          ],
+          "pairs": [
+            {
+              "left": "Lungs",
+              "right": "Respiratory"
+            },
+            {
+              "left": "Heart",
+              "right": "Circulatory"
+            },
+            {
+              "left": "Stomach",
+              "right": "Digestive"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "causeAndEffect",
+          "prompt": "Match each change with a likely effect.",
+          "options": [
+            "More oxygen can enter the blood",
+            "Oxygen reaches active muscles faster"
+          ],
+          "pairs": [
+            {
+              "left": "Breathing rate increases",
+              "right": "More oxygen can enter the blood"
+            },
+            {
+              "left": "Blood flow to working muscles increases",
+              "right": "Oxygen reaches active muscles faster"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "Breathing and circulation adjust to help meet the body?s needs."
+        },
+        {
+          "type": "compareAndContrast",
+          "prompt": "Match each blood vessel with its main direction of flow.",
+          "options": [
+            "Carries blood away from the heart",
+            "Carries blood toward the heart"
+          ],
+          "pairs": [
+            {
+              "left": "Artery",
+              "right": "Carries blood away from the heart"
+            },
+            {
+              "left": "Vein",
+              "right": "Carries blood toward the heart"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "Arteries carry blood away from the heart; veins return blood toward it."
+        },
+        {
+          "type": "prediction",
+          "prompt": "Prediction: If blood flow to a group of cells drops greatly, what is most likely?",
+          "options": [
+            "Those cells may receive less oxygen.",
+            "Those cells receive unlimited oxygen.",
+            "The cells become lungs."
+          ],
+          "correctAnswers": [
+            "Those cells may receive less oxygen."
+          ],
+          "explanation": "Blood transports oxygen, so reduced flow can reduce oxygen delivery."
+        },
+        {
+          "type": "buildTheProcess",
+          "prompt": "Build the process that moves oxygen from air to body cells.",
+          "options": [
+            "Blood delivers oxygen to cells",
+            "Oxygen moves into the blood",
+            "Air enters the lungs"
+          ],
+          "correctOrder": [
+            "Air enters the lungs",
+            "Oxygen moves into the blood",
+            "Blood delivers oxygen to cells"
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
         }
       ],
       "extraLessons": [
-        "immune-detection",
-        "immune-memory",
-        "fever",
-        "immune-response",
-        "immune-vaccine",
-        "immune-variants"
+        "immune-dummy-lesson-2",
+        "immune-dummy-lesson-3"
       ]
     },
     "sleep": {
       "id": "sleep",
       "parentId": null,
       "question": "Can we stop our bodies from aging?",
-      "content": "Sleep is an active brain state, not simply an off switch. Brain activity changes through repeating stages, and sleep supports learning, attention, mood, and many body processes. Scientists are still studying exactly how its different benefits fit together.",
+      "content": "Aging involves many body changes over time, including changes in cells, tissues, and repair.",
       "level": 1,
       "children": [
         "sleep-stages",
         "sleep-memory",
         "body-clock"
       ],
-      "lessonCount": 4,
+      "lessonCount": 3,
       "exercises": [
         {
-          "prompt": "Can we stop our bodies from aging?",
           "type": "singleChoice",
+          "prompt": "Which statement best describes how body systems work?",
           "options": [
-            "Sleep supports learning, attention, mood, and other brain and body processes.",
-            "The brain becomes completely inactive during sleep.",
-            "Sleep is only needed to rest the eyes."
+            "Body systems cooperate to keep cells working.",
+            "Every organ works alone.",
+            "The body only works when you think about it."
           ],
           "correctAnswers": [
-            "Sleep supports learning, attention, mood, and other brain and body processes."
+            "Body systems cooperate to keep cells working."
           ],
-          "explanation": "Sleep is an active brain state, not simply an off switch. Brain activity changes through repeating stages, and sleep supports learning, attention, mood, and many body processes. Scientists are still studying exactly how its different benefits fit together."
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
         },
         {
-          "prompt": "True or false: The brain becomes completely inactive during sleep.",
-          "type": "singleChoice",
+          "type": "multipleSelect",
+          "prompt": "Choose two things blood helps deliver or carry.",
+          "options": [
+            "Oxygen to cells",
+            "Nutrients to cells",
+            "Sunlight to bones",
+            "Air directly into the stomach"
+          ],
+          "correctAnswers": [
+            "Oxygen to cells",
+            "Nutrients to cells"
+          ],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "shortAnswer",
+          "prompt": "Type one gas that blood carries from the lungs to body cells.",
+          "options": [],
+          "correctAnswers": [
+            "oxygen"
+          ],
+          "explanation": "Blood carries oxygen from the lungs to cells, where it is used to release energy from food."
+        },
+        {
+          "type": "orderSteps",
+          "prompt": "Put these steps in order for oxygen to reach body cells.",
+          "options": [
+            "Blood delivers oxygen to cells",
+            "Air enters the lungs",
+            "Oxygen moves into the blood"
+          ],
+          "correctOrder": [
+            "Air enters the lungs",
+            "Oxygen moves into the blood",
+            "Blood delivers oxygen to cells"
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "matching",
+          "prompt": "Match each organ with a basic job.",
+          "options": [
+            "Pumps blood",
+            "Exchanges gases",
+            "Filters blood"
+          ],
+          "pairs": [
+            {
+              "left": "Heart",
+              "right": "Pumps blood"
+            },
+            {
+              "left": "Lungs",
+              "right": "Exchanges gases"
+            },
+            {
+              "left": "Kidneys",
+              "right": "Filters blood"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "fillInTheBlank",
+          "prompt": "Fill in the blank: Blood carries ____ from the lungs to body cells.",
+          "options": [],
+          "correctAnswers": [
+            "oxygen"
+          ],
+          "explanation": "Oxygen travels from the lungs into the blood and then to body cells."
+        },
+        {
+          "type": "scenarioBasedDecision",
+          "prompt": "Scenario: You start running. What is a normal response that helps active muscles?",
+          "options": [
+            "Heart rate and breathing increase.",
+            "The heart stops pumping.",
+            "The lungs stop exchanging gases."
+          ],
+          "correctAnswers": [
+            "Heart rate and breathing increase."
+          ],
+          "explanation": "The body can increase heart rate and breathing to help deliver more oxygen during activity."
+        },
+        {
+          "type": "diagramLabeling",
+          "prompt": "Label each part of this simple body-system diagram by matching it to its job.",
+          "options": [
+            "Moves blood around the body",
+            "Exchanges oxygen and carbon dioxide",
+            "Filters some waste from blood"
+          ],
+          "pairs": [
+            {
+              "left": "Heart",
+              "right": "Moves blood around the body"
+            },
+            {
+              "left": "Lungs",
+              "right": "Exchanges oxygen and carbon dioxide"
+            },
+            {
+              "left": "Kidneys",
+              "right": "Filters some waste from blood"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "trueFalse",
+          "prompt": "True or false: Body cells use oxygen to help release energy from food.",
           "options": [
             "True",
             "False"
           ],
           "correctAnswers": [
-            "False"
+            "True"
           ],
-          "explanation": "Sleep is an active brain state, not simply an off switch. Brain activity changes through repeating stages, and sleep supports learning, attention, mood, and many body processes. Scientists are still studying exactly how its different benefits fit together."
+          "explanation": "Cells use oxygen in processes that release energy from nutrients."
         },
         {
-          "prompt": "What is one key takeaway? Can we stop our bodies from aging?",
-          "type": "shortAnswer",
-          "options": [],
-          "correctAnswers": [
-            "Sleep supports learning, attention, mood, and other brain and body processes."
+          "type": "spotTheMistake",
+          "prompt": "Which sentence contains the mistake?",
+          "options": [
+            "The heart pumps blood.",
+            "The lungs exchange gases.",
+            "The kidneys pump air into the blood."
           ],
-          "explanation": "Sleep is an active brain state, not simply an off switch. Brain activity changes through repeating stages, and sleep supports learning, attention, mood, and many body processes. Scientists are still studying exactly how its different benefits fit together."
+          "correctAnswers": [
+            "The kidneys pump air into the blood."
+          ],
+          "explanation": "The kidneys filter blood; the lungs exchange gases."
+        },
+        {
+          "type": "categorization",
+          "prompt": "Match each organ to the system category shown.",
+          "options": [
+            "Respiratory",
+            "Circulatory",
+            "Digestive"
+          ],
+          "pairs": [
+            {
+              "left": "Lungs",
+              "right": "Respiratory"
+            },
+            {
+              "left": "Heart",
+              "right": "Circulatory"
+            },
+            {
+              "left": "Stomach",
+              "right": "Digestive"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "causeAndEffect",
+          "prompt": "Match each change with a likely effect.",
+          "options": [
+            "More oxygen can enter the blood",
+            "Oxygen reaches active muscles faster"
+          ],
+          "pairs": [
+            {
+              "left": "Breathing rate increases",
+              "right": "More oxygen can enter the blood"
+            },
+            {
+              "left": "Blood flow to working muscles increases",
+              "right": "Oxygen reaches active muscles faster"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "Breathing and circulation adjust to help meet the body?s needs."
+        },
+        {
+          "type": "compareAndContrast",
+          "prompt": "Match each blood vessel with its main direction of flow.",
+          "options": [
+            "Carries blood away from the heart",
+            "Carries blood toward the heart"
+          ],
+          "pairs": [
+            {
+              "left": "Artery",
+              "right": "Carries blood away from the heart"
+            },
+            {
+              "left": "Vein",
+              "right": "Carries blood toward the heart"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "Arteries carry blood away from the heart; veins return blood toward it."
+        },
+        {
+          "type": "prediction",
+          "prompt": "Prediction: If blood flow to a group of cells drops greatly, what is most likely?",
+          "options": [
+            "Those cells may receive less oxygen.",
+            "Those cells receive unlimited oxygen.",
+            "The cells become lungs."
+          ],
+          "correctAnswers": [
+            "Those cells may receive less oxygen."
+          ],
+          "explanation": "Blood transports oxygen, so reduced flow can reduce oxygen delivery."
+        },
+        {
+          "type": "buildTheProcess",
+          "prompt": "Build the process that moves oxygen from air to body cells.",
+          "options": [
+            "Blood delivers oxygen to cells",
+            "Oxygen moves into the blood",
+            "Air enters the lungs"
+          ],
+          "correctOrder": [
+            "Air enters the lungs",
+            "Oxygen moves into the blood",
+            "Blood delivers oxygen to cells"
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
         }
       ],
       "extraLessons": [
-        "sleep-stages",
-        "sleep-memory",
-        "body-clock"
+        "sleep-dummy-lesson-2",
+        "sleep-dummy-lesson-3"
       ]
     },
     "heart-electric": {
@@ -282,7 +906,7 @@
     "heart-oxygen": {
       "id": "heart-oxygen",
       "parentId": "heart",
-      "question": "What would happen if you didn\u0027t drink water?",
+      "question": "What would happen if you didn't drink water?",
       "content": "In the lungs, oxygen crosses into tiny blood vessels and attaches to hemoglobin inside red blood cells. The heart pumps this oxygen-rich blood through arteries. In tissues, oxygen leaves the blood and enters cells, where it helps release energy from food.",
       "level": 2,
       "children": [
@@ -293,7 +917,7 @@
       "lessonCount": 4,
       "exercises": [
         {
-          "prompt": "What would happen if you didn\u0027t drink water?",
+          "prompt": "What would happen if you didn't drink water?",
           "type": "singleChoice",
           "options": [
             "Hemoglobin in red blood cells carries oxygen from the lungs to body tissues.",
@@ -318,7 +942,7 @@
           "explanation": "In the lungs, oxygen crosses into tiny blood vessels and attaches to hemoglobin inside red blood cells. The heart pumps this oxygen-rich blood through arteries. In tissues, oxygen leaves the blood and enters cells, where it helps release energy from food."
         },
         {
-          "prompt": "What is one key takeaway? What would happen if you didn\u0027t drink water?",
+          "prompt": "What is one key takeaway? What would happen if you didn't drink water?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -444,12 +1068,12 @@
           "prompt": "How much water should you drink a day?",
           "type": "singleChoice",
           "options": [
-            "An ECG records electrical activity associated with the heart\u0027s rhythm.",
+            "An ECG records electrical activity associated with the heart's rhythm.",
             "An ECG takes a picture of every heart valve opening.",
             "An ECG measures how much oxygen the brain uses."
           ],
           "correctAnswers": [
-            "An ECG records electrical activity associated with the heart\u0027s rhythm."
+            "An ECG records electrical activity associated with the heart's rhythm."
           ],
           "explanation": "An electrocardiogram records electrical changes at the skin using electrodes. Its wave patterns help clinicians assess heart rate and rhythm and can provide clues about heart problems. An ECG is one piece of evidence; clinicians interpret it with symptoms and other tests."
         },
@@ -470,7 +1094,7 @@
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
-            "An ECG records electrical activity associated with the heart\u0027s rhythm."
+            "An ECG records electrical activity associated with the heart's rhythm."
           ],
           "explanation": "An electrocardiogram records electrical changes at the skin using electrodes. Its wave patterns help clinicians assess heart rate and rhythm and can provide clues about heart problems. An ECG is one piece of evidence; clinicians interpret it with symptoms and other tests."
         }
@@ -533,7 +1157,7 @@
       "id": "heart-recovery",
       "parentId": "heart-speed",
       "question": "What happens if you breathe pure oxygen?",
-      "content": "When a threat passes, parasympathetic nerves help restore a calmer state. The heart\u0027s rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing.",
+      "content": "When a threat passes, parasympathetic nerves help restore a calmer state. The heart's rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing.",
       "level": 3,
       "children": [],
       "lessonCount": 3,
@@ -549,7 +1173,7 @@
           "correctAnswers": [
             "Parasympathetic nerve signals help the heart return toward a calmer rate."
           ],
-          "explanation": "When a threat passes, parasympathetic nerves help restore a calmer state. The heart\u0027s rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing."
+          "explanation": "When a threat passes, parasympathetic nerves help restore a calmer state. The heart's rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing."
         },
         {
           "prompt": "True or false: The heart slows because blood pressure turns off its electrical system.",
@@ -561,7 +1185,7 @@
           "correctAnswers": [
             "False"
           ],
-          "explanation": "When a threat passes, parasympathetic nerves help restore a calmer state. The heart\u0027s rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing."
+          "explanation": "When a threat passes, parasympathetic nerves help restore a calmer state. The heart's rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing."
         },
         {
           "prompt": "What is one key takeaway? What happens if you breathe pure oxygen?",
@@ -570,7 +1194,7 @@
           "correctAnswers": [
             "Parasympathetic nerve signals help the heart return toward a calmer rate."
           ],
-          "explanation": "When a threat passes, parasympathetic nerves help restore a calmer state. The heart\u0027s rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing."
+          "explanation": "When a threat passes, parasympathetic nerves help restore a calmer state. The heart's rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing."
         }
       ],
       "extraLessons": [
@@ -886,7 +1510,7 @@
       "id": "fever",
       "parentId": "immune",
       "question": "What is depression?",
-      "content": "During infection, immune signals can raise the body\u0027s temperature set point. A moderate fever is part of the immune response, but it also increases discomfort and the body\u0027s workload. Fever has many causes, and very high or persistent fever can need medical attention.",
+      "content": "During infection, immune signals can raise the body's temperature set point. A moderate fever is part of the immune response, but it also increases discomfort and the body's workload. Fever has many causes, and very high or persistent fever can need medical attention.",
       "level": 2,
       "children": [
         "fever-setpoint",
@@ -906,7 +1530,7 @@
           "correctAnswers": [
             "Immune signals can raise the temperature set point as part of the response to infection."
           ],
-          "explanation": "During infection, immune signals can raise the body\u0027s temperature set point. A moderate fever is part of the immune response, but it also increases discomfort and the body\u0027s workload. Fever has many causes, and very high or persistent fever can need medical attention."
+          "explanation": "During infection, immune signals can raise the body's temperature set point. A moderate fever is part of the immune response, but it also increases discomfort and the body's workload. Fever has many causes, and very high or persistent fever can need medical attention."
         },
         {
           "prompt": "True or false: A fever is the body melting microbes with sunlight.",
@@ -918,7 +1542,7 @@
           "correctAnswers": [
             "False"
           ],
-          "explanation": "During infection, immune signals can raise the body\u0027s temperature set point. A moderate fever is part of the immune response, but it also increases discomfort and the body\u0027s workload. Fever has many causes, and very high or persistent fever can need medical attention."
+          "explanation": "During infection, immune signals can raise the body's temperature set point. A moderate fever is part of the immune response, but it also increases discomfort and the body's workload. Fever has many causes, and very high or persistent fever can need medical attention."
         },
         {
           "prompt": "What is one key takeaway? What is depression?",
@@ -927,7 +1551,7 @@
           "correctAnswers": [
             "Immune signals can raise the temperature set point as part of the response to infection."
           ],
-          "explanation": "During infection, immune signals can raise the body\u0027s temperature set point. A moderate fever is part of the immune response, but it also increases discomfort and the body\u0027s workload. Fever has many causes, and very high or persistent fever can need medical attention."
+          "explanation": "During infection, immune signals can raise the body's temperature set point. A moderate fever is part of the immune response, but it also increases discomfort and the body's workload. Fever has many causes, and very high or persistent fever can need medical attention."
         }
       ],
       "extraLessons": [
@@ -940,7 +1564,7 @@
       "id": "antigens",
       "parentId": "immune-detection",
       "question": "Why do we dream, and can we control our dreams?",
-      "content": "An antigen is a molecule or molecular piece that can be recognized by parts of the immune system. Many antigens come from microbes, but the immune system also encounters harmless substances and the body\u0027s own molecules. Context helps shape the response.",
+      "content": "An antigen is a molecule or molecular piece that can be recognized by parts of the immune system. Many antigens come from microbes, but the immune system also encounters harmless substances and the body's own molecules. Context helps shape the response.",
       "level": 3,
       "children": [],
       "lessonCount": 3,
@@ -956,7 +1580,7 @@
           "correctAnswers": [
             "An antigen is a molecule or molecular piece recognized by the immune system."
           ],
-          "explanation": "An antigen is a molecule or molecular piece that can be recognized by parts of the immune system. Many antigens come from microbes, but the immune system also encounters harmless substances and the body\u0027s own molecules. Context helps shape the response."
+          "explanation": "An antigen is a molecule or molecular piece that can be recognized by parts of the immune system. Many antigens come from microbes, but the immune system also encounters harmless substances and the body's own molecules. Context helps shape the response."
         },
         {
           "prompt": "True or false: An antigen is a type of red blood cell that carries oxygen.",
@@ -968,7 +1592,7 @@
           "correctAnswers": [
             "False"
           ],
-          "explanation": "An antigen is a molecule or molecular piece that can be recognized by parts of the immune system. Many antigens come from microbes, but the immune system also encounters harmless substances and the body\u0027s own molecules. Context helps shape the response."
+          "explanation": "An antigen is a molecule or molecular piece that can be recognized by parts of the immune system. Many antigens come from microbes, but the immune system also encounters harmless substances and the body's own molecules. Context helps shape the response."
         },
         {
           "prompt": "What is one key takeaway? Why do we dream, and can we control our dreams?",
@@ -977,7 +1601,7 @@
           "correctAnswers": [
             "An antigen is a molecule or molecular piece recognized by the immune system."
           ],
-          "explanation": "An antigen is a molecule or molecular piece that can be recognized by parts of the immune system. Many antigens come from microbes, but the immune system also encounters harmless substances and the body\u0027s own molecules. Context helps shape the response."
+          "explanation": "An antigen is a molecule or molecular piece that can be recognized by parts of the immune system. Many antigens come from microbes, but the immune system also encounters harmless substances and the body's own molecules. Context helps shape the response."
         }
       ],
       "extraLessons": [
@@ -1234,7 +1858,7 @@
       "id": "fever-setpoint",
       "parentId": "fever",
       "question": "Why do we cry?",
-      "content": "Immune molecules called pyrogens can influence the hypothalamus, a brain region that helps regulate body temperature. The hypothalamus changes the body\u0027s temperature set point. Shivering and seeking warmth can then help the body approach that new set point.",
+      "content": "Immune molecules called pyrogens can influence the hypothalamus, a brain region that helps regulate body temperature. The hypothalamus changes the body's temperature set point. Shivering and seeking warmth can then help the body approach that new set point.",
       "level": 3,
       "children": [],
       "lessonCount": 3,
@@ -1244,16 +1868,16 @@
           "type": "singleChoice",
           "options": [
             "Immune signals can influence the hypothalamus to raise the temperature set point.",
-            "The heart\u0027s pacemaker measures the outside temperature and turns on fever.",
+            "The heart's pacemaker measures the outside temperature and turns on fever.",
             "The stomach sets body temperature by digesting food."
           ],
           "correctAnswers": [
             "Immune signals can influence the hypothalamus to raise the temperature set point."
           ],
-          "explanation": "Immune molecules called pyrogens can influence the hypothalamus, a brain region that helps regulate body temperature. The hypothalamus changes the body\u0027s temperature set point. Shivering and seeking warmth can then help the body approach that new set point."
+          "explanation": "Immune molecules called pyrogens can influence the hypothalamus, a brain region that helps regulate body temperature. The hypothalamus changes the body's temperature set point. Shivering and seeking warmth can then help the body approach that new set point."
         },
         {
-          "prompt": "True or false: The heart\u0027s pacemaker measures the outside temperature and turns on fever.",
+          "prompt": "True or false: The heart's pacemaker measures the outside temperature and turns on fever.",
           "type": "singleChoice",
           "options": [
             "True",
@@ -1262,7 +1886,7 @@
           "correctAnswers": [
             "False"
           ],
-          "explanation": "Immune molecules called pyrogens can influence the hypothalamus, a brain region that helps regulate body temperature. The hypothalamus changes the body\u0027s temperature set point. Shivering and seeking warmth can then help the body approach that new set point."
+          "explanation": "Immune molecules called pyrogens can influence the hypothalamus, a brain region that helps regulate body temperature. The hypothalamus changes the body's temperature set point. Shivering and seeking warmth can then help the body approach that new set point."
         },
         {
           "prompt": "What is one key takeaway? Why do we cry?",
@@ -1271,7 +1895,7 @@
           "correctAnswers": [
             "Immune signals can influence the hypothalamus to raise the temperature set point."
           ],
-          "explanation": "Immune molecules called pyrogens can influence the hypothalamus, a brain region that helps regulate body temperature. The hypothalamus changes the body\u0027s temperature set point. Shivering and seeking warmth can then help the body approach that new set point."
+          "explanation": "Immune molecules called pyrogens can influence the hypothalamus, a brain region that helps regulate body temperature. The hypothalamus changes the body's temperature set point. Shivering and seeking warmth can then help the body approach that new set point."
         }
       ],
       "extraLessons": [
@@ -1283,7 +1907,7 @@
       "id": "fever-shivers",
       "parentId": "fever",
       "question": "Can you be awake during surgery?",
-      "content": "If the body\u0027s temperature set point rises, the current temperature can feel too low to the brain. Muscles may shiver and blood vessels near the skin may narrow, generating and conserving heat. When the set point falls, sweating can help release heat.",
+      "content": "If the body's temperature set point rises, the current temperature can feel too low to the brain. Muscles may shiver and blood vessels near the skin may narrow, generating and conserving heat. When the set point falls, sweating can help release heat.",
       "level": 3,
       "children": [],
       "lessonCount": 3,
@@ -1299,7 +1923,7 @@
           "correctAnswers": [
             "Shivering generates heat when the body is below its raised temperature set point."
           ],
-          "explanation": "If the body\u0027s temperature set point rises, the current temperature can feel too low to the brain. Muscles may shiver and blood vessels near the skin may narrow, generating and conserving heat. When the set point falls, sweating can help release heat."
+          "explanation": "If the body's temperature set point rises, the current temperature can feel too low to the brain. Muscles may shiver and blood vessels near the skin may narrow, generating and conserving heat. When the set point falls, sweating can help release heat."
         },
         {
           "prompt": "True or false: Shivering creates antibodies by vibrating blood.",
@@ -1311,7 +1935,7 @@
           "correctAnswers": [
             "False"
           ],
-          "explanation": "If the body\u0027s temperature set point rises, the current temperature can feel too low to the brain. Muscles may shiver and blood vessels near the skin may narrow, generating and conserving heat. When the set point falls, sweating can help release heat."
+          "explanation": "If the body's temperature set point rises, the current temperature can feel too low to the brain. Muscles may shiver and blood vessels near the skin may narrow, generating and conserving heat. When the set point falls, sweating can help release heat."
         },
         {
           "prompt": "What is one key takeaway? Can you be awake during surgery?",
@@ -1320,7 +1944,7 @@
           "correctAnswers": [
             "Shivering generates heat when the body is below its raised temperature set point."
           ],
-          "explanation": "If the body\u0027s temperature set point rises, the current temperature can feel too low to the brain. Muscles may shiver and blood vessels near the skin may narrow, generating and conserving heat. When the set point falls, sweating can help release heat."
+          "explanation": "If the body's temperature set point rises, the current temperature can feel too low to the brain. Muscles may shiver and blood vessels near the skin may narrow, generating and conserving heat. When the set point falls, sweating can help release heat."
         }
       ],
       "extraLessons": [
@@ -1332,7 +1956,7 @@
       "id": "fever-variation",
       "parentId": "fever",
       "question": "Where did we come from?",
-      "content": "Temperature is only one clue about illness. Age, measurement method, time of day, medicines, and the cause all matter. A person\u0027s overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned.",
+      "content": "Temperature is only one clue about illness. Age, measurement method, time of day, medicines, and the cause all matter. A person's overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned.",
       "level": 3,
       "children": [],
       "lessonCount": 3,
@@ -1348,7 +1972,7 @@
           "correctAnswers": [
             "Fever is one health clue and must be considered with symptoms and context."
           ],
-          "explanation": "Temperature is only one clue about illness. Age, measurement method, time of day, medicines, and the cause all matter. A person\u0027s overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned."
+          "explanation": "Temperature is only one clue about illness. Age, measurement method, time of day, medicines, and the cause all matter. A person's overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned."
         },
         {
           "prompt": "True or false: A higher fever always means a more dangerous infection.",
@@ -1360,7 +1984,7 @@
           "correctAnswers": [
             "False"
           ],
-          "explanation": "Temperature is only one clue about illness. Age, measurement method, time of day, medicines, and the cause all matter. A person\u0027s overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned."
+          "explanation": "Temperature is only one clue about illness. Age, measurement method, time of day, medicines, and the cause all matter. A person's overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned."
         },
         {
           "prompt": "What is one key takeaway? Where did we come from?",
@@ -1369,7 +1993,7 @@
           "correctAnswers": [
             "Fever is one health clue and must be considered with symptoms and context."
           ],
-          "explanation": "Temperature is only one clue about illness. Age, measurement method, time of day, medicines, and the cause all matter. A person\u0027s overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned."
+          "explanation": "Temperature is only one clue about illness. Age, measurement method, time of day, medicines, and the cause all matter. A person's overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned."
         }
       ],
       "extraLessons": [
@@ -1837,7 +2461,7 @@
       "id": "light-clock",
       "parentId": "body-clock",
       "question": "How does your immune system remember a germ?",
-      "content": "Light reaches specialized cells in the retina, which send timing information to the brain\u0027s circadian clock. Morning light often shifts the clock earlier, while bright light late at night can shift it later. The effect depends on when the light arrives.",
+      "content": "Light reaches specialized cells in the retina, which send timing information to the brain's circadian clock. Morning light often shifts the clock earlier, while bright light late at night can shift it later. The effect depends on when the light arrives.",
       "level": 3,
       "children": [],
       "lessonCount": 3,
@@ -1846,14 +2470,14 @@
           "prompt": "How does your immune system remember a germ?",
           "type": "singleChoice",
           "options": [
-            "Retinal light signals help synchronize the brain\u0027s circadian clock with the day.",
+            "Retinal light signals help synchronize the brain's circadian clock with the day.",
             "Light enters through the skin and directly changes the stomach clock.",
             "Any light at any time shifts the clock earlier."
           ],
           "correctAnswers": [
-            "Retinal light signals help synchronize the brain\u0027s circadian clock with the day."
+            "Retinal light signals help synchronize the brain's circadian clock with the day."
           ],
-          "explanation": "Light reaches specialized cells in the retina, which send timing information to the brain\u0027s circadian clock. Morning light often shifts the clock earlier, while bright light late at night can shift it later. The effect depends on when the light arrives."
+          "explanation": "Light reaches specialized cells in the retina, which send timing information to the brain's circadian clock. Morning light often shifts the clock earlier, while bright light late at night can shift it later. The effect depends on when the light arrives."
         },
         {
           "prompt": "True or false: Light enters through the skin and directly changes the stomach clock.",
@@ -1865,16 +2489,16 @@
           "correctAnswers": [
             "False"
           ],
-          "explanation": "Light reaches specialized cells in the retina, which send timing information to the brain\u0027s circadian clock. Morning light often shifts the clock earlier, while bright light late at night can shift it later. The effect depends on when the light arrives."
+          "explanation": "Light reaches specialized cells in the retina, which send timing information to the brain's circadian clock. Morning light often shifts the clock earlier, while bright light late at night can shift it later. The effect depends on when the light arrives."
         },
         {
           "prompt": "What is one key takeaway? How does your immune system remember a germ?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
-            "Retinal light signals help synchronize the brain\u0027s circadian clock with the day."
+            "Retinal light signals help synchronize the brain's circadian clock with the day."
           ],
-          "explanation": "Light reaches specialized cells in the retina, which send timing information to the brain\u0027s circadian clock. Morning light often shifts the clock earlier, while bright light late at night can shift it later. The effect depends on when the light arrives."
+          "explanation": "Light reaches specialized cells in the retina, which send timing information to the brain's circadian clock. Morning light often shifts the clock earlier, while bright light late at night can shift it later. The effect depends on when the light arrives."
         }
       ],
       "extraLessons": [
@@ -1885,14 +2509,14 @@
     "melatonin": {
       "id": "melatonin",
       "parentId": "body-clock",
-      "question": "Why don\u0027t blue whales get cancer more often?",
+      "question": "Why don't blue whales get cancer more often?",
       "content": "Melatonin is a hormone whose levels usually rise in dim evening conditions under circadian control. It signals that biological night has begun and can support sleep timing. It is not a general knockout drug, and light exposure can affect its timing.",
       "level": 3,
       "children": [],
       "lessonCount": 3,
       "exercises": [
         {
-          "prompt": "Why don\u0027t blue whales get cancer more often?",
+          "prompt": "Why don't blue whales get cancer more often?",
           "type": "singleChoice",
           "options": [
             "Melatonin signals biological night and helps regulate sleep timing.",
@@ -1917,7 +2541,7 @@
           "explanation": "Melatonin is a hormone whose levels usually rise in dim evening conditions under circadian control. It signals that biological night has begun and can support sleep timing. It is not a general knockout drug, and light exposure can affect its timing."
         },
         {
-          "prompt": "What is one key takeaway? Why don\u0027t blue whales get cancer more often?",
+          "prompt": "What is one key takeaway? Why don't blue whales get cancer more often?",
           "type": "shortAnswer",
           "options": [],
           "correctAnswers": [
@@ -2455,30 +3079,30 @@
       "id": "light-clock-extra-2",
       "parentId": "light-clock",
       "question": "A closer look: What is the main point to remember?",
-      "content": "Light reaches specialized cells in the retina, which send timing information to the brain\u0027s circadian clock.",
+      "content": "Light reaches specialized cells in the retina, which send timing information to the brain's circadian clock.",
       "level": 4,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
-          "explanation": "Light reaches specialized cells in the retina, which send timing information to the brain\u0027s circadian clock.",
+          "explanation": "Light reaches specialized cells in the retina, which send timing information to the brain's circadian clock.",
           "correctAnswers": [
-            "Light reaches specialized cells in the retina, which send timing information to the brain\u0027s circadian clock."
+            "Light reaches specialized cells in the retina, which send timing information to the brain's circadian clock."
           ],
           "prompt": "Which statement best explains the key idea?",
           "type": "singleChoice",
           "options": [
-            "Light reaches specialized cells in the retina, which send timing information to the brain\u0027s circadian clock.",
+            "Light reaches specialized cells in the retina, which send timing information to the brain's circadian clock.",
             "This process happens only outside the human body.",
             "The body never responds to or regulates this process."
           ]
         },
         {
-          "explanation": "Light reaches specialized cells in the retina, which send timing information to the brain\u0027s circadian clock.",
+          "explanation": "Light reaches specialized cells in the retina, which send timing information to the brain's circadian clock.",
           "correctAnswers": [
             "True"
           ],
-          "prompt": "True or false: Light reaches specialized cells in the retina, which send timing information to the brain\u0027s circadian clock.",
+          "prompt": "True or false: Light reaches specialized cells in the retina, which send timing information to the brain's circadian clock.",
           "type": "singleChoice",
           "options": [
             "True",
@@ -2486,14 +3110,14 @@
           ]
         },
         {
-          "explanation": "Light reaches specialized cells in the retina, which send timing information to the brain\u0027s circadian clock.",
+          "explanation": "Light reaches specialized cells in the retina, which send timing information to the brain's circadian clock.",
           "correctAnswers": [
-            "Light reaches specialized cells in the retina, which send timing information to the brain\u0027s circadian clock."
+            "Light reaches specialized cells in the retina, which send timing information to the brain's circadian clock."
           ],
           "prompt": "What is the main point to remember?",
           "type": "singleChoice",
           "options": [
-            "Light reaches specialized cells in the retina, which send timing information to the brain\u0027s circadian clock.",
+            "Light reaches specialized cells in the retina, which send timing information to the brain's circadian clock.",
             "The body never responds to or regulates this process.",
             "This process happens only outside the human body."
           ]
@@ -3205,30 +3829,30 @@
       "id": "fever-variation-extra-3",
       "parentId": "fever-variation",
       "question": "A closer look: What is the main point to remember?",
-      "content": "Age, measurement method, time of day, medicines, and the cause all matter. A person\u0027s overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned.",
+      "content": "Age, measurement method, time of day, medicines, and the cause all matter. A person's overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned.",
       "level": 4,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
-          "explanation": "Age, measurement method, time of day, medicines, and the cause all matter. A person\u0027s overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned.",
+          "explanation": "Age, measurement method, time of day, medicines, and the cause all matter. A person's overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned.",
           "correctAnswers": [
-            "Age, measurement method, time of day, medicines, and the cause all matter. A person\u0027s overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned."
+            "Age, measurement method, time of day, medicines, and the cause all matter. A person's overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned."
           ],
           "prompt": "Which statement best explains the key idea?",
           "type": "singleChoice",
           "options": [
-            "Age, measurement method, time of day, medicines, and the cause all matter. A person\u0027s overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned.",
+            "Age, measurement method, time of day, medicines, and the cause all matter. A person's overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned.",
             "This process happens only outside the human body.",
             "The body never responds to or regulates this process."
           ]
         },
         {
-          "explanation": "Age, measurement method, time of day, medicines, and the cause all matter. A person\u0027s overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned.",
+          "explanation": "Age, measurement method, time of day, medicines, and the cause all matter. A person's overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned.",
           "correctAnswers": [
             "True"
           ],
-          "prompt": "True or false: Age, measurement method, time of day, medicines, and the cause all matter. A person\u0027s overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned.",
+          "prompt": "True or false: Age, measurement method, time of day, medicines, and the cause all matter. A person's overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned.",
           "type": "singleChoice",
           "options": [
             "True",
@@ -3236,14 +3860,14 @@
           ]
         },
         {
-          "explanation": "Age, measurement method, time of day, medicines, and the cause all matter. A person\u0027s overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned.",
+          "explanation": "Age, measurement method, time of day, medicines, and the cause all matter. A person's overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned.",
           "correctAnswers": [
-            "Age, measurement method, time of day, medicines, and the cause all matter. A person\u0027s overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned."
+            "Age, measurement method, time of day, medicines, and the cause all matter. A person's overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned."
           ],
           "prompt": "What is the main point to remember?",
           "type": "singleChoice",
           "options": [
-            "Age, measurement method, time of day, medicines, and the cause all matter. A person\u0027s overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned.",
+            "Age, measurement method, time of day, medicines, and the cause all matter. A person's overall condition and other symptoms are important too; seek medical care for severe symptoms or when you are concerned.",
             "The body never responds to or regulates this process.",
             "This process happens only outside the human body."
           ]
@@ -3255,30 +3879,30 @@
       "id": "fever-shivers-extra-2",
       "parentId": "fever-shivers",
       "question": "A closer look: What is the main point to remember?",
-      "content": "If the body\u0027s temperature set point rises, the current temperature can feel too low to the brain.",
+      "content": "If the body's temperature set point rises, the current temperature can feel too low to the brain.",
       "level": 4,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
-          "explanation": "If the body\u0027s temperature set point rises, the current temperature can feel too low to the brain.",
+          "explanation": "If the body's temperature set point rises, the current temperature can feel too low to the brain.",
           "correctAnswers": [
-            "If the body\u0027s temperature set point rises, the current temperature can feel too low to the brain."
+            "If the body's temperature set point rises, the current temperature can feel too low to the brain."
           ],
           "prompt": "Which statement best explains the key idea?",
           "type": "singleChoice",
           "options": [
-            "If the body\u0027s temperature set point rises, the current temperature can feel too low to the brain.",
+            "If the body's temperature set point rises, the current temperature can feel too low to the brain.",
             "This process happens only outside the human body.",
             "The body never responds to or regulates this process."
           ]
         },
         {
-          "explanation": "If the body\u0027s temperature set point rises, the current temperature can feel too low to the brain.",
+          "explanation": "If the body's temperature set point rises, the current temperature can feel too low to the brain.",
           "correctAnswers": [
             "True"
           ],
-          "prompt": "True or false: If the body\u0027s temperature set point rises, the current temperature can feel too low to the brain.",
+          "prompt": "True or false: If the body's temperature set point rises, the current temperature can feel too low to the brain.",
           "type": "singleChoice",
           "options": [
             "True",
@@ -3286,14 +3910,14 @@
           ]
         },
         {
-          "explanation": "If the body\u0027s temperature set point rises, the current temperature can feel too low to the brain.",
+          "explanation": "If the body's temperature set point rises, the current temperature can feel too low to the brain.",
           "correctAnswers": [
-            "If the body\u0027s temperature set point rises, the current temperature can feel too low to the brain."
+            "If the body's temperature set point rises, the current temperature can feel too low to the brain."
           ],
           "prompt": "What is the main point to remember?",
           "type": "singleChoice",
           "options": [
-            "If the body\u0027s temperature set point rises, the current temperature can feel too low to the brain.",
+            "If the body's temperature set point rises, the current temperature can feel too low to the brain.",
             "The body never responds to or regulates this process.",
             "This process happens only outside the human body."
           ]
@@ -3405,30 +4029,30 @@
       "id": "fever-setpoint-extra-3",
       "parentId": "fever-setpoint",
       "question": "A closer look: What is the main point to remember?",
-      "content": "The hypothalamus changes the body\u0027s temperature set point. Shivering and seeking warmth can then help the body approach that new set point.",
+      "content": "The hypothalamus changes the body's temperature set point. Shivering and seeking warmth can then help the body approach that new set point.",
       "level": 4,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
-          "explanation": "The hypothalamus changes the body\u0027s temperature set point. Shivering and seeking warmth can then help the body approach that new set point.",
+          "explanation": "The hypothalamus changes the body's temperature set point. Shivering and seeking warmth can then help the body approach that new set point.",
           "correctAnswers": [
-            "The hypothalamus changes the body\u0027s temperature set point. Shivering and seeking warmth can then help the body approach that new set point."
+            "The hypothalamus changes the body's temperature set point. Shivering and seeking warmth can then help the body approach that new set point."
           ],
           "prompt": "Which statement best explains the key idea?",
           "type": "singleChoice",
           "options": [
-            "The hypothalamus changes the body\u0027s temperature set point. Shivering and seeking warmth can then help the body approach that new set point.",
+            "The hypothalamus changes the body's temperature set point. Shivering and seeking warmth can then help the body approach that new set point.",
             "This process happens only outside the human body.",
             "The body never responds to or regulates this process."
           ]
         },
         {
-          "explanation": "The hypothalamus changes the body\u0027s temperature set point. Shivering and seeking warmth can then help the body approach that new set point.",
+          "explanation": "The hypothalamus changes the body's temperature set point. Shivering and seeking warmth can then help the body approach that new set point.",
           "correctAnswers": [
             "True"
           ],
-          "prompt": "True or false: The hypothalamus changes the body\u0027s temperature set point. Shivering and seeking warmth can then help the body approach that new set point.",
+          "prompt": "True or false: The hypothalamus changes the body's temperature set point. Shivering and seeking warmth can then help the body approach that new set point.",
           "type": "singleChoice",
           "options": [
             "True",
@@ -3436,14 +4060,14 @@
           ]
         },
         {
-          "explanation": "The hypothalamus changes the body\u0027s temperature set point. Shivering and seeking warmth can then help the body approach that new set point.",
+          "explanation": "The hypothalamus changes the body's temperature set point. Shivering and seeking warmth can then help the body approach that new set point.",
           "correctAnswers": [
-            "The hypothalamus changes the body\u0027s temperature set point. Shivering and seeking warmth can then help the body approach that new set point."
+            "The hypothalamus changes the body's temperature set point. Shivering and seeking warmth can then help the body approach that new set point."
           ],
           "prompt": "What is the main point to remember?",
           "type": "singleChoice",
           "options": [
-            "The hypothalamus changes the body\u0027s temperature set point. Shivering and seeking warmth can then help the body approach that new set point.",
+            "The hypothalamus changes the body's temperature set point. Shivering and seeking warmth can then help the body approach that new set point.",
             "The body never responds to or regulates this process.",
             "This process happens only outside the human body."
           ]
@@ -4005,30 +4629,30 @@
       "id": "antigens-extra-3",
       "parentId": "antigens",
       "question": "A closer look: What is the main point to remember?",
-      "content": "Many antigens come from microbes, but the immune system also encounters harmless substances and the body\u0027s own molecules. Context helps shape the response.",
+      "content": "Many antigens come from microbes, but the immune system also encounters harmless substances and the body's own molecules. Context helps shape the response.",
       "level": 4,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
-          "explanation": "Many antigens come from microbes, but the immune system also encounters harmless substances and the body\u0027s own molecules. Context helps shape the response.",
+          "explanation": "Many antigens come from microbes, but the immune system also encounters harmless substances and the body's own molecules. Context helps shape the response.",
           "correctAnswers": [
-            "Many antigens come from microbes, but the immune system also encounters harmless substances and the body\u0027s own molecules. Context helps shape the response."
+            "Many antigens come from microbes, but the immune system also encounters harmless substances and the body's own molecules. Context helps shape the response."
           ],
           "prompt": "Which statement best explains the key idea?",
           "type": "singleChoice",
           "options": [
-            "Many antigens come from microbes, but the immune system also encounters harmless substances and the body\u0027s own molecules. Context helps shape the response.",
+            "Many antigens come from microbes, but the immune system also encounters harmless substances and the body's own molecules. Context helps shape the response.",
             "This process happens only outside the human body.",
             "The body never responds to or regulates this process."
           ]
         },
         {
-          "explanation": "Many antigens come from microbes, but the immune system also encounters harmless substances and the body\u0027s own molecules. Context helps shape the response.",
+          "explanation": "Many antigens come from microbes, but the immune system also encounters harmless substances and the body's own molecules. Context helps shape the response.",
           "correctAnswers": [
             "True"
           ],
-          "prompt": "True or false: Many antigens come from microbes, but the immune system also encounters harmless substances and the body\u0027s own molecules. Context helps shape the response.",
+          "prompt": "True or false: Many antigens come from microbes, but the immune system also encounters harmless substances and the body's own molecules. Context helps shape the response.",
           "type": "singleChoice",
           "options": [
             "True",
@@ -4036,14 +4660,14 @@
           ]
         },
         {
-          "explanation": "Many antigens come from microbes, but the immune system also encounters harmless substances and the body\u0027s own molecules. Context helps shape the response.",
+          "explanation": "Many antigens come from microbes, but the immune system also encounters harmless substances and the body's own molecules. Context helps shape the response.",
           "correctAnswers": [
-            "Many antigens come from microbes, but the immune system also encounters harmless substances and the body\u0027s own molecules. Context helps shape the response."
+            "Many antigens come from microbes, but the immune system also encounters harmless substances and the body's own molecules. Context helps shape the response."
           ],
           "prompt": "What is the main point to remember?",
           "type": "singleChoice",
           "options": [
-            "Many antigens come from microbes, but the immune system also encounters harmless substances and the body\u0027s own molecules. Context helps shape the response.",
+            "Many antigens come from microbes, but the immune system also encounters harmless substances and the body's own molecules. Context helps shape the response.",
             "The body never responds to or regulates this process.",
             "This process happens only outside the human body."
           ]
@@ -4505,30 +5129,30 @@
       "id": "heart-recovery-extra-3",
       "parentId": "heart-recovery",
       "question": "A closer look: What is the main point to remember?",
-      "content": "The heart\u0027s rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing.",
+      "content": "The heart's rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing.",
       "level": 4,
       "children": [],
       "lessonCount": 1,
       "exercises": [
         {
-          "explanation": "The heart\u0027s rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing.",
+          "explanation": "The heart's rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing.",
           "correctAnswers": [
-            "The heart\u0027s rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing."
+            "The heart's rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing."
           ],
           "prompt": "Which statement best explains the key idea?",
           "type": "singleChoice",
           "options": [
-            "The heart\u0027s rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing.",
+            "The heart's rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing.",
             "This process happens only outside the human body.",
             "The body never responds to or regulates this process."
           ]
         },
         {
-          "explanation": "The heart\u0027s rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing.",
+          "explanation": "The heart's rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing.",
           "correctAnswers": [
             "True"
           ],
-          "prompt": "True or false: The heart\u0027s rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing.",
+          "prompt": "True or false: The heart's rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing.",
           "type": "singleChoice",
           "options": [
             "True",
@@ -4536,14 +5160,14 @@
           ]
         },
         {
-          "explanation": "The heart\u0027s rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing.",
+          "explanation": "The heart's rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing.",
           "correctAnswers": [
-            "The heart\u0027s rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing."
+            "The heart's rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing."
           ],
           "prompt": "What is the main point to remember?",
           "type": "singleChoice",
           "options": [
-            "The heart\u0027s rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing.",
+            "The heart's rate is shaped by several signals, including nerve activity, hormones, fitness, temperature, and emotion. A changing heart rate is a normal part of adapting to what the body is doing.",
             "The body never responds to or regulates this process.",
             "This process happens only outside the human body."
           ]
@@ -4947,6 +5571,1542 @@
             "The body never responds to or regulates this process.",
             "This process happens only outside the human body."
           ]
+        }
+      ],
+      "extraLessons": []
+    },
+    "heart-dummy-lesson-2": {
+      "id": "heart-dummy-lesson-2",
+      "parentId": "heart",
+      "question": "How does your body keep you alive? ? Practice 1",
+      "content": "When you move, your heart and breathing can speed up so oxygen reaches active cells.",
+      "level": 2,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "type": "singleChoice",
+          "prompt": "Which statement best describes how body systems work?",
+          "options": [
+            "Body systems cooperate to keep cells working.",
+            "Every organ works alone.",
+            "The body only works when you think about it."
+          ],
+          "correctAnswers": [
+            "Body systems cooperate to keep cells working."
+          ],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "multipleSelect",
+          "prompt": "Choose two things blood helps deliver or carry.",
+          "options": [
+            "Oxygen to cells",
+            "Nutrients to cells",
+            "Sunlight to bones",
+            "Air directly into the stomach"
+          ],
+          "correctAnswers": [
+            "Oxygen to cells",
+            "Nutrients to cells"
+          ],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "shortAnswer",
+          "prompt": "Type one gas that blood carries from the lungs to body cells.",
+          "options": [],
+          "correctAnswers": [
+            "oxygen"
+          ],
+          "explanation": "Blood carries oxygen from the lungs to cells, where it is used to release energy from food."
+        },
+        {
+          "type": "orderSteps",
+          "prompt": "Put these steps in order for oxygen to reach body cells.",
+          "options": [
+            "Blood delivers oxygen to cells",
+            "Air enters the lungs",
+            "Oxygen moves into the blood"
+          ],
+          "correctOrder": [
+            "Air enters the lungs",
+            "Oxygen moves into the blood",
+            "Blood delivers oxygen to cells"
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "matching",
+          "prompt": "Match each organ with a basic job.",
+          "options": [
+            "Pumps blood",
+            "Exchanges gases",
+            "Filters blood"
+          ],
+          "pairs": [
+            {
+              "left": "Heart",
+              "right": "Pumps blood"
+            },
+            {
+              "left": "Lungs",
+              "right": "Exchanges gases"
+            },
+            {
+              "left": "Kidneys",
+              "right": "Filters blood"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "fillInTheBlank",
+          "prompt": "Fill in the blank: Blood carries ____ from the lungs to body cells.",
+          "options": [],
+          "correctAnswers": [
+            "oxygen"
+          ],
+          "explanation": "Oxygen travels from the lungs into the blood and then to body cells."
+        },
+        {
+          "type": "scenarioBasedDecision",
+          "prompt": "Scenario: You start running. What is a normal response that helps active muscles?",
+          "options": [
+            "Heart rate and breathing increase.",
+            "The heart stops pumping.",
+            "The lungs stop exchanging gases."
+          ],
+          "correctAnswers": [
+            "Heart rate and breathing increase."
+          ],
+          "explanation": "The body can increase heart rate and breathing to help deliver more oxygen during activity."
+        },
+        {
+          "type": "diagramLabeling",
+          "prompt": "Label each part of this simple body-system diagram by matching it to its job.",
+          "options": [
+            "Moves blood around the body",
+            "Exchanges oxygen and carbon dioxide",
+            "Filters some waste from blood"
+          ],
+          "pairs": [
+            {
+              "left": "Heart",
+              "right": "Moves blood around the body"
+            },
+            {
+              "left": "Lungs",
+              "right": "Exchanges oxygen and carbon dioxide"
+            },
+            {
+              "left": "Kidneys",
+              "right": "Filters some waste from blood"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "trueFalse",
+          "prompt": "True or false: Body cells use oxygen to help release energy from food.",
+          "options": [
+            "True",
+            "False"
+          ],
+          "correctAnswers": [
+            "True"
+          ],
+          "explanation": "Cells use oxygen in processes that release energy from nutrients."
+        },
+        {
+          "type": "spotTheMistake",
+          "prompt": "Which sentence contains the mistake?",
+          "options": [
+            "The heart pumps blood.",
+            "The lungs exchange gases.",
+            "The kidneys pump air into the blood."
+          ],
+          "correctAnswers": [
+            "The kidneys pump air into the blood."
+          ],
+          "explanation": "The kidneys filter blood; the lungs exchange gases."
+        },
+        {
+          "type": "categorization",
+          "prompt": "Match each organ to the system category shown.",
+          "options": [
+            "Respiratory",
+            "Circulatory",
+            "Digestive"
+          ],
+          "pairs": [
+            {
+              "left": "Lungs",
+              "right": "Respiratory"
+            },
+            {
+              "left": "Heart",
+              "right": "Circulatory"
+            },
+            {
+              "left": "Stomach",
+              "right": "Digestive"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "causeAndEffect",
+          "prompt": "Match each change with a likely effect.",
+          "options": [
+            "More oxygen can enter the blood",
+            "Oxygen reaches active muscles faster"
+          ],
+          "pairs": [
+            {
+              "left": "Breathing rate increases",
+              "right": "More oxygen can enter the blood"
+            },
+            {
+              "left": "Blood flow to working muscles increases",
+              "right": "Oxygen reaches active muscles faster"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "Breathing and circulation adjust to help meet the body?s needs."
+        },
+        {
+          "type": "compareAndContrast",
+          "prompt": "Match each blood vessel with its main direction of flow.",
+          "options": [
+            "Carries blood away from the heart",
+            "Carries blood toward the heart"
+          ],
+          "pairs": [
+            {
+              "left": "Artery",
+              "right": "Carries blood away from the heart"
+            },
+            {
+              "left": "Vein",
+              "right": "Carries blood toward the heart"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "Arteries carry blood away from the heart; veins return blood toward it."
+        },
+        {
+          "type": "prediction",
+          "prompt": "Prediction: If blood flow to a group of cells drops greatly, what is most likely?",
+          "options": [
+            "Those cells may receive less oxygen.",
+            "Those cells receive unlimited oxygen.",
+            "The cells become lungs."
+          ],
+          "correctAnswers": [
+            "Those cells may receive less oxygen."
+          ],
+          "explanation": "Blood transports oxygen, so reduced flow can reduce oxygen delivery."
+        },
+        {
+          "type": "buildTheProcess",
+          "prompt": "Build the process that moves oxygen from air to body cells.",
+          "options": [
+            "Blood delivers oxygen to cells",
+            "Oxygen moves into the blood",
+            "Air enters the lungs"
+          ],
+          "correctOrder": [
+            "Air enters the lungs",
+            "Oxygen moves into the blood",
+            "Blood delivers oxygen to cells"
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        }
+      ],
+      "extraLessons": []
+    },
+    "heart-dummy-lesson-3": {
+      "id": "heart-dummy-lesson-3",
+      "parentId": "heart",
+      "question": "How does your body keep you alive? ? Practice 2",
+      "content": "Body systems share jobs: lungs exchange gases, blood transports materials, and kidneys filter waste.",
+      "level": 2,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "type": "singleChoice",
+          "prompt": "Which statement best describes how body systems work?",
+          "options": [
+            "Body systems cooperate to keep cells working.",
+            "Every organ works alone.",
+            "The body only works when you think about it."
+          ],
+          "correctAnswers": [
+            "Body systems cooperate to keep cells working."
+          ],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "multipleSelect",
+          "prompt": "Choose two things blood helps deliver or carry.",
+          "options": [
+            "Oxygen to cells",
+            "Nutrients to cells",
+            "Sunlight to bones",
+            "Air directly into the stomach"
+          ],
+          "correctAnswers": [
+            "Oxygen to cells",
+            "Nutrients to cells"
+          ],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "shortAnswer",
+          "prompt": "Type one gas that blood carries from the lungs to body cells.",
+          "options": [],
+          "correctAnswers": [
+            "oxygen"
+          ],
+          "explanation": "Blood carries oxygen from the lungs to cells, where it is used to release energy from food."
+        },
+        {
+          "type": "orderSteps",
+          "prompt": "Put these steps in order for oxygen to reach body cells.",
+          "options": [
+            "Blood delivers oxygen to cells",
+            "Air enters the lungs",
+            "Oxygen moves into the blood"
+          ],
+          "correctOrder": [
+            "Air enters the lungs",
+            "Oxygen moves into the blood",
+            "Blood delivers oxygen to cells"
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "matching",
+          "prompt": "Match each organ with a basic job.",
+          "options": [
+            "Pumps blood",
+            "Exchanges gases",
+            "Filters blood"
+          ],
+          "pairs": [
+            {
+              "left": "Heart",
+              "right": "Pumps blood"
+            },
+            {
+              "left": "Lungs",
+              "right": "Exchanges gases"
+            },
+            {
+              "left": "Kidneys",
+              "right": "Filters blood"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "fillInTheBlank",
+          "prompt": "Fill in the blank: Blood carries ____ from the lungs to body cells.",
+          "options": [],
+          "correctAnswers": [
+            "oxygen"
+          ],
+          "explanation": "Oxygen travels from the lungs into the blood and then to body cells."
+        },
+        {
+          "type": "scenarioBasedDecision",
+          "prompt": "Scenario: You start running. What is a normal response that helps active muscles?",
+          "options": [
+            "Heart rate and breathing increase.",
+            "The heart stops pumping.",
+            "The lungs stop exchanging gases."
+          ],
+          "correctAnswers": [
+            "Heart rate and breathing increase."
+          ],
+          "explanation": "The body can increase heart rate and breathing to help deliver more oxygen during activity."
+        },
+        {
+          "type": "diagramLabeling",
+          "prompt": "Label each part of this simple body-system diagram by matching it to its job.",
+          "options": [
+            "Moves blood around the body",
+            "Exchanges oxygen and carbon dioxide",
+            "Filters some waste from blood"
+          ],
+          "pairs": [
+            {
+              "left": "Heart",
+              "right": "Moves blood around the body"
+            },
+            {
+              "left": "Lungs",
+              "right": "Exchanges oxygen and carbon dioxide"
+            },
+            {
+              "left": "Kidneys",
+              "right": "Filters some waste from blood"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "trueFalse",
+          "prompt": "True or false: Body cells use oxygen to help release energy from food.",
+          "options": [
+            "True",
+            "False"
+          ],
+          "correctAnswers": [
+            "True"
+          ],
+          "explanation": "Cells use oxygen in processes that release energy from nutrients."
+        },
+        {
+          "type": "spotTheMistake",
+          "prompt": "Which sentence contains the mistake?",
+          "options": [
+            "The heart pumps blood.",
+            "The lungs exchange gases.",
+            "The kidneys pump air into the blood."
+          ],
+          "correctAnswers": [
+            "The kidneys pump air into the blood."
+          ],
+          "explanation": "The kidneys filter blood; the lungs exchange gases."
+        },
+        {
+          "type": "categorization",
+          "prompt": "Match each organ to the system category shown.",
+          "options": [
+            "Respiratory",
+            "Circulatory",
+            "Digestive"
+          ],
+          "pairs": [
+            {
+              "left": "Lungs",
+              "right": "Respiratory"
+            },
+            {
+              "left": "Heart",
+              "right": "Circulatory"
+            },
+            {
+              "left": "Stomach",
+              "right": "Digestive"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "causeAndEffect",
+          "prompt": "Match each change with a likely effect.",
+          "options": [
+            "More oxygen can enter the blood",
+            "Oxygen reaches active muscles faster"
+          ],
+          "pairs": [
+            {
+              "left": "Breathing rate increases",
+              "right": "More oxygen can enter the blood"
+            },
+            {
+              "left": "Blood flow to working muscles increases",
+              "right": "Oxygen reaches active muscles faster"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "Breathing and circulation adjust to help meet the body?s needs."
+        },
+        {
+          "type": "compareAndContrast",
+          "prompt": "Match each blood vessel with its main direction of flow.",
+          "options": [
+            "Carries blood away from the heart",
+            "Carries blood toward the heart"
+          ],
+          "pairs": [
+            {
+              "left": "Artery",
+              "right": "Carries blood away from the heart"
+            },
+            {
+              "left": "Vein",
+              "right": "Carries blood toward the heart"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "Arteries carry blood away from the heart; veins return blood toward it."
+        },
+        {
+          "type": "prediction",
+          "prompt": "Prediction: If blood flow to a group of cells drops greatly, what is most likely?",
+          "options": [
+            "Those cells may receive less oxygen.",
+            "Those cells receive unlimited oxygen.",
+            "The cells become lungs."
+          ],
+          "correctAnswers": [
+            "Those cells may receive less oxygen."
+          ],
+          "explanation": "Blood transports oxygen, so reduced flow can reduce oxygen delivery."
+        },
+        {
+          "type": "buildTheProcess",
+          "prompt": "Build the process that moves oxygen from air to body cells.",
+          "options": [
+            "Blood delivers oxygen to cells",
+            "Oxygen moves into the blood",
+            "Air enters the lungs"
+          ],
+          "correctOrder": [
+            "Air enters the lungs",
+            "Oxygen moves into the blood",
+            "Blood delivers oxygen to cells"
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        }
+      ],
+      "extraLessons": []
+    },
+    "immune-dummy-lesson-2": {
+      "id": "immune-dummy-lesson-2",
+      "parentId": "immune",
+      "question": "Can you survive with only half your brain? ? Practice 1",
+      "content": "The brain depends on steady blood flow, oxygen, and energy to coordinate movement and senses.",
+      "level": 2,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "type": "singleChoice",
+          "prompt": "Which statement best describes how body systems work?",
+          "options": [
+            "Body systems cooperate to keep cells working.",
+            "Every organ works alone.",
+            "The body only works when you think about it."
+          ],
+          "correctAnswers": [
+            "Body systems cooperate to keep cells working."
+          ],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "multipleSelect",
+          "prompt": "Choose two things blood helps deliver or carry.",
+          "options": [
+            "Oxygen to cells",
+            "Nutrients to cells",
+            "Sunlight to bones",
+            "Air directly into the stomach"
+          ],
+          "correctAnswers": [
+            "Oxygen to cells",
+            "Nutrients to cells"
+          ],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "shortAnswer",
+          "prompt": "Type one gas that blood carries from the lungs to body cells.",
+          "options": [],
+          "correctAnswers": [
+            "oxygen"
+          ],
+          "explanation": "Blood carries oxygen from the lungs to cells, where it is used to release energy from food."
+        },
+        {
+          "type": "orderSteps",
+          "prompt": "Put these steps in order for oxygen to reach body cells.",
+          "options": [
+            "Blood delivers oxygen to cells",
+            "Air enters the lungs",
+            "Oxygen moves into the blood"
+          ],
+          "correctOrder": [
+            "Air enters the lungs",
+            "Oxygen moves into the blood",
+            "Blood delivers oxygen to cells"
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "matching",
+          "prompt": "Match each organ with a basic job.",
+          "options": [
+            "Pumps blood",
+            "Exchanges gases",
+            "Filters blood"
+          ],
+          "pairs": [
+            {
+              "left": "Heart",
+              "right": "Pumps blood"
+            },
+            {
+              "left": "Lungs",
+              "right": "Exchanges gases"
+            },
+            {
+              "left": "Kidneys",
+              "right": "Filters blood"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "fillInTheBlank",
+          "prompt": "Fill in the blank: Blood carries ____ from the lungs to body cells.",
+          "options": [],
+          "correctAnswers": [
+            "oxygen"
+          ],
+          "explanation": "Oxygen travels from the lungs into the blood and then to body cells."
+        },
+        {
+          "type": "scenarioBasedDecision",
+          "prompt": "Scenario: You start running. What is a normal response that helps active muscles?",
+          "options": [
+            "Heart rate and breathing increase.",
+            "The heart stops pumping.",
+            "The lungs stop exchanging gases."
+          ],
+          "correctAnswers": [
+            "Heart rate and breathing increase."
+          ],
+          "explanation": "The body can increase heart rate and breathing to help deliver more oxygen during activity."
+        },
+        {
+          "type": "diagramLabeling",
+          "prompt": "Label each part of this simple body-system diagram by matching it to its job.",
+          "options": [
+            "Moves blood around the body",
+            "Exchanges oxygen and carbon dioxide",
+            "Filters some waste from blood"
+          ],
+          "pairs": [
+            {
+              "left": "Heart",
+              "right": "Moves blood around the body"
+            },
+            {
+              "left": "Lungs",
+              "right": "Exchanges oxygen and carbon dioxide"
+            },
+            {
+              "left": "Kidneys",
+              "right": "Filters some waste from blood"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "trueFalse",
+          "prompt": "True or false: Body cells use oxygen to help release energy from food.",
+          "options": [
+            "True",
+            "False"
+          ],
+          "correctAnswers": [
+            "True"
+          ],
+          "explanation": "Cells use oxygen in processes that release energy from nutrients."
+        },
+        {
+          "type": "spotTheMistake",
+          "prompt": "Which sentence contains the mistake?",
+          "options": [
+            "The heart pumps blood.",
+            "The lungs exchange gases.",
+            "The kidneys pump air into the blood."
+          ],
+          "correctAnswers": [
+            "The kidneys pump air into the blood."
+          ],
+          "explanation": "The kidneys filter blood; the lungs exchange gases."
+        },
+        {
+          "type": "categorization",
+          "prompt": "Match each organ to the system category shown.",
+          "options": [
+            "Respiratory",
+            "Circulatory",
+            "Digestive"
+          ],
+          "pairs": [
+            {
+              "left": "Lungs",
+              "right": "Respiratory"
+            },
+            {
+              "left": "Heart",
+              "right": "Circulatory"
+            },
+            {
+              "left": "Stomach",
+              "right": "Digestive"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "causeAndEffect",
+          "prompt": "Match each change with a likely effect.",
+          "options": [
+            "More oxygen can enter the blood",
+            "Oxygen reaches active muscles faster"
+          ],
+          "pairs": [
+            {
+              "left": "Breathing rate increases",
+              "right": "More oxygen can enter the blood"
+            },
+            {
+              "left": "Blood flow to working muscles increases",
+              "right": "Oxygen reaches active muscles faster"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "Breathing and circulation adjust to help meet the body?s needs."
+        },
+        {
+          "type": "compareAndContrast",
+          "prompt": "Match each blood vessel with its main direction of flow.",
+          "options": [
+            "Carries blood away from the heart",
+            "Carries blood toward the heart"
+          ],
+          "pairs": [
+            {
+              "left": "Artery",
+              "right": "Carries blood away from the heart"
+            },
+            {
+              "left": "Vein",
+              "right": "Carries blood toward the heart"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "Arteries carry blood away from the heart; veins return blood toward it."
+        },
+        {
+          "type": "prediction",
+          "prompt": "Prediction: If blood flow to a group of cells drops greatly, what is most likely?",
+          "options": [
+            "Those cells may receive less oxygen.",
+            "Those cells receive unlimited oxygen.",
+            "The cells become lungs."
+          ],
+          "correctAnswers": [
+            "Those cells may receive less oxygen."
+          ],
+          "explanation": "Blood transports oxygen, so reduced flow can reduce oxygen delivery."
+        },
+        {
+          "type": "buildTheProcess",
+          "prompt": "Build the process that moves oxygen from air to body cells.",
+          "options": [
+            "Blood delivers oxygen to cells",
+            "Oxygen moves into the blood",
+            "Air enters the lungs"
+          ],
+          "correctOrder": [
+            "Air enters the lungs",
+            "Oxygen moves into the blood",
+            "Blood delivers oxygen to cells"
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        }
+      ],
+      "extraLessons": []
+    },
+    "immune-dummy-lesson-3": {
+      "id": "immune-dummy-lesson-3",
+      "parentId": "immune",
+      "question": "Can you survive with only half your brain? ? Practice 2",
+      "content": "The brain controls many body functions, while the heart and lungs keep supplying it with oxygen.",
+      "level": 2,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "type": "singleChoice",
+          "prompt": "Which statement best describes how body systems work?",
+          "options": [
+            "Body systems cooperate to keep cells working.",
+            "Every organ works alone.",
+            "The body only works when you think about it."
+          ],
+          "correctAnswers": [
+            "Body systems cooperate to keep cells working."
+          ],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "multipleSelect",
+          "prompt": "Choose two things blood helps deliver or carry.",
+          "options": [
+            "Oxygen to cells",
+            "Nutrients to cells",
+            "Sunlight to bones",
+            "Air directly into the stomach"
+          ],
+          "correctAnswers": [
+            "Oxygen to cells",
+            "Nutrients to cells"
+          ],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "shortAnswer",
+          "prompt": "Type one gas that blood carries from the lungs to body cells.",
+          "options": [],
+          "correctAnswers": [
+            "oxygen"
+          ],
+          "explanation": "Blood carries oxygen from the lungs to cells, where it is used to release energy from food."
+        },
+        {
+          "type": "orderSteps",
+          "prompt": "Put these steps in order for oxygen to reach body cells.",
+          "options": [
+            "Blood delivers oxygen to cells",
+            "Air enters the lungs",
+            "Oxygen moves into the blood"
+          ],
+          "correctOrder": [
+            "Air enters the lungs",
+            "Oxygen moves into the blood",
+            "Blood delivers oxygen to cells"
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "matching",
+          "prompt": "Match each organ with a basic job.",
+          "options": [
+            "Pumps blood",
+            "Exchanges gases",
+            "Filters blood"
+          ],
+          "pairs": [
+            {
+              "left": "Heart",
+              "right": "Pumps blood"
+            },
+            {
+              "left": "Lungs",
+              "right": "Exchanges gases"
+            },
+            {
+              "left": "Kidneys",
+              "right": "Filters blood"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "fillInTheBlank",
+          "prompt": "Fill in the blank: Blood carries ____ from the lungs to body cells.",
+          "options": [],
+          "correctAnswers": [
+            "oxygen"
+          ],
+          "explanation": "Oxygen travels from the lungs into the blood and then to body cells."
+        },
+        {
+          "type": "scenarioBasedDecision",
+          "prompt": "Scenario: You start running. What is a normal response that helps active muscles?",
+          "options": [
+            "Heart rate and breathing increase.",
+            "The heart stops pumping.",
+            "The lungs stop exchanging gases."
+          ],
+          "correctAnswers": [
+            "Heart rate and breathing increase."
+          ],
+          "explanation": "The body can increase heart rate and breathing to help deliver more oxygen during activity."
+        },
+        {
+          "type": "diagramLabeling",
+          "prompt": "Label each part of this simple body-system diagram by matching it to its job.",
+          "options": [
+            "Moves blood around the body",
+            "Exchanges oxygen and carbon dioxide",
+            "Filters some waste from blood"
+          ],
+          "pairs": [
+            {
+              "left": "Heart",
+              "right": "Moves blood around the body"
+            },
+            {
+              "left": "Lungs",
+              "right": "Exchanges oxygen and carbon dioxide"
+            },
+            {
+              "left": "Kidneys",
+              "right": "Filters some waste from blood"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "trueFalse",
+          "prompt": "True or false: Body cells use oxygen to help release energy from food.",
+          "options": [
+            "True",
+            "False"
+          ],
+          "correctAnswers": [
+            "True"
+          ],
+          "explanation": "Cells use oxygen in processes that release energy from nutrients."
+        },
+        {
+          "type": "spotTheMistake",
+          "prompt": "Which sentence contains the mistake?",
+          "options": [
+            "The heart pumps blood.",
+            "The lungs exchange gases.",
+            "The kidneys pump air into the blood."
+          ],
+          "correctAnswers": [
+            "The kidneys pump air into the blood."
+          ],
+          "explanation": "The kidneys filter blood; the lungs exchange gases."
+        },
+        {
+          "type": "categorization",
+          "prompt": "Match each organ to the system category shown.",
+          "options": [
+            "Respiratory",
+            "Circulatory",
+            "Digestive"
+          ],
+          "pairs": [
+            {
+              "left": "Lungs",
+              "right": "Respiratory"
+            },
+            {
+              "left": "Heart",
+              "right": "Circulatory"
+            },
+            {
+              "left": "Stomach",
+              "right": "Digestive"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "causeAndEffect",
+          "prompt": "Match each change with a likely effect.",
+          "options": [
+            "More oxygen can enter the blood",
+            "Oxygen reaches active muscles faster"
+          ],
+          "pairs": [
+            {
+              "left": "Breathing rate increases",
+              "right": "More oxygen can enter the blood"
+            },
+            {
+              "left": "Blood flow to working muscles increases",
+              "right": "Oxygen reaches active muscles faster"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "Breathing and circulation adjust to help meet the body?s needs."
+        },
+        {
+          "type": "compareAndContrast",
+          "prompt": "Match each blood vessel with its main direction of flow.",
+          "options": [
+            "Carries blood away from the heart",
+            "Carries blood toward the heart"
+          ],
+          "pairs": [
+            {
+              "left": "Artery",
+              "right": "Carries blood away from the heart"
+            },
+            {
+              "left": "Vein",
+              "right": "Carries blood toward the heart"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "Arteries carry blood away from the heart; veins return blood toward it."
+        },
+        {
+          "type": "prediction",
+          "prompt": "Prediction: If blood flow to a group of cells drops greatly, what is most likely?",
+          "options": [
+            "Those cells may receive less oxygen.",
+            "Those cells receive unlimited oxygen.",
+            "The cells become lungs."
+          ],
+          "correctAnswers": [
+            "Those cells may receive less oxygen."
+          ],
+          "explanation": "Blood transports oxygen, so reduced flow can reduce oxygen delivery."
+        },
+        {
+          "type": "buildTheProcess",
+          "prompt": "Build the process that moves oxygen from air to body cells.",
+          "options": [
+            "Blood delivers oxygen to cells",
+            "Oxygen moves into the blood",
+            "Air enters the lungs"
+          ],
+          "correctOrder": [
+            "Air enters the lungs",
+            "Oxygen moves into the blood",
+            "Blood delivers oxygen to cells"
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        }
+      ],
+      "extraLessons": []
+    },
+    "sleep-dummy-lesson-2": {
+      "id": "sleep-dummy-lesson-2",
+      "parentId": "sleep",
+      "question": "Can we stop our bodies from aging? ? Practice 1",
+      "content": "Aging involves many body changes over time, including changes in cells, tissues, and repair.",
+      "level": 2,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "type": "singleChoice",
+          "prompt": "Which statement best describes how body systems work?",
+          "options": [
+            "Body systems cooperate to keep cells working.",
+            "Every organ works alone.",
+            "The body only works when you think about it."
+          ],
+          "correctAnswers": [
+            "Body systems cooperate to keep cells working."
+          ],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "multipleSelect",
+          "prompt": "Choose two things blood helps deliver or carry.",
+          "options": [
+            "Oxygen to cells",
+            "Nutrients to cells",
+            "Sunlight to bones",
+            "Air directly into the stomach"
+          ],
+          "correctAnswers": [
+            "Oxygen to cells",
+            "Nutrients to cells"
+          ],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "shortAnswer",
+          "prompt": "Type one gas that blood carries from the lungs to body cells.",
+          "options": [],
+          "correctAnswers": [
+            "oxygen"
+          ],
+          "explanation": "Blood carries oxygen from the lungs to cells, where it is used to release energy from food."
+        },
+        {
+          "type": "orderSteps",
+          "prompt": "Put these steps in order for oxygen to reach body cells.",
+          "options": [
+            "Blood delivers oxygen to cells",
+            "Air enters the lungs",
+            "Oxygen moves into the blood"
+          ],
+          "correctOrder": [
+            "Air enters the lungs",
+            "Oxygen moves into the blood",
+            "Blood delivers oxygen to cells"
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "matching",
+          "prompt": "Match each organ with a basic job.",
+          "options": [
+            "Pumps blood",
+            "Exchanges gases",
+            "Filters blood"
+          ],
+          "pairs": [
+            {
+              "left": "Heart",
+              "right": "Pumps blood"
+            },
+            {
+              "left": "Lungs",
+              "right": "Exchanges gases"
+            },
+            {
+              "left": "Kidneys",
+              "right": "Filters blood"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "fillInTheBlank",
+          "prompt": "Fill in the blank: Blood carries ____ from the lungs to body cells.",
+          "options": [],
+          "correctAnswers": [
+            "oxygen"
+          ],
+          "explanation": "Oxygen travels from the lungs into the blood and then to body cells."
+        },
+        {
+          "type": "scenarioBasedDecision",
+          "prompt": "Scenario: You start running. What is a normal response that helps active muscles?",
+          "options": [
+            "Heart rate and breathing increase.",
+            "The heart stops pumping.",
+            "The lungs stop exchanging gases."
+          ],
+          "correctAnswers": [
+            "Heart rate and breathing increase."
+          ],
+          "explanation": "The body can increase heart rate and breathing to help deliver more oxygen during activity."
+        },
+        {
+          "type": "diagramLabeling",
+          "prompt": "Label each part of this simple body-system diagram by matching it to its job.",
+          "options": [
+            "Moves blood around the body",
+            "Exchanges oxygen and carbon dioxide",
+            "Filters some waste from blood"
+          ],
+          "pairs": [
+            {
+              "left": "Heart",
+              "right": "Moves blood around the body"
+            },
+            {
+              "left": "Lungs",
+              "right": "Exchanges oxygen and carbon dioxide"
+            },
+            {
+              "left": "Kidneys",
+              "right": "Filters some waste from blood"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "trueFalse",
+          "prompt": "True or false: Body cells use oxygen to help release energy from food.",
+          "options": [
+            "True",
+            "False"
+          ],
+          "correctAnswers": [
+            "True"
+          ],
+          "explanation": "Cells use oxygen in processes that release energy from nutrients."
+        },
+        {
+          "type": "spotTheMistake",
+          "prompt": "Which sentence contains the mistake?",
+          "options": [
+            "The heart pumps blood.",
+            "The lungs exchange gases.",
+            "The kidneys pump air into the blood."
+          ],
+          "correctAnswers": [
+            "The kidneys pump air into the blood."
+          ],
+          "explanation": "The kidneys filter blood; the lungs exchange gases."
+        },
+        {
+          "type": "categorization",
+          "prompt": "Match each organ to the system category shown.",
+          "options": [
+            "Respiratory",
+            "Circulatory",
+            "Digestive"
+          ],
+          "pairs": [
+            {
+              "left": "Lungs",
+              "right": "Respiratory"
+            },
+            {
+              "left": "Heart",
+              "right": "Circulatory"
+            },
+            {
+              "left": "Stomach",
+              "right": "Digestive"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "causeAndEffect",
+          "prompt": "Match each change with a likely effect.",
+          "options": [
+            "More oxygen can enter the blood",
+            "Oxygen reaches active muscles faster"
+          ],
+          "pairs": [
+            {
+              "left": "Breathing rate increases",
+              "right": "More oxygen can enter the blood"
+            },
+            {
+              "left": "Blood flow to working muscles increases",
+              "right": "Oxygen reaches active muscles faster"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "Breathing and circulation adjust to help meet the body?s needs."
+        },
+        {
+          "type": "compareAndContrast",
+          "prompt": "Match each blood vessel with its main direction of flow.",
+          "options": [
+            "Carries blood away from the heart",
+            "Carries blood toward the heart"
+          ],
+          "pairs": [
+            {
+              "left": "Artery",
+              "right": "Carries blood away from the heart"
+            },
+            {
+              "left": "Vein",
+              "right": "Carries blood toward the heart"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "Arteries carry blood away from the heart; veins return blood toward it."
+        },
+        {
+          "type": "prediction",
+          "prompt": "Prediction: If blood flow to a group of cells drops greatly, what is most likely?",
+          "options": [
+            "Those cells may receive less oxygen.",
+            "Those cells receive unlimited oxygen.",
+            "The cells become lungs."
+          ],
+          "correctAnswers": [
+            "Those cells may receive less oxygen."
+          ],
+          "explanation": "Blood transports oxygen, so reduced flow can reduce oxygen delivery."
+        },
+        {
+          "type": "buildTheProcess",
+          "prompt": "Build the process that moves oxygen from air to body cells.",
+          "options": [
+            "Blood delivers oxygen to cells",
+            "Oxygen moves into the blood",
+            "Air enters the lungs"
+          ],
+          "correctOrder": [
+            "Air enters the lungs",
+            "Oxygen moves into the blood",
+            "Blood delivers oxygen to cells"
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        }
+      ],
+      "extraLessons": []
+    },
+    "sleep-dummy-lesson-3": {
+      "id": "sleep-dummy-lesson-3",
+      "parentId": "sleep",
+      "question": "Can we stop our bodies from aging? ? Practice 2",
+      "content": "Healthy habits support the body, but no single action can stop all biological aging.",
+      "level": 2,
+      "children": [],
+      "lessonCount": 1,
+      "exercises": [
+        {
+          "type": "singleChoice",
+          "prompt": "Which statement best describes how body systems work?",
+          "options": [
+            "Body systems cooperate to keep cells working.",
+            "Every organ works alone.",
+            "The body only works when you think about it."
+          ],
+          "correctAnswers": [
+            "Body systems cooperate to keep cells working."
+          ],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "multipleSelect",
+          "prompt": "Choose two things blood helps deliver or carry.",
+          "options": [
+            "Oxygen to cells",
+            "Nutrients to cells",
+            "Sunlight to bones",
+            "Air directly into the stomach"
+          ],
+          "correctAnswers": [
+            "Oxygen to cells",
+            "Nutrients to cells"
+          ],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "shortAnswer",
+          "prompt": "Type one gas that blood carries from the lungs to body cells.",
+          "options": [],
+          "correctAnswers": [
+            "oxygen"
+          ],
+          "explanation": "Blood carries oxygen from the lungs to cells, where it is used to release energy from food."
+        },
+        {
+          "type": "orderSteps",
+          "prompt": "Put these steps in order for oxygen to reach body cells.",
+          "options": [
+            "Blood delivers oxygen to cells",
+            "Air enters the lungs",
+            "Oxygen moves into the blood"
+          ],
+          "correctOrder": [
+            "Air enters the lungs",
+            "Oxygen moves into the blood",
+            "Blood delivers oxygen to cells"
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "matching",
+          "prompt": "Match each organ with a basic job.",
+          "options": [
+            "Pumps blood",
+            "Exchanges gases",
+            "Filters blood"
+          ],
+          "pairs": [
+            {
+              "left": "Heart",
+              "right": "Pumps blood"
+            },
+            {
+              "left": "Lungs",
+              "right": "Exchanges gases"
+            },
+            {
+              "left": "Kidneys",
+              "right": "Filters blood"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "fillInTheBlank",
+          "prompt": "Fill in the blank: Blood carries ____ from the lungs to body cells.",
+          "options": [],
+          "correctAnswers": [
+            "oxygen"
+          ],
+          "explanation": "Oxygen travels from the lungs into the blood and then to body cells."
+        },
+        {
+          "type": "scenarioBasedDecision",
+          "prompt": "Scenario: You start running. What is a normal response that helps active muscles?",
+          "options": [
+            "Heart rate and breathing increase.",
+            "The heart stops pumping.",
+            "The lungs stop exchanging gases."
+          ],
+          "correctAnswers": [
+            "Heart rate and breathing increase."
+          ],
+          "explanation": "The body can increase heart rate and breathing to help deliver more oxygen during activity."
+        },
+        {
+          "type": "diagramLabeling",
+          "prompt": "Label each part of this simple body-system diagram by matching it to its job.",
+          "options": [
+            "Moves blood around the body",
+            "Exchanges oxygen and carbon dioxide",
+            "Filters some waste from blood"
+          ],
+          "pairs": [
+            {
+              "left": "Heart",
+              "right": "Moves blood around the body"
+            },
+            {
+              "left": "Lungs",
+              "right": "Exchanges oxygen and carbon dioxide"
+            },
+            {
+              "left": "Kidneys",
+              "right": "Filters some waste from blood"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "trueFalse",
+          "prompt": "True or false: Body cells use oxygen to help release energy from food.",
+          "options": [
+            "True",
+            "False"
+          ],
+          "correctAnswers": [
+            "True"
+          ],
+          "explanation": "Cells use oxygen in processes that release energy from nutrients."
+        },
+        {
+          "type": "spotTheMistake",
+          "prompt": "Which sentence contains the mistake?",
+          "options": [
+            "The heart pumps blood.",
+            "The lungs exchange gases.",
+            "The kidneys pump air into the blood."
+          ],
+          "correctAnswers": [
+            "The kidneys pump air into the blood."
+          ],
+          "explanation": "The kidneys filter blood; the lungs exchange gases."
+        },
+        {
+          "type": "categorization",
+          "prompt": "Match each organ to the system category shown.",
+          "options": [
+            "Respiratory",
+            "Circulatory",
+            "Digestive"
+          ],
+          "pairs": [
+            {
+              "left": "Lungs",
+              "right": "Respiratory"
+            },
+            {
+              "left": "Heart",
+              "right": "Circulatory"
+            },
+            {
+              "left": "Stomach",
+              "right": "Digestive"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
+        },
+        {
+          "type": "causeAndEffect",
+          "prompt": "Match each change with a likely effect.",
+          "options": [
+            "More oxygen can enter the blood",
+            "Oxygen reaches active muscles faster"
+          ],
+          "pairs": [
+            {
+              "left": "Breathing rate increases",
+              "right": "More oxygen can enter the blood"
+            },
+            {
+              "left": "Blood flow to working muscles increases",
+              "right": "Oxygen reaches active muscles faster"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "Breathing and circulation adjust to help meet the body?s needs."
+        },
+        {
+          "type": "compareAndContrast",
+          "prompt": "Match each blood vessel with its main direction of flow.",
+          "options": [
+            "Carries blood away from the heart",
+            "Carries blood toward the heart"
+          ],
+          "pairs": [
+            {
+              "left": "Artery",
+              "right": "Carries blood away from the heart"
+            },
+            {
+              "left": "Vein",
+              "right": "Carries blood toward the heart"
+            }
+          ],
+          "correctAnswers": [],
+          "explanation": "Arteries carry blood away from the heart; veins return blood toward it."
+        },
+        {
+          "type": "prediction",
+          "prompt": "Prediction: If blood flow to a group of cells drops greatly, what is most likely?",
+          "options": [
+            "Those cells may receive less oxygen.",
+            "Those cells receive unlimited oxygen.",
+            "The cells become lungs."
+          ],
+          "correctAnswers": [
+            "Those cells may receive less oxygen."
+          ],
+          "explanation": "Blood transports oxygen, so reduced flow can reduce oxygen delivery."
+        },
+        {
+          "type": "buildTheProcess",
+          "prompt": "Build the process that moves oxygen from air to body cells.",
+          "options": [
+            "Blood delivers oxygen to cells",
+            "Oxygen moves into the blood",
+            "Air enters the lungs"
+          ],
+          "correctOrder": [
+            "Air enters the lungs",
+            "Oxygen moves into the blood",
+            "Blood delivers oxygen to cells"
+          ],
+          "correctAnswers": [],
+          "explanation": "This is a practice example: body systems work together, and each part has a specific job."
         }
       ],
       "extraLessons": []

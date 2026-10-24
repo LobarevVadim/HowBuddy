@@ -64,8 +64,7 @@ class _LessonPageState extends State<LessonPage> {
       setState(() {
         _exercises = lesson.exercises;
         _lessonContent = lesson.content;
-        _orderedAnswers =
-            lesson.exercises.first.type == LessonExerciseType.orderSteps
+        _orderedAnswers = _usesOrdering(lesson.exercises.first.type)
             ? List<String>.from(lesson.exercises.first.options)
             : <String>[];
         _isLoadingExercises = false;
@@ -101,13 +100,15 @@ class _LessonPageState extends State<LessonPage> {
     if (_isSummary) {
       return false;
     }
-    if (_exercises[_exerciseIndex].type == LessonExerciseType.shortAnswer) {
+    final type = _exercises[_exerciseIndex].type;
+    if (type == LessonExerciseType.shortAnswer ||
+        type == LessonExerciseType.fillInTheBlank) {
       return _answerController.text.trim().isNotEmpty;
     }
-    if (_exercises[_exerciseIndex].type == LessonExerciseType.orderSteps) {
+    if (_usesOrdering(type)) {
       return _orderedAnswers.isNotEmpty;
     }
-    if (_exercises[_exerciseIndex].type == LessonExerciseType.matching) {
+    if (_usesPairAssignment(type)) {
       return _selectedMatches.length == _exercises[_exerciseIndex].pairs.length;
     }
     return _selectedAnswers.isNotEmpty;
@@ -148,6 +149,11 @@ class _LessonPageState extends State<LessonPage> {
         (answer) =>
             answer.toLowerCase() == _answerController.text.trim().toLowerCase(),
       ),
+      LessonExerciseType.fillInTheBlank => exercise.correctAnswers.any(
+        (answer) =>
+            _normalizeAnswer(answer) ==
+            _normalizeAnswer(_answerController.text),
+      ),
       LessonExerciseType.multipleSelect =>
         _selectedAnswers.length == exercise.correctAnswers.length &&
             _selectedAnswers.containsAll(exercise.correctAnswers),
@@ -155,9 +161,21 @@ class _LessonPageState extends State<LessonPage> {
         _selectedAnswers.firstOrNull == exercise.correctAnswers.firstOrNull,
       LessonExerciseType.orderSteps =>
         _orderedAnswers.join('\u0000') == exercise.correctOrder.join('\u0000'),
-      LessonExerciseType.matching => exercise.pairs.every(
+      LessonExerciseType.buildTheProcess =>
+        _orderedAnswers.join('\u0000') == exercise.correctOrder.join('\u0000'),
+      LessonExerciseType.matching ||
+      LessonExerciseType.diagramLabeling ||
+      LessonExerciseType.categorization ||
+      LessonExerciseType.causeAndEffect ||
+      LessonExerciseType.compareAndContrast => exercise.pairs.every(
         (pair) => _selectedMatches[pair.left] == pair.right,
       ),
+      LessonExerciseType.singleChoice ||
+      LessonExerciseType.scenarioBasedDecision ||
+      LessonExerciseType.trueFalse ||
+      LessonExerciseType.spotTheMistake ||
+      LessonExerciseType.prediction =>
+        _selectedAnswers.firstOrNull == exercise.correctAnswers.firstOrNull,
     };
 
     setState(() {
@@ -176,7 +194,7 @@ class _LessonPageState extends State<LessonPage> {
       _selectedMatches.clear();
       _orderedAnswers =
           nextIndex < _exercises.length &&
-              _exercises[nextIndex].type == LessonExerciseType.orderSteps
+              _usesOrdering(_exercises[nextIndex].type)
           ? List<String>.from(_exercises[nextIndex].options)
           : <String>[];
       _answerController.clear();
@@ -219,6 +237,20 @@ class _LessonPageState extends State<LessonPage> {
       context,
     ).showSnackBar(SnackBar(content: Text(message)));
   }
+
+  bool _usesOrdering(LessonExerciseType type) =>
+      type == LessonExerciseType.orderSteps ||
+      type == LessonExerciseType.buildTheProcess;
+
+  bool _usesPairAssignment(LessonExerciseType type) =>
+      type == LessonExerciseType.matching ||
+      type == LessonExerciseType.diagramLabeling ||
+      type == LessonExerciseType.categorization ||
+      type == LessonExerciseType.causeAndEffect ||
+      type == LessonExerciseType.compareAndContrast;
+
+  String _normalizeAnswer(String value) =>
+      value.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
 
   Widget _buildProgress() {
     final progress = _exercises.isEmpty
@@ -316,7 +348,8 @@ class _LessonPageState extends State<LessonPage> {
                 ),
               ),
               const SizedBox(height: 24),
-              if (exercise.type == LessonExerciseType.shortAnswer)
+              if (exercise.type == LessonExerciseType.shortAnswer ||
+                  exercise.type == LessonExerciseType.fillInTheBlank)
                 TextField(
                   controller: _answerController,
                   enabled: _answerWasCorrect == null,
@@ -332,7 +365,7 @@ class _LessonPageState extends State<LessonPage> {
                     hintText: 'Type your answer',
                   ),
                 )
-              else if (exercise.type == LessonExerciseType.orderSteps)
+              else if (_usesOrdering(exercise.type))
                 ReorderableListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -357,7 +390,7 @@ class _LessonPageState extends State<LessonPage> {
                     ),
                   ),
                 )
-              else if (exercise.type == LessonExerciseType.matching)
+              else if (_usesPairAssignment(exercise.type))
                 Column(
                   children: exercise.pairs
                       .map(

@@ -4,6 +4,16 @@ enum LessonExerciseType {
   shortAnswer,
   orderSteps,
   matching,
+  fillInTheBlank,
+  scenarioBasedDecision,
+  diagramLabeling,
+  trueFalse,
+  spotTheMistake,
+  categorization,
+  causeAndEffect,
+  compareAndContrast,
+  prediction,
+  buildTheProcess,
 }
 
 class ExercisePair {
