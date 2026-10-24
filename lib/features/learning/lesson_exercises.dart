@@ -5,14 +5,11 @@ enum LessonExerciseType {
   orderSteps,
   matching,
   fillInTheBlank,
-  scenarioBasedDecision,
-  diagramLabeling,
   trueFalse,
   spotTheMistake,
   categorization,
   causeAndEffect,
   compareAndContrast,
-  prediction,
   buildTheProcess,
 }
 

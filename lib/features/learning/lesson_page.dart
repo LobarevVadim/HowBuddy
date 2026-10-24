@@ -33,7 +33,6 @@ class _LessonPageState extends State<LessonPage> {
   List<String> _orderedAnswers = <String>[];
   List<String> _blankAnswers = <String>[];
   List<String?> _flowchartSlots = <String?>[];
-  bool _predictionPaused = false;
   int _exerciseIndex = 0;
   int _correctAnswers = 0;
   bool? _answerWasCorrect;
@@ -128,14 +127,10 @@ class _LessonPageState extends State<LessonPage> {
           _flowchartSlots.every((slot) => slot != null);
     }
     if (type == LessonExerciseType.matching ||
-        type == LessonExerciseType.diagramLabeling ||
         type == LessonExerciseType.categorization ||
         type == LessonExerciseType.causeAndEffect ||
         type == LessonExerciseType.compareAndContrast) {
       return _selectedMatches.length == _exercises[_exerciseIndex].pairs.length;
-    }
-    if (type == LessonExerciseType.prediction) {
-      return _predictionPaused && _selectedAnswers.isNotEmpty;
     }
     return _selectedAnswers.isNotEmpty;
   }
@@ -190,17 +185,14 @@ class _LessonPageState extends State<LessonPage> {
       LessonExerciseType.orderSteps =>
         _orderedAnswers.join('\u0000') == exercise.correctOrder.join('\u0000'),
       LessonExerciseType.matching ||
-      LessonExerciseType.diagramLabeling ||
       LessonExerciseType.categorization ||
       LessonExerciseType.causeAndEffect ||
       LessonExerciseType.compareAndContrast => exercise.pairs.every(
         (pair) => _selectedMatches[pair.left] == pair.right,
       ),
       LessonExerciseType.singleChoice ||
-      LessonExerciseType.scenarioBasedDecision ||
       LessonExerciseType.trueFalse ||
-      LessonExerciseType.spotTheMistake ||
-      LessonExerciseType.prediction =>
+      LessonExerciseType.spotTheMistake =>
         _selectedAnswers.firstOrNull == exercise.correctAnswers.firstOrNull,
       LessonExerciseType.buildTheProcess =>
         _flowchartSlots.length == exercise.correctOrder.length &&
@@ -224,7 +216,6 @@ class _LessonPageState extends State<LessonPage> {
       _selectedAnswers.clear();
       _selectedMatches.clear();
       _blankAnswers = <String>[];
-      _predictionPaused = false;
       _orderedAnswers =
           nextIndex < _exercises.length &&
               _exercises[nextIndex].type == LessonExerciseType.orderSteps
@@ -549,17 +540,13 @@ class _LessonPageState extends State<LessonPage> {
               )
               .toList(),
         );
-      case LessonExerciseType.scenarioBasedDecision:
-        return ScenarioDecisionInteraction(
-          exercise: exercise,
-          selected: _selectedAnswers.firstOrNull,
-          locked: locked,
-          onSelect: _selectSingleAnswer,
-        );
       case LessonExerciseType.fillInTheBlank:
         return InlineFillBlankInteraction(
           key: ValueKey('fill-$_exerciseIndex'),
           parts: exercise.paragraphParts,
+          wordLengths: exercise.correctOrder
+              .map((word) => word.length)
+              .toList(),
           locked: locked,
           onChanged: (answers) => setState(() => _blankAnswers = answers),
         );
@@ -569,16 +556,6 @@ class _LessonPageState extends State<LessonPage> {
           selected: _selectedAnswers.firstOrNull,
           locked: locked,
           onSelect: _selectSingleAnswer,
-        );
-      case LessonExerciseType.diagramLabeling:
-        return DiagramLabelingInteraction(
-          exercise: exercise,
-          assignments: _selectedMatches,
-          locked: locked,
-          onAssign: (target, label) => setState(() {
-            _selectedMatches.removeWhere((key, value) => value == label);
-            _selectedMatches[target] = label;
-          }),
         );
       case LessonExerciseType.categorization:
         return CategorizationInteraction(
@@ -607,15 +584,6 @@ class _LessonPageState extends State<LessonPage> {
           onAssign: (statement, region) => setState(() {
             _selectedMatches[statement] = region;
           }),
-        );
-      case LessonExerciseType.prediction:
-        return PredictionProcessInteraction(
-          key: ValueKey('prediction-$_exerciseIndex'),
-          exercise: exercise,
-          selected: _selectedAnswers.firstOrNull,
-          locked: locked,
-          onSelect: _selectSingleAnswer,
-          onPaused: (paused) => setState(() => _predictionPaused = paused),
         );
       case LessonExerciseType.buildTheProcess:
         return BuildProcessInteraction(

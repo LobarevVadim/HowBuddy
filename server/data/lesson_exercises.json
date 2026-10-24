@@ -112,22 +112,6 @@
           "explanation": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients."
         },
         {
-          "type": "scenarioBasedDecision",
-          "prompt": "Oxygen reaches body cells: undefined",
-          "options": [
-            "Slow down briefly and let breathing catch up",
-            "Hold your breath to save oxygen"
-          ],
-          "correctAnswers": [
-            "Slow down briefly and let breathing catch up"
-          ],
-          "consequences": {
-            "Slow down briefly and let breathing catch up": "This gives your body time to match oxygen supply to effort.",
-            "Hold your breath to save oxygen": "Holding your breath reduces oxygen intake."
-          },
-          "explanation": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients."
-        },
-        {
           "type": "fillInTheBlank",
           "prompt": "Oxygen reaches body cells: Fill each missing word in this paragraph.",
           "options": [],
@@ -167,31 +151,6 @@
           "correctAnswers": [
             "urine."
           ],
-          "explanation": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients."
-        },
-        {
-          "type": "diagramLabeling",
-          "prompt": "Oxygen reaches body cells: Drag labels onto the matching parts of the body diagram.",
-          "options": [
-            "Lungs",
-            "Heart",
-            "Blood vessels"
-          ],
-          "pairs": [
-            {
-              "left": "Lungs",
-              "right": "Lungs"
-            },
-            {
-              "left": "Heart",
-              "right": "Heart"
-            },
-            {
-              "left": "Blood vessels",
-              "right": "Blood vessels"
-            }
-          ],
-          "correctAnswers": [],
           "explanation": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients."
         },
         {
@@ -276,22 +235,6 @@
             }
           ],
           "correctAnswers": [],
-          "explanation": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients."
-        },
-        {
-          "type": "prediction",
-          "prompt": "Oxygen reaches body cells: Watch the process, pause it, and predict what happens next.",
-          "options": [
-            "Oxygen moves into the blood",
-            "Oxygen disappears from the body"
-          ],
-          "visualStages": [
-            "Oxygen enters the lungs",
-            "Oxygen crosses into the blood"
-          ],
-          "correctAnswers": [
-            "Oxygen moves into the blood"
-          ],
           "explanation": "The lungs move oxygen into blood. The heart pumps blood through vessels to body cells, where oxygen helps release energy from nutrients."
         },
         {
@@ -424,22 +367,6 @@
           "explanation": "The brain has two hemispheres connected by nerve fibers. Many tasks use networks across both sides, and the hemispheres exchange information."
         },
         {
-          "type": "scenarioBasedDecision",
-          "prompt": "Two brain hemispheres: undefined",
-          "options": [
-            "Explain that nerve connections let the hemispheres exchange information",
-            "Say each side is a separate organ"
-          ],
-          "correctAnswers": [
-            "Explain that nerve connections let the hemispheres exchange information"
-          ],
-          "consequences": {
-            "Explain that nerve connections let the hemispheres exchange information": "This describes the brain?s connected networks.",
-            "Say each side is a separate organ": "The hemispheres are connected parts of one brain."
-          },
-          "explanation": "The brain has two hemispheres connected by nerve fibers. Many tasks use networks across both sides, and the hemispheres exchange information."
-        },
-        {
           "type": "fillInTheBlank",
           "prompt": "Two brain hemispheres: Fill each missing word in this paragraph.",
           "options": [],
@@ -478,31 +405,6 @@
           "correctAnswers": [
             "never"
           ],
-          "explanation": "The brain has two hemispheres connected by nerve fibers. Many tasks use networks across both sides, and the hemispheres exchange information."
-        },
-        {
-          "type": "diagramLabeling",
-          "prompt": "Two brain hemispheres: Drag labels onto the matching parts of the body diagram.",
-          "options": [
-            "Cerebrum",
-            "Brainstem",
-            "Cerebellum"
-          ],
-          "pairs": [
-            {
-              "left": "Cerebrum",
-              "right": "Cerebrum"
-            },
-            {
-              "left": "Brainstem",
-              "right": "Brainstem"
-            },
-            {
-              "left": "Cerebellum",
-              "right": "Cerebellum"
-            }
-          ],
-          "correctAnswers": [],
           "explanation": "The brain has two hemispheres connected by nerve fibers. Many tasks use networks across both sides, and the hemispheres exchange information."
         },
         {
@@ -586,22 +488,6 @@
             }
           ],
           "correctAnswers": [],
-          "explanation": "The brain has two hemispheres connected by nerve fibers. Many tasks use networks across both sides, and the hemispheres exchange information."
-        },
-        {
-          "type": "prediction",
-          "prompt": "Two brain hemispheres: Watch the process, pause it, and predict what happens next.",
-          "options": [
-            "Other brain networks can contribute",
-            "The signal must stop at one side"
-          ],
-          "visualStages": [
-            "A signal reaches one hemisphere",
-            "Information travels through connecting fibers"
-          ],
-          "correctAnswers": [
-            "Other brain networks can contribute"
-          ],
           "explanation": "The brain has two hemispheres connected by nerve fibers. Many tasks use networks across both sides, and the hemispheres exchange information."
         },
         {
@@ -734,22 +620,6 @@
           "explanation": "Cells maintain internal parts and replace some damaged molecules. With age, repair and regulation change, but many processes contribute to aging."
         },
         {
-          "type": "scenarioBasedDecision",
-          "prompt": "Cell repair and aging: undefined",
-          "options": [
-            "Be skeptical and look for reliable evidence",
-            "Assume one product stops every aging process"
-          ],
-          "correctAnswers": [
-            "Be skeptical and look for reliable evidence"
-          ],
-          "consequences": {
-            "Be skeptical and look for reliable evidence": "Aging has many causes and no single proven cure.",
-            "Assume one product stops every aging process": "A broad health claim needs strong evidence."
-          },
-          "explanation": "Cells maintain internal parts and replace some damaged molecules. With age, repair and regulation change, but many processes contribute to aging."
-        },
-        {
           "type": "fillInTheBlank",
           "prompt": "Cell repair and aging: Fill each missing word in this paragraph.",
           "options": [],
@@ -793,31 +663,6 @@
           "correctAnswers": [
             "stops"
           ],
-          "explanation": "Cells maintain internal parts and replace some damaged molecules. With age, repair and regulation change, but many processes contribute to aging."
-        },
-        {
-          "type": "diagramLabeling",
-          "prompt": "Cell repair and aging: Drag labels onto the matching parts of the body diagram.",
-          "options": [
-            "Brain",
-            "Heart",
-            "Kidneys"
-          ],
-          "pairs": [
-            {
-              "left": "Brain",
-              "right": "Brain"
-            },
-            {
-              "left": "Heart",
-              "right": "Heart"
-            },
-            {
-              "left": "Kidneys",
-              "right": "Kidneys"
-            }
-          ],
-          "correctAnswers": [],
           "explanation": "Cells maintain internal parts and replace some damaged molecules. With age, repair and regulation change, but many processes contribute to aging."
         },
         {
@@ -902,22 +747,6 @@
             }
           ],
           "correctAnswers": [],
-          "explanation": "Cells maintain internal parts and replace some damaged molecules. With age, repair and regulation change, but many processes contribute to aging."
-        },
-        {
-          "type": "prediction",
-          "prompt": "Cell repair and aging: Watch the process, pause it, and predict what happens next.",
-          "options": [
-            "Some damage may be fixed",
-            "The whole body becomes younger instantly"
-          ],
-          "visualStages": [
-            "A cell detects damage",
-            "Repair systems begin responding"
-          ],
-          "correctAnswers": [
-            "Some damage may be fixed"
-          ],
           "explanation": "Cells maintain internal parts and replace some damaged molecules. With age, repair and regulation change, but many processes contribute to aging."
         },
         {
@@ -5826,22 +5655,6 @@
           "explanation": "Kidneys filter blood and help regulate water and salts. They remove some waste through urine, while the body adjusts how much water it keeps."
         },
         {
-          "type": "scenarioBasedDecision",
-          "prompt": "Kidneys and water balance: undefined",
-          "options": [
-            "Rest somewhere cool and drink water",
-            "Ignore thirst and keep exercising"
-          ],
-          "correctAnswers": [
-            "Rest somewhere cool and drink water"
-          ],
-          "consequences": {
-            "Rest somewhere cool and drink water": "Rest and fluids can help replace water lost through sweating.",
-            "Ignore thirst and keep exercising": "Continuing without fluids can worsen dehydration."
-          },
-          "explanation": "Kidneys filter blood and help regulate water and salts. They remove some waste through urine, while the body adjusts how much water it keeps."
-        },
-        {
           "type": "fillInTheBlank",
           "prompt": "Kidneys and water balance: Fill each missing word in this paragraph.",
           "options": [],
@@ -5883,31 +5696,6 @@
           "correctAnswers": [
             "filters"
           ],
-          "explanation": "Kidneys filter blood and help regulate water and salts. They remove some waste through urine, while the body adjusts how much water it keeps."
-        },
-        {
-          "type": "diagramLabeling",
-          "prompt": "Kidneys and water balance: Drag labels onto the matching parts of the body diagram.",
-          "options": [
-            "Kidneys",
-            "Bladder",
-            "Ureters"
-          ],
-          "pairs": [
-            {
-              "left": "Kidneys",
-              "right": "Kidneys"
-            },
-            {
-              "left": "Bladder",
-              "right": "Bladder"
-            },
-            {
-              "left": "Ureters",
-              "right": "Ureters"
-            }
-          ],
-          "correctAnswers": [],
           "explanation": "Kidneys filter blood and help regulate water and salts. They remove some waste through urine, while the body adjusts how much water it keeps."
         },
         {
@@ -5991,22 +5779,6 @@
             }
           ],
           "correctAnswers": [],
-          "explanation": "Kidneys filter blood and help regulate water and salts. They remove some waste through urine, while the body adjusts how much water it keeps."
-        },
-        {
-          "type": "prediction",
-          "prompt": "Kidneys and water balance: Watch the process, pause it, and predict what happens next.",
-          "options": [
-            "Urine becomes more concentrated",
-            "The kidneys stop filtering forever"
-          ],
-          "visualStages": [
-            "Kidneys filter blood",
-            "Filtered waste collects in urine"
-          ],
-          "correctAnswers": [
-            "Urine becomes more concentrated"
-          ],
           "explanation": "Kidneys filter blood and help regulate water and salts. They remove some waste through urine, while the body adjusts how much water it keeps."
         },
         {
@@ -6132,22 +5904,6 @@
           "explanation": "The heart is a muscular pump. Its electrical system coordinates contractions that move blood through the lungs and around the body."
         },
         {
-          "type": "scenarioBasedDecision",
-          "prompt": "A steady heartbeat: undefined",
-          "options": [
-            "Call emergency services right away",
-            "Ask the person to exercise to test their heart"
-          ],
-          "correctAnswers": [
-            "Call emergency services right away"
-          ],
-          "consequences": {
-            "Call emergency services right away": "Sudden chest pain can be an emergency and needs urgent medical help.",
-            "Ask the person to exercise to test their heart": "Exercise could make a serious problem worse."
-          },
-          "explanation": "The heart is a muscular pump. Its electrical system coordinates contractions that move blood through the lungs and around the body."
-        },
-        {
           "type": "fillInTheBlank",
           "prompt": "A steady heartbeat: Fill each missing word in this paragraph.",
           "options": [],
@@ -6186,31 +5942,6 @@
           "correctAnswers": [
             "bones."
           ],
-          "explanation": "The heart is a muscular pump. Its electrical system coordinates contractions that move blood through the lungs and around the body."
-        },
-        {
-          "type": "diagramLabeling",
-          "prompt": "A steady heartbeat: Drag labels onto the matching parts of the body diagram.",
-          "options": [
-            "Heart",
-            "Arteries",
-            "Veins"
-          ],
-          "pairs": [
-            {
-              "left": "Heart",
-              "right": "Heart"
-            },
-            {
-              "left": "Arteries",
-              "right": "Arteries"
-            },
-            {
-              "left": "Veins",
-              "right": "Veins"
-            }
-          ],
-          "correctAnswers": [],
           "explanation": "The heart is a muscular pump. Its electrical system coordinates contractions that move blood through the lungs and around the body."
         },
         {
@@ -6294,22 +6025,6 @@
             }
           ],
           "correctAnswers": [],
-          "explanation": "The heart is a muscular pump. Its electrical system coordinates contractions that move blood through the lungs and around the body."
-        },
-        {
-          "type": "prediction",
-          "prompt": "A steady heartbeat: Watch the process, pause it, and predict what happens next.",
-          "options": [
-            "Blood is pushed toward the body",
-            "Blood is pushed into the stomach"
-          ],
-          "visualStages": [
-            "Heart muscle contracts",
-            "Blood enters the arteries"
-          ],
-          "correctAnswers": [
-            "Blood is pushed toward the body"
-          ],
           "explanation": "The heart is a muscular pump. Its electrical system coordinates contractions that move blood through the lungs and around the body."
         },
         {
@@ -6435,22 +6150,6 @@
           "explanation": "Brain regions contribute to movement, sensation, language, memory, and vital functions. The brainstem helps regulate automatic functions such as breathing."
         },
         {
-          "type": "scenarioBasedDecision",
-          "prompt": "Brain regions and body signals: undefined",
-          "options": [
-            "Notice the danger and coordinate movement away",
-            "Stop all sensory signals"
-          ],
-          "correctAnswers": [
-            "Notice the danger and coordinate movement away"
-          ],
-          "consequences": {
-            "Notice the danger and coordinate movement away": "Sensing and moving away are useful protective responses.",
-            "Stop all sensory signals": "Blocking signals would make it harder to respond."
-          },
-          "explanation": "Brain regions contribute to movement, sensation, language, memory, and vital functions. The brainstem helps regulate automatic functions such as breathing."
-        },
-        {
           "type": "fillInTheBlank",
           "prompt": "Brain regions and body signals: Fill each missing word in this paragraph.",
           "options": [],
@@ -6494,31 +6193,6 @@
           "correctAnswers": [
             "bone"
           ],
-          "explanation": "Brain regions contribute to movement, sensation, language, memory, and vital functions. The brainstem helps regulate automatic functions such as breathing."
-        },
-        {
-          "type": "diagramLabeling",
-          "prompt": "Brain regions and body signals: Drag labels onto the matching parts of the body diagram.",
-          "options": [
-            "Cerebrum",
-            "Brainstem",
-            "Cerebellum"
-          ],
-          "pairs": [
-            {
-              "left": "Cerebrum",
-              "right": "Cerebrum"
-            },
-            {
-              "left": "Brainstem",
-              "right": "Brainstem"
-            },
-            {
-              "left": "Cerebellum",
-              "right": "Cerebellum"
-            }
-          ],
-          "correctAnswers": [],
           "explanation": "Brain regions contribute to movement, sensation, language, memory, and vital functions. The brainstem helps regulate automatic functions such as breathing."
         },
         {
@@ -6603,22 +6277,6 @@
             }
           ],
           "correctAnswers": [],
-          "explanation": "Brain regions contribute to movement, sensation, language, memory, and vital functions. The brainstem helps regulate automatic functions such as breathing."
-        },
-        {
-          "type": "prediction",
-          "prompt": "Brain regions and body signals: Watch the process, pause it, and predict what happens next.",
-          "options": [
-            "Brain networks can help orient toward the sound",
-            "The ears directly move the legs"
-          ],
-          "visualStages": [
-            "A sound reaches the ears",
-            "Nerve signals travel toward the brain"
-          ],
-          "correctAnswers": [
-            "Brain networks can help orient toward the sound"
-          ],
           "explanation": "Brain regions contribute to movement, sensation, language, memory, and vital functions. The brainstem helps regulate automatic functions such as breathing."
         },
         {
@@ -6744,22 +6402,6 @@
           "explanation": "After injury, some people regain abilities through rehabilitation. Recovery varies with the injury and individual factors, and is not guaranteed."
         },
         {
-          "type": "scenarioBasedDecision",
-          "prompt": "Brain recovery and practice: undefined",
-          "options": [
-            "Follow a care team?s rehabilitation plan",
-            "Assume recovery is identical for everyone"
-          ],
-          "correctAnswers": [
-            "Follow a care team?s rehabilitation plan"
-          ],
-          "consequences": {
-            "Follow a care team?s rehabilitation plan": "A tailored plan supports safe, measured practice.",
-            "Assume recovery is identical for everyone": "Recovery differs between people and injuries."
-          },
-          "explanation": "After injury, some people regain abilities through rehabilitation. Recovery varies with the injury and individual factors, and is not guaranteed."
-        },
-        {
           "type": "fillInTheBlank",
           "prompt": "Brain recovery and practice: Fill each missing word in this paragraph.",
           "options": [],
@@ -6803,31 +6445,6 @@
           "correctAnswers": [
             "fully"
           ],
-          "explanation": "After injury, some people regain abilities through rehabilitation. Recovery varies with the injury and individual factors, and is not guaranteed."
-        },
-        {
-          "type": "diagramLabeling",
-          "prompt": "Brain recovery and practice: Drag labels onto the matching parts of the body diagram.",
-          "options": [
-            "Cerebrum",
-            "Brainstem",
-            "Cerebellum"
-          ],
-          "pairs": [
-            {
-              "left": "Cerebrum",
-              "right": "Cerebrum"
-            },
-            {
-              "left": "Brainstem",
-              "right": "Brainstem"
-            },
-            {
-              "left": "Cerebellum",
-              "right": "Cerebellum"
-            }
-          ],
-          "correctAnswers": [],
           "explanation": "After injury, some people regain abilities through rehabilitation. Recovery varies with the injury and individual factors, and is not guaranteed."
         },
         {
@@ -6913,22 +6530,6 @@
             }
           ],
           "correctAnswers": [],
-          "explanation": "After injury, some people regain abilities through rehabilitation. Recovery varies with the injury and individual factors, and is not guaranteed."
-        },
-        {
-          "type": "prediction",
-          "prompt": "Brain recovery and practice: Watch the process, pause it, and predict what happens next.",
-          "options": [
-            "The movement may become more coordinated",
-            "The injury disappears immediately"
-          ],
-          "visualStages": [
-            "A person practices a movement",
-            "Nerve networks receive repeated activity"
-          ],
-          "correctAnswers": [
-            "The movement may become more coordinated"
-          ],
           "explanation": "After injury, some people regain abilities through rehabilitation. Recovery varies with the injury and individual factors, and is not guaranteed."
         },
         {
@@ -7054,22 +6655,6 @@
           "explanation": "Muscles and bones respond to use. Appropriate movement and nutrition support strength, while age, illness, and inactivity can affect tissues differently."
         },
         {
-          "type": "scenarioBasedDecision",
-          "prompt": "Muscles and bones over time: undefined",
-          "options": [
-            "Choose activity suited to health and ask a clinician if unsure",
-            "Start with the heaviest weights immediately"
-          ],
-          "correctAnswers": [
-            "Choose activity suited to health and ask a clinician if unsure"
-          ],
-          "consequences": {
-            "Choose activity suited to health and ask a clinician if unsure": "A gradual plan can build strength while respecting health needs.",
-            "Start with the heaviest weights immediately": "Starting too intensely may increase injury risk."
-          },
-          "explanation": "Muscles and bones respond to use. Appropriate movement and nutrition support strength, while age, illness, and inactivity can affect tissues differently."
-        },
-        {
           "type": "fillInTheBlank",
           "prompt": "Muscles and bones over time: Fill each missing word in this paragraph.",
           "options": [],
@@ -7110,31 +6695,6 @@
           "correctAnswers": [
             "always"
           ],
-          "explanation": "Muscles and bones respond to use. Appropriate movement and nutrition support strength, while age, illness, and inactivity can affect tissues differently."
-        },
-        {
-          "type": "diagramLabeling",
-          "prompt": "Muscles and bones over time: Drag labels onto the matching parts of the body diagram.",
-          "options": [
-            "Muscle",
-            "Bone",
-            "Joint"
-          ],
-          "pairs": [
-            {
-              "left": "Muscle",
-              "right": "Muscle"
-            },
-            {
-              "left": "Bone",
-              "right": "Bone"
-            },
-            {
-              "left": "Joint",
-              "right": "Joint"
-            }
-          ],
-          "correctAnswers": [],
           "explanation": "Muscles and bones respond to use. Appropriate movement and nutrition support strength, while age, illness, and inactivity can affect tissues differently."
         },
         {
@@ -7220,22 +6780,6 @@
             }
           ],
           "correctAnswers": [],
-          "explanation": "Muscles and bones respond to use. Appropriate movement and nutrition support strength, while age, illness, and inactivity can affect tissues differently."
-        },
-        {
-          "type": "prediction",
-          "prompt": "Muscles and bones over time: Watch the process, pause it, and predict what happens next.",
-          "options": [
-            "A manageable workload can lead to adaptation",
-            "One repetition creates instant strength"
-          ],
-          "visualStages": [
-            "A muscle receives a movement signal",
-            "Muscle fibers begin contracting"
-          ],
-          "correctAnswers": [
-            "A manageable workload can lead to adaptation"
-          ],
           "explanation": "Muscles and bones respond to use. Appropriate movement and nutrition support strength, while age, illness, and inactivity can affect tissues differently."
         },
         {
@@ -7361,22 +6905,6 @@
           "explanation": "Aging is gradual and involves cells, organs, genes, and environment. Healthy choices can support well-being but cannot guarantee a particular lifespan or stop aging."
         },
         {
-          "type": "scenarioBasedDecision",
-          "prompt": "Aging across body systems: undefined",
-          "options": [
-            "Treat the claim cautiously because health outcomes vary",
-            "Believe the guarantee without checking evidence"
-          ],
-          "correctAnswers": [
-            "Treat the claim cautiously because health outcomes vary"
-          ],
-          "consequences": {
-            "Treat the claim cautiously because health outcomes vary": "No routine can guarantee lifespan.",
-            "Believe the guarantee without checking evidence": "Strong health claims need reliable evidence."
-          },
-          "explanation": "Aging is gradual and involves cells, organs, genes, and environment. Healthy choices can support well-being but cannot guarantee a particular lifespan or stop aging."
-        },
-        {
           "type": "fillInTheBlank",
           "prompt": "Aging across body systems: Fill each missing word in this paragraph.",
           "options": [],
@@ -7425,31 +6953,6 @@
           "correctAnswers": [
             "guarantees"
           ],
-          "explanation": "Aging is gradual and involves cells, organs, genes, and environment. Healthy choices can support well-being but cannot guarantee a particular lifespan or stop aging."
-        },
-        {
-          "type": "diagramLabeling",
-          "prompt": "Aging across body systems: Drag labels onto the matching parts of the body diagram.",
-          "options": [
-            "Heart",
-            "Brain",
-            "Bones"
-          ],
-          "pairs": [
-            {
-              "left": "Heart",
-              "right": "Heart"
-            },
-            {
-              "left": "Brain",
-              "right": "Brain"
-            },
-            {
-              "left": "Bones",
-              "right": "Bones"
-            }
-          ],
-          "correctAnswers": [],
           "explanation": "Aging is gradual and involves cells, organs, genes, and environment. Healthy choices can support well-being but cannot guarantee a particular lifespan or stop aging."
         },
         {
@@ -7534,22 +7037,6 @@
             }
           ],
           "correctAnswers": [],
-          "explanation": "Aging is gradual and involves cells, organs, genes, and environment. Healthy choices can support well-being but cannot guarantee a particular lifespan or stop aging."
-        },
-        {
-          "type": "prediction",
-          "prompt": "Aging across body systems: Watch the process, pause it, and predict what happens next.",
-          "options": [
-            "Health may be supported, but aging continues",
-            "All age-related changes stop"
-          ],
-          "visualStages": [
-            "Cells and tissues change over time",
-            "Body systems continue adapting"
-          ],
-          "correctAnswers": [
-            "Health may be supported, but aging continues"
-          ],
           "explanation": "Aging is gradual and involves cells, organs, genes, and environment. Healthy choices can support well-being but cannot guarantee a particular lifespan or stop aging."
         },
         {
