@@ -9,8 +9,28 @@ class BoboChatTurn {
 
   final String role;
   final String content;
+}
 
-  Map<String, String> toJson() => {'role': role, 'content': content};
+class BoboConversation {
+  const BoboConversation({required this.id, required this.messages});
+
+  final String id;
+  final List<BoboChatTurn> messages;
+
+  factory BoboConversation.fromJson(Map<String, dynamic> json) {
+    final conversation = json['conversation'] as Map<String, dynamic>? ?? {};
+    final messages = json['messages'] as List<dynamic>? ?? const [];
+    return BoboConversation(
+      id: conversation['id']?.toString() ?? '',
+      messages: messages.map((item) {
+        final message = item as Map<String, dynamic>;
+        return BoboChatTurn(
+          role: message['role'].toString(),
+          content: message['content'].toString(),
+        );
+      }).toList(),
+    );
+  }
 }
 
 class BoboApiException implements Exception {
@@ -29,31 +49,52 @@ class BoboTutorApi {
 
   final String baseUrl;
 
+  Future<BoboConversation> openConversation({
+    required String topicId,
+    required String lessonId,
+  }) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/bobo/conversations'),
+      headers: ApiSession.authenticatedHeaders,
+      body: jsonEncode({'topicId': topicId, 'lessonId': lessonId}),
+    );
+    return BoboConversation.fromJson(_decode(response));
+  }
+
   Future<String> sendMessage({
+    required String conversationId,
     required String topicId,
     required String lessonId,
     required int? exerciseIndex,
     required String studentAnswer,
-    required bool answerSubmitted,
-    required bool? answerCorrect,
     required String message,
-    required List<BoboChatTurn> history,
   }) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/bobo/chat'),
+      Uri.parse('$baseUrl/bobo/conversations/$conversationId/messages'),
       headers: ApiSession.authenticatedHeaders,
       body: jsonEncode({
         'topicId': topicId,
         'lessonId': lessonId,
         'exerciseIndex': exerciseIndex,
         'studentAnswer': studentAnswer,
-        'answerSubmitted': answerSubmitted,
-        'answerCorrect': answerCorrect,
         'message': message,
-        'history': history.map((turn) => turn.toJson()).toList(),
       }),
     );
+    final body = _decode(response);
+    final reply = body['reply']?.toString().trim() ?? '';
+    if (reply.isEmpty) throw const BoboApiException('unavailable');
+    return reply;
+  }
 
+  Future<void> clearConversation(String conversationId) async {
+    final response = await http.delete(
+      Uri.parse('$baseUrl/bobo/conversations/$conversationId'),
+      headers: ApiSession.authenticatedHeaders,
+    );
+    _decode(response);
+  }
+
+  Map<String, dynamic> _decode(http.Response response) {
     Map<String, dynamic> body;
     try {
       body = jsonDecode(response.body) as Map<String, dynamic>;
@@ -63,8 +104,6 @@ class BoboTutorApi {
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw BoboApiException(body['code']?.toString() ?? 'unavailable');
     }
-    final reply = body['reply']?.toString().trim() ?? '';
-    if (reply.isEmpty) throw const BoboApiException('unavailable');
-    return reply;
+    return body;
   }
 }

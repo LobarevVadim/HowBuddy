@@ -25,16 +25,6 @@ function validateRequest(body) {
     throw new BoboError('invalid_context', 400);
   }
 
-  const history = Array.isArray(body.history) ? body.history.slice(-MAX_HISTORY_MESSAGES) : [];
-  const messages = history.map((item) => {
-    if (!item || !['user', 'assistant'].includes(item.role) || typeof item.content !== 'string') {
-      throw new BoboError('invalid_history', 400);
-    }
-    const content = item.content.trim();
-    if (!content || content.length > MAX_MESSAGE_CHARS) throw new BoboError('invalid_history', 400);
-    return {role: item.role, content};
-  });
-
   const exerciseIndex = body.exerciseIndex === null || body.exerciseIndex === undefined
     ? null
     : Number(body.exerciseIndex);
@@ -51,14 +41,82 @@ function validateRequest(body) {
     lessonId,
     exerciseIndex,
     studentAnswer,
-    answerSubmitted: body.answerSubmitted === true,
-    answerCorrect: typeof body.answerCorrect === 'boolean' ? body.answerCorrect : null,
-    history: messages,
   };
 }
 
 function estimateTokens(text) {
   return Math.ceil(text.length / 3.5);
+}
+
+function normalizeAnswer(value) {
+  return String(value).trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+function gradeAnswer(exercise, answer) {
+  const normalizeList = (values) => values.map(normalizeAnswer).sort();
+  const correctAnswers = exercise.correctAnswers ?? [];
+  const correctOrder = exercise.correctOrder ?? [];
+  const pairs = exercise.pairs ?? [];
+  const supplied = normalizeAnswer(answer);
+  if (!supplied) return {submitted: false, correct: null};
+  switch (exercise.type) {
+    case 'multipleSelect': {
+      const selected = answer.split(',').map(normalizeAnswer).filter(Boolean);
+      return {submitted: true, correct: JSON.stringify(normalizeList(selected)) === JSON.stringify(normalizeList(correctAnswers))};
+    }
+    case 'fillInTheBlank': {
+      const selected = answer.split('|').map(normalizeAnswer);
+      return {submitted: true, correct: JSON.stringify(selected) === JSON.stringify(correctOrder.map(normalizeAnswer))};
+    }
+    case 'orderSteps':
+    case 'buildTheProcess': {
+      const selected = answer.split(/\s*→\s*/).map(normalizeAnswer);
+      return {submitted: true, correct: JSON.stringify(selected) === JSON.stringify(correctOrder.map(normalizeAnswer))};
+    }
+    case 'matching':
+    case 'categorization':
+    case 'causeAndEffect':
+    case 'compareAndContrast': {
+      const selected = new Map(answer.split(';').map((entry) => {
+        const separator = entry.indexOf(':');
+        return separator < 0
+          ? ['', '']
+          : [normalizeAnswer(entry.slice(0, separator)), normalizeAnswer(entry.slice(separator + 1))];
+      }));
+      return {
+        submitted: true,
+        correct: pairs.length > 0 && pairs.every((pair) =>
+          selected.get(normalizeAnswer(pair.left)) === normalizeAnswer(pair.right)),
+      };
+    }
+    case 'diagramLabeling': {
+      const labels = exercise.correctLabels ?? {};
+      const selected = new Map(answer.split(';').map((entry) => {
+        const separator = entry.indexOf(':');
+        return separator < 0
+          ? ['', '']
+          : [entry.slice(0, separator).trim(), normalizeAnswer(entry.slice(separator + 1))];
+      }));
+      const required = Object.entries(labels);
+      return {
+        submitted: true,
+        correct: required.length > 0 && required.every(([id, label]) =>
+          selected.get(id) === normalizeAnswer(label)),
+      };
+    }
+    case 'singleChoice':
+    case 'trueFalse':
+    case 'spotTheMistake':
+      return {submitted: true, correct: correctAnswers.some((value) => normalizeAnswer(value) === supplied)};
+    case 'shortAnswer':
+    case 'scenarioBasedDecision':
+    case 'prediction':
+      return {submitted: true, correct: correctAnswers.length
+        ? correctAnswers.some((value) => normalizeAnswer(value) === supplied)
+        : null};
+    default:
+      return {submitted: true, correct: null};
+  }
 }
 
 function outputText(responseBody) {
@@ -67,6 +125,10 @@ function outputText(responseBody) {
     .filter((item) => item.type === 'output_text' && typeof item.text === 'string')
     .map((item) => item.text);
   return parts.join('\n').trim();
+}
+
+function validId(value) {
+  return typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 }
 
 export function createBoboTutor({
@@ -80,10 +142,97 @@ export function createBoboTutor({
   fetchImpl = globalThis.fetch,
 }) {
   return {
-    async reply(accountId, body) {
+    async openConversation(accountId, body) {
+      const topicId = typeof body.topicId === 'string' ? body.topicId.trim() : '';
+      const lessonId = typeof body.lessonId === 'string' ? body.lessonId.trim() : '';
+      if (!topicId || topicId.length > 120 || !lessonId || lessonId.length > 40) {
+        throw new BoboError('invalid_context', 400);
+      }
+      const accountResult = await pool.query(
+        'SELECT preferred_language FROM accounts WHERE id = $1',
+        [accountId],
+      );
+      if (!accountResult.rowCount) throw new BoboError('unauthorized', 401);
+      const preferredLanguage = accountResult.rows[0].preferred_language ?? 'en';
+      const content = getLessonContent(preferredLanguage);
+      try {
+        buildBoboLessonContext({
+          content,
+          topicId,
+          lessonId,
+          exerciseIndex: null,
+          preferredLanguage,
+          progressRows: [],
+        });
+      } catch (error) {
+        if (error.status === 400 || error.status === 404) {
+          throw new BoboError('invalid_context', 400);
+        }
+        throw error;
+      }
+      const conversation = await pool.query(
+        `INSERT INTO bobo_conversations (account_id, topic_id, lesson_id)
+         VALUES ($1, $2, $3)
+         ON CONFLICT (account_id, topic_id, lesson_id)
+         DO UPDATE SET updated_at = now()
+         RETURNING id, topic_id, lesson_id, created_at, updated_at`,
+        [accountId, topicId, lessonId],
+      );
+      const row = conversation.rows[0];
+      const messages = await pool.query(
+        `SELECT id, role, content, exercise_index, created_at
+         FROM (
+           SELECT id, role, content, exercise_index, created_at
+           FROM bobo_messages WHERE conversation_id = $1
+           ORDER BY created_at DESC, id DESC LIMIT 50
+         ) recent ORDER BY created_at, id`,
+        [row.id],
+      );
+      return {
+        conversation: {
+          id: row.id,
+          topicId: row.topic_id,
+          lessonId: row.lesson_id,
+          createdAt: row.created_at,
+          updatedAt: row.updated_at,
+        },
+        messages: messages.rows.map((message) => ({
+          id: message.id,
+          role: message.role,
+          content: message.content,
+          exerciseIndex: message.exercise_index,
+          createdAt: message.created_at,
+        })),
+      };
+    },
+
+    async deleteConversation(accountId, conversationId) {
+      if (!validId(conversationId)) throw new BoboError('invalid_context', 400);
+      const result = await pool.query(
+        'DELETE FROM bobo_conversations WHERE id = $1 AND account_id = $2 RETURNING id',
+        [conversationId, accountId],
+      );
+      if (!result.rowCount) throw new BoboError('conversation_not_found', 404);
+      return {deleted: true};
+    },
+
+    async reply(accountId, conversationId, body) {
       if (!enabled) throw new BoboError('disabled', 503);
       if (!apiKey) throw new BoboError('not_configured', 503);
+      if (!validId(conversationId)) throw new BoboError('invalid_context', 400);
       const request = validateRequest(body);
+      const conversationResult = await pool.query(
+        `SELECT topic_id, lesson_id FROM bobo_conversations
+         WHERE id = $1 AND account_id = $2`,
+        [conversationId, accountId],
+      );
+      if (!conversationResult.rowCount) throw new BoboError('conversation_not_found', 404);
+      const conversation = conversationResult.rows[0];
+      const requestTopicId = typeof body.topicId === 'string' ? body.topicId.trim() : conversation.topic_id;
+      const requestLessonId = typeof body.lessonId === 'string' ? body.lessonId.trim() : conversation.lesson_id;
+      if (requestTopicId !== conversation.topic_id || requestLessonId !== conversation.lesson_id) {
+        throw new BoboError('invalid_context', 400);
+      }
       const accountResult = await pool.query(
         'SELECT preferred_language FROM accounts WHERE id = $1',
         [accountId],
@@ -100,15 +249,20 @@ export function createBoboTutor({
       try {
         context = buildBoboLessonContext({
           content,
-          topicId: request.topicId,
-          lessonId: request.lessonId,
+          topicId: conversation.topic_id,
+          lessonId: conversation.lesson_id,
           exerciseIndex: request.exerciseIndex,
           studentAnswer: request.studentAnswer,
-          answerSubmitted: request.answerSubmitted,
-          answerCorrect: request.answerCorrect,
+          answerSubmitted: false,
+          answerCorrect: null,
           preferredLanguage,
           progressRows: progressResult.rows,
         });
+        if (context.activeExercise) {
+          const answerStatus = gradeAnswer(context.activeExercise, request.studentAnswer);
+          context.activeExercise.answerSubmitted = answerStatus.submitted;
+          context.activeExercise.answerCorrect = answerStatus.correct;
+        }
       } catch (error) {
         if (error.status === 400 || error.status === 404) {
           throw new BoboError('invalid_context', 400);
@@ -116,9 +270,21 @@ export function createBoboTutor({
         throw error;
       }
       const contextInput = formatBoboContext(context);
+      const historyResult = await pool.query(
+        `SELECT role, content FROM (
+           SELECT role, content, created_at, id FROM bobo_messages
+           WHERE conversation_id = $1 ORDER BY created_at DESC, id DESC LIMIT $2
+         ) recent ORDER BY created_at, id`,
+        [conversationId, MAX_HISTORY_MESSAGES],
+      );
       const input = [
         {role: 'user', content: contextInput},
-        ...request.history,
+        ...historyResult.rows.map(({role, content: text, exercise_index: oldExerciseIndex}) => ({
+          role,
+          content: oldExerciseIndex === request.exerciseIndex
+            ? text
+            : `[Earlier in this lesson${oldExerciseIndex === null ? '' : `, exercise ${oldExerciseIndex + 1}`}]: ${text}`,
+        })),
         {role: 'user', content: request.message},
       ];
       const reservedTokens = estimateTokens(`${BOBO_SYSTEM_PROMPT}${JSON.stringify(input)}`) + MAX_OUTPUT_TOKENS;
@@ -175,14 +341,44 @@ export function createBoboTutor({
       const usage = result.usage ?? {};
       const inputTokens = Number(usage.input_tokens) || 0;
       const outputTokens = Number(usage.output_tokens) || 0;
-      pool.query(
-        `UPDATE bobo_daily_usage
-         SET input_tokens = input_tokens + $2,
-             output_tokens = output_tokens + $3,
-             updated_at = now()
-         WHERE account_id = $1 AND usage_date = (now() AT TIME ZONE 'UTC')::date`,
-        [accountId, inputTokens, outputTokens],
-      ).catch((error) => console.error('Could not record Bobo token usage:', error.message));
+      const db = await pool.connect();
+      try {
+        await db.query('BEGIN');
+        await db.query(
+          `INSERT INTO bobo_messages
+             (conversation_id, role, content, exercise_index, input_tokens, output_tokens)
+           VALUES ($1, 'user', $2, $3, 0, 0), ($1, 'assistant', $4, $3, $5, $6)`,
+          [conversationId, request.message, request.exerciseIndex, replyText, inputTokens, outputTokens],
+        );
+        await db.query(
+          `UPDATE bobo_conversations SET updated_at = now()
+           WHERE id = $1 AND account_id = $2`,
+          [conversationId, accountId],
+        );
+        await db.query(
+          `UPDATE bobo_daily_usage
+           SET input_tokens = input_tokens + $2,
+               output_tokens = output_tokens + $3,
+               updated_at = now()
+           WHERE account_id = $1 AND usage_date = (now() AT TIME ZONE 'UTC')::date`,
+          [accountId, inputTokens, outputTokens],
+        );
+        await db.query(
+          `DELETE FROM bobo_messages
+           WHERE conversation_id = $1 AND id NOT IN (
+             SELECT id FROM bobo_messages WHERE conversation_id = $1
+             ORDER BY created_at DESC, id DESC LIMIT 200
+           )`,
+          [conversationId],
+        );
+        await db.query('COMMIT');
+      } catch (error) {
+        await db.query('ROLLBACK');
+        console.error('Could not store Bobo conversation reply:', error.message);
+        throw new BoboError('unavailable', 500);
+      } finally {
+        db.release();
+      }
 
       return {
         reply: replyText,

@@ -7,8 +7,12 @@ import '../../services/ui_translations.dart';
 
 Future<void> showBoboChatSheet(
   BuildContext context, {
-  required Future<String> Function(String message, List<BoboChatTurn> history)
+  required String lessonTitle,
+  required int? exerciseIndex,
+  required Future<BoboConversation> Function() onOpen,
+  required Future<String> Function(String conversationId, String message)
   onSend,
+  required Future<BoboConversation> Function(String conversationId) onClear,
 }) {
   return showModalBottomSheet<void>(
     context: context,
@@ -21,7 +25,13 @@ Future<void> showBoboChatSheet(
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 560),
-          child: _BoboChatPanel(onSend: onSend),
+          child: _BoboChatPanel(
+            lessonTitle: lessonTitle,
+            exerciseIndex: exerciseIndex,
+            onOpen: onOpen,
+            onSend: onSend,
+            onClear: onClear,
+          ),
         ),
       ),
     ),
@@ -71,10 +81,19 @@ class BoboLessonButton extends StatelessWidget {
 }
 
 class _BoboChatPanel extends StatefulWidget {
-  const _BoboChatPanel({required this.onSend});
+  const _BoboChatPanel({
+    required this.lessonTitle,
+    required this.exerciseIndex,
+    required this.onOpen,
+    required this.onSend,
+    required this.onClear,
+  });
 
-  final Future<String> Function(String message, List<BoboChatTurn> history)
-  onSend;
+  final String lessonTitle;
+  final int? exerciseIndex;
+  final Future<BoboConversation> Function() onOpen;
+  final Future<String> Function(String conversationId, String message) onSend;
+  final Future<BoboConversation> Function(String conversationId) onClear;
 
   @override
   State<_BoboChatPanel> createState() => _BoboChatPanelState();
@@ -85,7 +104,15 @@ class _BoboChatPanelState extends State<_BoboChatPanel> {
   final _scrollController = ScrollController();
   final List<BoboChatTurn> _turns = [];
   bool _isSending = false;
+  bool _isLoadingConversation = true;
   String? _errorCode;
+  String? _conversationId;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadConversation();
+  }
 
   @override
   void dispose() {
@@ -96,8 +123,14 @@ class _BoboChatPanelState extends State<_BoboChatPanel> {
 
   Future<void> _send() async {
     final message = _inputController.text.trim();
-    if (message.isEmpty || _isSending || message.length > 1200) return;
-    final history = List<BoboChatTurn>.of(_turns);
+    final conversationId = _conversationId;
+    if (message.isEmpty ||
+        _isSending ||
+        _isLoadingConversation ||
+        conversationId == null ||
+        message.length > 1200) {
+      return;
+    }
     setState(() {
       _turns.add(BoboChatTurn(role: 'user', content: message));
       _inputController.clear();
@@ -106,19 +139,124 @@ class _BoboChatPanelState extends State<_BoboChatPanel> {
     });
     _scrollToEnd();
     try {
-      final reply = await widget.onSend(message, history);
+      final reply = await widget.onSend(conversationId, message);
       if (!mounted) return;
       setState(() {
         _turns.add(BoboChatTurn(role: 'assistant', content: reply));
       });
     } on BoboApiException catch (error) {
-      if (mounted) setState(() => _errorCode = error.code);
+      if (mounted) {
+        setState(() {
+          if (_turns.isNotEmpty && _turns.last.role == 'user') {
+            _turns.removeLast();
+          }
+          _errorCode = error.code;
+        });
+        _inputController.text = message;
+      }
     } catch (_) {
-      if (mounted) setState(() => _errorCode = 'unavailable');
+      if (mounted) {
+        setState(() {
+          if (_turns.isNotEmpty && _turns.last.role == 'user') {
+            _turns.removeLast();
+          }
+          _errorCode = 'unavailable';
+        });
+        _inputController.text = message;
+      }
     } finally {
       if (mounted) {
         setState(() => _isSending = false);
         _scrollToEnd();
+      }
+    }
+  }
+
+  Future<void> _loadConversation() async {
+    if (mounted) {
+      setState(() {
+        _isLoadingConversation = true;
+        _errorCode = null;
+      });
+    }
+    try {
+      final conversation = await widget.onOpen();
+      if (!mounted) return;
+      setState(() {
+        _conversationId = conversation.id;
+        _turns
+          ..clear()
+          ..addAll(conversation.messages);
+        _isLoadingConversation = false;
+      });
+      _scrollToEnd();
+    } on BoboApiException catch (error) {
+      if (mounted) {
+        setState(() {
+          _errorCode = error.code;
+          _isLoadingConversation = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _errorCode = 'unavailable';
+          _isLoadingConversation = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _clearConversation() async {
+    final conversationId = _conversationId;
+    if (conversationId == null || _isSending || _isLoadingConversation) return;
+    final shouldClear = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(uiText(context, 'Clear conversation?')),
+        content: Text(
+          uiText(context, 'This permanently deletes this Bobo chat.'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(uiText(context, 'Cancel')),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(uiText(context, 'Delete')),
+          ),
+        ],
+      ),
+    );
+    if (shouldClear != true || !mounted) return;
+    setState(() {
+      _isLoadingConversation = true;
+      _errorCode = null;
+    });
+    try {
+      final conversation = await widget.onClear(conversationId);
+      if (!mounted) return;
+      setState(() {
+        _conversationId = conversation.id;
+        _turns
+          ..clear()
+          ..addAll(conversation.messages);
+        _isLoadingConversation = false;
+      });
+    } on BoboApiException catch (error) {
+      if (mounted) {
+        setState(() {
+          _errorCode = error.code;
+          _isLoadingConversation = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _errorCode = 'unavailable';
+          _isLoadingConversation = false;
+        });
       }
     }
   }
@@ -179,7 +317,37 @@ class _BoboChatPanelState extends State<_BoboChatPanel> {
                     uiText(context, 'Your biology study buddy'),
                     style: TextStyle(color: AppColors.mutedText),
                   ),
+                  Text(
+                    uiText(
+                      context,
+                      'Lesson: {title}',
+                      args: {'title': widget.lessonTitle},
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: AppColors.mutedText, fontSize: 12),
+                  ),
+                  if (widget.exerciseIndex != null)
+                    Text(
+                      uiText(
+                        context,
+                        'Exercise {number}',
+                        args: {'number': '${widget.exerciseIndex! + 1}'},
+                      ),
+                      style: TextStyle(
+                        color: AppColors.mutedText,
+                        fontSize: 12,
+                      ),
+                    ),
                 ],
+              ),
+            ),
+            IconButton(
+              onPressed: _clearConversation,
+              tooltip: uiText(context, 'Clear conversation'),
+              icon: Icon(
+                Icons.delete_outline_rounded,
+                color: AppColors.mutedText,
               ),
             ),
           ],
@@ -188,58 +356,73 @@ class _BoboChatPanelState extends State<_BoboChatPanel> {
         Divider(color: AppColors.border, height: 1),
         const SizedBox(height: 18),
         Expanded(
-          child: ListView(
-            controller: _scrollController,
-            children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Container(
-                  constraints: const BoxConstraints(maxWidth: 400),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppColors.infoBackground,
-                    borderRadius: BorderRadius.circular(AppRadii.input),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: Text(
-                    uiText(
-                      context,
-                      "Hi! I'm Bobo. Ask me about the biology in this lesson, and we'll work through it together.",
-                    ),
-                    style: TextStyle(color: AppColors.text, height: 1.4),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              for (final turn in _turns) _BoboMessageBubble(turn: turn),
-              if (_isSending)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: AppColors.primary,
+          child: _isLoadingConversation
+              ? Center(
+                  child: CircularProgressIndicator(color: AppColors.primary),
+                )
+              : ListView(
+                  controller: _scrollController,
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                        constraints: const BoxConstraints(maxWidth: 400),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppColors.infoBackground,
+                          borderRadius: BorderRadius.circular(AppRadii.input),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: Text(
+                          uiText(
+                            context,
+                            "Hi! I'm Bobo. Ask me about the biology in this lesson, and we'll work through it together.",
+                          ),
+                          style: TextStyle(color: AppColors.text, height: 1.4),
                         ),
                       ),
-                      const SizedBox(width: 10),
-                      Text(uiText(context, 'Bobo is thinking…')),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 12),
+                    for (final turn in _turns) _BoboMessageBubble(turn: turn),
+                    if (_isSending)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Text(uiText(context, 'Bobo is thinking…')),
+                          ],
+                        ),
+                      ),
+                    if (_errorCode != null)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _BoboMessageBubble(
+                            turn: BoboChatTurn(
+                              role: 'assistant',
+                              content: uiText(context, _errorText(_errorCode!)),
+                            ),
+                            isError: true,
+                          ),
+                          if (_conversationId == null)
+                            TextButton.icon(
+                              onPressed: _loadConversation,
+                              icon: const Icon(Icons.refresh_rounded),
+                              label: Text(uiText(context, 'Try again')),
+                            ),
+                        ],
+                      ),
+                  ],
                 ),
-              if (_errorCode != null)
-                _BoboMessageBubble(
-                  turn: BoboChatTurn(
-                    role: 'assistant',
-                    content: uiText(context, _errorText(_errorCode!)),
-                  ),
-                  isError: true,
-                ),
-            ],
-          ),
         ),
         const SizedBox(height: 12),
         Row(
@@ -247,7 +430,10 @@ class _BoboChatPanelState extends State<_BoboChatPanel> {
             Expanded(
               child: TextField(
                 controller: _inputController,
-                enabled: !_isSending,
+                enabled:
+                    !_isSending &&
+                    !_isLoadingConversation &&
+                    _conversationId != null,
                 minLines: 1,
                 maxLines: 4,
                 maxLength: 1200,
@@ -274,7 +460,7 @@ class _BoboChatPanelState extends State<_BoboChatPanel> {
             ),
             const SizedBox(width: 8),
             IconButton.filled(
-              onPressed: _isSending ? null : _send,
+              onPressed: _isSending || _isLoadingConversation ? null : _send,
               tooltip: uiText(context, 'Send message'),
               icon: const Icon(Icons.send_rounded),
             ),

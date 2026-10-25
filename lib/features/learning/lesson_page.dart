@@ -306,18 +306,31 @@ class _LessonPageState extends State<LessonPage> {
 
   void _openBobo() {
     final hasActiveExercise = !_isSummary && _exercises.isNotEmpty;
+    final exerciseIndex = hasActiveExercise ? _exerciseIndex : null;
+    final api = BoboTutorApi();
     showBoboChatSheet(
       context,
-      onSend: (message, history) => BoboTutorApi().sendMessage(
+      lessonTitle: widget.level.title,
+      exerciseIndex: exerciseIndex,
+      onOpen: () => api.openConversation(
         topicId: widget.topicId,
         lessonId: widget.level.id,
-        exerciseIndex: hasActiveExercise ? _exerciseIndex : null,
-        studentAnswer: hasActiveExercise ? _answerForBobo() : '',
-        answerSubmitted: hasActiveExercise && _answerWasCorrect != null,
-        answerCorrect: hasActiveExercise ? _answerWasCorrect : null,
-        message: message,
-        history: history,
       ),
+      onSend: (conversationId, message) => api.sendMessage(
+        conversationId: conversationId,
+        topicId: widget.topicId,
+        lessonId: widget.level.id,
+        exerciseIndex: exerciseIndex,
+        studentAnswer: hasActiveExercise ? _answerForBobo() : '',
+        message: message,
+      ),
+      onClear: (conversationId) async {
+        await api.clearConversation(conversationId);
+        return api.openConversation(
+          topicId: widget.topicId,
+          lessonId: widget.level.id,
+        );
+      },
     );
   }
 

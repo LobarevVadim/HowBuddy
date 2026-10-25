@@ -934,9 +934,30 @@ app.get('/lessons/exercises', async (request, response) => {
   }
 });
 
-app.post('/bobo/chat', requireAuth, async (request, response) => {
+app.post('/bobo/conversations', requireAuth, async (request, response) => {
   try {
-    return response.json(await boboTutor.reply(request.accountId, request.body ?? {}));
+    return response.json(await boboTutor.openConversation(request.accountId, request.body ?? {}));
+  } catch (error) {
+    if (error instanceof BoboError) {
+      const messages = {
+        invalid_context: 'The current lesson could not be loaded. Reopen the lesson and try again.',
+        unauthorized: 'Please sign in again to use Bobo.',
+        conversation_not_found: 'This Bobo conversation could not be found.',
+      };
+      return response.status(error.status).json({code: error.code, message: messages[error.code] ?? 'Bobo could not open this conversation.'});
+    }
+    console.error('Could not open Bobo conversation:', error.message);
+    return response.status(500).json({code: 'unavailable', message: 'Bobo is having trouble connecting. Please try again in a moment.'});
+  }
+});
+
+app.post('/bobo/conversations/:conversationId/messages', requireAuth, async (request, response) => {
+  try {
+    return response.json(await boboTutor.reply(
+      request.accountId,
+      request.params.conversationId,
+      request.body ?? {},
+    ));
   } catch (error) {
     if (error instanceof BoboError) {
       const messages = {
@@ -947,6 +968,7 @@ app.post('/bobo/chat', requireAuth, async (request, response) => {
         invalid_context: 'The current lesson could not be loaded. Reopen the lesson and try again.',
         invalid_history: 'The conversation could not be continued. Start a new message.',
         unauthorized: 'Please sign in again to use Bobo.',
+        conversation_not_found: 'This Bobo conversation could not be found.',
         timeout: 'Bobo is taking too long to respond. Please try again.',
         unavailable: 'Bobo is having trouble connecting. Please try again in a moment.',
         empty_reply: 'Bobo could not create a reply. Please try again.',
@@ -955,6 +977,21 @@ app.post('/bobo/chat', requireAuth, async (request, response) => {
     }
     console.error('Could not build Bobo response:', error.message);
     return response.status(500).json({code: 'unavailable', message: 'Bobo is having trouble connecting. Please try again in a moment.'});
+  }
+});
+
+app.delete('/bobo/conversations/:conversationId', requireAuth, async (request, response) => {
+  try {
+    return response.json(await boboTutor.deleteConversation(
+      request.accountId,
+      request.params.conversationId,
+    ));
+  } catch (error) {
+    if (error instanceof BoboError) {
+      return response.status(error.status).json({code: error.code, message: 'This Bobo conversation could not be cleared.'});
+    }
+    console.error('Could not clear Bobo conversation:', error.message);
+    return response.status(500).json({code: 'unavailable', message: 'Could not clear this Bobo conversation.'});
   }
 });
 

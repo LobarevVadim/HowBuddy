@@ -102,6 +102,31 @@ CREATE TABLE IF NOT EXISTS bobo_daily_usage (
   PRIMARY KEY (account_id, usage_date)
 );
 
+CREATE TABLE IF NOT EXISTS bobo_conversations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  account_id UUID NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+  topic_id TEXT NOT NULL,
+  lesson_id TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (account_id, topic_id, lesson_id)
+);
+CREATE INDEX IF NOT EXISTS bobo_conversations_account_updated_idx
+  ON bobo_conversations(account_id, updated_at DESC);
+
+CREATE TABLE IF NOT EXISTS bobo_messages (
+  id BIGSERIAL PRIMARY KEY,
+  conversation_id UUID NOT NULL REFERENCES bobo_conversations(id) ON DELETE CASCADE,
+  role TEXT NOT NULL CHECK (role IN ('user', 'assistant')),
+  content TEXT NOT NULL CHECK (char_length(content) BETWEEN 1 AND 5000),
+  exercise_index INTEGER CHECK (exercise_index IS NULL OR exercise_index >= 0),
+  input_tokens INTEGER NOT NULL DEFAULT 0 CHECK (input_tokens >= 0),
+  output_tokens INTEGER NOT NULL DEFAULT 0 CHECK (output_tokens >= 0),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS bobo_messages_conversation_created_idx
+  ON bobo_messages(conversation_id, created_at DESC, id DESC);
+
 ALTER TABLE lesson_xp DROP CONSTRAINT IF EXISTS lesson_xp_xp_check;
 ALTER TABLE lesson_xp ADD CONSTRAINT lesson_xp_xp_check CHECK (xp BETWEEN 1 AND 1000);
 

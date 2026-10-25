@@ -127,6 +127,64 @@ class UiTranslations {
           '\u092c\u094b\u092c\u094b \u0938\u094b\u091a \u0930\u0939\u093e \u0939\u0948…',
       'ru': '\u0411\u043e\u0431\u043e \u0434\u0443\u043c\u0430\u0435\u0442…',
     },
+    'Lesson: {title}': {
+      'fr': 'Leçon : {title}',
+      'es': 'Lección: {title}',
+      'hi': '\u092a\u093e\u0920: {title}',
+      'ru': '\u0423\u0440\u043e\u043a: {title}',
+    },
+    'Exercise {number}': {
+      'fr': 'Exercice {number}',
+      'es': 'Ejercicio {number}',
+      'hi': '\u0905\u092d\u094d\u092f\u093e\u0938 {number}',
+      'ru':
+          '\u0423\u043f\u0440\u0430\u0436\u043d\u0435\u043d\u0438\u0435 {number}',
+    },
+    'Clear conversation': {
+      'fr': 'Effacer la conversation',
+      'es': 'Borrar conversación',
+      'hi':
+          '\u092c\u093e\u0924\u091a\u0940\u0924 \u0939\u091f\u093e\u090f\u0902',
+      'ru':
+          '\u0423\u0434\u0430\u043b\u0438\u0442\u044c \u0434\u0438\u0430\u043b\u043e\u0433',
+    },
+    'Clear conversation?': {
+      'fr': 'Effacer la conversation ? ',
+      'es': '¿Borrar la conversación?',
+      'hi':
+          '\u0915\u094d\u092f\u093e \u092c\u093e\u0924\u091a\u0940\u0924 \u0939\u091f\u093e\u090f\u0902?',
+      'ru':
+          '\u0423\u0434\u0430\u043b\u0438\u0442\u044c \u0434\u0438\u0430\u043b\u043e\u0433?',
+    },
+    'This permanently deletes this Bobo chat.': {
+      'fr':
+          'Cette action supprimera définitivement cette conversation avec Bobo.',
+      'es': 'Esto eliminará permanentemente este chat con Bobo.',
+      'hi':
+          '\u092f\u0939 \u092c\u094b\u092c\u094b \u0915\u0940 \u092c\u093e\u0924\u091a\u0940\u0924 \u0938\u094d\u0925\u093e\u092f\u0940 \u0930\u0942\u092a \u0938\u0947 \u0939\u091f\u093e \u0926\u0947\u0917\u093e\u0964',
+      'ru':
+          '\u042d\u0442\u043e \u043d\u0430\u0432\u0441\u0435\u0433\u0434\u0430 \u0443\u0434\u0430\u043b\u0438\u0442 \u044d\u0442\u043e\u0442 \u0447\u0430\u0442 \u0441 \u0411\u043e\u0431\u043e.',
+    },
+    'Cancel': {
+      'fr': 'Annuler',
+      'es': 'Cancelar',
+      'hi': '\u0930\u0926\u094d\u0926 \u0915\u0930\u0947\u0902',
+      'ru': '\u041e\u0442\u043c\u0435\u043d\u0430',
+    },
+    'Delete': {
+      'fr': 'Supprimer',
+      'es': 'Eliminar',
+      'hi': '\u0939\u091f\u093e\u090f\u0902',
+      'ru': '\u0423\u0434\u0430\u043b\u0438\u0442\u044c',
+    },
+    'Try again': {
+      'fr': 'Réessayer',
+      'es': 'Intentar de nuevo',
+      'hi':
+          '\u092b\u093f\u0930 \u0938\u0947 \u0915\u094b\u0936\u093f\u0936 \u0915\u0930\u0947\u0902',
+      'ru':
+          '\u041f\u043e\u043f\u0440\u043e\u0431\u043e\u0432\u0430\u0442\u044c \u0441\u043d\u043e\u0432\u0430',
+    },
     'Choose your streak goal': {
       'fr': 'Choisissez votre objectif de série',
       'es': 'Elige tu objetivo de racha',
