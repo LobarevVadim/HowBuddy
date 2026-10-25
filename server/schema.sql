@@ -109,8 +109,11 @@ CREATE TABLE IF NOT EXISTS bobo_conversations (
   lesson_id TEXT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  tutoring_state JSONB NOT NULL DEFAULT '{"exerciseKey":null,"hintLevel":0,"state":"diagnosing","mode":"conceptExplanation","understandingSignal":false}'::jsonb,
   UNIQUE (account_id, topic_id, lesson_id)
 );
+ALTER TABLE bobo_conversations ADD COLUMN IF NOT EXISTS tutoring_state JSONB NOT NULL
+  DEFAULT '{"exerciseKey":null,"hintLevel":0,"state":"diagnosing","mode":"conceptExplanation","understandingSignal":false}'::jsonb;
 CREATE INDEX IF NOT EXISTS bobo_conversations_account_updated_idx
   ON bobo_conversations(account_id, updated_at DESC);
 

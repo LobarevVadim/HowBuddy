@@ -120,6 +120,92 @@ class UiTranslations {
       'ru':
           '\u041f\u043e\u043f\u0440\u043e\u0441\u0438\u0442\u0435 \u0443 \u0411\u043e\u0431\u043e \u043f\u043e\u0434\u0441\u043a\u0430\u0437\u043a\u0443 \u0438\u043b\u0438 \u043e\u0431\u044a\u044f\u0441\u043d\u0435\u043d\u0438\u0435',
     },
+    'Give me a hint': {
+      'fr': 'Donne-moi un indice',
+      'es': 'Dame una pista',
+      'hi':
+          '\u092e\u0941\u091d\u0947 \u090f\u0915 \u0938\u0902\u0915\u0947\u0924 \u0926\u094b',
+      'ru':
+          '\u0414\u0430\u0439 \u043c\u043d\u0435 \u043f\u043e\u0434\u0441\u043a\u0430\u0437\u043a\u0443',
+    },
+    'Ask me a guiding question': {
+      'fr': 'Pose-moi une question pour me guider',
+      'es': 'Hazme una pregunta que me guíe',
+      'hi':
+          '\u092e\u0941\u091d\u0947 \u0930\u093e\u0939 \u0926\u093f\u0916\u093e\u0928\u0947 \u0935\u093e\u0932\u093e \u0938\u0935\u093e\u0932 \u092a\u0942\u091b\u094b',
+      'ru':
+          '\u0417\u0430\u0434\u0430\u0439 \u043c\u043d\u0435 \u043d\u0430\u0432\u043e\u0434\u044f\u0449\u0438\u0439 \u0432\u043e\u043f\u0440\u043e\u0441',
+    },
+    'Explain this more simply': {
+      'fr': 'Explique plus simplement',
+      'es': 'Explícalo más sencillo',
+      'hi':
+          '\u0907\u0938\u0947 \u0914\u0930 \u0906\u0938\u093e\u0928 \u092d\u093e\u0937\u093e \u092e\u0947\u0902 \u0938\u092e\u091d\u093e\u0913',
+      'ru':
+          '\u041e\u0431\u044a\u044f\u0441\u043d\u0438 \u043f\u0440\u043e\u0449\u0435',
+    },
+    "I'm completely lost": {
+      'fr': 'Je suis complètement perdu',
+      'es': 'Estoy completamente perdido',
+      'hi':
+          '\u092e\u0948\u0902 \u092c\u093f\u0932\u094d\u0915\u0941\u0932 \u092d\u091f\u0915 \u0917\u092f\u093e \u0939\u0942\u0901',
+      'ru':
+          '\u042f \u0441\u043e\u0432\u0441\u0435\u043c \u0437\u0430\u043f\u0443\u0442\u0430\u043b\u0441\u044f',
+    },
+    'Why was my answer wrong?': {
+      'fr': 'Pourquoi ma réponse était-elle fausse ?',
+      'es': '¿Por qué mi respuesta fue incorrecta?',
+      'hi':
+          '\u092e\u0947\u0930\u093e \u0909\u0924\u094d\u0924\u0930 \u0917\u0932\u0924 \u0915\u094d\u092f\u094b\u0902 \u0925\u093e?',
+      'ru':
+          '\u041f\u043e\u0447\u0435\u043c\u0443 \u043c\u043e\u0439 \u043e\u0442\u0432\u0435\u0442 \u0431\u044b\u043b \u043d\u0435\u0432\u0435\u0440\u043d\u044b\u043c?',
+    },
+    'Help me understand': {
+      'fr': 'Aide-moi à comprendre',
+      'es': 'Ayúdame a entender',
+      'hi':
+          '\u092e\u0941\u091d\u0947 \u0938\u092e\u091d\u0928\u0947 \u092e\u0947\u0902 \u092e\u0926\u0926 \u0915\u0930\u094b',
+      'ru':
+          '\u041f\u043e\u043c\u043e\u0433\u0438 \u043c\u043d\u0435 \u0440\u0430\u0437\u043e\u0431\u0440\u0430\u0442\u044c\u0441\u044f',
+    },
+    'Try another explanation': {
+      'fr': 'Essaie une autre explication',
+      'es': 'Prueba otra explicación',
+      'hi':
+          '\u0915\u094b\u0908 \u0914\u0930 \u0924\u0930\u0940\u0915\u093e \u0938\u092e\u091d\u093e\u0913',
+      'ru':
+          '\u041f\u043e\u043f\u0440\u043e\u0431\u0443\u0439 \u0434\u0440\u0443\u0433\u043e\u0435 \u043e\u0431\u044a\u044f\u0441\u043d\u0435\u043d\u0438\u0435',
+    },
+    'Explain this': {
+      'fr': 'Explique ceci',
+      'es': 'Explica esto',
+      'hi': '\u0907\u0938\u0947 \u0938\u092e\u091d\u093e\u0913',
+      'ru': '\u041e\u0431\u044a\u044f\u0441\u043d\u0438 \u044d\u0442\u043e',
+    },
+    'Give me an example': {
+      'fr': 'Donne-moi un exemple',
+      'es': 'Dame un ejemplo',
+      'hi':
+          '\u092e\u0941\u091d\u0947 \u090f\u0915 \u0909\u0926\u093e\u0939\u0930\u0923 \u0926\u094b',
+      'ru':
+          '\u041f\u0440\u0438\u0432\u0435\u0434\u0438 \u043f\u0440\u0438\u043c\u0435\u0440',
+    },
+    'Go deeper': {
+      'fr': 'Approfondis',
+      'es': 'Profundiza',
+      'hi':
+          '\u0914\u0930 \u0917\u0939\u0930\u093e\u0908 \u0938\u0947 \u0938\u092e\u091d\u093e\u0913',
+      'ru':
+          '\u0420\u0430\u0437\u0431\u0435\u0440\u0438 \u043f\u043e\u0434\u0440\u043e\u0431\u043d\u0435\u0435',
+    },
+    'Quiz me': {
+      'fr': 'Fais-moi un quiz',
+      'es': 'Hazme una pregunta',
+      'hi':
+          '\u041c\u0435\u0440\u0430 \u091b\u094b\u091f\u093e \u0915\u094d\u0935\u093f\u091c\u093c \u0932\u094b',
+      'ru':
+          '\u0417\u0430\u0434\u0430\u0439 \u043c\u043d\u0435 \u0432\u043e\u043f\u0440\u043e\u0441',
+    },
     'Bobo is thinking…': {
       'fr': 'Bobo réfléchit…',
       'es': 'Bobo está pensando…',

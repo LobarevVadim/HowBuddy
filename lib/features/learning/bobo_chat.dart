@@ -9,8 +9,14 @@ Future<void> showBoboChatSheet(
   BuildContext context, {
   required String lessonTitle,
   required int? exerciseIndex,
+  required bool answerSubmitted,
+  required bool answerCorrect,
   required Future<BoboConversation> Function() onOpen,
-  required Future<String> Function(String conversationId, String message)
+  required Future<String> Function(
+    String conversationId,
+    String message,
+    String? teachingAction,
+  )
   onSend,
   required Future<BoboConversation> Function(String conversationId) onClear,
 }) {
@@ -28,6 +34,8 @@ Future<void> showBoboChatSheet(
           child: _BoboChatPanel(
             lessonTitle: lessonTitle,
             exerciseIndex: exerciseIndex,
+            answerSubmitted: answerSubmitted,
+            answerCorrect: answerCorrect,
             onOpen: onOpen,
             onSend: onSend,
             onClear: onClear,
@@ -84,6 +92,8 @@ class _BoboChatPanel extends StatefulWidget {
   const _BoboChatPanel({
     required this.lessonTitle,
     required this.exerciseIndex,
+    required this.answerSubmitted,
+    required this.answerCorrect,
     required this.onOpen,
     required this.onSend,
     required this.onClear,
@@ -91,8 +101,15 @@ class _BoboChatPanel extends StatefulWidget {
 
   final String lessonTitle;
   final int? exerciseIndex;
+  final bool answerSubmitted;
+  final bool answerCorrect;
   final Future<BoboConversation> Function() onOpen;
-  final Future<String> Function(String conversationId, String message) onSend;
+  final Future<String> Function(
+    String conversationId,
+    String message,
+    String? teachingAction,
+  )
+  onSend;
   final Future<BoboConversation> Function(String conversationId) onClear;
 
   @override
@@ -121,8 +138,8 @@ class _BoboChatPanelState extends State<_BoboChatPanel> {
     super.dispose();
   }
 
-  Future<void> _send() async {
-    final message = _inputController.text.trim();
+  Future<void> _send({String? action, String? presetMessage}) async {
+    final message = (presetMessage ?? _inputController.text).trim();
     final conversationId = _conversationId;
     if (message.isEmpty ||
         _isSending ||
@@ -139,7 +156,7 @@ class _BoboChatPanelState extends State<_BoboChatPanel> {
     });
     _scrollToEnd();
     try {
-      final reply = await widget.onSend(conversationId, message);
+      final reply = await widget.onSend(conversationId, message, action);
       if (!mounted) return;
       setState(() {
         _turns.add(BoboChatTurn(role: 'assistant', content: reply));
@@ -384,6 +401,28 @@ class _BoboChatPanelState extends State<_BoboChatPanel> {
                     ),
                     const SizedBox(height: 12),
                     for (final turn in _turns) _BoboMessageBubble(turn: turn),
+                    if (!_isSending) ...[
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: _quickActions()
+                            .map(
+                              (entry) => ActionChip(
+                                label: Text(uiText(context, entry.$1)),
+                                onPressed:
+                                    _isLoadingConversation ||
+                                        _conversationId == null
+                                    ? null
+                                    : () => _send(
+                                        action: entry.$2,
+                                        presetMessage: entry.$1,
+                                      ),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                    ],
                     if (_isSending)
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 12),
@@ -479,6 +518,31 @@ class _BoboChatPanelState extends State<_BoboChatPanel> {
     'unauthorized' => 'Please sign in again to use Bobo.',
     _ => 'Bobo is having trouble connecting. Please try again in a moment.',
   };
+
+  List<(String, String)> _quickActions() {
+    if (widget.exerciseIndex == null) {
+      return [
+        ('Explain this', 'explain'),
+        ('Give me an example', 'example'),
+        ('Go deeper', 'deeper'),
+        ('Quiz me', 'quiz'),
+      ];
+    }
+    if (widget.answerSubmitted && !widget.answerCorrect) {
+      return [
+        ('Why was my answer wrong?', 'whyWrong'),
+        ('Help me understand', 'helpUnderstand'),
+        ('Try another explanation', 'anotherExplanation'),
+        ('Explain this more simply', 'simplify'),
+      ];
+    }
+    return [
+      ('Give me a hint', 'giveHint'),
+      ('Ask me a guiding question', 'guidingQuestion'),
+      ('Explain this more simply', 'simplify'),
+      ("I'm completely lost", 'lost'),
+    ];
+  }
 }
 
 class _BoboMessageBubble extends StatelessWidget {

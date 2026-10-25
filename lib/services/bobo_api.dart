@@ -67,6 +67,8 @@ class BoboTutorApi {
     required String lessonId,
     required int? exerciseIndex,
     required String studentAnswer,
+    required bool answerSubmitted,
+    String? teachingAction,
     required String message,
   }) async {
     final response = await http.post(
@@ -77,6 +79,8 @@ class BoboTutorApi {
         'lessonId': lessonId,
         'exerciseIndex': exerciseIndex,
         'studentAnswer': studentAnswer,
+        'answerSubmitted': answerSubmitted,
+        'teachingAction': ?teachingAction,
         'message': message,
       }),
     );

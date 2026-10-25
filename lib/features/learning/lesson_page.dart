@@ -312,16 +312,20 @@ class _LessonPageState extends State<LessonPage> {
       context,
       lessonTitle: widget.level.title,
       exerciseIndex: exerciseIndex,
+      answerSubmitted: hasActiveExercise && _answerWasCorrect != null,
+      answerCorrect: _answerWasCorrect == true,
       onOpen: () => api.openConversation(
         topicId: widget.topicId,
         lessonId: widget.level.id,
       ),
-      onSend: (conversationId, message) => api.sendMessage(
+      onSend: (conversationId, message, teachingAction) => api.sendMessage(
         conversationId: conversationId,
         topicId: widget.topicId,
         lessonId: widget.level.id,
         exerciseIndex: exerciseIndex,
         studentAnswer: hasActiveExercise ? _answerForBobo() : '',
+        answerSubmitted: hasActiveExercise && _answerWasCorrect != null,
+        teachingAction: teachingAction,
         message: message,
       ),
       onClear: (conversationId) async {

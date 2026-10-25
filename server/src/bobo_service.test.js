@@ -94,7 +94,13 @@ test('Bobo persists conversations and sends server-loaded lesson context to Resp
         ok: true,
         async json() {
           return {
-            output_text: 'A cell is alive because it carries out processes such as using energy.',
+            output_text: JSON.stringify({
+              message: 'A cell is alive because it carries out processes such as using energy.',
+              teachingMode: 'misconceptionCorrection', tutoringState: 'correctingMisconception',
+              hintLevel: 2, misconceptionDetected: false,
+              understandingDemonstrated: false, shouldReturnToExercise: false,
+              directExplanationRequested: false,
+            }),
             usage: {input_tokens: 120, output_tokens: 24},
           };
         },
@@ -119,6 +125,8 @@ test('Bobo persists conversations and sends server-loaded lesson context to Resp
   assert.ok(pool.queries.some(({sql}) => sql.includes('BEGIN')));
   assert.equal(providerBody.store, false);
   assert.equal(providerBody.model, 'gpt-5.6-luna');
+  assert.equal(providerBody.text.format.name, 'bobo_tutor_reply');
+  assert.ok(pool.queries.some(({sql}) => sql.includes('tutoring_state = $3::jsonb')));
   assert.equal(result.reply, 'A cell is alive because it carries out processes such as using energy.');
   assert.equal(result.remainingToday, 19);
   assert.equal(result.usage.inputTokens, 120);

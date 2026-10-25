@@ -1,5 +1,6 @@
 import {buildBoboLessonContext, formatBoboContext} from './bobo_context.js';
 import {BOBO_PROMPT_VERSION, BOBO_SYSTEM_PROMPT} from './bobo_prompt.js';
+import {createTutoringPlan, TEACHING_ACTIONS, tutorStateForStorage, tutoringDirective, validateTutorOutput} from './bobo_tutoring.js';
 
 const MAX_MESSAGE_CHARS = 1200;
 const MAX_HISTORY_MESSAGES = 10;
@@ -34,6 +35,11 @@ function validateRequest(body) {
   const studentAnswer = typeof body.studentAnswer === 'string'
     ? body.studentAnswer.slice(0, 2000)
     : '';
+  const answerSubmitted = body.answerSubmitted === true;
+  const teachingAction = body.teachingAction == null ? null : String(body.teachingAction);
+  if (teachingAction !== null && !TEACHING_ACTIONS.has(teachingAction)) {
+    throw new BoboError('invalid_teaching_action', 400);
+  }
 
   return {
     message,
@@ -41,6 +47,8 @@ function validateRequest(body) {
     lessonId,
     exerciseIndex,
     studentAnswer,
+    answerSubmitted,
+    teachingAction,
   };
 }
 
@@ -222,7 +230,7 @@ export function createBoboTutor({
       if (!validId(conversationId)) throw new BoboError('invalid_context', 400);
       const request = validateRequest(body);
       const conversationResult = await pool.query(
-        `SELECT topic_id, lesson_id FROM bobo_conversations
+        `SELECT topic_id, lesson_id, tutoring_state FROM bobo_conversations
          WHERE id = $1 AND account_id = $2`,
         [conversationId, accountId],
       );
@@ -253,15 +261,18 @@ export function createBoboTutor({
           lessonId: conversation.lesson_id,
           exerciseIndex: request.exerciseIndex,
           studentAnswer: request.studentAnswer,
-          answerSubmitted: false,
+          answerSubmitted: request.answerSubmitted,
           answerCorrect: null,
           preferredLanguage,
           progressRows: progressResult.rows,
         });
-        if (context.activeExercise) {
+        if (context.activeExercise && request.answerSubmitted) {
           const answerStatus = gradeAnswer(context.activeExercise, request.studentAnswer);
           context.activeExercise.answerSubmitted = answerStatus.submitted;
           context.activeExercise.answerCorrect = answerStatus.correct;
+        } else if (context.activeExercise) {
+          context.activeExercise.answerSubmitted = false;
+          context.activeExercise.answerCorrect = null;
         }
       } catch (error) {
         if (error.status === 400 || error.status === 404) {
@@ -269,10 +280,25 @@ export function createBoboTutor({
         }
         throw error;
       }
+      const plan = createTutoringPlan({
+        exerciseKey: context.activeExercise ? `${conversation.lesson_id}:${request.exerciseIndex}` : null,
+        answerSubmitted: context.activeExercise?.answerSubmitted ?? false,
+        answerCorrect: context.activeExercise?.answerCorrect ?? null,
+        previousState: conversation.tutoring_state ?? {},
+        action: request.teachingAction,
+      });
+      context.tutoringPlan = {
+        mode: plan.mode,
+        state: plan.state,
+        hintLevel: plan.hintLevel,
+        previousState: plan.previousState,
+        allowDirectAnswer: plan.allowDirectAnswer,
+        action: plan.action,
+      };
       const contextInput = formatBoboContext(context);
       const historyResult = await pool.query(
         `SELECT role, content FROM (
-           SELECT role, content, created_at, id FROM bobo_messages
+           SELECT role, content, exercise_index, created_at, id FROM bobo_messages
            WHERE conversation_id = $1 ORDER BY created_at DESC, id DESC LIMIT $2
          ) recent ORDER BY created_at, id`,
         [conversationId, MAX_HISTORY_MESSAGES],
@@ -313,10 +339,30 @@ export function createBoboTutor({
           signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
           body: JSON.stringify({
             model,
-            instructions: BOBO_SYSTEM_PROMPT,
+            instructions: `${BOBO_SYSTEM_PROMPT}\n\nServer-selected tutoring strategy: ${tutoringDirective(plan)}`,
             input,
             max_output_tokens: MAX_OUTPUT_TOKENS,
             reasoning: {effort: 'low'},
+            text: {format: {
+              type: 'json_schema',
+              name: 'bobo_tutor_reply',
+              strict: true,
+              schema: {
+                type: 'object',
+                properties: {
+                  message: {type: 'string'},
+                  teachingMode: {type: 'string', enum: ['socratic', 'progressiveHint', 'conceptExplanation', 'misconceptionCorrection', 'deeperExploration', 'example', 'quiz']},
+                  tutoringState: {type: 'string', enum: ['diagnosing', 'guiding', 'hinting', 'correctingMisconception', 'explaining', 'checkingUnderstanding', 'completed']},
+                  hintLevel: {type: 'integer', minimum: 0, maximum: 4},
+                  misconceptionDetected: {type: 'boolean'},
+                  understandingDemonstrated: {type: 'boolean'},
+                  shouldReturnToExercise: {type: 'boolean'},
+                  directExplanationRequested: {type: 'boolean'},
+                },
+                required: ['message', 'teachingMode', 'tutoringState', 'hintLevel', 'misconceptionDetected', 'understandingDemonstrated', 'shouldReturnToExercise', 'directExplanationRequested'],
+                additionalProperties: false,
+              },
+            }},
             store: false,
           }),
         });
@@ -335,8 +381,18 @@ export function createBoboTutor({
       } catch (_error) {
         throw new BoboError('unavailable', 502);
       }
-      const replyText = outputText(result);
-      if (!replyText || replyText.length > 5000) throw new BoboError('empty_reply', 502);
+      const rawOutput = outputText(result);
+      if (!rawOutput || rawOutput.length > 5000) throw new BoboError('empty_reply', 502);
+      let parsedOutput;
+      try {
+        parsedOutput = JSON.parse(rawOutput);
+      } catch (_error) {
+        throw new BoboError('invalid_model_response', 502);
+      }
+      const validatedOutput = validateTutorOutput(parsedOutput, plan);
+      if (!validatedOutput) throw new BoboError('invalid_model_response', 502);
+      const replyText = validatedOutput.message;
+      const storedTutorState = tutorStateForStorage(validatedOutput, plan);
 
       const usage = result.usage ?? {};
       const inputTokens = Number(usage.input_tokens) || 0;
@@ -351,9 +407,9 @@ export function createBoboTutor({
           [conversationId, request.message, request.exerciseIndex, replyText, inputTokens, outputTokens],
         );
         await db.query(
-          `UPDATE bobo_conversations SET updated_at = now()
+          `UPDATE bobo_conversations SET tutoring_state = $3::jsonb, updated_at = now()
            WHERE id = $1 AND account_id = $2`,
-          [conversationId, accountId],
+          [conversationId, accountId, JSON.stringify(storedTutorState)],
         );
         await db.query(
           `UPDATE bobo_daily_usage
