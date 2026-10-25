@@ -110,7 +110,7 @@ class BoboLessonButton extends StatelessWidget {
                     child: Text(
                       '\u{1F512}',
                       style: TextStyle(
-                        fontSize: 47.5,
+                        fontSize: 34.2,
                         shadows: [Shadow(color: Colors.white, blurRadius: 3)],
                       ),
                     ),
