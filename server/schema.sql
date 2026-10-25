@@ -109,11 +109,8 @@ CREATE TABLE IF NOT EXISTS bobo_conversations (
   lesson_id TEXT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  tutoring_state JSONB NOT NULL DEFAULT '{"exerciseKey":null,"hintLevel":0,"state":"diagnosing","mode":"conceptExplanation","understandingSignal":false}'::jsonb,
   UNIQUE (account_id, topic_id, lesson_id)
 );
-ALTER TABLE bobo_conversations ADD COLUMN IF NOT EXISTS tutoring_state JSONB NOT NULL
-  DEFAULT '{"exerciseKey":null,"hintLevel":0,"state":"diagnosing","mode":"conceptExplanation","understandingSignal":false}'::jsonb;
 CREATE INDEX IF NOT EXISTS bobo_conversations_account_updated_idx
   ON bobo_conversations(account_id, updated_at DESC);
 
@@ -129,6 +126,22 @@ CREATE TABLE IF NOT EXISTS bobo_messages (
 );
 CREATE INDEX IF NOT EXISTS bobo_messages_conversation_created_idx
   ON bobo_messages(conversation_id, created_at DESC, id DESC);
+
+CREATE TABLE IF NOT EXISTS bobo_exercise_tutoring_state (
+  account_id UUID NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+  topic_id TEXT NOT NULL,
+  lesson_id TEXT NOT NULL,
+  exercise_index INTEGER NOT NULL CHECK (exercise_index >= 0),
+  student_answer TEXT CHECK (student_answer IS NULL OR char_length(student_answer) <= 2000),
+  answer_correct BOOLEAN,
+  attempt_count INTEGER NOT NULL DEFAULT 0 CHECK (attempt_count >= 0),
+  attempted_at TIMESTAMPTZ,
+  hint_level INTEGER NOT NULL DEFAULT 0 CHECK (hint_level BETWEEN 0 AND 4),
+  tutoring_mode TEXT NOT NULL DEFAULT 'socratic',
+  tutoring_state TEXT NOT NULL DEFAULT 'diagnosing',
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (account_id, topic_id, lesson_id, exercise_index)
+);
 
 ALTER TABLE lesson_xp DROP CONSTRAINT IF EXISTS lesson_xp_xp_check;
 ALTER TABLE lesson_xp ADD CONSTRAINT lesson_xp_xp_check CHECK (xp BETWEEN 1 AND 1000);

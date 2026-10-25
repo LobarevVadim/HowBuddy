@@ -32,10 +32,6 @@ function validateRequest(body) {
   if (exerciseIndex !== null && !Number.isInteger(exerciseIndex)) {
     throw new BoboError('invalid_context', 400);
   }
-  const studentAnswer = typeof body.studentAnswer === 'string'
-    ? body.studentAnswer.slice(0, 2000)
-    : '';
-  const answerSubmitted = body.answerSubmitted === true;
   const teachingAction = body.teachingAction == null ? null : String(body.teachingAction);
   if (teachingAction !== null && !TEACHING_ACTIONS.has(teachingAction)) {
     throw new BoboError('invalid_teaching_action', 400);
@@ -46,8 +42,6 @@ function validateRequest(body) {
     topicId,
     lessonId,
     exerciseIndex,
-    studentAnswer,
-    answerSubmitted,
     teachingAction,
   };
 }
@@ -78,7 +72,7 @@ function gradeAnswer(exercise, answer) {
     }
     case 'orderSteps':
     case 'buildTheProcess': {
-      const selected = answer.split(/\s*→\s*/).map(normalizeAnswer);
+      const selected = answer.split(/\s*\u2192\s*/u).map(normalizeAnswer);
       return {submitted: true, correct: JSON.stringify(selected) === JSON.stringify(correctOrder.map(normalizeAnswer))};
     }
     case 'matching':
@@ -127,6 +121,62 @@ function gradeAnswer(exercise, answer) {
   }
 }
 
+function isCompleteAttempt(exercise, answer) {
+  if (typeof answer !== 'string' || !answer.trim()) return false;
+  const options = (exercise.options ?? []).map(normalizeAnswer);
+  const correctOrder = exercise.correctOrder ?? [];
+  const splitSequence = () => answer.split(/\s*\u2192\s*/u).map((part) => part.trim());
+  switch (exercise.type) {
+    case 'singleChoice':
+    case 'trueFalse':
+    case 'spotTheMistake':
+    case 'scenarioBasedDecision':
+    case 'prediction':
+      return options.includes(normalizeAnswer(answer));
+    case 'multipleSelect': {
+      const selected = answer.split(',').map(normalizeAnswer).filter(Boolean);
+      return selected.length > 0 && selected.every((item) => options.includes(item));
+    }
+    case 'shortAnswer':
+      return answer.trim().length <= 2000;
+    case 'fillInTheBlank': {
+      const words = answer.split('|').map((part) => part.trim());
+      return words.length === correctOrder.length && words.every(Boolean);
+    }
+    case 'orderSteps':
+    case 'buildTheProcess': {
+      const steps = splitSequence();
+      return steps.length === correctOrder.length && steps.every(Boolean) &&
+        (options.length === 0 || steps.every((step) => options.includes(normalizeAnswer(step))));
+    }
+    case 'matching':
+    case 'categorization':
+    case 'causeAndEffect':
+    case 'compareAndContrast': {
+      const selected = new Map(answer.split(';').map((entry) => {
+        const separator = entry.indexOf(':');
+        return separator < 0 ? ['', ''] : [entry.slice(0, separator).trim(), entry.slice(separator + 1).trim()];
+      }));
+      const expected = (exercise.pairs ?? []).map((pair) => pair.left);
+      return expected.length > 0 && selected.size === expected.length &&
+        expected.every((key) => selected.has(key) && Boolean(selected.get(key)));
+    }
+    default:
+      return false;
+  }
+}
+
+function validLessonRequest(body) {
+  const topicId = typeof body.topicId === 'string' ? body.topicId.trim() : '';
+  const lessonId = typeof body.lessonId === 'string' ? body.lessonId.trim() : '';
+  const exerciseIndex = body.exerciseIndex;
+  if (!topicId || topicId.length > 120 || !/^lesson-\d{1,2}$/.test(lessonId) ||
+      !Number.isInteger(exerciseIndex) || exerciseIndex < 0) {
+    throw new BoboError('invalid_context', 400);
+  }
+  return {topicId, lessonId, exerciseIndex};
+}
+
 function outputText(responseBody) {
   if (typeof responseBody.output_text === 'string') return responseBody.output_text.trim();
   const parts = (responseBody.output ?? []).flatMap((item) => item.content ?? [])
@@ -150,6 +200,70 @@ export function createBoboTutor({
   fetchImpl = globalThis.fetch,
 }) {
   return {
+    async recordAttempt(accountId, body) {
+      const {topicId, lessonId, exerciseIndex} = validLessonRequest(body);
+      const answer = typeof body.studentAnswer === 'string' ? body.studentAnswer.trim() : '';
+      if (!answer || answer.length > 2000) throw new BoboError('invalid_answer', 400);
+      const accountResult = await pool.query(
+        'SELECT preferred_language FROM accounts WHERE id = $1',
+        [accountId],
+      );
+      if (!accountResult.rowCount) throw new BoboError('unauthorized', 401);
+      let context;
+      try {
+        context = buildBoboLessonContext({
+          content: getLessonContent(accountResult.rows[0].preferred_language ?? 'en'),
+          topicId,
+          lessonId,
+          exerciseIndex,
+          studentAnswer: answer,
+          answerSubmitted: false,
+          answerCorrect: null,
+          preferredLanguage: accountResult.rows[0].preferred_language ?? 'en',
+          progressRows: [],
+        });
+      } catch (error) {
+        if (error.status === 400 || error.status === 404) throw new BoboError('invalid_context', 400);
+        throw error;
+      }
+      if (!context.activeExercise || !isCompleteAttempt(context.activeExercise, answer)) {
+        throw new BoboError('invalid_answer', 400);
+      }
+      const result = gradeAnswer(context.activeExercise, answer);
+      if (!result.submitted) throw new BoboError('invalid_answer', 400);
+      await pool.query(
+        `INSERT INTO bobo_exercise_tutoring_state
+           (account_id, topic_id, lesson_id, exercise_index, student_answer,
+            answer_correct, attempt_count, attempted_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, 1, now(), now())
+         ON CONFLICT (account_id, topic_id, lesson_id, exercise_index)
+         DO UPDATE SET student_answer = EXCLUDED.student_answer,
+           answer_correct = EXCLUDED.answer_correct,
+           attempt_count = bobo_exercise_tutoring_state.attempt_count + 1,
+           attempted_at = now(), updated_at = now()`,
+        [accountId, topicId, lessonId, exerciseIndex, answer, result.correct],
+      );
+      return {recorded: true};
+    },
+
+    async getAttemptedExercises(accountId, body) {
+      const topicId = typeof body.topicId === 'string' ? body.topicId.trim() : '';
+      const lessonId = typeof body.lessonId === 'string' ? body.lessonId.trim() : '';
+      if (!topicId || topicId.length > 120 || !/^lesson-\d{1,2}$/.test(lessonId)) {
+        throw new BoboError('invalid_context', 400);
+      }
+      const result = await pool.query(
+        `SELECT exercise_index, answer_correct FROM bobo_exercise_tutoring_state
+         WHERE account_id = $1 AND topic_id = $2 AND lesson_id = $3
+           AND attempted_at IS NOT NULL ORDER BY exercise_index`,
+        [accountId, topicId, lessonId],
+      );
+      return {attemptedExercises: result.rows.map((row) => ({
+        exerciseIndex: Number(row.exercise_index),
+        correct: typeof row.answer_correct === 'boolean' ? row.answer_correct : null,
+      }))};
+    },
+
     async openConversation(accountId, body) {
       const topicId = typeof body.topicId === 'string' ? body.topicId.trim() : '';
       const lessonId = typeof body.lessonId === 'string' ? body.lessonId.trim() : '';
@@ -230,7 +344,7 @@ export function createBoboTutor({
       if (!validId(conversationId)) throw new BoboError('invalid_context', 400);
       const request = validateRequest(body);
       const conversationResult = await pool.query(
-        `SELECT topic_id, lesson_id, tutoring_state FROM bobo_conversations
+        `SELECT topic_id, lesson_id FROM bobo_conversations
          WHERE id = $1 AND account_id = $2`,
         [conversationId, accountId],
       );
@@ -260,31 +374,55 @@ export function createBoboTutor({
           topicId: conversation.topic_id,
           lessonId: conversation.lesson_id,
           exerciseIndex: request.exerciseIndex,
-          studentAnswer: request.studentAnswer,
-          answerSubmitted: request.answerSubmitted,
+          studentAnswer: '',
+          answerSubmitted: false,
           answerCorrect: null,
           preferredLanguage,
           progressRows: progressResult.rows,
         });
-        if (context.activeExercise && request.answerSubmitted) {
-          const answerStatus = gradeAnswer(context.activeExercise, request.studentAnswer);
-          context.activeExercise.answerSubmitted = answerStatus.submitted;
-          context.activeExercise.answerCorrect = answerStatus.correct;
-        } else if (context.activeExercise) {
-          context.activeExercise.answerSubmitted = false;
-          context.activeExercise.answerCorrect = null;
-        }
       } catch (error) {
         if (error.status === 400 || error.status === 404) {
           throw new BoboError('invalid_context', 400);
         }
         throw error;
       }
+      let exerciseState = null;
+      if (context.activeExercise) {
+        const stateResult = await pool.query(
+          `SELECT student_answer, answer_correct, attempted_at, hint_level,
+                  tutoring_mode, tutoring_state
+           FROM bobo_exercise_tutoring_state
+           WHERE account_id = $1 AND topic_id = $2 AND lesson_id = $3 AND exercise_index = $4`,
+          [accountId, conversation.topic_id, conversation.lesson_id, request.exerciseIndex],
+        );
+        exerciseState = stateResult.rows[0] ?? null;
+        const hasAttempt = Boolean(exerciseState?.attempted_at);
+        if (!hasAttempt && request.teachingAction !== 'giveHint') {
+          throw new BoboError('attempt_required', 403);
+        }
+        context.activeExercise.submittedAnswer = hasAttempt ? exerciseState.student_answer : '';
+        context.activeExercise.answerSubmitted = hasAttempt;
+        context.activeExercise.answerCorrect = hasAttempt ? exerciseState.answer_correct : null;
+      } else {
+        const priorAttempt = await pool.query(
+          `SELECT count(*)::integer AS attempted_count FROM bobo_exercise_tutoring_state
+           WHERE account_id = $1 AND topic_id = $2 AND lesson_id = $3
+             AND attempted_at IS NOT NULL`,
+          [accountId, conversation.topic_id, conversation.lesson_id],
+        );
+        if (Number(priorAttempt.rows[0]?.attempted_count ?? 0) < context.lesson.exerciseCount) {
+          throw new BoboError('attempt_required', 403);
+        }
+      }
       const plan = createTutoringPlan({
         exerciseKey: context.activeExercise ? `${conversation.lesson_id}:${request.exerciseIndex}` : null,
         answerSubmitted: context.activeExercise?.answerSubmitted ?? false,
         answerCorrect: context.activeExercise?.answerCorrect ?? null,
-        previousState: conversation.tutoring_state ?? {},
+        previousState: exerciseState ? {
+          exerciseKey: `${conversation.lesson_id}:${request.exerciseIndex}`,
+          hintLevel: Number(exerciseState.hint_level) || 0,
+          state: exerciseState.tutoring_state,
+        } : {},
         action: request.teachingAction,
       });
       context.tutoringPlan = {
@@ -406,10 +544,25 @@ export function createBoboTutor({
            VALUES ($1, 'user', $2, $3, 0, 0), ($1, 'assistant', $4, $3, $5, $6)`,
           [conversationId, request.message, request.exerciseIndex, replyText, inputTokens, outputTokens],
         );
+        if (request.exerciseIndex !== null) {
+          await db.query(
+            `INSERT INTO bobo_exercise_tutoring_state
+               (account_id, topic_id, lesson_id, exercise_index, hint_level,
+                tutoring_mode, tutoring_state, updated_at)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, now())
+             ON CONFLICT (account_id, topic_id, lesson_id, exercise_index)
+             DO UPDATE SET hint_level = EXCLUDED.hint_level,
+               tutoring_mode = EXCLUDED.tutoring_mode,
+               tutoring_state = EXCLUDED.tutoring_state,
+               updated_at = now()`,
+            [accountId, conversation.topic_id, conversation.lesson_id, request.exerciseIndex,
+              storedTutorState.hintLevel, storedTutorState.mode, storedTutorState.state],
+          );
+        }
         await db.query(
-          `UPDATE bobo_conversations SET tutoring_state = $3::jsonb, updated_at = now()
+          `UPDATE bobo_conversations SET updated_at = now()
            WHERE id = $1 AND account_id = $2`,
-          [conversationId, accountId, JSON.stringify(storedTutorState)],
+          [conversationId, accountId],
         );
         await db.query(
           `UPDATE bobo_daily_usage

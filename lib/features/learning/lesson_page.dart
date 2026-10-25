@@ -4,6 +4,7 @@ import '../../app_style.dart';
 import '../../models/app_models.dart';
 import '../../services/auth_api.dart';
 import '../../services/bobo_api.dart';
+import '../../services/ui_translations.dart';
 import 'exercise_interactions.dart';
 import 'lesson_exercises.dart';
 import '../../services/theme_preferences.dart';
@@ -38,6 +39,8 @@ class _LessonPageState extends State<LessonPage> {
   int _exerciseIndex = 0;
   int _correctAnswers = 0;
   bool? _answerWasCorrect;
+  final Map<int, bool?> _attemptedExerciseResults = <int, bool?>{};
+  bool _isCheckingAnswer = false;
   bool _isCompleting = false;
   int? _earnedXp;
   bool _isLoadingExercises = true;
@@ -64,10 +67,22 @@ class _LessonPageState extends State<LessonPage> {
       if (lesson.exercises.isEmpty) {
         throw AuthException('No exercises are available for this lesson yet.');
       }
+      Map<int, bool?> attemptedExercises = <int, bool?>{};
+      try {
+        attemptedExercises = await BoboTutorApi().getAttemptedExercises(
+          topicId: widget.topicId,
+          lessonId: widget.level.id,
+        );
+      } catch (_) {
+        // A failed Bobo status lookup must not prevent the lesson itself loading.
+      }
       if (!mounted) return;
       _startedAt = DateTime.now();
       setState(() {
         _exercises = lesson.exercises;
+        _attemptedExerciseResults
+          ..clear()
+          ..addAll(attemptedExercises);
         _lessonContent = lesson.content;
         _orderedAnswers =
             lesson.exercises.first.type == LessonExerciseType.orderSteps
@@ -161,8 +176,8 @@ class _LessonPageState extends State<LessonPage> {
     });
   }
 
-  void _checkAnswer() {
-    if (!_hasAnswer || _isSummary) {
+  Future<void> _checkAnswer() async {
+    if (!_hasAnswer || _isSummary || _isCheckingAnswer) {
       return;
     }
 
@@ -203,11 +218,49 @@ class _LessonPageState extends State<LessonPage> {
             ),
     };
 
+    setState(() => _isCheckingAnswer = true);
+    try {
+      await BoboTutorApi().recordAttempt(
+        topicId: widget.topicId,
+        lessonId: widget.level.id,
+        exerciseIndex: _exerciseIndex,
+        studentAnswer: _answerForBobo(),
+      );
+    } on BoboApiException {
+      if (!mounted) return;
+      setState(() => _isCheckingAnswer = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            uiText(
+              context,
+              'Could not save this answer. Check your connection and try again.',
+            ),
+          ),
+        ),
+      );
+      return;
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _isCheckingAnswer = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            uiText(
+              context,
+              'Could not save this answer. Check your connection and try again.',
+            ),
+          ),
+        ),
+      );
+      return;
+    }
+    if (!mounted) return;
     setState(() {
+      _isCheckingAnswer = false;
+      _attemptedExerciseResults[_exerciseIndex] = isCorrect;
       _answerWasCorrect = isCorrect;
-      if (isCorrect) {
-        _correctAnswers++;
-      }
+      if (isCorrect) _correctAnswers++;
     });
   }
 
@@ -307,13 +360,26 @@ class _LessonPageState extends State<LessonPage> {
   void _openBobo() {
     final hasActiveExercise = !_isSummary && _exercises.isNotEmpty;
     final exerciseIndex = hasActiveExercise ? _exerciseIndex : null;
+    if (hasActiveExercise &&
+        !_attemptedExerciseResults.containsKey(_exerciseIndex)) {
+      _showBoboLockedDialog();
+      return;
+    }
+    _openBoboChat(exerciseIndex: exerciseIndex);
+  }
+
+  void _openBoboChat({required int? exerciseIndex}) {
     final api = BoboTutorApi();
     showBoboChatSheet(
       context,
       lessonTitle: widget.level.title,
       exerciseIndex: exerciseIndex,
-      answerSubmitted: hasActiveExercise && _answerWasCorrect != null,
-      answerCorrect: _answerWasCorrect == true,
+      answerSubmitted:
+          exerciseIndex != null &&
+          _attemptedExerciseResults.containsKey(exerciseIndex),
+      answerCorrect: exerciseIndex == null
+          ? null
+          : _answerWasCorrect ?? _attemptedExerciseResults[exerciseIndex],
       onOpen: () => api.openConversation(
         topicId: widget.topicId,
         lessonId: widget.level.id,
@@ -323,8 +389,6 @@ class _LessonPageState extends State<LessonPage> {
         topicId: widget.topicId,
         lessonId: widget.level.id,
         exerciseIndex: exerciseIndex,
-        studentAnswer: hasActiveExercise ? _answerForBobo() : '',
-        answerSubmitted: hasActiveExercise && _answerWasCorrect != null,
         teachingAction: teachingAction,
         message: message,
       ),
@@ -336,6 +400,91 @@ class _LessonPageState extends State<LessonPage> {
         );
       },
     );
+  }
+
+  Future<void> _showBoboLockedDialog() async {
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(uiText(context, 'Bobo is locked')),
+        content: Text(
+          uiText(context, 'Try answering first, or get a hint! \u{1F49C}'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(uiText(context, 'Cancel')),
+          ),
+          FilledButton.icon(
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+              await _requestBoboHint(_exerciseIndex);
+            },
+            icon: const Icon(Icons.lightbulb_outline_rounded),
+            label: Text(uiText(context, 'Get a hint')),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _requestBoboHint(int exerciseIndex) async {
+    final api = BoboTutorApi();
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        content: Row(
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(width: 16),
+            Expanded(child: Text(uiText(context, 'Bobo is thinking...'))),
+          ],
+        ),
+      ),
+    );
+    try {
+      final conversation = await api.openConversation(
+        topicId: widget.topicId,
+        lessonId: widget.level.id,
+      );
+      final hint = await api.sendMessage(
+        conversationId: conversation.id,
+        topicId: widget.topicId,
+        lessonId: widget.level.id,
+        exerciseIndex: exerciseIndex,
+        teachingAction: 'giveHint',
+        message: 'Give me one Socratic hint for this exercise.',
+      );
+      if (!mounted) return;
+      Navigator.of(context, rootNavigator: true).pop();
+      await showDialog<void>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: Text(uiText(context, "Bobo's hint")),
+          content: SingleChildScrollView(child: Text(hint)),
+          actions: [
+            FilledButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(uiText(context, 'Back to lesson')),
+            ),
+          ],
+        ),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      Navigator.of(context, rootNavigator: true).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            uiText(
+              context,
+              'Bobo could not get a hint right now. Please try again.',
+            ),
+          ),
+        ),
+      );
+    }
   }
 
   Widget _buildProgress() {
@@ -471,18 +620,27 @@ class _LessonPageState extends State<LessonPage> {
               SizedBox(
                 height: AppSizes.primaryButtonHeight,
                 child: FilledButton(
-                  onPressed: _answerWasCorrect != null
+                  onPressed: _isCheckingAnswer
+                      ? null
+                      : _answerWasCorrect != null
                       ? _continueLesson
                       : _hasAnswer
                       ? _checkAnswer
                       : null,
-                  child: Text(
-                    _answerWasCorrect != null ? 'Continue' : 'Check answer',
-                    style: const TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
+                  child: _isCheckingAnswer
+                      ? const SizedBox.square(
+                          dimension: 22,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Text(
+                          _answerWasCorrect != null
+                              ? 'Continue'
+                              : 'Check answer',
+                          style: const TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
                 ),
               ),
             ],
@@ -493,7 +651,7 @@ class _LessonPageState extends State<LessonPage> {
   }
 
   Widget _buildInteraction(LessonExercise exercise) {
-    final locked = _answerWasCorrect != null;
+    final locked = _answerWasCorrect != null || _isCheckingAnswer;
     switch (exercise.type) {
       case LessonExerciseType.singleChoice:
       case LessonExerciseType.trueFalse:
@@ -842,7 +1000,12 @@ class _LessonPageState extends State<LessonPage> {
               bottom: 18,
               child: SafeArea(
                 top: false,
-                child: BoboLessonButton(onPressed: _openBobo),
+                child: BoboLessonButton(
+                  locked:
+                      !_isSummary &&
+                      !_attemptedExerciseResults.containsKey(_exerciseIndex),
+                  onPressed: _openBobo,
+                ),
               ),
             ),
         ],

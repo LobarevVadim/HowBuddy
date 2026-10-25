@@ -61,13 +61,51 @@ class BoboTutorApi {
     return BoboConversation.fromJson(_decode(response));
   }
 
+  Future<Map<int, bool?>> getAttemptedExercises({
+    required String topicId,
+    required String lessonId,
+  }) async {
+    final response = await http.get(
+      Uri.parse(
+        '$baseUrl/bobo/attempts',
+      ).replace(queryParameters: {'topicId': topicId, 'lessonId': lessonId}),
+      headers: ApiSession.authenticatedHeaders,
+    );
+    final body = _decode(response);
+    final exercises = body['attemptedExercises'] as List<dynamic>? ?? const [];
+    final result = <int, bool?>{};
+    for (final item in exercises) {
+      if (item is! Map<String, dynamic>) continue;
+      final index = int.tryParse(item['exerciseIndex']?.toString() ?? '');
+      if (index != null) result[index] = item['correct'] as bool?;
+    }
+    return result;
+  }
+
+  Future<void> recordAttempt({
+    required String topicId,
+    required String lessonId,
+    required int exerciseIndex,
+    required String studentAnswer,
+  }) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/bobo/attempts'),
+      headers: ApiSession.authenticatedHeaders,
+      body: jsonEncode({
+        'topicId': topicId,
+        'lessonId': lessonId,
+        'exerciseIndex': exerciseIndex,
+        'studentAnswer': studentAnswer,
+      }),
+    );
+    _decode(response);
+  }
+
   Future<String> sendMessage({
     required String conversationId,
     required String topicId,
     required String lessonId,
     required int? exerciseIndex,
-    required String studentAnswer,
-    required bool answerSubmitted,
     String? teachingAction,
     required String message,
   }) async {
@@ -78,8 +116,6 @@ class BoboTutorApi {
         'topicId': topicId,
         'lessonId': lessonId,
         'exerciseIndex': exerciseIndex,
-        'studentAnswer': studentAnswer,
-        'answerSubmitted': answerSubmitted,
         'teachingAction': ?teachingAction,
         'message': message,
       }),

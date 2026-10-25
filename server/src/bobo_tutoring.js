@@ -47,6 +47,7 @@ export function createTutoringPlan({
   let plan;
   if (action) {
     plan = {...ACTION_PLANS[action]};
+    if (action === 'giveHint') plan.level = Math.min(4, previousLevel + 1);
   } else if (hasUnansweredExercise) {
     plan = {
       mode: previousLevel >= 3 ? 'conceptExplanation' : 'socratic',
@@ -120,7 +121,8 @@ export function validateTutorOutput(value, plan) {
   }
 
   const unanswered = plan.exerciseKey !== null && !plan.answerSubmitted;
-  const allowDirectAnswer = plan.allowDirectAnswer || value.directExplanationRequested;
+  const allowDirectAnswer = plan.allowDirectAnswer ||
+    (value.directExplanationRequested && plan.action !== 'giveHint');
   const hintLevel = unanswered
     ? Math.max(plan.previousHintLevel, Math.min(plan.hintLevel, value.hintLevel))
     : value.hintLevel;

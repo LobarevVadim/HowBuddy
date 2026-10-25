@@ -61,6 +61,69 @@ class UiTranslations {
   }
 
   static const Map<String, Map<String, String>> _strings = {
+    'Bobo is locked': {
+      'fr': 'Bobo est verrouillé',
+      'es': 'Bobo está bloqueado',
+      'hi': '\u092c\u094b\u092c\u094b \u0932\u0949\u0915 \u0939\u0948',
+      'ru':
+          '\u0411\u043e\u0431\u043e \u0437\u0430\u0431\u043b\u043e\u043a\u0438\u0440\u043e\u0432\u0430\u043d',
+    },
+    'Try answering first, or get a hint! \u{1F49C}': {
+      'fr': 'Essaie de répondre d’abord ou demande un indice ! \u{1F49C}',
+      'es': '¡Intenta responder primero o pide una pista! \u{1F49C}',
+      'hi':
+          '\u092a\u0939\u0932\u0947 \u091c\u0935\u093e\u092c \u0926\u0947\u0928\u0947 \u0915\u0940 \u0915\u094b\u0936\u093f\u0936 \u0915\u0930\u094b, \u092f\u093e \u0938\u0902\u0915\u0947\u0924 \u092e\u093e\u0902\u0917\u094b! \u{1F49C}',
+      'ru':
+          '\u0421\u043d\u0430\u0447\u0430\u043b\u0430 \u043f\u043e\u043f\u0440\u043e\u0431\u0443\u0439 \u043e\u0442\u0432\u0435\u0442\u0438\u0442\u044c \u0438\u043b\u0438 \u043f\u043e\u043f\u0440\u043e\u0441\u0438 \u043f\u043e\u0434\u0441\u043a\u0430\u0437\u043a\u0443! \u{1F49C}',
+    },
+    'Get a hint': {
+      'fr': 'Obtenir un indice',
+      'es': 'Obtener una pista',
+      'hi': '\u0938\u0902\u0915\u0947\u0924 \u092a\u093e\u090f\u0902',
+      'ru':
+          '\u041f\u043e\u043b\u0443\u0447\u0438\u0442\u044c \u043f\u043e\u0434\u0441\u043a\u0430\u0437\u043a\u0443',
+    },
+    "Bobo's hint": {
+      'fr': 'Indice de Bobo',
+      'es': 'Pista de Bobo',
+      'hi':
+          '\u092c\u094b\u092c\u094b \u0915\u093e \u0938\u0902\u0915\u0947\u0924',
+      'ru':
+          '\u041f\u043e\u0434\u0441\u043a\u0430\u0437\u043a\u0430 \u0411\u043e\u0431\u043e',
+    },
+    'Back to lesson': {
+      'fr': 'Retour à la leçon',
+      'es': 'Volver a la lección',
+      'hi':
+          '\u092a\u093e\u0920 \u092a\u0930 \u0935\u093e\u092a\u0938 \u091c\u093e\u090f\u0902',
+      'ru':
+          '\u0412\u0435\u0440\u043d\u0443\u0442\u044c\u0441\u044f \u043a \u0443\u0440\u043e\u043a\u0443',
+    },
+    'Bobo is thinking...': {
+      'fr': 'Bobo réfléchit...',
+      'es': 'Bobo está pensando...',
+      'hi':
+          '\u092c\u094b\u092c\u094b \u0938\u094b\u091a \u0930\u0939\u093e \u0939\u0948...',
+      'ru': '\u0411\u043e\u0431\u043e \u0434\u0443\u043c\u0430\u0435\u0442...',
+    },
+    'Could not save this answer. Check your connection and try again.': {
+      'fr':
+          'Impossible d’enregistrer cette réponse. Vérifie ta connexion et réessaie.',
+      'es':
+          'No se pudo guardar la respuesta. Comprueba tu conexión e inténtalo de nuevo.',
+      'hi':
+          '\u0907\u0938 \u091c\u0935\u093e\u092c \u0915\u094b \u0938\u0939\u0947\u091c\u093e \u0928\u0939\u0940\u0902 \u091c\u093e \u0938\u0915\u093e\u0964 \u0915\u0928\u0947\u0915\u094d\u0936\u0928 \u091c\u093e\u0902\u091a\u0947\u0902 \u0914\u0930 \u092b\u093f\u0930 \u0915\u094b\u0936\u093f\u0936 \u0915\u0930\u0947\u0902\u0964',
+      'ru':
+          '\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0441\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c \u043e\u0442\u0432\u0435\u0442. \u041f\u0440\u043e\u0432\u0435\u0440\u044c \u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u0435 \u0438 \u043f\u043e\u043f\u0440\u043e\u0431\u0443\u0439 \u0441\u043d\u043e\u0432\u0430.',
+    },
+    'Bobo could not get a hint right now. Please try again.': {
+      'fr': 'Bobo ne peut pas donner d’indice maintenant. Réessaie.',
+      'es': 'Bobo no puede dar una pista ahora. Inténtalo de nuevo.',
+      'hi':
+          '\u092c\u094b\u092c\u094b \u0905\u092d\u0940 \u0938\u0902\u0915\u0947\u0924 \u0928\u0939\u0940\u0902 \u0926\u0947 \u0938\u0915\u0924\u093e\u0964 \u092b\u093f\u0930 \u0938\u0947 \u0915\u094b\u0936\u093f\u0936 \u0915\u0930\u0947\u0902\u0964',
+      'ru':
+          '\u0411\u043e\u0431\u043e \u043f\u043e\u043a\u0430 \u043d\u0435 \u043c\u043e\u0436\u0435\u0442 \u0434\u0430\u0442\u044c \u043f\u043e\u0434\u0441\u043a\u0430\u0437\u043a\u0443. \u041f\u043e\u043f\u0440\u043e\u0431\u0443\u0439 \u0435\u0449\u0451 \u0440\u0430\u0437.',
+    },
     'Ask Bobo': {
       'fr': 'Demander à Bobo',
       'es': 'Pregúntale a Bobo',

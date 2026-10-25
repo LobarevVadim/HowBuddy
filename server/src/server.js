@@ -951,6 +951,35 @@ app.post('/bobo/conversations', requireAuth, async (request, response) => {
   }
 });
 
+app.get('/bobo/attempts', requireAuth, async (request, response) => {
+  try {
+    return response.json(await boboTutor.getAttemptedExercises(request.accountId, request.query));
+  } catch (error) {
+    if (error instanceof BoboError) {
+      return response.status(error.status).json({code: error.code, message: 'Could not load Bobo attempt status.'});
+    }
+    console.error('Could not load Bobo attempt status:', error.message);
+    return response.status(500).json({code: 'unavailable', message: 'Could not load Bobo attempt status.'});
+  }
+});
+
+app.post('/bobo/attempts', requireAuth, async (request, response) => {
+  try {
+    return response.json(await boboTutor.recordAttempt(request.accountId, request.body ?? {}));
+  } catch (error) {
+    if (error instanceof BoboError) {
+      const messages = {
+        invalid_answer: 'Submit a complete answer before unlocking Bobo.',
+        invalid_context: 'The current exercise could not be verified.',
+        unauthorized: 'Please sign in again to continue.',
+      };
+      return response.status(error.status).json({code: error.code, message: messages[error.code] ?? 'Could not record this answer.'});
+    }
+    console.error('Could not record Bobo exercise attempt:', error.message);
+    return response.status(500).json({code: 'unavailable', message: 'Could not record this answer.'});
+  }
+});
+
 app.post('/bobo/conversations/:conversationId/messages', requireAuth, async (request, response) => {
   try {
     return response.json(await boboTutor.reply(
@@ -966,6 +995,8 @@ app.post('/bobo/conversations/:conversationId/messages', requireAuth, async (req
         daily_limit: 'You have reached today’s Bobo message limit. Try again tomorrow.',
         invalid_message: 'Please enter a message of up to 1,200 characters.',
         invalid_context: 'The current lesson could not be loaded. Reopen the lesson and try again.',
+        attempt_required: 'Submit an answer or request a hint before chatting with Bobo.',
+        invalid_teaching_action: 'That Bobo action is not available.',
         invalid_history: 'The conversation could not be continued. Start a new message.',
         unauthorized: 'Please sign in again to use Bobo.',
         conversation_not_found: 'This Bobo conversation could not be found.',

@@ -60,6 +60,23 @@ test('explicit explain action permits direct answer on unanswered exercise', () 
   assert.equal(plan.hintLevel, 4);
 });
 
+test('each pre-attempt hint advances per exercise and cannot switch to answer mode', () => {
+  const first = createTutoringPlan({exerciseKey: 'lesson:1', action: 'giveHint'});
+  const second = createTutoringPlan({
+    exerciseKey: 'lesson:1',
+    previousState: {...tutorStateForStorage(output(), first), hintLevel: 1},
+    action: 'giveHint',
+  });
+  assert.equal(first.hintLevel, 1);
+  assert.equal(second.hintLevel, 2);
+  assert.equal(second.allowDirectAnswer, false);
+  const validated = validateTutorOutput(output({
+    teachingMode: 'conceptExplanation',
+    directExplanationRequested: true,
+  }), second);
+  assert.equal(validated.teachingMode, 'progressiveHint');
+});
+
 test('submitted wrong answer selects misconception correction from trusted grade', () => {
   const plan = createTutoringPlan({exerciseKey: 'lesson:1', answerSubmitted: true, answerCorrect: false});
   assert.equal(plan.mode, 'misconceptionCorrection');

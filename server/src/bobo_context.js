@@ -127,6 +127,7 @@ export function buildBoboLessonContext({
       title: cleanText(lesson.question, 180) || cleanText(topic.question, 180),
       sequence: lessonNumber,
       publishedLessonsInTopic: lessons.length,
+      exerciseCount: lesson.exercises.length,
       content: cleanText(lesson.content, 4000),
       completed: completedForCurrentTopic.has(lessonId),
     },

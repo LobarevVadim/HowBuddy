@@ -10,7 +10,7 @@ Future<void> showBoboChatSheet(
   required String lessonTitle,
   required int? exerciseIndex,
   required bool answerSubmitted,
-  required bool answerCorrect,
+  required bool? answerCorrect,
   required Future<BoboConversation> Function() onOpen,
   required Future<String> Function(
     String conversationId,
@@ -47,16 +47,21 @@ Future<void> showBoboChatSheet(
 }
 
 class BoboLessonButton extends StatelessWidget {
-  const BoboLessonButton({required this.onPressed, super.key});
+  const BoboLessonButton({
+    required this.onPressed,
+    this.locked = false,
+    super.key,
+  });
 
   final VoidCallback onPressed;
+  final bool locked;
 
   @override
   Widget build(BuildContext context) => Semantics(
     button: true,
-    label: uiText(context, 'Ask Bobo'),
+    label: uiText(context, locked ? 'Bobo is locked' : 'Ask Bobo'),
     child: Tooltip(
-      message: uiText(context, 'Ask Bobo'),
+      message: uiText(context, locked ? 'Bobo is locked' : 'Ask Bobo'),
       child: Material(
         color: AppColors.inputBackground,
         shape: RoundedRectangleBorder(
@@ -70,17 +75,35 @@ class BoboLessonButton extends StatelessWidget {
           customBorder: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadii.button),
           ),
-          child: Container(
-            width: 62,
-            height: 62,
-            padding: const EdgeInsets.all(5),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppRadii.button),
-            ),
-            child: SvgPicture.asset(
-              'assets/icon/cropped_how_buddy.svg',
-              fit: BoxFit.contain,
-            ),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(AppRadii.button),
+                child: SvgPicture.asset(
+                  'assets/icon/cropped_how_buddy.svg',
+                  width: 62,
+                  height: 62,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              if (locked)
+                Positioned(
+                  right: 1,
+                  top: 1,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: AppColors.pageBackground,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: const Padding(
+                      padding: EdgeInsets.all(3),
+                      child: Icon(Icons.lock_rounded, size: 15),
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
       ),
@@ -102,7 +125,7 @@ class _BoboChatPanel extends StatefulWidget {
   final String lessonTitle;
   final int? exerciseIndex;
   final bool answerSubmitted;
-  final bool answerCorrect;
+  final bool? answerCorrect;
   final Future<BoboConversation> Function() onOpen;
   final Future<String> Function(
     String conversationId,
@@ -306,15 +329,19 @@ class _BoboChatPanelState extends State<_BoboChatPanel> {
               width: 48,
               height: 48,
               child: Container(
-                padding: const EdgeInsets.all(3),
                 decoration: BoxDecoration(
                   color: AppColors.inputBackground,
                   borderRadius: BorderRadius.circular(AppRadii.button),
                   border: Border.all(color: AppColors.border),
                 ),
-                child: SvgPicture.asset(
-                  'assets/icon/cropped_how_buddy.svg',
-                  fit: BoxFit.contain,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(AppRadii.button),
+                  child: SvgPicture.asset(
+                    'assets/icon/cropped_how_buddy.svg',
+                    width: 48,
+                    height: 48,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
             ),
@@ -528,7 +555,7 @@ class _BoboChatPanelState extends State<_BoboChatPanel> {
         ('Quiz me', 'quiz'),
       ];
     }
-    if (widget.answerSubmitted && !widget.answerCorrect) {
+    if (widget.answerSubmitted && widget.answerCorrect == false) {
       return [
         ('Why was my answer wrong?', 'whyWrong'),
         ('Help me understand', 'helpUnderstand'),
