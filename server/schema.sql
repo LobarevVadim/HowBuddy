@@ -91,6 +91,17 @@ CREATE TABLE IF NOT EXISTS lesson_progress (
   PRIMARY KEY (account_id, topic_id, lesson_id)
 );
 
+CREATE TABLE IF NOT EXISTS bobo_daily_usage (
+  account_id UUID NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+  usage_date DATE NOT NULL,
+  request_count INTEGER NOT NULL DEFAULT 0 CHECK (request_count >= 0),
+  estimated_tokens INTEGER NOT NULL DEFAULT 0 CHECK (estimated_tokens >= 0),
+  input_tokens INTEGER NOT NULL DEFAULT 0 CHECK (input_tokens >= 0),
+  output_tokens INTEGER NOT NULL DEFAULT 0 CHECK (output_tokens >= 0),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (account_id, usage_date)
+);
+
 ALTER TABLE lesson_xp DROP CONSTRAINT IF EXISTS lesson_xp_xp_check;
 ALTER TABLE lesson_xp ADD CONSTRAINT lesson_xp_xp_check CHECK (xp BETWEEN 1 AND 1000);
 

@@ -61,6 +61,72 @@ class UiTranslations {
   }
 
   static const Map<String, Map<String, String>> _strings = {
+    'Ask Bobo': {
+      'fr': 'Demander à Bobo',
+      'es': 'Pregúntale a Bobo',
+      'hi':
+          '\u092c\u094b\u092c\u094b \u0938\u0947 \u092a\u0942\u091b\u0947\u0902',
+      'ru':
+          '\u0421\u043f\u0440\u043e\u0441\u0438\u0442\u044c \u0411\u043e\u0431\u043e',
+    },
+    'Your biology study buddy': {
+      'fr': 'Ton compagnon pour apprendre la biologie',
+      'es': 'Tu compa\u00f1ero para aprender biolog\u00eda',
+      'hi':
+          '\u0924\u0941\u092e\u094d\u0939\u093e\u0930\u093e \u092c\u093e\u092f\u094b\u0932\u0949\u091c\u0940 \u0938\u0940\u0916\u0928\u0947 \u0915\u093e \u0938\u093e\u0925\u0940',
+      'ru':
+          '\u0422\u0432\u043e\u0439 \u043f\u043e\u043c\u043e\u0449\u043d\u0438\u043a \u0432 \u0438\u0437\u0443\u0447\u0435\u043d\u0438\u0438 \u0431\u0438\u043e\u043b\u043e\u0433\u0438\u0438',
+    },
+    "Hi! I'm Bobo. Ask me about the biology in this lesson, and we'll work through it together.": {
+      'fr':
+          'Salut ! Je suis Bobo. Pose-moi tes questions sur la biologie de cette leçon, et nous allons la comprendre ensemble.',
+      'es':
+          '\u00a1Hola! Soy Bobo. Preg\u00fantame sobre la biolog\u00eda de esta lecci\u00f3n y la entenderemos juntos.',
+      'hi':
+          '\u0928\u092e\u0938\u094d\u0924\u0947! \u092e\u0948\u0902 \u092c\u094b\u092c\u094b \u0939\u0942\u0901\u0964 \u0907\u0938 \u092a\u093e\u0920 \u0915\u0940 \u092c\u093e\u092f\u094b\u0932\u0949\u091c\u0940 \u0915\u0947 \u092c\u093e\u0930\u0947 \u092e\u0947\u0902 \u092a\u0942\u091b\u094b, \u0914\u0930 \u0939\u092e \u092e\u093f\u0932\u0915\u0930 \u0938\u092e\u091d\u0947\u0902\u0917\u0947\u0964',
+      'ru':
+          '\u041f\u0440\u0438\u0432\u0435\u0442! \u042f \u0411\u043e\u0431\u043e. \u0421\u043f\u0440\u0430\u0448\u0438\u0432\u0430\u0439 \u043c\u0435\u043d\u044f \u043e \u0431\u0438\u043e\u043b\u043e\u0433\u0438\u0438 \u0432 \u044d\u0442\u043e\u043c \u0443\u0440\u043e\u043a\u0435, \u0438 \u043c\u044b \u0440\u0430\u0437\u0431\u0435\u0440\u0451\u043c\u0441\u044f \u0432\u043c\u0435\u0441\u0442\u0435.',
+    },
+    "Bobo's AI chat isn't connected yet. We'll connect it securely through the HowBuddy server in the next step.": {
+      'fr':
+          'Le chat IA de Bobo n’est pas encore connecté. Nous le relierons de façon sécurisée au serveur HowBuddy à la prochaine étape.',
+      'es':
+          'El chat de IA de Bobo aún no está conectado. Lo conectaremos de forma segura al servidor de HowBuddy en el siguiente paso.',
+      'hi':
+          '\u092c\u094b\u092c\u094b \u0915\u0940 AI \u091a\u0948\u091f \u0905\u092d\u0940 \u091c\u0941\u0921\u093c\u0940 \u0928\u0939\u0940\u0902 \u0939\u0948\u0964 \u0905\u0917\u0932\u0947 \u0915\u0926\u092e \u092e\u0947\u0902 \u0939\u092e \u0907\u0938\u0947 HowBuddy \u0938\u0930\u094d\u0935\u0930 \u0938\u0947 \u0938\u0941\u0930\u0915\u094d\u0937\u093f\u0924 \u0924\u0930\u0940\u0915\u0947 \u0938\u0947 \u091c\u094b\u0921\u093c\u0947\u0902\u0917\u0947\u0964',
+      'ru':
+          '\u0427\u0430\u0442 \u0441 \u0411\u043e\u0431\u043e \u043f\u043e\u043a\u0430 \u043d\u0435 \u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0451\u043d. \u041d\u0430 \u0441\u043b\u0435\u0434\u0443\u044e\u0449\u0435\u043c \u044d\u0442\u0430\u043f\u0435 \u043c\u044b \u0431\u0435\u0437\u043e\u043f\u0430\u0441\u043d\u043e \u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0438\u043c \u0435\u0433\u043e \u0447\u0435\u0440\u0435\u0437 \u0441\u0435\u0440\u0432\u0435\u0440 HowBuddy.',
+    },
+    'Chat will be available soon': {
+      'fr': 'Le chat sera bientôt disponible',
+      'es': 'El chat estará disponible pronto',
+      'hi':
+          '\u091a\u0948\u091f \u091c\u0932\u094d\u0926 \u0909\u092a\u0932\u092c\u094d\u0927 \u0939\u094b\u0917\u0940',
+      'ru':
+          '\u0427\u0430\u0442 \u0441\u043a\u043e\u0440\u043e \u0431\u0443\u0434\u0435\u0442 \u0434\u043e\u0441\u0442\u0443\u043f\u0435\u043d',
+    },
+    'Send message': {
+      'fr': 'Envoyer le message',
+      'es': 'Enviar mensaje',
+      'hi': '\u0938\u0902\u0926\u0947\u0936 \u092d\u0947\u091c\u0947\u0902',
+      'ru':
+          '\u041e\u0442\u043f\u0440\u0430\u0432\u0438\u0442\u044c \u0441\u043e\u043e\u0431\u0449\u0435\u043d\u0438\u0435',
+    },
+    'Ask Bobo for a hint or explanation': {
+      'fr': 'Demander un indice ou une explication à Bobo',
+      'es': 'Pedir una pista o explicación a Bobo',
+      'hi':
+          '\u092c\u094b\u092c\u094b \u0938\u0947 \u0938\u0902\u0915\u0947\u0924 \u092f\u093e \u0935\u094d\u092f\u093e\u0916\u094d\u092f\u093e \u092e\u093e\u0902\u0917\u0947\u0902',
+      'ru':
+          '\u041f\u043e\u043f\u0440\u043e\u0441\u0438\u0442\u0435 \u0443 \u0411\u043e\u0431\u043e \u043f\u043e\u0434\u0441\u043a\u0430\u0437\u043a\u0443 \u0438\u043b\u0438 \u043e\u0431\u044a\u044f\u0441\u043d\u0435\u043d\u0438\u0435',
+    },
+    'Bobo is thinking…': {
+      'fr': 'Bobo réfléchit…',
+      'es': 'Bobo está pensando…',
+      'hi':
+          '\u092c\u094b\u092c\u094b \u0938\u094b\u091a \u0930\u0939\u093e \u0939\u0948…',
+      'ru': '\u0411\u043e\u0431\u043e \u0434\u0443\u043c\u0430\u0435\u0442…',
+    },
     'Choose your streak goal': {
       'fr': 'Choisissez votre objectif de série',
       'es': 'Elige tu objetivo de racha',

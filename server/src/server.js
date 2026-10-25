@@ -20,6 +20,7 @@ import {
   streakFreezeAlertDate,
 } from './streak_freeze_policy.js';
 import {createSupportInbox, verifyResendWebhook, SUPPORT_INBOXES} from './support_inbox.js';
+import {BoboError, createBoboTutor} from './bobo_service.js';
 
 dotenv.config();
 
@@ -60,6 +61,7 @@ const lessonContent = JSON.parse(
   readFileSync(new URL('../data/lesson_exercises.json', import.meta.url), 'utf8'),
 );
 const lessonContentByLanguage = new Map([['en', lessonContent]]);
+const boboTutor = createBoboTutor({pool, getLessonContent});
 
 function getLessonContent(language) {
   const code = ['fr', 'es', 'hi', 'ru'].includes(String(language))
@@ -929,6 +931,30 @@ app.get('/lessons/exercises', async (request, response) => {
   } catch (error) {
     console.error(error);
     return response.status(500).json({message: 'Could not load lesson exercises.'});
+  }
+});
+
+app.post('/bobo/chat', requireAuth, async (request, response) => {
+  try {
+    return response.json(await boboTutor.reply(request.accountId, request.body ?? {}));
+  } catch (error) {
+    if (error instanceof BoboError) {
+      const messages = {
+        disabled: 'Bobo is turned off right now.',
+        not_configured: 'Bobo is not configured yet.',
+        daily_limit: 'You have reached today’s Bobo message limit. Try again tomorrow.',
+        invalid_message: 'Please enter a message of up to 1,200 characters.',
+        invalid_context: 'The current lesson could not be loaded. Reopen the lesson and try again.',
+        invalid_history: 'The conversation could not be continued. Start a new message.',
+        unauthorized: 'Please sign in again to use Bobo.',
+        timeout: 'Bobo is taking too long to respond. Please try again.',
+        unavailable: 'Bobo is having trouble connecting. Please try again in a moment.',
+        empty_reply: 'Bobo could not create a reply. Please try again.',
+      };
+      return response.status(error.status).json({code: error.code, message: messages[error.code] ?? 'Bobo could not respond.'});
+    }
+    console.error('Could not build Bobo response:', error.message);
+    return response.status(500).json({code: 'unavailable', message: 'Bobo is having trouble connecting. Please try again in a moment.'});
   }
 });
 

@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import '../../app_style.dart';
 import '../../models/app_models.dart';
 import '../../services/auth_api.dart';
+import '../../services/bobo_api.dart';
 import 'exercise_interactions.dart';
 import 'lesson_exercises.dart';
 import '../../services/theme_preferences.dart';
+import 'bobo_chat.dart';
 
 class LessonPage extends StatefulWidget {
   const LessonPage({
@@ -275,6 +277,49 @@ class _LessonPageState extends State<LessonPage> {
 
   String _normalizeAnswer(String value) =>
       value.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
+
+  String _answerForBobo() {
+    if (_isSummary || _exercises.isEmpty) {
+      return '';
+    }
+    final type = _exercises[_exerciseIndex].type;
+    if (type == LessonExerciseType.shortAnswer) return _answerController.text;
+    if (type == LessonExerciseType.fillInTheBlank) {
+      return _blankAnswers.join(' | ');
+    }
+    if (type == LessonExerciseType.orderSteps) {
+      return _orderedAnswers.join(' → ');
+    }
+    if (type == LessonExerciseType.buildTheProcess) {
+      return _flowchartSlots.whereType<String>().join(' → ');
+    }
+    if (type == LessonExerciseType.matching ||
+        type == LessonExerciseType.categorization ||
+        type == LessonExerciseType.causeAndEffect ||
+        type == LessonExerciseType.compareAndContrast) {
+      return _selectedMatches.entries
+          .map((entry) => '${entry.key}: ${entry.value}')
+          .join('; ');
+    }
+    return _selectedAnswers.join(', ');
+  }
+
+  void _openBobo() {
+    final hasActiveExercise = !_isSummary && _exercises.isNotEmpty;
+    showBoboChatSheet(
+      context,
+      onSend: (message, history) => BoboTutorApi().sendMessage(
+        topicId: widget.topicId,
+        lessonId: widget.level.id,
+        exerciseIndex: hasActiveExercise ? _exerciseIndex : null,
+        studentAnswer: hasActiveExercise ? _answerForBobo() : '',
+        answerSubmitted: hasActiveExercise && _answerWasCorrect != null,
+        answerCorrect: hasActiveExercise ? _answerWasCorrect : null,
+        message: message,
+        history: history,
+      ),
+    );
+  }
 
   Widget _buildProgress() {
     final progress = _exercises.isEmpty
@@ -770,7 +815,21 @@ class _LessonPageState extends State<LessonPage> {
           child: _buildProgress(),
         ),
       ),
-      body: lessonBody,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          lessonBody,
+          if (_exercises.isNotEmpty && _exerciseLoadError == null)
+            Positioned(
+              right: 18,
+              bottom: 18,
+              child: SafeArea(
+                top: false,
+                child: BoboLessonButton(onPressed: _openBobo),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

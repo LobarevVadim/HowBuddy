@@ -68,6 +68,16 @@ services:
         sync: false
       - key: RESEND_INBOUND_WEBHOOK_SECRET
         sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-5.6-luna
+      - key: BOBO_ENABLED
+        value: false
+      - key: BOBO_DAILY_REQUEST_LIMIT
+        value: 20
+      - key: BOBO_DAILY_TOKEN_BUDGET
+        value: 30000
   - type: web
     name: howbuddy-support-admin
     runtime: static
