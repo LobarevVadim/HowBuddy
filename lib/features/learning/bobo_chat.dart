@@ -80,71 +80,37 @@ class BoboLessonButton extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(AppRadii.button),
-                child: ColorFiltered(
-                  colorFilter: ColorFilter.matrix(
-                    locked
-                        ? [
-                            0.8598,
-                            0.1174,
-                            0.0228,
-                            0,
-                            0,
-                            0.0598,
-                            0.9174,
-                            0.0228,
-                            0,
-                            0,
-                            0.0598,
-                            0.1174,
-                            0.8228,
-                            0,
-                            0,
-                            0,
-                            0,
-                            0,
-                            1,
-                            0,
-                          ]
-                        : [
-                            1,
-                            0,
-                            0,
-                            0,
-                            0,
-                            0,
-                            1,
-                            0,
-                            0,
-                            0,
-                            0,
-                            0,
-                            1,
-                            0,
-                            0,
-                            0,
-                            0,
-                            0,
-                            1,
-                            0,
-                          ],
-                  ),
-                  child: SvgPicture.asset(
-                    'assets/icon/cropped_how_buddy.svg',
-                    width: 62,
-                    height: 62,
-                    fit: BoxFit.cover,
-                  ),
+                child: Stack(
+                  children: [
+                    SvgPicture.asset(
+                      'assets/icon/cropped_how_buddy.svg',
+                      width: 62,
+                      height: 62,
+                      fit: BoxFit.cover,
+                    ),
+                    if (locked)
+                      Positioned.fill(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: Colors.grey.withValues(alpha: 0.7),
+                            borderRadius: BorderRadius.circular(
+                              AppRadii.button,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
               if (locked)
                 Positioned(
-                  right: 0,
-                  top: 0,
+                  right: -8,
+                  top: -9,
                   child: const IgnorePointer(
                     child: Text(
                       '\u{1F512}',
                       style: TextStyle(
-                        fontSize: 19,
+                        fontSize: 47.5,
                         shadows: [Shadow(color: Colors.white, blurRadius: 3)],
                       ),
                     ),
