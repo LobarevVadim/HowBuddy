@@ -41,19 +41,23 @@ class BoboLessonButton extends StatelessWidget {
       message: uiText(context, 'Ask Bobo'),
       child: Material(
         color: AppColors.inputBackground,
-        shape: const CircleBorder(),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadii.button),
+          side: BorderSide(color: AppColors.border, width: 1.5),
+        ),
         elevation: 7,
         shadowColor: Colors.black.withValues(alpha: 0.2),
         child: InkWell(
           onTap: onPressed,
-          customBorder: const CircleBorder(),
+          customBorder: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadii.button),
+          ),
           child: Container(
             width: 62,
             height: 62,
             padding: const EdgeInsets.all(5),
             decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.border, width: 1.5),
+              borderRadius: BorderRadius.circular(AppRadii.button),
             ),
             child: SvgPicture.asset(
               'assets/icon/cropped_how_buddy.svg',
@@ -146,9 +150,17 @@ class _BoboChatPanelState extends State<_BoboChatPanel> {
             SizedBox(
               width: 48,
               height: 48,
-              child: SvgPicture.asset(
-                'assets/icon/cropped_how_buddy.svg',
-                fit: BoxFit.contain,
+              child: Container(
+                padding: const EdgeInsets.all(3),
+                decoration: BoxDecoration(
+                  color: AppColors.inputBackground,
+                  borderRadius: BorderRadius.circular(AppRadii.button),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: SvgPicture.asset(
+                  'assets/icon/cropped_how_buddy.svg',
+                  fit: BoxFit.contain,
+                ),
               ),
             ),
             const SizedBox(width: 12),

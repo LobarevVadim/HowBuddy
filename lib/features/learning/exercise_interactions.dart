@@ -68,14 +68,20 @@ class _InlineFillBlankInteractionState
                 controller: _controllers[i],
                 enabled: !widget.locked,
                 textAlign: TextAlign.center,
+                maxLength: widget.wordLengths.elementAtOrNull(i),
                 onChanged: (_) => widget.onChanged(
                   _controllers.map((controller) => controller.text).toList(),
                 ),
                 decoration: InputDecoration(
-                  hintText: List.filled(
+                  helperText: List.filled(
                     widget.wordLengths.elementAtOrNull(i) ?? 5,
                     '_',
                   ).join(' '),
+                  helperStyle: TextStyle(
+                    color: AppColors.mutedText,
+                    letterSpacing: 1.5,
+                  ),
+                  counterText: '',
                   isDense: true,
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: 8,
