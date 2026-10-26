@@ -45,6 +45,170 @@ export async function listContentTopics(pool, language = 'en') {
   });
 }
 
+export async function getTopicForTranslation(pool, topicId, language) {
+  if (!LANGUAGES.includes(language)) throw new Error('Select a supported language.');
+  const topicResult = await pool.query(
+    `SELECT t.topic_id, t.level, tr.question, tr.tree_data
+     FROM content_topics t
+     JOIN content_topic_translations tr ON tr.topic_id = t.topic_id
+     WHERE t.topic_id = $1 AND t.visible_in_tree = true AND t.status = 'published'
+       AND tr.language_code = $2 AND tr.status = 'published'`, [topicId, language]);
+  if (!topicResult.rowCount) throw new Error('Choose a published topic in the selected language.');
+  const lessonResult = await pool.query(
+    `SELECT l.id, l.lesson_number, tr.material_topic_id, tr.title, tr.content
+     FROM content_lessons l
+     JOIN content_lesson_translations tr ON tr.lesson_id = l.id
+     WHERE l.topic_id = $1 AND tr.language_code = $2 AND tr.status = 'published'
+     ORDER BY l.lesson_number`, [topicId, language]);
+  const lessonIds = lessonResult.rows.map((lesson) => lesson.id);
+  const exerciseResult = lessonIds.length
+    ? await pool.query(
+        `SELECT id, lesson_id, position, exercise_type, exercise_json
+         FROM content_exercises WHERE lesson_id = ANY($1::uuid[])
+           AND language_code = $2 AND status = 'published'
+         ORDER BY lesson_id, position`, [lessonIds, language])
+    : {rows: []};
+  const exercisesByLesson = new Map();
+  for (const row of exerciseResult.rows) {
+    const items = exercisesByLesson.get(row.lesson_id) ?? [];
+    items.push({
+      id: row.id,
+      position: Number(row.position),
+      type: row.exercise_type,
+      payload: parseJson(row.exercise_json),
+    });
+    exercisesByLesson.set(row.lesson_id, items);
+  }
+  const topic = topicResult.rows[0];
+  return {
+    id: topic.topic_id,
+    level: Number(topic.level),
+    question: topic.question,
+    treeData: parseJson(topic.tree_data) ?? {},
+    lessons: lessonResult.rows.map((lesson) => ({
+      id: lesson.id,
+      lessonNumber: Number(lesson.lesson_number),
+      materialTopicId: lesson.material_topic_id,
+      title: lesson.title,
+      content: lesson.content,
+      exercises: exercisesByLesson.get(lesson.id) ?? [],
+    })),
+  };
+}
+
+export async function synchronizeTopicTranslations(pool, {topic, sourceLanguage, translationsByLanguage, accountId}) {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const lock = await client.query(
+      'SELECT topic_id FROM content_topics WHERE topic_id = $1 AND visible_in_tree = true FOR UPDATE',
+      [topic.id]);
+    if (!lock.rowCount) throw new Error('Topic not found.');
+    const lockedLessons = await client.query(
+      `SELECT l.id FROM content_lessons l
+       JOIN content_lesson_translations tr ON tr.lesson_id = l.id
+       WHERE l.topic_id = $1 AND tr.language_code = $2 AND tr.status = 'published'
+       ORDER BY l.lesson_number FOR UPDATE OF l`, [topic.id, sourceLanguage]);
+    const lockedLessonIds = lockedLessons.rows.map((row) => row.id).sort();
+    const sourceLessonIds = topic.lessons.map((lesson) => lesson.id).sort();
+    if (lockedLessonIds.length !== sourceLessonIds.length ||
+        lockedLessonIds.some((id, index) => id !== sourceLessonIds[index])) {
+      throw new Error('Topic lesson list changed during synchronization. Refresh the editor and retry.');
+    }
+    for (const language of LANGUAGES) {
+      if (language === sourceLanguage) continue;
+      const localized = translationsByLanguage?.[language];
+      if (!localized) throw new Error(`Translation is missing for ${language.toUpperCase()}.`);
+      const existingTopic = await client.query(
+        `SELECT tree_data FROM content_topic_translations
+         WHERE topic_id = $1 AND language_code = $2 FOR UPDATE`, [topic.id, language]);
+      const treeData = existingTopic.rowCount
+        ? parseJson(existingTopic.rows[0].tree_data) ?? {}
+        : topic.treeData;
+      await client.query(
+        `INSERT INTO content_topic_translations(topic_id, language_code, question, tree_data, status)
+         VALUES ($1, $2, $3, $4::jsonb, 'published')
+         ON CONFLICT (topic_id, language_code) DO UPDATE SET
+           question = EXCLUDED.question, status = 'published', updated_at = now()`,
+        [topic.id, language, localized.question, JSON.stringify(treeData)]);
+
+      for (const lesson of localized.lessons) {
+        const sourceLesson = topic.lessons.find((item) => item.id === lesson.id);
+        if (!sourceLesson) throw new Error('Topic lesson list changed during synchronization.');
+        const currentLesson = await client.query(
+          `SELECT material_topic_id, title, content FROM content_lesson_translations
+           WHERE lesson_id = $1 AND language_code = $2 FOR UPDATE`, [lesson.id, language]);
+        if (currentLesson.rowCount) {
+          await nextRevision(client, 'lesson', lesson.id, language, currentLesson.rows[0], accountId);
+        }
+        const materialTopicId = currentLesson.rows[0]?.material_topic_id ?? sourceLesson.materialTopicId;
+        if (materialTopicId !== topic.id) {
+          await client.query(
+            `INSERT INTO content_topic_translations(topic_id, language_code, question, tree_data, status)
+             VALUES ($1, $2, $3, $4::jsonb, 'published')
+             ON CONFLICT (topic_id, language_code) DO UPDATE SET
+               question = EXCLUDED.question, status = 'published', updated_at = now()`,
+            [materialTopicId, language, lesson.title, JSON.stringify({
+              parentId: null, level: topic.level + 1, children: [], lessonCount: 1,
+              extraLessons: [], metadata: {lessonMaterial: true},
+            })]);
+        }
+        await client.query(
+          `INSERT INTO content_lesson_translations
+            (lesson_id, language_code, material_topic_id, title, content, status)
+           VALUES ($1, $2, $3, $4, $5, 'published')
+           ON CONFLICT (lesson_id, language_code) DO UPDATE SET
+             material_topic_id = EXCLUDED.material_topic_id, title = EXCLUDED.title,
+             content = EXCLUDED.content, status = 'published', updated_at = now()`,
+          [lesson.id, language, materialTopicId, lesson.title, lesson.content]);
+
+        for (const exercise of lesson.exercises) {
+          validateExercisePayload(exercise.type, exercise.payload);
+          const current = await client.query(
+            `SELECT id, exercise_json FROM content_exercises
+             WHERE lesson_id = $1 AND language_code = $2 AND position = $3 FOR UPDATE`,
+            [lesson.id, language, exercise.position]);
+          if (current.rowCount) {
+            await nextRevision(client, 'exercise', current.rows[0].id, language,
+              parseJson(current.rows[0].exercise_json), accountId);
+            await client.query(
+              `UPDATE content_exercises SET exercise_type = $2, exercise_json = $3::jsonb,
+               status = 'published', updated_at = now() WHERE id = $1`,
+              [current.rows[0].id, exercise.type, JSON.stringify(exercise.payload)]);
+          } else {
+            await client.query(
+              `INSERT INTO content_exercises(lesson_id, language_code, position, exercise_type, exercise_json, status)
+               VALUES ($1, $2, $3, $4, $5::jsonb, 'published')`,
+              [lesson.id, language, exercise.position, exercise.type, JSON.stringify(exercise.payload)]);
+          }
+        }
+      }
+
+      const publishedLessons = await client.query(
+        `SELECT tr.material_topic_id FROM content_lessons l
+         JOIN content_lesson_translations tr ON tr.lesson_id = l.id
+         WHERE l.topic_id = $1 AND tr.language_code = $2 AND tr.status = 'published'
+         ORDER BY l.lesson_number`, [topic.id, language]);
+      const synchronizedTree = {
+        ...treeData,
+        lessonCount: Math.max(1, publishedLessons.rowCount),
+        extraLessons: publishedLessons.rows.slice(1).map((row) => row.material_topic_id),
+      };
+      await client.query(
+        `UPDATE content_topic_translations SET tree_data = $3::jsonb, updated_at = now()
+         WHERE topic_id = $1 AND language_code = $2`,
+        [topic.id, language, JSON.stringify(synchronizedTree)]);
+    }
+    await client.query('COMMIT');
+    return {published: true, languages: LANGUAGES};
+  } catch (error) {
+    await client.query('ROLLBACK').catch(() => {});
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
 export async function listContentLessons(pool, topicId, language = 'en') {
   const lang = LANGUAGES.includes(language) ? language : 'en';
   const result = await pool.query(

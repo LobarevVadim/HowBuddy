@@ -599,6 +599,46 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
     if (mounted) setState(() {});
   });
 
+  Future<void> _translateWholeTopic() async {
+    final topicId = _topicId;
+    if (topicId == null || _state?['translationConfigured'] != true) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Translate this whole topic?'),
+        content: Text(
+          'Use ${_language.toUpperCase()} as the source. Google Cloud Translation will translate the topic question and all published lessons and exercises into the other four languages. Existing matching translations will be replaced; review the results before learners use them.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton.icon(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            icon: const Icon(Icons.translate_rounded),
+            label: const Text('Translate whole topic'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    await _run(() async {
+      await widget.onRequest(
+        '/admin/content/topics/${Uri.encodeComponent(topicId)}/translate',
+        method: 'POST',
+        data: {'language': _language},
+      );
+      await _loadTopics();
+      if (mounted) {
+        setState(
+          () => _notice =
+              'Topic and its published lessons translated into all five languages.',
+        );
+      }
+    });
+  }
+
   Future<void> _changeLesson(String? value) => _run(() async {
     _lessonId = value;
     await _loadLesson();
@@ -753,6 +793,20 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
               )
               .toList(),
           onChanged: _busy ? null : _changeTopic,
+        ),
+        const SizedBox(height: 8),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: OutlinedButton.icon(
+            onPressed:
+                _busy ||
+                    _topicId == null ||
+                    _state?['translationConfigured'] != true
+                ? null
+                : _translateWholeTopic,
+            icon: const Icon(Icons.translate_rounded),
+            label: const Text('Translate whole topic to all 5'),
+          ),
         ),
         const SizedBox(height: 10),
         DropdownButtonFormField<String>(

@@ -25,6 +25,7 @@ import {
   createGoogleTranslationClient,
   translateExerciseToAllLanguages,
   translateLessonToAllLanguages,
+  translateTopicToAllLanguages,
 } from './google_translation.js';
 import {validateExercisePayload} from './normalized_lesson_content.js';
 import {
@@ -38,12 +39,14 @@ import {
   deleteExercise,
   deleteLesson,
   getContentLesson,
+  getTopicForTranslation,
   getContentAdminState,
   listContentRevisions,
   listContentLessons,
   listContentTopics,
   saveLesson,
   saveExercise,
+  synchronizeTopicTranslations,
   restoreContentRevision,
   supportedExerciseTypes,
 } from './content_admin.js';
@@ -347,6 +350,30 @@ app.get('/admin/content/topics', requireAuth, requireAdmin, async (request, resp
   } catch (error) {
     console.error('Could not list content topics:', error.message);
     return response.status(500).json({message: 'Could not load topics for the editor.'});
+  }
+});
+
+app.post('/admin/content/topics/:id/translate', requireAuth, requireAdmin, async (request, response) => {
+  try {
+    const language = String(request.body.language ?? 'en');
+    const topic = await getTopicForTranslation(pool, request.params.id, language);
+    const translationsByLanguage = await translateTopicToAllLanguages({
+      language,
+      topic,
+      translateStrings: googleTranslation.translateStrings,
+    });
+    const result = await synchronizeTopicTranslations(pool, {
+      topic,
+      sourceLanguage: language,
+      translationsByLanguage,
+      accountId: request.accountId,
+    });
+    await loadLessonContentCache(result.languages);
+    return response.json(result);
+  } catch (error) {
+    const status = /not configured/.test(error.message) ? 503 :
+      /Choose|Select|not found|missing|changed/.test(error.message) ? 400 : 502;
+    return response.status(status).json({message: error.message || 'Could not translate this topic.'});
   }
 });
 

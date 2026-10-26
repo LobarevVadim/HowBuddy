@@ -87,6 +87,68 @@ export async function translateExerciseToAllLanguages({language, payload, transl
   return translations;
 }
 
+export async function translateTopicToAllLanguages({language, topic, translateStrings}) {
+  validateSourceLanguage(language);
+  const exerciseText = new Map();
+  const sourceStrings = [String(topic.question ?? '')];
+  for (const lesson of topic.lessons ?? []) {
+    sourceStrings.push(String(lesson.title ?? ''), String(lesson.content ?? ''));
+    for (const exercise of lesson.exercises ?? []) {
+      let collected = [];
+      await translateExercisePayload(exercise.payload, language, language, async (strings) => {
+        collected = strings;
+        return strings;
+      });
+      exerciseText.set(exercise, collected);
+      sourceStrings.push(...collected);
+    }
+  }
+
+  const translations = {[language]: topic};
+  const targets = [...LANGUAGE_CODES].filter((target) => target !== language);
+  for (const target of targets) {
+    const translatedStrings = await translateStrings(sourceStrings, language, target);
+    if (!Array.isArray(translatedStrings) || translatedStrings.length !== sourceStrings.length ||
+        translatedStrings.some((item) => typeof item !== 'string')) {
+      throw new Error('Translation response did not include all topic content.');
+    }
+    let cursor = 0;
+    const localized = {
+      ...topic,
+      question: translatedStrings[cursor++],
+      lessons: [],
+    };
+    for (const lesson of topic.lessons ?? []) {
+      const localizedLesson = {
+        ...lesson,
+        title: translatedStrings[cursor++],
+        content: translatedStrings[cursor++],
+        exercises: [],
+      };
+      for (const exercise of lesson.exercises ?? []) {
+        const expectedStrings = exerciseText.get(exercise) ?? [];
+        let exerciseCursor = 0;
+        const payload = await translateExercisePayload(
+          exercise.payload, language, target,
+          async (strings) => {
+            const values = translatedStrings.slice(cursor, cursor + strings.length);
+            cursor += strings.length;
+            exerciseCursor += strings.length;
+            return values;
+          },
+        );
+        if (exerciseCursor !== expectedStrings.length) {
+          throw new Error('Could not preserve the translated exercise structure.');
+        }
+        localizedLesson.exercises.push({...exercise, payload});
+      }
+      localized.lessons.push(localizedLesson);
+    }
+    translations[target] = localized;
+  }
+  return translations;
+}
+
 export async function translateExercisePayload(payload, source, target, translateStrings) {
   const strings = [];
   const encode = (value, key = '') => {

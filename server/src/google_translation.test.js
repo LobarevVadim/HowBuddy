@@ -5,6 +5,7 @@ import {
   translateExercisePayload,
   translateExerciseToAllLanguages,
   translateLessonToAllLanguages,
+  translateTopicToAllLanguages,
 } from './google_translation.js';
 
 test('Google Basic Translation sends text to the configured API and maps returned strings', async () => {
@@ -85,4 +86,40 @@ test('Google HTTP errors never expose the API key', async () => {
     () => client.translateStrings(['hello'], 'en', 'ru'),
     (error) => error.message.includes('HTTP 403') && !error.message.includes('do-not-print-this'),
   );
+});
+
+test('whole-topic translation batches learner-facing text and preserves structure across all languages', async () => {
+  const topic = {
+    id: 'brain-topic',
+    question: 'Can you survive with half your brain?',
+    treeData: {children: ['child-topic'], lessonCount: 1},
+    lessons: [{
+      id: 'lesson-id', lessonNumber: 1, title: 'Brain basics', content: 'The brain has two halves.',
+      exercises: [{
+        id: 'exercise-id', position: 0, type: 'singleChoice',
+        payload: {
+          type: 'singleChoice', id: 'exercise-id', prompt: 'Which organ controls thought?',
+          options: ['brain', 'lung'], correctAnswers: ['brain'], explanation: 'The brain processes thoughts.',
+        },
+      }],
+    }],
+  };
+  const calls = [];
+  const translations = await translateTopicToAllLanguages({
+    language: 'en',
+    topic,
+    translateStrings: async (strings, source, target) => {
+      calls.push({strings, source, target});
+      return strings.map((value) => `${target}:${value}`);
+    },
+  });
+  assert.deepEqual(Object.keys(translations).sort(), ['en', 'es', 'fr', 'hi', 'ru']);
+  assert.equal(translations.en, topic);
+  assert.equal(translations.fr.question, 'fr:Can you survive with half your brain?');
+  assert.equal(translations.fr.lessons[0].content, 'fr:The brain has two halves.');
+  assert.equal(translations.fr.lessons[0].exercises[0].payload.type, 'singleChoice');
+  assert.equal(translations.fr.lessons[0].exercises[0].payload.correctAnswers[0], 'fr:brain');
+  assert.equal(translations.fr.lessons[0].exercises[0].payload.id, 'exercise-id');
+  assert.equal(calls.length, 4);
+  assert.equal(calls.every((call) => call.strings.length === 8), true);
 });

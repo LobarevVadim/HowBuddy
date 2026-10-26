@@ -12,6 +12,8 @@ Open the protected support admin app and choose **Content**. Select a language, 
 
 **Publish only [language]** changes only the chosen language. **Translate + publish all 5** keeps that source language and uses Google Cloud Translation to create the other four language versions. Exercise JSON structure and exercise type are preserved; learner-facing strings, including prompts, choices, accepted answers, and explanations, are translated. Review translations before learners use them.
 
+The **Translate whole topic to all 5** action translates the selected topic question plus every published lesson and exercise available in the selected source language. It replaces matching translations in the other four languages, creates missing translated entries, and preserves target-only content that is not present in the selected source language.
+
 ### Google Cloud Translation setup
 
 Set `GOOGLE_TRANSLATE_API_KEY` on the Render **API service** only. Enable the Cloud Translation API and billing in the Google Cloud project, then restrict the API key to Cloud Translation. The key is never sent to the Flutter app or admin web app. If this variable is absent, publishing to all five languages returns a clear configuration error; publishing to one language continues to work.
