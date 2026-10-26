@@ -10,7 +10,11 @@ On API startup, `content_schema.sql` creates/updates the normalized schema. Once
 
 Open the protected support admin app and choose **Content**. Select a language, topic, and lesson, edit the content, and publish. Publishing refreshes the API's in-memory content cache immediately; no redeploy is needed for new content.
 
-**Publish selected language** changes only the chosen language. **Publish all 5 languages** copies the current lesson or exercise text, answers, and explanation into English, French, Spanish, Hindi, and Russian. It does not translate text. Review and translate each language separately by selecting it in the language menu.
+**Publish only [language]** changes only the chosen language. **Translate + publish all 5** keeps that source language and uses Google Cloud Translation to create the other four language versions. Exercise JSON structure and exercise type are preserved; learner-facing strings, including prompts, choices, accepted answers, and explanations, are translated. Review translations before learners use them.
+
+### Google Cloud Translation setup
+
+Set `GOOGLE_TRANSLATE_API_KEY` on the Render **API service** only. Enable the Cloud Translation API and billing in the Google Cloud project, then restrict the API key to Cloud Translation. The key is never sent to the Flutter app or admin web app. If this variable is absent, publishing to all five languages returns a clear configuration error; publishing to one language continues to work.
 
 Deleting a lesson removes its exercises and revisions and compacts the remaining lesson order. Deleting an exercise removes it and its revision history. These actions are permanent.
 

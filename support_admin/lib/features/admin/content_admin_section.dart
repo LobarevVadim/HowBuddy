@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
 import '../../services/api_session.dart';
@@ -44,6 +46,7 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
   final _pairs = TextEditingController();
   final _paragraph = TextEditingController();
   final _categories = TextEditingController();
+  final _rawJson = TextEditingController();
   Map<String, dynamic>? _state;
   List<Map<String, dynamic>> _topics = [];
   List<Map<String, dynamic>> _lessons = [];
@@ -54,6 +57,7 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
   String _language = 'en';
   String _exerciseType = 'singleChoice';
   bool _busy = false;
+  bool _rawMode = false;
   String? _error;
   String? _notice;
 
@@ -75,6 +79,7 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
     _pairs.dispose();
     _paragraph.dispose();
     _categories.dispose();
+    _rawJson.dispose();
     super.dispose();
   }
 
@@ -159,6 +164,10 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
     _pairs.clear();
     _paragraph.clear();
     _categories.clear();
+    _rawMode = false;
+    _rawJson.text = const JsonEncoder.withIndent(
+      '  ',
+    ).convert(_exercisePayload());
   }
 
   List<String> _lines(String value) => value
@@ -233,7 +242,7 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
               ),
               const SizedBox(height: 10),
               const Text(
-                'Publishing to all five copies the same text; it does not translate it.',
+                'Translate the selected language into the other four before publishing.',
               ),
             ],
           ),
@@ -249,7 +258,7 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Publish to all 5'),
+            child: const Text('Translate + publish all 5'),
           ),
         ],
       ),
@@ -277,7 +286,7 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
       if (mounted)
         setState(
           () => _notice = allLanguages
-              ? 'Lesson published in all five language slots. The same text was copied; it was not translated.'
+              ? 'Translated and published in all five languages.'
               : 'Lesson published for ${_language.toUpperCase()}. Add its exercises.',
         );
     });
@@ -307,7 +316,7 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
       if (mounted)
         setState(
           () => _notice = allLanguages
-              ? 'Lesson published in all five language slots. The same text was copied; it was not translated.'
+              ? 'Translated and published in all five languages.'
               : 'Lesson published for ${_language.toUpperCase()}.',
         );
     });
@@ -320,17 +329,70 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
     setState(() {
       _exerciseId = exercise['id']?.toString();
       _exerciseType = exercise['type']?.toString() ?? 'singleChoice';
-      _prompt.text = payload['prompt']?.toString() ?? '';
-      _explanation.text = payload['explanation']?.toString() ?? '';
-      _options.text = _asLines(payload['options']);
-      _answers.text = _asLines(payload['correctAnswers']);
-      _order.text = _asLines(payload['correctOrder']);
-      _pairs.text = (payload['pairs'] as List<dynamic>? ?? [])
-          .map((pair) => '${pair['left']} => ${pair['right']}')
-          .join('\n');
-      _paragraph.text = (payload['paragraphParts'] as List<dynamic>? ?? [])
-          .join(' | ');
-      _categories.text = _asLines(payload['categories']);
+      _rawMode = false;
+      _populateExerciseFields(payload);
+    });
+  }
+
+  void _populateExerciseFields(Map<String, dynamic> payload) {
+    _exerciseType = payload['type']?.toString() ?? _exerciseType;
+    _prompt.text = payload['prompt']?.toString() ?? '';
+    _explanation.text = payload['explanation']?.toString() ?? '';
+    _options.text = _asLines(payload['options']);
+    _answers.text = _asLines(payload['correctAnswers']);
+    _order.text = _asLines(payload['correctOrder']);
+    _pairs.text = (payload['pairs'] as List<dynamic>? ?? [])
+        .map((pair) => '${pair['left']} => ${pair['right']}')
+        .join('\n');
+    _paragraph.text = (payload['paragraphParts'] as List<dynamic>? ?? []).join(
+      ' | ',
+    );
+    _categories.text = _asLines(payload['categories']);
+    _rawJson.text = const JsonEncoder.withIndent('  ').convert(payload);
+  }
+
+  Map<String, dynamic> _parseRawExercise() {
+    final decoded = jsonDecode(_rawJson.text);
+    if (decoded is! Map)
+      throw const FormatException('Exercise JSON must be an object.');
+    final payload = Map<String, dynamic>.from(decoded);
+    if (payload['type'] is! String)
+      throw const FormatException('Add a string "type" field to the JSON.');
+    return payload;
+  }
+
+  void _toggleRawMode(bool value) {
+    if (value == _rawMode) return;
+    try {
+      if (value) {
+        _rawJson.text = const JsonEncoder.withIndent(
+          '  ',
+        ).convert(_exercisePayload());
+      } else {
+        _populateExerciseFields(_parseRawExercise());
+      }
+      setState(() => _rawMode = value);
+    } catch (error) {
+      setState(
+        () => _error = error.toString().replaceFirst('FormatException: ', ''),
+      );
+    }
+  }
+
+  Future<void> _verifyRawExercise() async {
+    await _run(() async {
+      final payload = _parseRawExercise();
+      final type = payload['type'].toString();
+      final result = await widget.onRequest(
+        '/admin/content/exercises/validate',
+        method: 'POST',
+        data: {'exerciseType': type, 'payload': payload},
+      );
+      if (mounted)
+        setState(
+          () => _notice =
+              'JSON is valid for ${_exerciseNames[result['exerciseType']] ?? type}.',
+        );
     });
   }
 
@@ -340,7 +402,8 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
   Future<void> _saveExercise({required bool allLanguages}) async {
     if (_lessonId == null) return;
     await _run(() async {
-      final payload = _exercisePayload();
+      final payload = _rawMode ? _parseRawExercise() : _exercisePayload();
+      final exerciseType = payload['type']?.toString() ?? _exerciseType;
       final result = await widget.onRequest(
         '/admin/content/exercises/save',
         method: 'POST',
@@ -348,7 +411,7 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
           'lessonId': _lessonId,
           if (_exerciseId != null) 'exerciseId': _exerciseId,
           'language': _language,
-          'exerciseType': _exerciseType,
+          'exerciseType': exerciseType,
           'payload': payload,
           'allLanguages': allLanguages,
         },
@@ -363,7 +426,7 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
       if (mounted)
         setState(
           () => _notice = allLanguages
-              ? 'Exercise published in all five language slots. The same text was copied; it was not translated.'
+              ? 'Translated and published in all five languages.'
               : 'Exercise published for ${_language.toUpperCase()}.',
         );
     });
@@ -373,9 +436,9 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
       await showDialog<bool>(
         context: context,
         builder: (dialogContext) => AlertDialog(
-          title: const Text('Publish to all five languages?'),
+          title: const Text('Translate and publish to all five languages?'),
           content: const Text(
-            'This copies the current text and answers into English, French, Spanish, Hindi, and Russian. It does not translate them. You can edit each language separately afterward.',
+            'Google Cloud Translation will translate learner-facing text from the selected language into the other four. Exercise types and JSON structure are kept. Review translations before learners use them.',
           ),
           actions: [
             TextButton(
@@ -384,7 +447,7 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
             ),
             FilledButton(
               onPressed: () => Navigator.pop(dialogContext, true),
-              child: const Text('Publish all five'),
+              child: const Text('Translate + publish'),
             ),
           ],
         ),
@@ -606,6 +669,26 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
           'Content studio',
           style: TextStyle(fontSize: 19, fontWeight: FontWeight.w800),
         ),
+        if (_state?['translationConfigured'] != true)
+          const Tooltip(
+            message:
+                'Set GOOGLE_TRANSLATE_API_KEY on the API service to enable translation.',
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.translate_rounded,
+                  color: Color(0xFFB7791F),
+                  size: 18,
+                ),
+                SizedBox(width: 4),
+                Text(
+                  'Translation not configured',
+                  style: TextStyle(fontSize: 12, color: Color(0xFF8A5A13)),
+                ),
+              ],
+            ),
+          ),
         SizedBox(
           width: 170,
           child: DropdownButtonFormField<String>(
@@ -734,7 +817,7 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
                         await _saveLesson(allLanguages: true);
                       }
                     },
-              child: const Text('Publish to all 5 languages'),
+              child: const Text('Translate + publish all 5'),
             ),
             if (_lessonId != null)
               IconButton(
@@ -836,89 +919,129 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
       color: Colors.white,
       child: ListView(
         children: [
-          Text(
-            _exerciseId == null ? 'New exercise' : 'Edit exercise',
-            style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w800),
-          ),
-          const SizedBox(height: 12),
-          DropdownButtonFormField<String>(
-            initialValue: type,
-            decoration: const InputDecoration(labelText: 'Interaction type'),
-            items: _exerciseNames.entries
-                .map(
-                  (entry) => DropdownMenuItem(
-                    value: entry.key,
-                    child: Text(entry.value),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  _exerciseId == null ? 'New exercise' : 'Edit exercise',
+                  style: const TextStyle(
+                    fontSize: 19,
+                    fontWeight: FontWeight.w800,
                   ),
-                )
-                .toList(),
-            onChanged: _exerciseId != null || _busy
-                ? null
-                : (value) => setState(() => _exerciseType = value ?? type),
+                ),
+              ),
+              const Text('Raw JSON', style: TextStyle(fontSize: 13)),
+              Switch(value: _rawMode, onChanged: _busy ? null : _toggleRawMode),
+            ],
           ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _prompt,
-            minLines: 2,
-            maxLines: 4,
-            decoration: const InputDecoration(
-              labelText: 'Question / instruction',
+          if (_rawMode) ...[
+            const SizedBox(height: 12),
+            TextField(
+              controller: _rawJson,
+              minLines: 16,
+              maxLines: 32,
+              keyboardType: TextInputType.multiline,
+              style: const TextStyle(fontFamily: 'monospace', fontSize: 13),
+              decoration: const InputDecoration(
+                labelText: 'Exercise JSON',
+                alignLabelWithHint: true,
+                border: OutlineInputBorder(),
+              ),
             ),
-          ),
-          if (needsOptions) ...[
             const SizedBox(height: 10),
-            _multiline(
-              _options,
-              type == 'orderSteps' || type == 'buildTheProcess'
-                  ? 'Draggable options (one per line)'
-                  : 'Choices (one per line)',
+            OutlinedButton.icon(
+              onPressed: _busy ? null : _verifyRawExercise,
+              icon: const Icon(Icons.fact_check_outlined),
+              label: const Text('Verify JSON format'),
+            ),
+            const Text(
+              'Checks syntax, supported exercise type, and required fields before publishing.',
             ),
           ],
-          if (needsAnswers) ...[
+          if (!_rawMode) ...[
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(
+              initialValue: type,
+              decoration: const InputDecoration(labelText: 'Interaction type'),
+              items: _exerciseNames.entries
+                  .map(
+                    (entry) => DropdownMenuItem(
+                      value: entry.key,
+                      child: Text(entry.value),
+                    ),
+                  )
+                  .toList(),
+              onChanged: _exerciseId != null || _busy
+                  ? null
+                  : (value) => setState(() => _exerciseType = value ?? type),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _prompt,
+              minLines: 2,
+              maxLines: 4,
+              decoration: const InputDecoration(
+                labelText: 'Question / instruction',
+              ),
+            ),
+            if (needsOptions) ...[
+              const SizedBox(height: 10),
+              _multiline(
+                _options,
+                type == 'orderSteps' || type == 'buildTheProcess'
+                    ? 'Draggable options (one per line)'
+                    : 'Choices (one per line)',
+              ),
+            ],
+            if (needsAnswers) ...[
+              const SizedBox(height: 10),
+              _multiline(
+                _answers,
+                type == 'shortAnswer'
+                    ? 'Accepted answers (one per line)'
+                    : 'Correct choice(s), exact text (one per line)',
+              ),
+            ],
+            if (needsOrder) ...[
+              const SizedBox(height: 10),
+              _multiline(
+                _order,
+                type == 'fillInTheBlank'
+                    ? 'Missing words, in order (one per line)'
+                    : 'Correct sequence (one per line)',
+              ),
+            ],
+            if (needsPairs) ...[
+              const SizedBox(height: 10),
+              _multiline(
+                _pairs,
+                'Items / matches (one per line: left => right)',
+              ),
+            ],
+            if (type == 'fillInTheBlank') ...[
+              const SizedBox(height: 10),
+              _multiline(
+                _paragraph,
+                'Paragraph segments separated by | (one segment before, between, and after each blank)',
+              ),
+            ],
+            if (type == 'compareAndContrast') ...[
+              const SizedBox(height: 10),
+              _multiline(
+                _categories,
+                'Venn labels in order: A only, Both, B only',
+              ),
+            ],
             const SizedBox(height: 10),
-            _multiline(
-              _answers,
-              type == 'shortAnswer'
-                  ? 'Accepted answers (one per line)'
-                  : 'Correct choice(s), exact text (one per line)',
+            TextField(
+              controller: _explanation,
+              minLines: 2,
+              maxLines: 5,
+              decoration: const InputDecoration(
+                labelText: 'Explanation shown after answering',
+              ),
             ),
           ],
-          if (needsOrder) ...[
-            const SizedBox(height: 10),
-            _multiline(
-              _order,
-              type == 'fillInTheBlank'
-                  ? 'Missing words, in order (one per line)'
-                  : 'Correct sequence (one per line)',
-            ),
-          ],
-          if (needsPairs) ...[
-            const SizedBox(height: 10),
-            _multiline(_pairs, 'Items / matches (one per line: left => right)'),
-          ],
-          if (type == 'fillInTheBlank') ...[
-            const SizedBox(height: 10),
-            _multiline(
-              _paragraph,
-              'Paragraph segments separated by | (one segment before, between, and after each blank)',
-            ),
-          ],
-          if (type == 'compareAndContrast') ...[
-            const SizedBox(height: 10),
-            _multiline(
-              _categories,
-              'Venn labels in order: A only, Both, B only',
-            ),
-          ],
-          const SizedBox(height: 10),
-          TextField(
-            controller: _explanation,
-            minLines: 2,
-            maxLines: 5,
-            decoration: const InputDecoration(
-              labelText: 'Explanation shown after answering',
-            ),
-          ),
           const SizedBox(height: 16),
           Wrap(
             spacing: 8,
@@ -938,7 +1061,7 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
                           await _saveExercise(allLanguages: true);
                         }
                       },
-                child: const Text('Publish to all 5 languages'),
+                child: const Text('Translate + publish all 5'),
               ),
               if (_exerciseId != null)
                 IconButton(

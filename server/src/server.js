@@ -22,6 +22,12 @@ import {
 import {createSupportInbox, verifyResendWebhook, SUPPORT_INBOXES} from './support_inbox.js';
 import {BoboError, createBoboTutor} from './bobo_service.js';
 import {
+  createGoogleTranslationClient,
+  translateExerciseToAllLanguages,
+  translateLessonToAllLanguages,
+} from './google_translation.js';
+import {validateExercisePayload} from './normalized_lesson_content.js';
+import {
   LESSON_LANGUAGES,
   ensureLessonContentSchema,
   getLessonContent as getStoredLessonContent,
@@ -43,6 +49,10 @@ import {
 } from './content_admin.js';
 
 dotenv.config();
+
+const googleTranslation = createGoogleTranslationClient({
+  apiKey: process.env.GOOGLE_TRANSLATE_API_KEY,
+});
 
 const app = express();
 const port = Number(process.env.PORT ?? 3000);
@@ -320,7 +330,10 @@ app.get('/admin/learning-analytics', requireAuth, requireAdmin, async (_request,
 
 app.get('/admin/content/state', requireAuth, requireAdmin, async (_request, response) => {
   try {
-    return response.json(await getContentAdminState(pool));
+    return response.json({
+      ...await getContentAdminState(pool),
+      translationConfigured: googleTranslation.configured,
+    });
   } catch (error) {
     console.error('Could not load content admin state:', error.message);
     return response.status(500).json({message: 'Could not load content status.'});
@@ -362,36 +375,58 @@ app.get('/admin/content/lessons/:id', requireAuth, requireAdmin, async (request,
 
 app.post('/admin/content/lessons', requireAuth, requireAdmin, async (request, response) => {
   try {
+    const language = String(request.body.language ?? 'en');
+    const allLanguages = request.body.allLanguages === true;
+    const title = request.body.title;
+    const content = request.body.content;
+    const translationsByLanguage = allLanguages
+      ? await translateLessonToAllLanguages({
+          language, title, content,
+          translateStrings: googleTranslation.translateStrings,
+        })
+      : null;
     const result = await createLesson(pool, {
       topicId: String(request.body.topicId ?? '').trim(),
-      language: String(request.body.language ?? 'en'),
-      allLanguages: request.body.allLanguages === true,
-      title: request.body.title,
-      content: request.body.content,
+      language,
+      allLanguages,
+      translationsByLanguage,
+      title,
+      content,
       accountId: request.accountId,
     });
     await loadLessonContentCache(result.languages);
     return response.status(201).json(result);
   } catch (error) {
-    const status = /Choose|title|required|text/.test(error.message) ? 400 : 500;
+    const status = /not configured/.test(error.message) ? 503 : /Choose|title|required|text|translation language/.test(error.message) ? 400 : 502;
     return response.status(status).json({message: error.message || 'Could not create the lesson.'});
   }
 });
 
 app.post('/admin/content/lessons/:id/publish', requireAuth, requireAdmin, async (request, response) => {
   try {
+    const language = String(request.body.language ?? 'en');
+    const allLanguages = request.body.allLanguages === true;
+    const title = request.body.title;
+    const content = request.body.content;
+    const translationsByLanguage = allLanguages
+      ? await translateLessonToAllLanguages({
+          language, title, content,
+          translateStrings: googleTranslation.translateStrings,
+        })
+      : null;
     const result = await saveLesson(pool, {
       lessonId: request.params.id,
-      language: String(request.body.language ?? 'en'),
-      allLanguages: request.body.allLanguages === true,
-      title: request.body.title,
-      content: request.body.content,
+      language,
+      allLanguages,
+      translationsByLanguage,
+      title,
+      content,
       accountId: request.accountId,
     });
     await loadLessonContentCache(result.languages);
     return response.json(result);
   } catch (error) {
-    const status = /Select|title|required|text|not found|translation is missing/.test(error.message) ? 400 : 500;
+    const status = /not configured/.test(error.message) ? 503 : /Select|title|required|text|not found|translation is missing|translation language/.test(error.message) ? 400 : 502;
     return response.status(status).json({message: error.message || 'Could not publish the lesson.'});
   }
 });
@@ -411,21 +446,42 @@ app.delete('/admin/content/lessons/:id', requireAuth, requireAdmin, async (reque
 app.post('/admin/content/exercises/save', requireAuth, requireAdmin, async (request, response) => {
   try {
     const language = String(request.body.language ?? 'en');
+    const allLanguages = request.body.allLanguages === true;
+    const payload = request.body.payload;
+    const exerciseType = String(request.body.exerciseType ?? '');
+    const payloadsByLanguage = allLanguages
+      ? await translateExerciseToAllLanguages({
+          language, payload,
+          translateStrings: googleTranslation.translateStrings,
+        })
+      : null;
     const result = await saveExercise(pool, {
       lessonId: String(request.body.lessonId ?? ''),
       exerciseId: request.body.exerciseId ? String(request.body.exerciseId) : null,
       language,
-      exerciseType: String(request.body.exerciseType ?? ''),
-      payload: request.body.payload,
-      allLanguages: request.body.allLanguages === true,
+      exerciseType,
+      payload,
+      allLanguages,
+      payloadsByLanguage,
       accountId: request.accountId,
     });
     await loadLessonContentCache(result.languages);
     return response.json(result);
   } catch (error) {
-    const status = /Select|Provide|Exercise|correct|question|required|explanation|answer|option|step|pair|paragraph|type|New exercises|different type|Publish the lesson/.test(error.message)
-      ? 400 : 500;
+    const status = /not configured/.test(error.message) ? 503 :
+      /Select|Provide|Exercise|correct|question|required|explanation|answer|option|step|pair|paragraph|type|New exercises|different type|Publish the lesson|translation language/.test(error.message)
+        ? 400 : 502;
     return response.status(status).json({message: error.message || 'Could not save the exercise.'});
+  }
+});
+
+app.post('/admin/content/exercises/validate', requireAuth, requireAdmin, (request, response) => {
+  try {
+    const exerciseType = String(request.body.exerciseType ?? '');
+    validateExercisePayload(exerciseType, request.body.payload);
+    return response.json({valid: true, exerciseType});
+  } catch (error) {
+    return response.status(400).json({valid: false, message: error.message || 'Exercise JSON is invalid.'});
   }
 });
 

@@ -201,7 +201,7 @@ async function publishLessonLanguage(client, {lesson, language, title, content, 
     [lesson.id, language, materialTopicId, title, content]);
 }
 
-export async function saveLesson(pool, {lessonId, language, allLanguages, title, content, accountId}) {
+export async function saveLesson(pool, {lessonId, language, allLanguages, translationsByLanguage, title, content, accountId}) {
   if (!LANGUAGES.includes(language)) throw new Error('Select a supported language.');
   if (!String(title ?? '').trim()) throw new Error('Lesson title is required.');
   if (typeof content !== 'string') throw new Error('Lesson content must be text.');
@@ -216,9 +216,13 @@ export async function saveLesson(pool, {lessonId, language, allLanguages, title,
     const lesson = result.rows[0];
     const languages = allLanguages ? LANGUAGES : [language];
     const sharedMaterialId = Number(lesson.lesson_number) > 1 ? `lesson-material-${randomUUID()}` : null;
-    for (const code of languages) await publishLessonLanguage(client, {
-      lesson, language: code, title: String(title).trim(), content, accountId, sharedMaterialId,
-    });
+    for (const code of languages) {
+      const localized = translationsByLanguage?.[code] ?? {title, content};
+      await publishLessonLanguage(client, {
+        lesson, language: code, title: String(localized.title).trim(),
+        content: localized.content, accountId, sharedMaterialId,
+      });
+    }
     await client.query('COMMIT');
     return {published: true, languages};
   } catch (error) {
@@ -229,7 +233,7 @@ export async function saveLesson(pool, {lessonId, language, allLanguages, title,
   }
 }
 
-export async function createLesson(pool, {topicId, language, allLanguages, title, content, accountId}) {
+export async function createLesson(pool, {topicId, language, allLanguages, translationsByLanguage, title, content, accountId}) {
   if (!LANGUAGES.includes(language)) throw new Error('Select a supported language.');
   if (!String(title ?? '').trim()) throw new Error('Lesson title is required.');
   if (typeof content !== 'string') throw new Error('Lesson content must be text.');
@@ -250,9 +254,13 @@ export async function createLesson(pool, {topicId, language, allLanguages, title
     const lesson = {id: inserted.rows[0].id, topic_id: topicId, lesson_number: lessonNumber, level: Number(topic.rows[0].level)};
     const languages = allLanguages ? LANGUAGES : [language];
     const sharedMaterialId = lessonNumber > 1 ? `lesson-material-${randomUUID()}` : null;
-    for (const code of languages) await publishLessonLanguage(client, {
-      lesson, language: code, title: String(title).trim(), content, accountId, sharedMaterialId,
-    });
+    for (const code of languages) {
+      const localized = translationsByLanguage?.[code] ?? {title, content};
+      await publishLessonLanguage(client, {
+        lesson, language: code, title: String(localized.title).trim(),
+        content: localized.content, accountId, sharedMaterialId,
+      });
+    }
     await client.query('COMMIT');
     return {id: lesson.id, lessonNumber, published: true, languages};
   } catch (error) {
@@ -264,7 +272,7 @@ export async function createLesson(pool, {topicId, language, allLanguages, title
 }
 
 export async function saveExercise(pool, {
-  lessonId, exerciseId, language, allLanguages = false, exerciseType, payload, accountId,
+  lessonId, exerciseId, language, allLanguages = false, payloadsByLanguage, exerciseType, payload, accountId,
 }) {
   if (!LANGUAGES.includes(language)) throw new Error('Select a supported language.');
   validateExercisePayload(exerciseType, payload);
@@ -297,6 +305,8 @@ export async function saveExercise(pool, {
         `SELECT id, exercise_type, exercise_json FROM content_exercises
          WHERE lesson_id = $1 AND language_code = $2 AND position = $3 FOR UPDATE`,
         [lessonId, code, position]);
+      const localizedPayload = payloadsByLanguage?.[code] ?? payload;
+      validateExercisePayload(exerciseType, localizedPayload);
       if (current.rowCount) {
         const row = current.rows[0];
         if (row.exercise_type !== exerciseType) {
@@ -305,13 +315,13 @@ export async function saveExercise(pool, {
         await nextRevision(client, 'exercise', row.id, code, parseJson(row.exercise_json), accountId);
         await client.query(
           `UPDATE content_exercises SET exercise_json = $2::jsonb, status = 'published', updated_at = now()
-           WHERE id = $1`, [row.id, JSON.stringify(payload)]);
+          WHERE id = $1`, [row.id, JSON.stringify(localizedPayload)]);
         if (code === language) selectedId = row.id;
       } else {
         const created = await client.query(
           `INSERT INTO content_exercises(lesson_id, language_code, position, exercise_type, exercise_json, status)
            VALUES ($1, $2, $3, $4, $5::jsonb, 'published') RETURNING id`,
-          [lessonId, code, position, exerciseType, JSON.stringify(payload)]);
+          [lessonId, code, position, exerciseType, JSON.stringify(localizedPayload)]);
         if (code === language) selectedId = created.rows[0].id;
       }
     }
