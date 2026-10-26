@@ -90,6 +90,7 @@ class _LoadingPageState extends State<LoadingPage> {
                     'assets/images/how_buddy.svg',
                     width: logoWidth,
                     fit: BoxFit.contain,
+                    semanticsLabel: 'HowBuddy mascot',
                   ),
                   const SizedBox(height: 24),
                   SizedBox(

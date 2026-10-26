@@ -14,6 +14,7 @@ import '../../services/theme_preferences.dart';
 import '../../services/ui_translations.dart';
 import '../../services/notification_service.dart';
 import '../gamification/streak_goal_page.dart';
+import '../legal/legal_consent_page.dart';
 
 Future<void> _returnToLogin(NavigatorState navigator, String accountId) async {
   await NotificationService.instance.unregister(accountId);
@@ -49,10 +50,14 @@ Widget _accountDestination(
     return nextPage(savedAccount);
   }
 
-  return StreakGoalPage(
+  return LegalConsentGate(
     account: account,
-    isNewAccount: isNewUser,
-    destinationBuilder: (_, savedAccount) => accountPages(savedAccount),
+    onSignOut: () => unawaited(_returnToLogin(navigator, account.id)),
+    destinationBuilder: (_, acceptedAccount) => StreakGoalPage(
+      account: acceptedAccount,
+      isNewAccount: isNewUser,
+      destinationBuilder: (_, savedAccount) => accountPages(savedAccount),
+    ),
   );
 }
 
@@ -70,6 +75,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final _nameFocus = FocusNode();
+  final _emailFocus = FocusNode();
+  final _passwordFocus = FocusNode();
+  final _confirmPasswordFocus = FocusNode();
   bool _isLoading = false;
 
   @override
@@ -78,6 +87,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _nameFocus.dispose();
+    _emailFocus.dispose();
+    _passwordFocus.dispose();
+    _confirmPasswordFocus.dispose();
     super.dispose();
   }
 
@@ -164,6 +177,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
               controller: _fullNameController,
               label: uiText(context, 'Full Name'),
               icon: Icons.badge_outlined,
+              focusNode: _nameFocus,
+              textInputAction: TextInputAction.next,
+              autofillHints: const [AutofillHints.name],
+              onFieldSubmitted: (_) =>
+                  FocusScope.of(context).requestFocus(_emailFocus),
               validator: (value) => value == null || value.trim().length < 2
                   ? uiText(context, 'Enter your full name.')
                   : null,
@@ -174,6 +192,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
               label: uiText(context, 'Email Address'),
               icon: Icons.mail_outline,
               keyboardType: TextInputType.emailAddress,
+              focusNode: _emailFocus,
+              textInputAction: TextInputAction.next,
+              autofillHints: const [AutofillHints.email],
+              onFieldSubmitted: (_) =>
+                  FocusScope.of(context).requestFocus(_passwordFocus),
               validator: (value) {
                 final error = validateEmailInput(value);
                 return error == null ? null : uiText(context, error);
@@ -185,6 +208,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
               label: uiText(context, 'Password'),
               icon: Icons.lock_outline,
               obscureText: true,
+              focusNode: _passwordFocus,
+              textInputAction: TextInputAction.next,
+              autofillHints: const [AutofillHints.newPassword],
+              onFieldSubmitted: (_) =>
+                  FocusScope.of(context).requestFocus(_confirmPasswordFocus),
               showPasswordToggle: true,
               translatePasswordToggle: true,
               validator: (value) {
@@ -198,6 +226,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
               label: uiText(context, 'Confirm Password'),
               icon: Icons.verified_user_outlined,
               obscureText: true,
+              focusNode: _confirmPasswordFocus,
+              textInputAction: TextInputAction.done,
+              autofillHints: const [AutofillHints.newPassword],
+              onFieldSubmitted: (_) => _submit(),
               showPasswordToggle: true,
               translatePasswordToggle: true,
               validator: (value) {
@@ -441,12 +473,16 @@ class _LoginPageState extends State<LoginPage> {
   final _authApi = AuthApi();
   final _identifierController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _identifierFocus = FocusNode();
+  final _passwordFocus = FocusNode();
   bool _isLoading = false;
 
   @override
   void dispose() {
     _identifierController.dispose();
     _passwordController.dispose();
+    _identifierFocus.dispose();
+    _passwordFocus.dispose();
     super.dispose();
   }
 
@@ -539,6 +575,11 @@ class _LoginPageState extends State<LoginPage> {
               controller: _identifierController,
               label: uiText(context, 'Email or Username'),
               icon: Icons.account_circle_outlined,
+              focusNode: _identifierFocus,
+              textInputAction: TextInputAction.next,
+              autofillHints: const [AutofillHints.username],
+              onFieldSubmitted: (_) =>
+                  FocusScope.of(context).requestFocus(_passwordFocus),
               validator: (value) => value == null || value.trim().isEmpty
                   ? uiText(context, 'Enter your email or username.')
                   : null,
@@ -549,6 +590,10 @@ class _LoginPageState extends State<LoginPage> {
               label: uiText(context, 'Password'),
               icon: Icons.lock_outline,
               obscureText: true,
+              focusNode: _passwordFocus,
+              textInputAction: TextInputAction.done,
+              autofillHints: const [AutofillHints.password],
+              onFieldSubmitted: (_) => _submit(),
               showPasswordToggle: true,
               translatePasswordToggle: true,
               validator: _validateLoginPassword,

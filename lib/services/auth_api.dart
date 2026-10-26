@@ -80,6 +80,34 @@ class AuthApi {
     _readBody(response);
   }
 
+  Future<bool> hasCurrentLegalAcceptance() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/account/legal-acceptance'),
+      headers: ApiSession.authenticatedHeaders,
+    );
+    final body = _readBody(response);
+    return body['accepted'] == true;
+  }
+
+  Future<void> recordLegalAcceptance({
+    required bool termsAccepted,
+    required bool privacyAcknowledged,
+    required bool cookiesAcknowledged,
+    required bool refundsAcknowledged,
+  }) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/account/legal-acceptance'),
+      headers: ApiSession.authenticatedHeaders,
+      body: jsonEncode({
+        'termsAccepted': termsAccepted,
+        'privacyAcknowledged': privacyAcknowledged,
+        'cookiesAcknowledged': cookiesAcknowledged,
+        'refundsAcknowledged': refundsAcknowledged,
+      }),
+    );
+    _readBody(response);
+  }
+
   Future<Account> register({
     required String fullName,
     required String email,

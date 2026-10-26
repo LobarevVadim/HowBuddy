@@ -13,6 +13,15 @@ CREATE TABLE IF NOT EXISTS accounts (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+CREATE TABLE IF NOT EXISTS account_legal_acceptances (
+  account_id UUID PRIMARY KEY REFERENCES accounts(id) ON DELETE CASCADE,
+  terms_version TEXT NOT NULL,
+  privacy_version TEXT NOT NULL,
+  cookie_policy_version TEXT NOT NULL,
+  refund_policy_version TEXT NOT NULL,
+  accepted_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 ALTER TABLE accounts ADD COLUMN IF NOT EXISTS preferred_language TEXT;
 ALTER TABLE accounts ADD COLUMN IF NOT EXISTS age_years SMALLINT;
 

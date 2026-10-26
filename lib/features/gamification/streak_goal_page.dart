@@ -163,7 +163,9 @@ class _StreakGoalPageState extends State<StreakGoalPage> {
                           : _startGoal,
                       style: FilledButton.styleFrom(
                         backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
+                        foregroundColor: AppColors.isDarkMode
+                            ? const Color(0xFF231F20)
+                            : Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(AppRadii.button),
                         ),

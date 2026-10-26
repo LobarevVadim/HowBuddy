@@ -61,6 +61,12 @@ const app = express();
 const port = Number(process.env.PORT ?? 3000);
 const sessionSecret = process.env.SESSION_SECRET ?? '';
 const googleWebClientId = process.env.GOOGLE_WEB_CLIENT_ID ?? '';
+const LEGAL_POLICY_VERSIONS = Object.freeze({
+  terms: '2026-10-26-v1',
+  privacy: '2026-10-26-v1',
+  cookies: '2026-10-26-v1',
+  refunds: '2026-10-26-v1',
+});
 const googleOAuthClient = new OAuth2Client();
 const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
@@ -1014,6 +1020,61 @@ app.put('/account/preferences', requireAuth, async (request, response) => {
   } catch (error) {
     console.error(error);
     return response.status(500).json({message: 'Could not save your preferences.'});
+  }
+});
+
+app.get('/account/legal-acceptance', requireAuth, async (request, response) => {
+  try {
+    const result = await pool.query(
+      `SELECT terms_version, privacy_version, cookie_policy_version,
+              refund_policy_version, accepted_at
+       FROM account_legal_acceptances WHERE account_id = $1`,
+      [request.accountId],
+    );
+    const acceptance = result.rows[0] ?? null;
+    return response.json({
+      accepted: Boolean(acceptance &&
+        acceptance.terms_version === LEGAL_POLICY_VERSIONS.terms &&
+        acceptance.privacy_version === LEGAL_POLICY_VERSIONS.privacy &&
+        acceptance.cookie_policy_version === LEGAL_POLICY_VERSIONS.cookies &&
+        acceptance.refund_policy_version === LEGAL_POLICY_VERSIONS.refunds),
+      versions: LEGAL_POLICY_VERSIONS,
+      acceptedAt: acceptance?.accepted_at ?? null,
+    });
+  } catch (error) {
+    console.error('Could not read legal acceptance:', error.message);
+    return response.status(500).json({message: 'Could not check policy acceptance.'});
+  }
+});
+
+app.put('/account/legal-acceptance', requireAuth, async (request, response) => {
+  const accepted = request.body?.termsAccepted === true &&
+    request.body?.privacyAcknowledged === true &&
+    request.body?.cookiesAcknowledged === true &&
+    request.body?.refundsAcknowledged === true;
+  if (!accepted) {
+    return response.status(400).json({message: 'Review and accept each required item to continue.'});
+  }
+  try {
+    const result = await pool.query(
+      `INSERT INTO account_legal_acceptances
+         (account_id, terms_version, privacy_version, cookie_policy_version,
+          refund_policy_version, accepted_at)
+       VALUES ($1, $2, $3, $4, $5, now())
+       ON CONFLICT (account_id) DO UPDATE SET
+         terms_version = EXCLUDED.terms_version,
+         privacy_version = EXCLUDED.privacy_version,
+         cookie_policy_version = EXCLUDED.cookie_policy_version,
+         refund_policy_version = EXCLUDED.refund_policy_version,
+         accepted_at = now()
+       RETURNING accepted_at`,
+      [request.accountId, LEGAL_POLICY_VERSIONS.terms, LEGAL_POLICY_VERSIONS.privacy,
+        LEGAL_POLICY_VERSIONS.cookies, LEGAL_POLICY_VERSIONS.refunds],
+    );
+    return response.json({accepted: true, versions: LEGAL_POLICY_VERSIONS, acceptedAt: result.rows[0].accepted_at});
+  } catch (error) {
+    console.error('Could not record legal acceptance:', error.message);
+    return response.status(500).json({message: 'Could not save your policy choices.'});
   }
 });
 

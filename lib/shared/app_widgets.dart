@@ -118,6 +118,7 @@ class AuthHeroImage extends StatelessWidget {
         child: SvgPicture.asset(
           'assets/images/how_buddy.svg',
           fit: BoxFit.contain,
+          semanticsLabel: 'HowBuddy mascot',
         ),
       ),
     );
@@ -134,6 +135,10 @@ class AppTextField extends StatefulWidget {
     this.showPasswordToggle = false,
     this.translatePasswordToggle = false,
     this.validator,
+    this.focusNode,
+    this.textInputAction,
+    this.onFieldSubmitted,
+    this.autofillHints,
     super.key,
   });
 
@@ -145,6 +150,10 @@ class AppTextField extends StatefulWidget {
   final bool showPasswordToggle;
   final bool translatePasswordToggle;
   final String? Function(String?)? validator;
+  final FocusNode? focusNode;
+  final TextInputAction? textInputAction;
+  final ValueChanged<String>? onFieldSubmitted;
+  final Iterable<String>? autofillHints;
 
   @override
   State<AppTextField> createState() => _AppTextFieldState();
@@ -165,6 +174,10 @@ class _AppTextFieldState extends State<AppTextField> {
     return TextFormField(
       controller: widget.controller,
       keyboardType: widget.keyboardType,
+      focusNode: widget.focusNode,
+      textInputAction: widget.textInputAction,
+      onFieldSubmitted: widget.onFieldSubmitted,
+      autofillHints: widget.autofillHints,
       obscureText: _isObscured,
       validator: widget.validator,
       style: TextStyle(color: AppColors.text, fontWeight: FontWeight.w600),
@@ -215,9 +228,9 @@ class PasswordTipCard extends StatelessWidget {
           SizedBox(width: 12),
           Expanded(
             child: Text(
-                localized
-                    ? uiText(context, 'Password must be at least 8 characters.')
-                    : 'Password must be at least 8 characters.',
+              localized
+                  ? uiText(context, 'Password must be at least 8 characters.')
+                  : 'Password must be at least 8 characters.',
               style: TextStyle(
                 color: AppColors.text,
                 fontWeight: FontWeight.w600,

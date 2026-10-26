@@ -6,17 +6,17 @@ class AppColors {
   static bool isDarkMode = false;
 
   static Color get primary =>
-      isDarkMode ? const Color(0xFFE2A765) : const Color(0xFFB6753A);
+      isDarkMode ? const Color(0xFFE2A765) : const Color(0xFF995A2A);
   static Color get primaryDark =>
       isDarkMode ? const Color(0xFFFFD9B0) : const Color(0xFF6F482C);
   static Color get primaryLight =>
-      isDarkMode ? const Color(0xFFC88C50) : const Color(0xFFD29A63);
+      isDarkMode ? const Color(0xFFD7A269) : const Color(0xFFA86B38);
   static Color get success =>
-      isDarkMode ? const Color(0xFFB6D878) : const Color(0xFF8DB84A);
+      isDarkMode ? const Color(0xFFB6D878) : const Color(0xFF617C2A);
   static Color get text =>
       isDarkMode ? const Color(0xFFF4E8DC) : const Color(0xFF65462F);
   static Color get mutedText =>
-      isDarkMode ? const Color(0xFFC1AD98) : const Color(0xFF9A826A);
+      isDarkMode ? const Color(0xFFC1AD98) : const Color(0xFF76614D);
   static Color get pageBackground =>
       isDarkMode ? const Color(0xFF1E1A17) : const Color(0xFFFFF8F2);
   static Color get loadingBackground =>
@@ -24,7 +24,7 @@ class AppColors {
   static Color get inputBackground =>
       isDarkMode ? const Color(0xFF302923) : const Color(0xFFFFFCF8);
   static Color get border =>
-      isDarkMode ? const Color(0xFF5A4938) : const Color(0xFFEEDFD3);
+      isDarkMode ? const Color(0xFF8B735B) : const Color(0xFFA58D74);
   static Color get authPanelBackground =>
       isDarkMode ? const Color(0xFF30261F) : const Color(0xFFFFF3E8);
   static Color get heroBackground =>
@@ -147,9 +147,13 @@ class AppTheme {
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
+          foregroundColor: brightness == Brightness.dark
+              ? const Color(0xFF231F20)
+              : Colors.white,
           disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.55),
-          disabledForegroundColor: Colors.white,
+          disabledForegroundColor: brightness == Brightness.dark
+              ? const Color(0xFF231F20)
+              : Colors.white,
         ),
       ),
     );
