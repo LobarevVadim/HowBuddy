@@ -60,6 +60,7 @@ class _AdminPageState extends State<AdminPage> {
         headers: headers,
         body: jsonEncode(data ?? {}),
       ),
+      'DELETE' => await http.delete(uri, headers: headers),
       _ => await http.get(uri, headers: headers),
     };
     final body = jsonDecode(response.body) as Map<String, dynamic>;
