@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../app_style.dart';
 import '../../models/app_models.dart';
 import '../../services/auth_api.dart';
-import '../learning/lesson_page.dart';
 import '../../services/theme_preferences.dart';
 import '../../services/ui_translations.dart';
 
@@ -29,7 +28,7 @@ class _NotepadTreePageState extends State<NotepadTreePage> {
   @override
   Widget build(BuildContext context) {
     ThemePreferencesScope.watch(context);
-        return FutureBuilder<NotepadTreeNode>(
+    return FutureBuilder<NotepadTreeNode>(
       future: _tree,
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {

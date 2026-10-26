@@ -597,7 +597,7 @@ class XpTabPage extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 3),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
       decoration: BoxDecoration(
-        color: entry.isYou ? AppColors.primary.withOpacity(0.09) : null,
+        color: entry.isYou ? AppColors.primary.withValues(alpha: 0.09) : null,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(

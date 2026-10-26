@@ -144,8 +144,9 @@ class _AdminPageState extends State<AdminPage> {
     _conversations = (result['conversations'] as List<dynamic>)
         .cast<Map<String, dynamic>>();
     if (_active != null &&
-        !_conversations.any((item) => item['id'] == _active!['id']))
+        !_conversations.any((item) => item['id'] == _active!['id'])) {
       _active = null;
+    }
     if (mounted) setState(() {});
   }
 
@@ -559,7 +560,7 @@ class _AdminPageState extends State<AdminPage> {
               ? const Center(child: Text('No conversations yet'))
               : ListView.separated(
                   itemCount: _conversations.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  separatorBuilder: (_, _) => const Divider(height: 1),
                   itemBuilder: (context, index) {
                     final item = _conversations[index];
                     final selected = item['id'] == _active?['id'];
@@ -986,11 +987,12 @@ class _AdminPageState extends State<AdminPage> {
   }
 
   String _emailAddresses(dynamic value) {
-    if (value is List)
+    if (value is List) {
       return value
           .map((item) => item.toString())
           .where((item) => item.isNotEmpty)
           .join(', ');
+    }
     return value?.toString() ?? '';
   }
 
@@ -1015,7 +1017,7 @@ class _AdminPageState extends State<AdminPage> {
             child: Image.network(
               url,
               fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) =>
+              errorBuilder: (_, _, _) =>
                   const Text('This image preview could not be loaded.'),
               loadingBuilder: (context, child, progress) => progress == null
                   ? child
@@ -1078,8 +1080,11 @@ class _AdminPageState extends State<AdminPage> {
     final date = DateTime.tryParse(value?.toString() ?? '')?.toLocal();
     if (date == null) return '';
     final now = DateTime.now();
-    if (date.year == now.year && date.month == now.month && date.day == now.day)
+    if (date.year == now.year &&
+        date.month == now.month &&
+        date.day == now.day) {
       return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+    }
     return '${date.month}/${date.day}/${date.year}';
   }
 

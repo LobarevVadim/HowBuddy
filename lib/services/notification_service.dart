@@ -70,10 +70,13 @@ class NotificationService with WidgetsBindingObserver {
       _foregroundNotifications.stream;
 
   FirebaseMessaging? _messaging;
-  StreamSubscription<String>? _tokenRefreshSubscription;
+  StreamSubscription<String>? _registrationSubscription;
+  StreamSubscription<String>? _unregistrationSubscription;
   StreamSubscription<RemoteMessage>? _messageSubscription;
   StreamSubscription<RemoteMessage>? _openedSubscription;
   String? _activeAccountId;
+  String? _activeRegistrationId;
+  Completer<String>? _registrationCompleter;
   bool _initialized = false;
   bool _initializing = false;
 
@@ -97,9 +100,11 @@ class NotificationService with WidgetsBindingObserver {
       _openedSubscription = FirebaseMessaging.onMessageOpenedApp.listen(
         _onOpenedMessage,
       );
-      _tokenRefreshSubscription = _messaging!.onTokenRefresh.listen((token) {
-        final accountId = _activeAccountId;
-        if (accountId != null) unawaited(_registerToken(accountId, token));
+      _registrationSubscription = _messaging!.onRegistered.listen(
+        (registrationId) => unawaited(_handleRegistration(registrationId)),
+      );
+      _unregistrationSubscription = _messaging!.onUnregistered.listen((id) {
+        if (_activeRegistrationId == id) _activeRegistrationId = null;
       });
       final initialMessage = await _messaging!.getInitialMessage();
       if (initialMessage != null) await _rememberTarget(initialMessage);
@@ -138,12 +143,8 @@ class NotificationService with WidgetsBindingObserver {
           await Future<void>.delayed(const Duration(milliseconds: 300));
         }
       }
-      final token = await _messaging!.getToken(
-        vapidKey: kIsWeb ? HowBuddyFirebaseOptions.webVapidKey : null,
-      );
-      if (token == null || token.isEmpty) return false;
       _activeAccountId = accountId;
-      await _registerToken(accountId, token);
+      await _registerForPush();
       return true;
     } catch (_) {
       return false;
@@ -160,10 +161,7 @@ class NotificationService with WidgetsBindingObserver {
           permission.authorizationStatus != AuthorizationStatus.provisional) {
         return;
       }
-      final token = await _messaging!.getToken(
-        vapidKey: kIsWeb ? HowBuddyFirebaseOptions.webVapidKey : null,
-      );
-      if (token != null) await _registerToken(accountId, token);
+      await _registerForPush();
     } catch (_) {
       // A temporary FCM/network failure should not block signing in.
     }
@@ -184,17 +182,49 @@ class NotificationService with WidgetsBindingObserver {
     });
   }
 
+  Future<void> _handleRegistration(String registrationId) async {
+    _activeRegistrationId = registrationId;
+    final accountId = _activeAccountId;
+    if (accountId == null) return;
+    try {
+      await _registerToken(accountId, registrationId);
+      final completer = _registrationCompleter;
+      if (completer != null && !completer.isCompleted) {
+        completer.complete(registrationId);
+      }
+    } catch (error, stackTrace) {
+      final completer = _registrationCompleter;
+      if (completer != null && !completer.isCompleted) {
+        completer.completeError(error, stackTrace);
+      }
+    }
+  }
+
+  Future<void> _registerForPush() async {
+    final completer = Completer<String>();
+    _registrationCompleter = completer;
+    try {
+      await _messaging!.register(
+        vapidKey: kIsWeb ? HowBuddyFirebaseOptions.webVapidKey : null,
+      );
+      await completer.future.timeout(const Duration(seconds: 10));
+    } finally {
+      if (identical(_registrationCompleter, completer)) {
+        _registrationCompleter = null;
+      }
+    }
+  }
+
   Future<void> unregister(String accountId) async {
     _activeAccountId = null;
     try {
-      final token = await _messaging?.getToken(
-        vapidKey: kIsWeb ? HowBuddyFirebaseOptions.webVapidKey : null,
-      );
-      if (token != null) {
+      final registrationId = _activeRegistrationId;
+      if (registrationId != null) {
         await ApiSession.deleteJson('/account/notifications/device', {
-          'token': token,
+          'token': registrationId,
         });
       }
+      await _messaging?.unregister();
     } catch (_) {
       // The session may already be offline; the server can expire stale FCM tokens.
     }
@@ -238,7 +268,8 @@ class NotificationService with WidgetsBindingObserver {
 
   Future<void> dispose() async {
     WidgetsBinding.instance.removeObserver(this);
-    await _tokenRefreshSubscription?.cancel();
+    await _registrationSubscription?.cancel();
+    await _unregistrationSubscription?.cancel();
     await _messageSubscription?.cancel();
     await _openedSubscription?.cancel();
     await _topicTaps.close();
