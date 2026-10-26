@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import {EXERCISE_TYPES, validateExercisePayload} from './normalized_lesson_content.js';
 
 const samples = {
@@ -38,4 +39,15 @@ test('exercise validator rejects a mismatched type and incomplete fill-in blanks
     type: 'fillInTheBlank', prompt: 'Question?', explanation: 'Because.',
     correctOrder: ['cell'], paragraphParts: ['Only one segment'],
   }), /paragraph segment/);
+});
+
+test('content schema declares each lesson draft column once', () => {
+  const schema = readFileSync(new URL('../content_schema.sql', import.meta.url), 'utf8');
+  const draftTable = schema.match(/CREATE TABLE IF NOT EXISTS content_lesson_drafts \(([\s\S]*?)\n\);/);
+  assert.ok(draftTable, 'lesson draft table should be declared');
+  const columns = draftTable[1].split('\n')
+    .map((line) => line.trim().match(/^([a-z_]+)\s/))
+    .filter(Boolean)
+    .map((match) => match[1]);
+  assert.equal(new Set(columns).size, columns.length, 'draft table must not repeat a column');
 });

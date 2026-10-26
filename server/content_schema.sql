@@ -62,7 +62,6 @@ CREATE TABLE IF NOT EXISTS content_lesson_drafts (
   lesson_id UUID NOT NULL REFERENCES content_lessons(id) ON DELETE CASCADE,
   language_code TEXT NOT NULL CHECK (language_code IN ('en', 'fr', 'es', 'hi', 'ru')),
   material_topic_id TEXT REFERENCES content_topics(topic_id) ON DELETE RESTRICT,
-  material_topic_id TEXT REFERENCES content_topics(topic_id) ON DELETE RESTRICT,
   title TEXT NOT NULL,
   content TEXT NOT NULL DEFAULT '',
   updated_by UUID REFERENCES accounts(id) ON DELETE SET NULL,
