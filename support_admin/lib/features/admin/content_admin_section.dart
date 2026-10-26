@@ -102,7 +102,7 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
 
   Future<void> _loadState() => _run(() async {
     _state = await widget.onRequest('/admin/content/state');
-    if (_state?['migrated'] == true) await _loadTopics();
+    if (_state?['ready'] == true) await _loadTopics();
     if (mounted) setState(() {});
   });
 
@@ -206,47 +206,59 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
     };
   }
 
-  Future<void> _migrate() async {
-    final confirmed = await showDialog<bool>(
+  Future<void> _createLesson() async {
+    if (_topicId == null) return;
+    final title = TextEditingController();
+    final content = TextEditingController();
+    final allLanguages = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Normalize lesson content?'),
-        content: const Text(
-          'This one-time operation copies the five existing language snapshots '
-          'into topic, lesson, and per-exercise tables. The original JSONB rows '
-          'remain untouched for rollback.',
+        title: const Text('Add a lesson'),
+        content: SizedBox(
+          width: 520,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: title,
+                autofocus: true,
+                decoration: const InputDecoration(labelText: 'Lesson title'),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: content,
+                minLines: 3,
+                maxLines: 7,
+                decoration: const InputDecoration(labelText: 'Lesson content'),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                'Publishing to all five copies the same text; it does not translate it.',
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Cancel'),
+          ),
+          OutlinedButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text('Publish only ${_language.toUpperCase()}'),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Migrate content'),
+            child: const Text('Publish to all 5'),
           ),
         ],
       ),
     );
-    if (confirmed != true) return;
-    await _run(() async {
-      final result = await widget.onRequest(
-        '/admin/content/migrate',
-        method: 'POST',
-      );
-      _state = await widget.onRequest('/admin/content/state');
-      await _loadTopics();
-      if (mounted) {
-        setState(
-          () => _notice =
-              'Migrated ${result['topics']} topics and five language versions.',
-        );
-      }
-    });
-  }
-
-  Future<void> _createLesson() async {
-    if (_topicId == null) return;
+    if (allLanguages == null) {
+      title.dispose();
+      content.dispose();
+      return;
+    }
     await _run(() async {
       final result = await widget.onRequest(
         '/admin/content/lessons',
@@ -254,8 +266,9 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
         data: {
           'topicId': _topicId,
           'language': _language,
-          'title': 'New lesson',
-          'content': '',
+          'allLanguages': allLanguages,
+          'title': title.text,
+          'content': content.text,
         },
       );
       await _loadLessons();
@@ -263,32 +276,29 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
       await _loadLesson();
       if (mounted)
         setState(
-          () => _notice =
-              'Draft lesson created. Add an exercise before publishing.',
+          () => _notice = allLanguages
+              ? 'Lesson published in all five language slots. The same text was copied; it was not translated.'
+              : 'Lesson published for ${_language.toUpperCase()}. Add its exercises.',
         );
     });
+    title.dispose();
+    content.dispose();
   }
 
-  Future<void> _saveLesson({required bool publish}) async {
+  Future<void> _saveLesson({required bool allLanguages}) async {
     if (_lessonId == null) return;
     await _run(() async {
       final savedLessonId = _lessonId;
       await widget.onRequest(
-        '/admin/content/lessons/$savedLessonId/save',
+        '/admin/content/lessons/$savedLessonId/publish',
         method: 'POST',
         data: {
           'language': _language,
+          'allLanguages': allLanguages,
           'title': _lessonTitle.text,
           'content': _lessonContent.text,
         },
       );
-      if (publish) {
-        await widget.onRequest(
-          '/admin/content/lessons/$savedLessonId/publish',
-          method: 'POST',
-          data: {'language': _language},
-        );
-      }
       await _loadLessons();
       if (_lessons.any((item) => item['id'] == savedLessonId)) {
         _lessonId = savedLessonId;
@@ -296,7 +306,9 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
       }
       if (mounted)
         setState(
-          () => _notice = publish ? 'Lesson published.' : 'Lesson draft saved.',
+          () => _notice = allLanguages
+              ? 'Lesson published in all five language slots. The same text was copied; it was not translated.'
+              : 'Lesson published for ${_language.toUpperCase()}.',
         );
     });
   }
@@ -325,7 +337,7 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
   String _asLines(dynamic value) =>
       value is List ? value.map((item) => item.toString()).join('\n') : '';
 
-  Future<void> _saveExercise({required bool publish}) async {
+  Future<void> _saveExercise({required bool allLanguages}) async {
     if (_lessonId == null) return;
     await _run(() async {
       final payload = _exercisePayload();
@@ -338,7 +350,7 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
           'language': _language,
           'exerciseType': _exerciseType,
           'payload': payload,
-          'publish': publish,
+          'allLanguages': allLanguages,
         },
       );
       _exerciseId = result['id']?.toString();
@@ -350,12 +362,81 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
       if (saved != null) _selectExercise(saved);
       if (mounted)
         setState(
-          () => _notice = publish
-              ? 'Exercise published.'
-              : 'Exercise draft saved.',
+          () => _notice = allLanguages
+              ? 'Exercise published in all five language slots. The same text was copied; it was not translated.'
+              : 'Exercise published for ${_language.toUpperCase()}.',
         );
     });
   }
+
+  Future<bool> _confirmAllLanguages() async =>
+      await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Publish to all five languages?'),
+          content: const Text(
+            'This copies the current text and answers into English, French, Spanish, Hindi, and Russian. It does not translate them. You can edit each language separately afterward.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: const Text('Publish all five'),
+            ),
+          ],
+        ),
+      ) ??
+      false;
+
+  Future<void> _deleteLesson(String id) async {
+    final ok = await _confirmDelete('lesson');
+    if (!ok) return;
+    await _run(() async {
+      await widget.onRequest('/admin/content/lessons/$id', method: 'DELETE');
+      await _loadLessons();
+      _state = await widget.onRequest('/admin/content/state');
+      if (mounted)
+        setState(() => _notice = 'Lesson and its exercises deleted.');
+    });
+  }
+
+  Future<void> _deleteExercise(String id) async {
+    final ok = await _confirmDelete('exercise');
+    if (!ok || _lessonId == null) return;
+    await _run(() async {
+      await widget.onRequest(
+        '/admin/content/lessons/$_lessonId/exercises/$id',
+        method: 'DELETE',
+      );
+      await _loadLesson();
+      if (mounted) setState(() => _notice = 'Exercise deleted.');
+    });
+  }
+
+  Future<bool> _confirmDelete(String item) async =>
+      await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: Text('Delete this $item?'),
+          content: Text(
+            'This permanently deletes the $item and its saved history.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: const Text('Delete'),
+            ),
+          ],
+        ),
+      ) ??
+      false;
 
   Future<void> _showRevisions(String entityType, String entityId) async {
     try {
@@ -391,7 +472,7 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
                         ),
                         subtitle: Text('${revision['createdAt'] ?? ''}'),
                         trailing: IconButton(
-                          tooltip: 'Restore as draft',
+                          tooltip: 'Publish this version',
                           icon: const Icon(Icons.restore_rounded),
                           onPressed: _busy
                               ? null
@@ -446,11 +527,7 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
       final matching = exercises.where((item) => item['id'] == _exerciseId);
       if (matching.isNotEmpty) _selectExercise(matching.first);
     }
-    if (mounted)
-      setState(
-        () => _notice =
-            'Version restored as a draft. Review and publish when ready.',
-      );
+    if (mounted) setState(() => _notice = 'Saved version published.');
   });
 
   Future<void> _changeTopic(String? value) => _run(() async {
@@ -477,7 +554,11 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
     if (_state == null && _busy) {
       return const Center(child: CircularProgressIndicator());
     }
-    if (_state?['migrated'] != true) return _migrationPanel();
+    if (_state?['ready'] != true) {
+      return const Center(
+        child: Text('No normalized lesson content was found in the database.'),
+      );
+    }
     final selectedLesson = _lesson;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -513,60 +594,6 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
     );
   }
 
-  Widget _migrationPanel() => Center(
-    child: ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 720),
-      child: Card(
-        margin: const EdgeInsets.all(24),
-        child: Padding(
-          padding: const EdgeInsets.all(28),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Icon(
-                Icons.storage_rounded,
-                color: Color(0xFF7056D8),
-                size: 36,
-              ),
-              const SizedBox(height: 14),
-              const Text(
-                'Prepare the content database',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Legacy language rows found: ${(_state?['languages'] as List<dynamic>? ?? []).join(', ')}',
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'The one-time migration validates all five language trees, then copies '
-                'topics, lessons, and individually typed exercise JSONB records in one '
-                'database transaction. The original language rows are kept for rollback.',
-              ),
-              if (_error != null) ...[
-                const SizedBox(height: 14),
-                _message(_error!, isError: true),
-              ],
-              const SizedBox(height: 18),
-              FilledButton.icon(
-                onPressed: _busy ? null : _migrate,
-                icon: _busy
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.sync_rounded),
-                label: const Text('Migrate existing content once'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    ),
-  );
-
   Widget _toolbar() => Container(
     padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
     color: Colors.white,
@@ -578,10 +605,6 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
         const Text(
           'Content studio',
           style: TextStyle(fontSize: 19, fontWeight: FontWeight.w800),
-        ),
-        Text(
-          '${_state?['topics'] ?? 0} topics · ${_state?['lessons'] ?? 0} lesson records · ${_state?['exercises'] ?? 0} exercise records',
-          style: const TextStyle(color: Color(0xFF6D7584), fontSize: 12),
         ),
         SizedBox(
           width: 170,
@@ -666,6 +689,18 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
               .toList(),
           onChanged: _busy ? null : _changeLesson,
         ),
+        if (_lessonId != null)
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              onPressed: _busy ? null : () => _deleteLesson(_lessonId!),
+              icon: const Icon(Icons.delete_outline_rounded, color: Colors.red),
+              label: const Text(
+                'Delete lesson',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ),
         const SizedBox(height: 16),
         TextField(
           controller: _lessonTitle,
@@ -685,17 +720,21 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
         Wrap(
           spacing: 8,
           children: [
-            OutlinedButton(
-              onPressed: _busy || lesson == null
-                  ? null
-                  : () => _saveLesson(publish: false),
-              child: const Text('Save lesson draft'),
-            ),
             FilledButton(
               onPressed: _busy || lesson == null
                   ? null
-                  : () => _saveLesson(publish: true),
-              child: const Text('Publish lesson'),
+                  : () => _saveLesson(allLanguages: false),
+              child: Text('Publish only ${_language.toUpperCase()}'),
+            ),
+            OutlinedButton(
+              onPressed: _busy || lesson == null
+                  ? null
+                  : () async {
+                      if (await _confirmAllLanguages()) {
+                        await _saveLesson(allLanguages: true);
+                      }
+                    },
+              child: const Text('Publish to all 5 languages'),
             ),
             if (_lessonId != null)
               IconButton(
@@ -733,9 +772,21 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
                 overflow: TextOverflow.ellipsis,
               ),
               subtitle: Text(
-                '${_exerciseNames[item['type']]} · ${item['isFallback'] == true ? 'English source · add translation' : item['status']}${item['hasDraft'] == true ? ' · draft changes' : ''}',
+                '${_exerciseNames[item['type']]} · ${item['isFallback'] == true ? 'English source · add translation' : item['status']}',
               ),
               onTap: () => _selectExercise(item),
+              trailing: IconButton(
+                tooltip: item['isFallback'] == true
+                    ? 'Switch to English to delete this source exercise'
+                    : 'Delete exercise',
+                icon: const Icon(
+                  Icons.delete_outline_rounded,
+                  color: Colors.red,
+                ),
+                onPressed: _busy || item['isFallback'] == true
+                    ? null
+                    : () => _deleteExercise(item['id'].toString()),
+              ),
             ),
           ),
         OutlinedButton.icon(
@@ -873,17 +924,21 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
             spacing: 8,
             runSpacing: 8,
             children: [
-              OutlinedButton(
-                onPressed: _busy || lesson == null
-                    ? null
-                    : () => _saveExercise(publish: false),
-                child: const Text('Save draft'),
-              ),
               FilledButton(
                 onPressed: _busy || lesson == null
                     ? null
-                    : () => _saveExercise(publish: true),
-                child: const Text('Publish exercise'),
+                    : () => _saveExercise(allLanguages: false),
+                child: Text('Publish only ${_language.toUpperCase()}'),
+              ),
+              OutlinedButton(
+                onPressed: _busy || lesson == null
+                    ? null
+                    : () async {
+                        if (await _confirmAllLanguages()) {
+                          await _saveExercise(allLanguages: true);
+                        }
+                      },
+                child: const Text('Publish to all 5 languages'),
               ),
               if (_exerciseId != null)
                 IconButton(
@@ -897,7 +952,7 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
           ),
           const SizedBox(height: 8),
           const Text(
-            'Published changes become visible in the app immediately. Drafts stay private. '
+            'Published changes become visible in the app immediately. '
             'An exercise’s interaction type is fixed after creation so its saved answers always match the Flutter interaction.',
             style: TextStyle(color: Color(0xFF6D7584), fontSize: 12),
           ),

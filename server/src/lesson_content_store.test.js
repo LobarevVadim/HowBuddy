@@ -3,79 +3,54 @@ import assert from 'node:assert/strict';
 import {
   LESSON_LANGUAGES,
   getLessonContent,
-  importLessonContent,
   loadLessonContent,
   validateLessonContent,
 } from './lesson_content_store.js';
 
-const seeds = Object.keys(LESSON_LANGUAGES).map((language, index) => {
-  const id = `${language}-root`;
-  return {
-    language,
-    content: {
-      roots: [id],
-      nodes: {[id]: {id, question: `Question ${language}`, children: []}},
-    },
-    sourceHash: String(index).repeat(64),
-  };
-});
-
-function memoryPool(initialRows = []) {
-  const rows = new Map(initialRows.map((row) => [row.language_code, row]));
+function normalizedPool({exists = true} = {}) {
   const requestedLanguages = [];
   return {
-    rows,
     requestedLanguages,
     async query(sql, params = []) {
       if (sql.includes('SELECT EXISTS (SELECT 1 FROM content_topics)')) {
-        return {rowCount: 1, rows: [{exists: false}]};
+        return {rowCount: 1, rows: [{exists}]};
       }
-      if (sql.includes('SELECT language_code, content')) {
+      if (sql.includes('FROM content_tree_roots')) {
         requestedLanguages.push(params[0]);
-        const selected = [...rows.values()].filter((row) => params[0].includes(row.language_code));
-        return {rowCount: selected.length, rows: selected};
+        return {rowCount: 1, rows: [{topic_id: `${params[0]}-root`} ]};
       }
-      if (sql.includes('INSERT INTO lesson_content_by_language')) {
-        const [language, encodedContent, sourceHash] = params;
-        const existing = rows.get(language);
-        if (!sql.includes('DO NOTHING') || !existing) {
-          rows.set(language, {
-            language_code: language,
-            content: JSON.parse(encodedContent),
-            source_sha256: sourceHash,
-          });
-        }
-        return {rowCount: 1, rows: []};
+      if (sql.includes('SELECT t.topic_id, t.metadata')) {
+        return {rowCount: params[0].length, rows: params[0].map((language) => ({
+          topic_id: `${language}-root`,
+          metadata: {},
+          question: `Question ${language}`,
+          tree_data: {parentId: null, level: 1, children: [], lessonCount: 1, extraLessons: [], metadata: {}},
+          language_code: language,
+        }))};
       }
+      if (sql.includes('FROM content_lessons l')) return {rowCount: 0, rows: []};
+      if (sql.includes('FROM content_exercises')) return {rowCount: 0, rows: []};
       throw new Error(`Unexpected SQL in content-store test: ${sql}`);
     },
   };
 }
 
-test('loads English by default and can load another requested language on demand', async () => {
-  const rows = seeds.map(({language, content, sourceHash}) => ({
-    language_code: language,
-    content,
-    source_sha256: sourceHash,
-  }));
-  const pool = memoryPool(rows);
+test('loads published normalized content in English by default and localized content on demand', async () => {
+  assert.deepEqual(Object.keys(LESSON_LANGUAGES), ['en', 'fr', 'hi', 'es', 'ru']);
+  const pool = normalizedPool();
   const english = await loadLessonContent(pool, ['en']);
-  assert.deepEqual(pool.requestedLanguages, [['en']]);
-  assert.deepEqual(getLessonContent(english, 'en'), rows[0].content);
-  assert.equal(getLessonContent(english, 'unsupported'), rows[0].content);
+  assert.deepEqual(pool.requestedLanguages, ['en']);
+  assert.equal(getLessonContent(english, 'en').nodes['en-root'].question, 'Question en');
+  assert.equal(getLessonContent(english, 'unsupported').nodes['en-root'].question, 'Question en');
 
   const french = await loadLessonContent(pool, ['fr']);
-  assert.deepEqual(pool.requestedLanguages, [['en'], ['fr']]);
-  assert.deepEqual(getLessonContent(french, 'fr'), rows[1].content);
+  assert.deepEqual(pool.requestedLanguages, ['en', 'fr', 'en']);
+  assert.equal(getLessonContent(french, 'fr').nodes['fr-root'].question, 'Question fr');
+  assert.equal(getLessonContent(french, 'en').nodes['en-root'].question, 'Question en');
 });
 
-test('explicit content import updates the requested language rows', async () => {
-  const pool = memoryPool();
-  assert.equal(await importLessonContent(pool, seeds), 5);
-  const originalHash = pool.rows.get('en').source_sha256;
-  const changed = {...seeds[0], sourceHash: 'a'.repeat(64)};
-  await importLessonContent(pool, [changed]);
-  assert.notEqual(pool.rows.get('en').source_sha256, originalHash);
+test('normalized content must exist before the API serves lesson data', async () => {
+  await assert.rejects(() => loadLessonContent(normalizedPool({exists: false}), ['en']), /Normalized lesson content is empty/);
 });
 
 test('invalid lesson content is rejected', () => {

@@ -275,7 +275,6 @@ class _AdminPageState extends State<AdminPage> {
         child: Column(
           children: [
             _header(),
-            _sectionNavigation(),
             if (_error != null) _errorBanner(),
             if (_section == 0)
               Expanded(
@@ -413,7 +412,7 @@ class _AdminPageState extends State<AdminPage> {
 
   Widget _header() => Container(
     height: 72,
-    padding: const EdgeInsets.symmetric(horizontal: 22),
+    padding: const EdgeInsets.symmetric(horizontal: 18),
     decoration: const BoxDecoration(
       color: Colors.white,
       border: Border(bottom: BorderSide(color: Color(0xFFE4E8EF))),
@@ -448,7 +447,14 @@ class _AdminPageState extends State<AdminPage> {
             ),
           ],
         ),
-        const Spacer(),
+        const SizedBox(width: 18),
+        Expanded(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: _sectionNavigation(),
+          ),
+        ),
+        const SizedBox(width: 8),
         if (_section == 0)
           IconButton(
             tooltip: 'Refresh inbox',
@@ -470,19 +476,14 @@ class _AdminPageState extends State<AdminPage> {
     ),
   );
 
-  Widget _sectionNavigation() => Container(
-    color: Colors.white,
-    padding: const EdgeInsets.fromLTRB(18, 4, 18, 10),
-    child: Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        _sectionButton(0, Icons.inbox_outlined, 'Inbox'),
-        _sectionButton(1, Icons.people_outline_rounded, 'Users'),
-        _sectionButton(2, Icons.insights_rounded, 'Learning analytics'),
-        _sectionButton(3, Icons.library_books_outlined, 'Content'),
-      ],
-    ),
+  Widget _sectionNavigation() => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      _sectionButton(0, Icons.inbox_outlined, 'Inbox'),
+      _sectionButton(1, Icons.people_outline_rounded, 'Users'),
+      _sectionButton(2, Icons.insights_rounded, 'Learning analytics'),
+      _sectionButton(3, Icons.library_books_outlined, 'Content'),
+    ],
   );
 
   Widget _sectionButton(int section, IconData icon, String label) {
@@ -498,7 +499,7 @@ class _AdminPageState extends State<AdminPage> {
         backgroundColor: selected
             ? const Color(0xFFF2F0FF)
             : Colors.transparent,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );

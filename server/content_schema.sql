@@ -1,11 +1,4 @@
-CREATE TABLE IF NOT EXISTS lesson_content_by_language (
-  language_code TEXT PRIMARY KEY CHECK (language_code IN ('en', 'fr', 'hi', 'es', 'ru')),
-  content JSONB NOT NULL CHECK (jsonb_typeof(content) = 'object'),
-  source_sha256 CHAR(64) NOT NULL,
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
--- Normalized, editable content. The legacy snapshots remain as a rollback source.
+-- Normalized, published content is the single source of truth.
 CREATE TABLE IF NOT EXISTS content_topics (
   topic_id TEXT PRIMARY KEY,
   parent_topic_id TEXT REFERENCES content_topics(topic_id) ON DELETE RESTRICT,
@@ -58,17 +51,6 @@ CREATE TABLE IF NOT EXISTS content_lesson_translations (
   PRIMARY KEY (lesson_id, language_code)
 );
 
-CREATE TABLE IF NOT EXISTS content_lesson_drafts (
-  lesson_id UUID NOT NULL REFERENCES content_lessons(id) ON DELETE CASCADE,
-  language_code TEXT NOT NULL CHECK (language_code IN ('en', 'fr', 'es', 'hi', 'ru')),
-  material_topic_id TEXT REFERENCES content_topics(topic_id) ON DELETE RESTRICT,
-  title TEXT NOT NULL,
-  content TEXT NOT NULL DEFAULT '',
-  updated_by UUID REFERENCES accounts(id) ON DELETE SET NULL,
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  PRIMARY KEY (lesson_id, language_code)
-);
-
 -- Every localized exercise is an independent typed JSONB row. This preserves
 -- legacy cases where exercise types/counts differ across languages.
 CREATE TABLE IF NOT EXISTS content_exercises (
@@ -89,15 +71,6 @@ CREATE TABLE IF NOT EXISTS content_exercises (
 CREATE INDEX IF NOT EXISTS content_exercises_lesson_order_idx
   ON content_exercises(lesson_id, language_code, position);
 
-CREATE TABLE IF NOT EXISTS content_exercise_drafts (
-  exercise_id UUID NOT NULL REFERENCES content_exercises(id) ON DELETE CASCADE,
-  language_code TEXT NOT NULL CHECK (language_code IN ('en', 'fr', 'es', 'hi', 'ru')),
-  exercise_json JSONB NOT NULL CHECK (jsonb_typeof(exercise_json) = 'object'),
-  updated_by UUID REFERENCES accounts(id) ON DELETE SET NULL,
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  PRIMARY KEY (exercise_id, language_code)
-);
-
 CREATE TABLE IF NOT EXISTS content_revisions (
   id BIGSERIAL PRIMARY KEY,
   entity_type TEXT NOT NULL CHECK (entity_type IN ('topic', 'lesson', 'exercise')),
@@ -112,3 +85,18 @@ CREATE TABLE IF NOT EXISTS content_revisions (
 );
 CREATE INDEX IF NOT EXISTS content_revisions_entity_idx
   ON content_revisions(entity_type, entity_id, language_code, revision_number DESC);
+
+-- The normalized migration was confirmed complete before this cleanup. Only
+-- drop snapshots when the normalized tables contain content, so a fresh or
+-- incomplete database does not lose its only copy.
+DO $$
+BEGIN
+  IF to_regclass('public.content_topics') IS NOT NULL
+     AND EXISTS (SELECT 1 FROM public.content_topics LIMIT 1) THEN
+    DROP TABLE IF EXISTS public.lesson_content_by_language;
+  END IF;
+END $$;
+
+-- Draft workflow was intentionally removed; publishing is now immediate.
+DROP TABLE IF EXISTS public.content_lesson_drafts;
+DROP TABLE IF EXISTS public.content_exercise_drafts;

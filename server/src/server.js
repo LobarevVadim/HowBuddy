@@ -26,18 +26,18 @@ import {
   ensureLessonContentSchema,
   getLessonContent as getStoredLessonContent,
   loadLessonContent,
-  migrateLegacyLessonContent,
 } from './lesson_content_store.js';
 import {
-  createLessonDraft,
+  createLesson,
+  deleteExercise,
+  deleteLesson,
   getContentLesson,
   getContentAdminState,
   listContentRevisions,
   listContentLessons,
   listContentTopics,
-  publishLesson,
+  saveLesson,
   saveExercise,
-  saveLessonDraft,
   restoreContentRevision,
   supportedExerciseTypes,
 } from './content_admin.js';
@@ -327,23 +327,6 @@ app.get('/admin/content/state', requireAuth, requireAdmin, async (_request, resp
   }
 });
 
-// This one-time admin action copies the existing five JSONB snapshots into the
-// normalized tables. Legacy snapshots remain in place for rollback.
-app.post('/admin/content/migrate', requireAuth, requireAdmin, async (_request, response) => {
-  try {
-    const result = await migrateLegacyLessonContent(pool);
-    lessonContentByLanguage.clear();
-    languageContentLoads.clear();
-    await loadLessonContentCache(Object.keys(LESSON_LANGUAGES));
-    return response.json({migrated: true, ...result});
-  } catch (error) {
-    console.error('Could not normalize lesson content:', error.message);
-    const status = /already exists|missing language|missing parent|missing child|different topic|different exercise|invalid|must contain/i.test(error.message)
-      ? 409 : 500;
-    return response.status(status).json({message: error.message || 'Could not migrate lesson content.'});
-  }
-});
-
 app.get('/admin/content/topics', requireAuth, requireAdmin, async (request, response) => {
   try {
     const language = String(request.query.language ?? 'en');
@@ -379,13 +362,15 @@ app.get('/admin/content/lessons/:id', requireAuth, requireAdmin, async (request,
 
 app.post('/admin/content/lessons', requireAuth, requireAdmin, async (request, response) => {
   try {
-    const result = await createLessonDraft(pool, {
+    const result = await createLesson(pool, {
       topicId: String(request.body.topicId ?? '').trim(),
       language: String(request.body.language ?? 'en'),
+      allLanguages: request.body.allLanguages === true,
       title: request.body.title,
       content: request.body.content,
       accountId: request.accountId,
     });
+    await loadLessonContentCache(result.languages);
     return response.status(201).json(result);
   } catch (error) {
     const status = /Choose|title|required|text/.test(error.message) ? 400 : 500;
@@ -393,33 +378,33 @@ app.post('/admin/content/lessons', requireAuth, requireAdmin, async (request, re
   }
 });
 
-app.post('/admin/content/lessons/:id/save', requireAuth, requireAdmin, async (request, response) => {
+app.post('/admin/content/lessons/:id/publish', requireAuth, requireAdmin, async (request, response) => {
   try {
-    return response.json(await saveLessonDraft(pool, {
+    const result = await saveLesson(pool, {
       lessonId: request.params.id,
       language: String(request.body.language ?? 'en'),
+      allLanguages: request.body.allLanguages === true,
       title: request.body.title,
       content: request.body.content,
       accountId: request.accountId,
-    }));
+    });
+    await loadLessonContentCache(result.languages);
+    return response.json(result);
   } catch (error) {
-    const status = /Select|title|required|text/.test(error.message) ? 400 : 500;
-    return response.status(status).json({message: error.message || 'Could not save the lesson draft.'});
+    const status = /Select|title|required|text|not found|translation is missing/.test(error.message) ? 400 : 500;
+    return response.status(status).json({message: error.message || 'Could not publish the lesson.'});
   }
 });
 
-app.post('/admin/content/lessons/:id/publish', requireAuth, requireAdmin, async (request, response) => {
+app.delete('/admin/content/lessons/:id', requireAuth, requireAdmin, async (request, response) => {
   try {
-    const result = await publishLesson(pool, {
-      lessonId: request.params.id,
-      language: String(request.body.language ?? 'en'),
-      accountId: request.accountId,
-    });
-    await loadLessonContentCache([String(request.body.language ?? 'en')]);
-    return response.json(result);
+    await deleteLesson(pool, {lessonId: request.params.id});
+    lessonContentByLanguage.clear();
+    languageContentLoads.clear();
+    return response.json({deleted: true});
   } catch (error) {
-    const status = /Select|Save a lesson draft|Publish at least one .* exercise|not found/.test(error.message) ? 400 : 500;
-    return response.status(status).json({message: error.message || 'Could not publish the lesson.'});
+    const status = /not found/.test(error.message) ? 404 : 500;
+    return response.status(status).json({message: error.message || 'Could not delete the lesson.'});
   }
 });
 
@@ -432,15 +417,30 @@ app.post('/admin/content/exercises/save', requireAuth, requireAdmin, async (requ
       language,
       exerciseType: String(request.body.exerciseType ?? ''),
       payload: request.body.payload,
-      publish: request.body.publish === true,
+      allLanguages: request.body.allLanguages === true,
       accountId: request.accountId,
     });
-    if (request.body.publish === true) await loadLessonContentCache([language]);
+    await loadLessonContentCache(result.languages);
     return response.json(result);
   } catch (error) {
-    const status = /Select|Provide|Exercise|correct|question|required|explanation|answer|option|step|pair|paragraph|type|New exercises|Publish the lesson/.test(error.message)
+    const status = /Select|Provide|Exercise|correct|question|required|explanation|answer|option|step|pair|paragraph|type|New exercises|different type|Publish the lesson/.test(error.message)
       ? 400 : 500;
     return response.status(status).json({message: error.message || 'Could not save the exercise.'});
+  }
+});
+
+app.delete('/admin/content/lessons/:lessonId/exercises/:exerciseId', requireAuth, requireAdmin, async (request, response) => {
+  try {
+    await deleteExercise(pool, {
+      lessonId: request.params.lessonId,
+      exerciseId: request.params.exerciseId,
+    });
+    lessonContentByLanguage.clear();
+    languageContentLoads.clear();
+    return response.json({deleted: true});
+  } catch (error) {
+    const status = /not found/.test(error.message) ? 404 : 500;
+    return response.status(status).json({message: error.message || 'Could not delete the exercise.'});
   }
 });
 
@@ -466,6 +466,7 @@ app.post('/admin/content/revisions/restore', requireAuth, requireAdmin, async (r
       revisionId: String(request.body.revisionId ?? ''),
       accountId: request.accountId,
     });
+    await loadLessonContentCache([language]);
     return response.json(result);
   } catch (error) {
     const status = /Choose a valid|not found|invalid/.test(error.message) ? 400 : 500;

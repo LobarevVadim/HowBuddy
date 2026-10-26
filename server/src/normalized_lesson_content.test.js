@@ -41,13 +41,18 @@ test('exercise validator rejects a mismatched type and incomplete fill-in blanks
   }), /paragraph segment/);
 });
 
-test('content schema declares each lesson draft column once', () => {
+test('content schema removes the obsolete snapshots and draft tables', () => {
   const schema = readFileSync(new URL('../content_schema.sql', import.meta.url), 'utf8');
-  const draftTable = schema.match(/CREATE TABLE IF NOT EXISTS content_lesson_drafts \(([\s\S]*?)\n\);/);
-  assert.ok(draftTable, 'lesson draft table should be declared');
-  const columns = draftTable[1].split('\n')
-    .map((line) => line.trim().match(/^([a-z_]+)\s/))
-    .filter(Boolean)
-    .map((match) => match[1]);
-  assert.equal(new Set(columns).size, columns.length, 'draft table must not repeat a column');
+  assert.doesNotMatch(schema, /CREATE TABLE IF NOT EXISTS lesson_content_by_language/);
+  assert.doesNotMatch(schema, /CREATE TABLE IF NOT EXISTS content_(?:lesson|exercise)_drafts/);
+  assert.match(schema, /DROP TABLE IF EXISTS public\.content_lesson_drafts/);
+  assert.match(schema, /DROP TABLE IF EXISTS public\.content_exercise_drafts/);
+  assert.match(schema, /DROP TABLE IF EXISTS public\.lesson_content_by_language/);
+  for (const table of schema.matchAll(/CREATE TABLE IF NOT EXISTS ([a-z_]+) \(([\s\S]*?)\n\);/g)) {
+    const columns = table[2].split('\n')
+      .map((line) => line.match(/^  ([a-z_]+)\s+[A-Z]/i))
+      .filter(Boolean)
+      .map((match) => match[1]);
+    assert.equal(new Set(columns).size, columns.length, `${table[1]} must not repeat a column`);
+  }
 });
