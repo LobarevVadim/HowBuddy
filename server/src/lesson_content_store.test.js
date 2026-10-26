@@ -5,17 +5,32 @@ import {
   getLessonContent,
   importLessonContent,
   loadLessonContent,
-  readLessonContentSeeds,
   validateLessonContent,
 } from './lesson_content_store.js';
 
+const seeds = Object.keys(LESSON_LANGUAGES).map((language, index) => {
+  const id = `${language}-root`;
+  return {
+    language,
+    content: {
+      roots: [id],
+      nodes: {[id]: {id, question: `Question ${language}`, children: []}},
+    },
+    sourceHash: String(index).repeat(64),
+  };
+});
+
 function memoryPool(initialRows = []) {
   const rows = new Map(initialRows.map((row) => [row.language_code, row]));
+  const requestedLanguages = [];
   return {
     rows,
+    requestedLanguages,
     async query(sql, params = []) {
       if (sql.includes('SELECT language_code, content')) {
-        return {rowCount: rows.size, rows: [...rows.values()]};
+        requestedLanguages.push(params[0]);
+        const selected = [...rows.values()].filter((row) => params[0].includes(row.language_code));
+        return {rowCount: selected.length, rows: selected};
       }
       if (sql.includes('INSERT INTO lesson_content_by_language')) {
         const [language, encodedContent, sourceHash] = params;
@@ -34,30 +49,25 @@ function memoryPool(initialRows = []) {
   };
 }
 
-test('seed files provide validated content for all five languages', () => {
-  const seeds = readLessonContentSeeds();
-  assert.deepEqual(seeds.map((seed) => seed.language).sort(), Object.keys(LESSON_LANGUAGES).sort());
-  for (const seed of seeds) {
-    assert.ok(seed.content.roots.length > 0, `${seed.language} has root topics`);
-    assert.equal(seed.sourceHash.length, 64);
-  }
+test('loads English by default and can load another requested language on demand', async () => {
+  const rows = seeds.map(({language, content, sourceHash}) => ({
+    language_code: language,
+    content,
+    source_sha256: sourceHash,
+  }));
+  const pool = memoryPool(rows);
+  const english = await loadLessonContent(pool, ['en']);
+  assert.deepEqual(pool.requestedLanguages, [['en']]);
+  assert.deepEqual(getLessonContent(english, 'en'), rows[0].content);
+  assert.equal(getLessonContent(english, 'unsupported'), rows[0].content);
+
+  const french = await loadLessonContent(pool, ['fr']);
+  assert.deepEqual(pool.requestedLanguages, [['en'], ['fr']]);
+  assert.deepEqual(getLessonContent(french, 'fr'), rows[1].content);
 });
 
-test('content loads from database rows by language without reading seed files', async () => {
+test('explicit content import updates the requested language rows', async () => {
   const pool = memoryPool();
-  const seeds = readLessonContentSeeds();
-  await importLessonContent(pool, seeds);
-
-  const loaded = await loadLessonContent(pool);
-  for (const language of Object.keys(LESSON_LANGUAGES)) {
-    assert.deepEqual(getLessonContent(loaded, language), pool.rows.get(language).content);
-  }
-  assert.equal(getLessonContent(loaded, 'unsupported'), loaded.get('en'));
-});
-
-test('explicit content import updates existing language rows', async () => {
-  const pool = memoryPool();
-  const seeds = readLessonContentSeeds();
   assert.equal(await importLessonContent(pool, seeds), 5);
   const originalHash = pool.rows.get('en').source_sha256;
   const changed = {...seeds[0], sourceHash: 'a'.repeat(64)};
@@ -65,6 +75,6 @@ test('explicit content import updates existing language rows', async () => {
   assert.notEqual(pool.rows.get('en').source_sha256, originalHash);
 });
 
-test('invalid lesson content is rejected before import', () => {
+test('invalid lesson content is rejected', () => {
   assert.throws(() => validateLessonContent({roots: ['missing'], nodes: {}}, 'en'));
 });

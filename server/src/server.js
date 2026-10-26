@@ -22,6 +22,7 @@ import {
 import {createSupportInbox, verifyResendWebhook, SUPPORT_INBOXES} from './support_inbox.js';
 import {BoboError, createBoboTutor} from './bobo_service.js';
 import {
+  LESSON_LANGUAGES,
   ensureLessonContentSchema,
   getLessonContent as getStoredLessonContent,
   loadLessonContent,
@@ -67,13 +68,27 @@ const notificationScheduler = createNotificationScheduler({
 });
 let lessonContent = null;
 let lessonContentByLanguage = new Map();
+const languageContentLoads = new Map();
 const boboTutor = createBoboTutor({pool, getLessonContent});
 
-function getLessonContent(language) {
+async function getLessonContent(language) {
+  const code = Object.hasOwn(LESSON_LANGUAGES, String(language)) ? String(language) : 'en';
+  if (!lessonContentByLanguage.has(code)) {
+    let loading = languageContentLoads.get(code);
+    if (!loading) {
+      loading = loadLessonContentCache([code]);
+      languageContentLoads.set(code, loading);
+    }
+    try {
+      await loading;
+    } finally {
+      languageContentLoads.delete(code);
+    }
+  }
   if (!lessonContentByLanguage.size) {
     throw new Error('Lesson content database has not been initialized.');
   }
-  return getStoredLessonContent(lessonContentByLanguage, language);
+  return getStoredLessonContent(lessonContentByLanguage, code);
 }
 
 app.use(cors());
@@ -354,8 +369,13 @@ app.get('/health', async (_request, response) => {
   }
 });
 
-app.get('/onboarding/topics', (request, response) => {
-  response.json({topics: rootTopics(getLessonContent(request.query.language))});
+app.get('/onboarding/topics', async (request, response) => {
+  try {
+    response.json({topics: rootTopics(await getLessonContent(request.query.language))});
+  } catch (error) {
+    console.error('Could not load onboarding topics:', error.message);
+    response.status(500).json({message: 'Could not load lesson topics.'});
+  }
 });
 
 app.get('/gamification', requireAuth, async (request, response) => {
@@ -1328,7 +1348,7 @@ function toAccount(row) {
 
 async function getAccountLessonContent(request) {
   if (request.query.language) return getLessonContent(request.query.language);
-  if (!request.accountId) return lessonContent;
+  if (!request.accountId) return getLessonContent('en');
   try {
     const result = await pool.query(
       'SELECT preferred_language FROM accounts WHERE id = $1',
@@ -1734,10 +1754,12 @@ pool.query(readFileSync(new URL('../schema.sql', import.meta.url), 'utf8')).then
   process.exitCode = 1;
 });
 
-async function loadLessonContentCache() {
-  const nextContent = await loadLessonContent(contentPool);
-  lessonContentByLanguage = nextContent;
-  lessonContent = getLessonContent('en');
+async function loadLessonContentCache(languages = ['en']) {
+  const nextContent = await loadLessonContent(contentPool, languages);
+  for (const [language, content] of nextContent) {
+    lessonContentByLanguage.set(language, content);
+  }
+  lessonContent = getStoredLessonContent(lessonContentByLanguage, 'en');
 }
 
 async function seedLeaderboardDemoUsers() {

@@ -9,8 +9,6 @@ export const LESSON_LANGUAGES = Object.freeze({
   ru: 'lesson_exercises_ru.json',
 });
 
-const DEFAULT_DATA_DIRECTORY = new URL('../data/', import.meta.url);
-
 export function validateLessonContent(value, language) {
   if (!value || typeof value !== 'object' || Array.isArray(value) ||
       !Array.isArray(value.roots) || value.roots.length === 0 ||
@@ -25,7 +23,10 @@ export function validateLessonContent(value, language) {
   return value;
 }
 
-export function readLessonContentSeeds(directory = DEFAULT_DATA_DIRECTORY) {
+export function readLessonContentSeeds(directory) {
+  if (!directory) {
+    throw new Error('Provide a directory containing the five lesson JSON files.');
+  }
   return Object.entries(LESSON_LANGUAGES).map(([language, filename]) => {
     const fileUrl = new URL(filename, directory);
     const source = readFileSync(fileUrl, 'utf8');
@@ -49,8 +50,12 @@ export async function ensureLessonContentSchema(pool) {
   await pool.query(schema);
 }
 
-export async function importLessonContent(pool, seeds = readLessonContentSeeds()) {
+export async function importLessonContent(pool, seeds) {
+  if (!Array.isArray(seeds) || !seeds.length) {
+    throw new Error('No validated lesson content records were provided.');
+  }
   for (const seed of seeds) {
+    validateLessonContent(seed.content, seed.language);
     await pool.query(
       `INSERT INTO lesson_content_by_language (language_code, content, source_sha256)
        VALUES ($1, $2::jsonb, $3)
@@ -64,19 +69,22 @@ export async function importLessonContent(pool, seeds = readLessonContentSeeds()
   return seeds.length;
 }
 
-export async function loadLessonContent(pool) {
+export async function loadLessonContent(pool, languages = ['en']) {
+  const requestedLanguages = [...new Set(languages.map(String))]
+    .filter((language) => Object.hasOwn(LESSON_LANGUAGES, language));
+  if (!requestedLanguages.length) return new Map();
   const result = await pool.query(
     `SELECT language_code, content
      FROM lesson_content_by_language
      WHERE language_code = ANY($1::text[])`,
-    [Object.keys(LESSON_LANGUAGES)],
+    [requestedLanguages],
   );
   const contentByLanguage = new Map();
   for (const row of result.rows) {
     const content = typeof row.content === 'string' ? JSON.parse(row.content) : row.content;
     contentByLanguage.set(row.language_code, validateLessonContent(content, row.language_code));
   }
-  if (!contentByLanguage.has('en')) {
+  if (requestedLanguages.includes('en') && !contentByLanguage.has('en')) {
     throw new Error('English lesson content is missing from the content database.');
   }
   return contentByLanguage;

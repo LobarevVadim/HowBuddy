@@ -212,7 +212,7 @@ export function createBoboTutor({
       let context;
       try {
         context = buildBoboLessonContext({
-          content: getLessonContent(accountResult.rows[0].preferred_language ?? 'en'),
+          content: await getLessonContent(accountResult.rows[0].preferred_language ?? 'en'),
           topicId,
           lessonId,
           exerciseIndex,
@@ -276,7 +276,7 @@ export function createBoboTutor({
       );
       if (!accountResult.rowCount) throw new BoboError('unauthorized', 401);
       const preferredLanguage = accountResult.rows[0].preferred_language ?? 'en';
-      const content = getLessonContent(preferredLanguage);
+      const content = await getLessonContent(preferredLanguage);
       try {
         buildBoboLessonContext({
           content,
@@ -361,7 +361,7 @@ export function createBoboTutor({
       );
       if (!accountResult.rowCount) throw new BoboError('unauthorized', 401);
       const preferredLanguage = accountResult.rows[0].preferred_language ?? 'en';
-      const content = getLessonContent(preferredLanguage);
+      const content = await getLessonContent(preferredLanguage);
       const progressResult = await pool.query(
         `SELECT topic_id, array_agg(lesson_id ORDER BY lesson_id) AS lesson_ids
          FROM lesson_progress WHERE account_id = $1 GROUP BY topic_id`,

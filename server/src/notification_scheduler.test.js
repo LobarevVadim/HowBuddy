@@ -1,7 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createNotificationScheduler, reachableQuestionNodes, slotDue} from './notification_scheduler.js';
-import {readFileSync} from 'node:fs';
 
 function persistentFakePool() {
   const claims = new Set();
@@ -46,7 +45,22 @@ function persistentFakePool() {
 }
 
 test('curiosity messages choose among all 39 reachable tree questions', () => {
-  const content = JSON.parse(readFileSync(new URL('../data/lesson_exercises.json', import.meta.url), 'utf8'));
+  const content = {roots: [], nodes: {}};
+  for (let rootIndex = 0; rootIndex < 3; rootIndex++) {
+    const rootId = `root-${rootIndex}`;
+    content.roots.push(rootId);
+    content.nodes[rootId] = {id: rootId, question: `Root ${rootIndex}`, children: []};
+    for (let branchIndex = 0; branchIndex < 3; branchIndex++) {
+      const branchId = `${rootId}-branch-${branchIndex}`;
+      content.nodes[rootId].children.push(branchId);
+      content.nodes[branchId] = {id: branchId, question: `Branch ${branchIndex}`, children: []};
+      for (let leafIndex = 0; leafIndex < 3; leafIndex++) {
+        const leafId = `${branchId}-leaf-${leafIndex}`;
+        content.nodes[branchId].children.push(leafId);
+        content.nodes[leafId] = {id: leafId, question: `Leaf ${leafIndex}`, children: []};
+      }
+    }
+  }
   const questions = reachableQuestionNodes(content);
   assert.equal(questions.length, 39);
   assert.ok(questions.every(({id, question}) => id && question));

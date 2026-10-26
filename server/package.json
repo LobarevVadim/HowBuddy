@@ -5,7 +5,6 @@
   "type": "module",
   "scripts": {
     "start": "node src/server.js",
-    "content:import": "node src/import_lesson_content.js",
     "test": "node --test src/notification_policy.test.js src/notification_scheduler.test.js src/streak_freeze_policy.test.js src/bobo_service.test.js src/bobo_tutoring.test.js src/lesson_content_store.test.js"
   },
   "dependencies": {

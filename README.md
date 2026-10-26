@@ -9,7 +9,7 @@ This repo contains a Flutter Android/iOS app and an Express API. The API stores 
 - XP totals and weekly XP history
 - Hearts, emeralds, XP boosts, study dates, and streak history
 
-The database schema is applied when `server/src/server.js` starts. `server/dev-server.js` is an in-memory local mock and must not be used for a shared demo.
+The database schema is applied when `server/src/server.js` starts. `server/dev-server.js` is an in-memory local mock for accounts and progress; it reads lesson content from the PostgreSQL content table and must not be used for a shared demo.
 
 ## Run locally
 

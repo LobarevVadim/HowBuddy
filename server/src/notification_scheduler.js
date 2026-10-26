@@ -95,7 +95,7 @@ export function createNotificationScheduler({
         const sentTypes = new Set(user.sent_types ?? []);
         let question = null;
         if (slot !== 'morning' || user.curiosity_enabled) {
-          const questions = reachableQuestionNodes(getLessonContent(user.language));
+          const questions = reachableQuestionNodes(await getLessonContent(user.language));
           if (questions.length) question = questions[Math.floor(Math.random() * questions.length)];
         }
         const plan = chooseNotification({

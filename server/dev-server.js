@@ -1,6 +1,11 @@
 import {createHash, randomUUID} from 'node:crypto';
 import {createServer} from 'node:http';
-import {existsSync, readFileSync} from 'node:fs';
+import {fileURLToPath} from 'node:url';
+import dotenv from 'dotenv';
+import pg from 'pg';
+import {LESSON_LANGUAGES, getLessonContent as selectLessonContent, loadLessonContent} from './src/lesson_content_store.js';
+
+dotenv.config({path: fileURLToPath(new URL('./.env', import.meta.url))});
 
 const port = Number(process.env.PORT ?? 3000);
 const accounts = new Map();
@@ -26,22 +31,32 @@ demoXpAmounts.forEach((earnedXp, index) => {
     at: new Date(),
   });
 });
-const lessonContentPath = ['server/data/lesson_exercises.json', 'data/lesson_exercises.json']
-  .find((path) => existsSync(path));
-if (!lessonContentPath) throw new Error('Lesson exercise JSON database was not found.');
-const lessonContent = JSON.parse(readFileSync(lessonContentPath, 'utf8'));
-const lessonContentByLanguage = new Map([['en', lessonContent]]);
+const contentPool = new pg.Pool({connectionString: process.env.DATABASE_URL});
+const lessonContentByLanguage = await loadLessonContent(contentPool, ['en']);
+let lessonContent = selectLessonContent(lessonContentByLanguage, 'en');
+const languageLoads = new Map();
 
-function getLessonContent(language) {
-  const code = ['fr', 'es', 'hi', 'ru'].includes(String(language))
+async function getLessonContent(language) {
+  const code = Object.hasOwn(LESSON_LANGUAGES, String(language))
     ? String(language)
     : 'en';
-  if (lessonContentByLanguage.has(code)) return lessonContentByLanguage.get(code);
-  const filePath = lessonContentPath.replace(/lesson_exercises\.json$/, `lesson_exercises_${code}.json`);
-  if (!existsSync(filePath)) return lessonContent;
-  const localized = JSON.parse(readFileSync(filePath, 'utf8'));
-  lessonContentByLanguage.set(code, localized);
-  return localized;
+  if (!lessonContentByLanguage.has(code)) {
+    let loading = languageLoads.get(code);
+    if (!loading) {
+      loading = loadLessonContent(contentPool, [code]).then((loaded) => {
+        for (const [loadedLanguage, content] of loaded) {
+          lessonContentByLanguage.set(loadedLanguage, content);
+        }
+      });
+      languageLoads.set(code, loading);
+    }
+    try {
+      await loading;
+    } finally {
+      languageLoads.delete(code);
+    }
+  }
+  return selectLessonContent(lessonContentByLanguage, code);
 }
 
 const server = createServer(async (request, response) => {
@@ -126,7 +141,7 @@ const server = createServer(async (request, response) => {
   }
 
   if (url.pathname === '/onboarding/topics' && request.method === 'GET') {
-    send(response, 200, {topics: rootTopics(getLessonContent(url.searchParams.get('language')))});
+    send(response, 200, {topics: rootTopics(await getLessonContent(url.searchParams.get('language')))});
     return;
   }
 
@@ -275,7 +290,7 @@ const server = createServer(async (request, response) => {
   }
 
   if (url.pathname === '/lessons/tree' && request.method === 'GET') {
-    const content = getLessonContent(url.searchParams.get('language'));
+    const content = await getLessonContent(url.searchParams.get('language'));
     const topicId = url.searchParams.get('topic') ?? content.roots[0];
     const topic = findTopic(topicId, content);
     if (!topic) {
@@ -295,7 +310,7 @@ const server = createServer(async (request, response) => {
   if (url.pathname === '/lessons/exercises' && request.method === 'GET') {
     const topicId = String(url.searchParams.get('topic') ?? '').trim();
     const lessonId = String(url.searchParams.get('lesson') ?? 'lesson-1').trim();
-    const content = getLessonContent(url.searchParams.get('language'));
+    const content = await getLessonContent(url.searchParams.get('language'));
     const topicContent = content.nodes[topicId];
     if (!topicContent) {
       send(response, 404, {message: 'No exercises are available for this topic.'});
@@ -433,7 +448,7 @@ const server = createServer(async (request, response) => {
   }
 
   if (url.pathname === '/notepad/tree' && request.method === 'GET') {
-    send(response, 200, {tree: buildNotepadTree(getLessonContent(url.searchParams.get('language')))});
+    send(response, 200, {tree: buildNotepadTree(await getLessonContent(url.searchParams.get('language')))});
     return;
   }
 
