@@ -22,10 +22,8 @@ import {
 import {createSupportInbox, verifyResendWebhook, SUPPORT_INBOXES} from './support_inbox.js';
 import {BoboError, createBoboTutor} from './bobo_service.js';
 import {
-  LESSON_LANGUAGES,
   ensureLessonContentSchema,
   getLessonContent as getStoredLessonContent,
-  importLessonContent,
   loadLessonContent,
 } from './lesson_content_store.js';
 
@@ -103,34 +101,6 @@ app.use((request, response, next) => {
 app.get('/admin/session', requireAuth, requireAdmin, async (request, response) => {
   const result = await pool.query('SELECT full_name, email FROM accounts WHERE id = $1', [request.accountId]);
   return response.json({account: result.rows[0] ?? null, inboxes: SUPPORT_INBOXES});
-});
-
-// TEMPORARY: remove after importing lesson files into lesson_content_by_language.
-app.post('/admin/lesson-content/import-files', requireAuth, requireAdmin, async (_request, response) => {
-  try {
-    await ensureLessonContentSchema(contentPool);
-    await importLessonContent(contentPool);
-    const result = await contentPool.query(
-      `SELECT language_code
-       FROM lesson_content_by_language
-       WHERE language_code = ANY($1::text[])
-       ORDER BY language_code`,
-      [Object.keys(LESSON_LANGUAGES)],
-    );
-    const importedLanguages = result.rows.map((row) => row.language_code);
-    if (importedLanguages.length !== Object.keys(LESSON_LANGUAGES).length) {
-      throw new Error(`Expected five lesson languages; found ${importedLanguages.length}.`);
-    }
-    await loadLessonContentCache();
-    return response.json({
-      imported: true,
-      languages: importedLanguages,
-      source: 'server/data',
-    });
-  } catch (error) {
-    console.error('Temporary lesson content import failed:', error.message);
-    return response.status(500).json({message: 'Could not import lesson content.'});
-  }
 });
 
 app.get('/admin/overview', requireAuth, requireAdmin, async (_request, response) => {
@@ -1748,12 +1718,8 @@ function clientTimezoneOffset(request) {
 
 pool.query(readFileSync(new URL('../schema.sql', import.meta.url), 'utf8')).then(async () => {
   await ensureLessonContentSchema(contentPool);
-  await loadLessonContentCache({allowMissing: true});
-  if (lessonContentByLanguage.size) {
-    console.log(`Loaded lesson content from PostgreSQL (${lessonContentByLanguage.size} languages).`);
-  } else {
-    console.warn('Lesson content table is empty; use the temporary admin import route to load it.');
-  }
+  await loadLessonContentCache();
+  console.log(`Loaded lesson content from PostgreSQL (${lessonContentByLanguage.size} languages).`);
   await seedLeaderboardDemoUsers();
   await applyStudyDayBackfill();
   if (sessionSecret.length < 32) {
@@ -1768,18 +1734,10 @@ pool.query(readFileSync(new URL('../schema.sql', import.meta.url), 'utf8')).then
   process.exitCode = 1;
 });
 
-async function loadLessonContentCache({allowMissing = false} = {}) {
-  try {
-    const nextContent = await loadLessonContent(contentPool);
-    lessonContentByLanguage = nextContent;
-    lessonContent = getLessonContent('en');
-  } catch (error) {
-    if (!allowMissing || error.message !== 'English lesson content is missing from the content database.') {
-      throw error;
-    }
-    lessonContentByLanguage = new Map();
-    lessonContent = null;
-  }
+async function loadLessonContentCache() {
+  const nextContent = await loadLessonContent(contentPool);
+  lessonContentByLanguage = nextContent;
+  lessonContent = getLessonContent('en');
 }
 
 async function seedLeaderboardDemoUsers() {

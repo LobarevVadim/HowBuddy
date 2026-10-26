@@ -133,50 +133,6 @@ class _AdminPageState extends State<AdminPage> {
     if (mounted) setState(() {});
   }
 
-  // TEMPORARY: remove after importing lesson files into PostgreSQL.
-  Future<void> _importLessonContentFiles() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Import lesson files?'),
-        content: const Text(
-          'This imports the five current language files into the lesson content table in the existing HowBuddy database.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Import'),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true || _loading) return;
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
-    try {
-      final result = await _api(
-        '/admin/lesson-content/import-files',
-        method: 'POST',
-      );
-      final languages = (result['languages'] as List<dynamic>).join(', ');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Imported lesson content: $languages')),
-        );
-      }
-    } catch (error) {
-      if (mounted) setState(() => _error = _errorMessage(error));
-    } finally {
-      if (mounted) setState(() => _loading = false);
-    }
-  }
-
   Future<void> _loadConversations() async {
     final query = <String, String>{
       if (_search.text.trim().isNotEmpty) 'search': _search.text.trim(),
@@ -485,11 +441,6 @@ class _AdminPageState extends State<AdminPage> {
           ],
         ),
         const Spacer(),
-        IconButton(
-          tooltip: 'Temporary: import lesson files',
-          onPressed: _loading ? null : _importLessonContentFiles,
-          icon: const Icon(Icons.upload_file_rounded),
-        ),
         if (_section == 0)
           IconButton(
             tooltip: 'Refresh inbox',
