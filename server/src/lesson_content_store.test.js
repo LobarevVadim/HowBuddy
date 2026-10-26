@@ -27,6 +27,9 @@ function memoryPool(initialRows = []) {
     rows,
     requestedLanguages,
     async query(sql, params = []) {
+      if (sql.includes('SELECT EXISTS (SELECT 1 FROM content_topics)')) {
+        return {rowCount: 1, rows: [{exists: false}]};
+      }
       if (sql.includes('SELECT language_code, content')) {
         requestedLanguages.push(params[0]);
         const selected = [...rows.values()].filter((row) => params[0].includes(row.language_code));

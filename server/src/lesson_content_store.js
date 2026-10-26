@@ -1,5 +1,6 @@
 import {createHash} from 'node:crypto';
 import {readFileSync} from 'node:fs';
+import {loadNormalizedLessonContent, migrateLegacyLessonContent, normalizedContentExists} from './normalized_lesson_content.js';
 
 export const LESSON_LANGUAGES = Object.freeze({
   en: 'lesson_exercises.json',
@@ -73,6 +74,14 @@ export async function loadLessonContent(pool, languages = ['en']) {
   const requestedLanguages = [...new Set(languages.map(String))]
     .filter((language) => Object.hasOwn(LESSON_LANGUAGES, language));
   if (!requestedLanguages.length) return new Map();
+  if (await normalizedContentExists(pool)) {
+    const contentByLanguage = new Map();
+    const languagesToLoad = [...new Set([...requestedLanguages, 'en'])];
+    for (const language of languagesToLoad) {
+      contentByLanguage.set(language, await loadNormalizedLessonContent(pool, language));
+    }
+    return contentByLanguage;
+  }
   const result = await pool.query(
     `SELECT language_code, content
      FROM lesson_content_by_language
@@ -89,6 +98,8 @@ export async function loadLessonContent(pool, languages = ['en']) {
   }
   return contentByLanguage;
 }
+
+export {migrateLegacyLessonContent};
 
 export function getLessonContent(contentByLanguage, language) {
   const code = Object.hasOwn(LESSON_LANGUAGES, String(language)) ? String(language) : 'en';

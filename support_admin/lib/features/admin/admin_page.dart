@@ -12,6 +12,7 @@ import '../../services/auth_api.dart';
 import '../../models/app_models.dart';
 import 'support_download.dart';
 import 'admin_analytics_sections.dart';
+import 'content_admin_section.dart';
 
 class AdminPage extends StatefulWidget {
   const AdminPage({super.key});
@@ -304,10 +305,17 @@ class _AdminPageState extends State<AdminPage> {
               Expanded(
                 child: AdminUsersSection(onRequest: (path) => _api(path)),
               )
-            else
+            else if (_section == 2)
               Expanded(
                 child: AdminLearningAnalyticsSection(
                   onRequest: (path) => _api(path),
+                ),
+              ),
+            if (_section == 3)
+              Expanded(
+                child: ContentAdminSection(
+                  onRequest: (path, {String? method, data}) =>
+                      _api(path, method: method ?? 'GET', data: data),
                 ),
               ),
           ],
@@ -472,6 +480,7 @@ class _AdminPageState extends State<AdminPage> {
         _sectionButton(0, Icons.inbox_outlined, 'Inbox'),
         _sectionButton(1, Icons.people_outline_rounded, 'Users'),
         _sectionButton(2, Icons.insights_rounded, 'Learning analytics'),
+        _sectionButton(3, Icons.library_books_outlined, 'Content'),
       ],
     ),
   );

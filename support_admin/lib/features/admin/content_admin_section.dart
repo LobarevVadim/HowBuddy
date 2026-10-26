@@ -1,0 +1,936 @@
+import 'package:flutter/material.dart';
+
+import '../../services/api_session.dart';
+
+typedef AdminContentRequest =
+    Future<Map<String, dynamic>> Function(
+      String path, {
+      String? method,
+      Map<String, dynamic>? data,
+    });
+
+const _exerciseNames = <String, String>{
+  'singleChoice': 'Single choice',
+  'multipleSelect': 'Multiple select',
+  'shortAnswer': 'Short answer',
+  'orderSteps': 'Order steps',
+  'matching': 'Matching',
+  'fillInTheBlank': 'Fill in the blank',
+  'trueFalse': 'True / false',
+  'spotTheMistake': 'Spot the mistake',
+  'categorization': 'Categorization',
+  'causeAndEffect': 'Cause and effect',
+  'compareAndContrast': 'Compare and contrast',
+  'buildTheProcess': 'Build the process',
+};
+
+class ContentAdminSection extends StatefulWidget {
+  const ContentAdminSection({required this.onRequest, super.key});
+  final AdminContentRequest onRequest;
+
+  @override
+  State<ContentAdminSection> createState() => _ContentAdminSectionState();
+}
+
+class _ContentAdminSectionState extends State<ContentAdminSection> {
+  static const _languages = ['en', 'fr', 'es', 'hi', 'ru'];
+  final _lessonTitle = TextEditingController();
+  final _lessonContent = TextEditingController();
+  final _prompt = TextEditingController();
+  final _explanation = TextEditingController();
+  final _options = TextEditingController();
+  final _answers = TextEditingController();
+  final _order = TextEditingController();
+  final _pairs = TextEditingController();
+  final _paragraph = TextEditingController();
+  final _categories = TextEditingController();
+  Map<String, dynamic>? _state;
+  List<Map<String, dynamic>> _topics = [];
+  List<Map<String, dynamic>> _lessons = [];
+  Map<String, dynamic>? _lesson;
+  String? _topicId;
+  String? _lessonId;
+  String? _exerciseId;
+  String _language = 'en';
+  String _exerciseType = 'singleChoice';
+  bool _busy = false;
+  String? _error;
+  String? _notice;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadState();
+  }
+
+  @override
+  void dispose() {
+    _lessonTitle.dispose();
+    _lessonContent.dispose();
+    _prompt.dispose();
+    _explanation.dispose();
+    _options.dispose();
+    _answers.dispose();
+    _order.dispose();
+    _pairs.dispose();
+    _paragraph.dispose();
+    _categories.dispose();
+    super.dispose();
+  }
+
+  Future<void> _run(Future<void> Function() work) async {
+    if (_busy) return;
+    setState(() {
+      _busy = true;
+      _error = null;
+      _notice = null;
+    });
+    try {
+      await work();
+    } on ApiSessionException catch (error) {
+      if (mounted) setState(() => _error = error.message);
+    } catch (error) {
+      if (mounted) {
+        setState(
+          () => _error = error.toString().replaceFirst('Exception: ', ''),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _loadState() => _run(() async {
+    _state = await widget.onRequest('/admin/content/state');
+    if (_state?['migrated'] == true) await _loadTopics();
+    if (mounted) setState(() {});
+  });
+
+  Future<void> _loadTopics() async {
+    final result = await widget.onRequest(
+      '/admin/content/topics?language=$_language',
+    );
+    _topics = (result['topics'] as List<dynamic>).cast<Map<String, dynamic>>();
+    final visibleIds = _topics.map((topic) => topic['id']).toSet();
+    if (!visibleIds.contains(_topicId)) {
+      _topicId = _topics.isEmpty ? null : _topics.first['id'] as String;
+    }
+    await _loadLessons();
+  }
+
+  Future<void> _loadLessons() async {
+    _lesson = null;
+    _lessonId = null;
+    _clearExercise();
+    if (_topicId == null) {
+      _lessons = [];
+      return;
+    }
+    final result = await widget.onRequest(
+      '/admin/content/lessons?topicId=${Uri.encodeQueryComponent(_topicId!)}&language=$_language',
+    );
+    _lessons = (result['lessons'] as List<dynamic>)
+        .cast<Map<String, dynamic>>();
+    if (_lessons.isNotEmpty) {
+      _lessonId = _lessons.first['id'] as String;
+      await _loadLesson();
+    }
+  }
+
+  Future<void> _loadLesson() async {
+    if (_lessonId == null) return;
+    final result = await widget.onRequest(
+      '/admin/content/lessons/$_lessonId?language=$_language',
+    );
+    _lesson = result['lesson'] as Map<String, dynamic>;
+    _lessonTitle.text = _lesson?['title']?.toString() ?? '';
+    _lessonContent.text = _lesson?['content']?.toString() ?? '';
+    _clearExercise();
+  }
+
+  void _clearExercise() {
+    _exerciseId = null;
+    _exerciseType = 'singleChoice';
+    _prompt.clear();
+    _explanation.clear();
+    _options.clear();
+    _answers.clear();
+    _order.clear();
+    _pairs.clear();
+    _paragraph.clear();
+    _categories.clear();
+  }
+
+  List<String> _lines(String value) => value
+      .split('\n')
+      .map((line) => line.trim())
+      .where((line) => line.isNotEmpty)
+      .toList();
+
+  List<Map<String, String>> _pairValues() => _lines(_pairs.text).map((line) {
+    final split = line.split('=>');
+    if (split.length < 2 ||
+        split.first.trim().isEmpty ||
+        split.skip(1).join('=>').trim().isEmpty) {
+      throw Exception('Write each pair as left side => right side.');
+    }
+    return {
+      'left': split.first.trim(),
+      'right': split.skip(1).join('=>').trim(),
+    };
+  }).toList();
+
+  Map<String, dynamic> _exercisePayload() {
+    final type = _exerciseType;
+    final options = _lines(_options.text);
+    final answers = _lines(_answers.text);
+    final order = _lines(_order.text);
+    final pairs = _pairValues();
+    final categories = _lines(_categories.text);
+    final paragraphParts = _paragraph.text
+        .split('|')
+        .map((part) => part.trim())
+        .toList();
+    return {
+      'type': type,
+      'prompt': _prompt.text.trim(),
+      'options': options,
+      'correctAnswers': answers,
+      'correctOrder': order,
+      'pairs': pairs,
+      'paragraphParts': paragraphParts,
+      'consequences': <String, String>{},
+      'categories': categories,
+      'visualStages': <String>[],
+      'explanation': _explanation.text.trim(),
+    };
+  }
+
+  Future<void> _migrate() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Normalize lesson content?'),
+        content: const Text(
+          'This one-time operation copies the five existing language snapshots '
+          'into topic, lesson, and per-exercise tables. The original JSONB rows '
+          'remain untouched for rollback.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Migrate content'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    await _run(() async {
+      final result = await widget.onRequest(
+        '/admin/content/migrate',
+        method: 'POST',
+      );
+      _state = await widget.onRequest('/admin/content/state');
+      await _loadTopics();
+      if (mounted) {
+        setState(
+          () => _notice =
+              'Migrated ${result['topics']} topics and five language versions.',
+        );
+      }
+    });
+  }
+
+  Future<void> _createLesson() async {
+    if (_topicId == null) return;
+    await _run(() async {
+      final result = await widget.onRequest(
+        '/admin/content/lessons',
+        method: 'POST',
+        data: {
+          'topicId': _topicId,
+          'language': _language,
+          'title': 'New lesson',
+          'content': '',
+        },
+      );
+      await _loadLessons();
+      _lessonId = result['id'] as String;
+      await _loadLesson();
+      if (mounted)
+        setState(
+          () => _notice =
+              'Draft lesson created. Add an exercise before publishing.',
+        );
+    });
+  }
+
+  Future<void> _saveLesson({required bool publish}) async {
+    if (_lessonId == null) return;
+    await _run(() async {
+      final savedLessonId = _lessonId;
+      await widget.onRequest(
+        '/admin/content/lessons/$savedLessonId/save',
+        method: 'POST',
+        data: {
+          'language': _language,
+          'title': _lessonTitle.text,
+          'content': _lessonContent.text,
+        },
+      );
+      if (publish) {
+        await widget.onRequest(
+          '/admin/content/lessons/$savedLessonId/publish',
+          method: 'POST',
+          data: {'language': _language},
+        );
+      }
+      await _loadLessons();
+      if (_lessons.any((item) => item['id'] == savedLessonId)) {
+        _lessonId = savedLessonId;
+        await _loadLesson();
+      }
+      if (mounted)
+        setState(
+          () => _notice = publish ? 'Lesson published.' : 'Lesson draft saved.',
+        );
+    });
+  }
+
+  void _selectExercise(Map<String, dynamic> exercise) {
+    final payload = exercise['payload'] is Map<String, dynamic>
+        ? exercise['payload'] as Map<String, dynamic>
+        : <String, dynamic>{};
+    setState(() {
+      _exerciseId = exercise['id']?.toString();
+      _exerciseType = exercise['type']?.toString() ?? 'singleChoice';
+      _prompt.text = payload['prompt']?.toString() ?? '';
+      _explanation.text = payload['explanation']?.toString() ?? '';
+      _options.text = _asLines(payload['options']);
+      _answers.text = _asLines(payload['correctAnswers']);
+      _order.text = _asLines(payload['correctOrder']);
+      _pairs.text = (payload['pairs'] as List<dynamic>? ?? [])
+          .map((pair) => '${pair['left']} => ${pair['right']}')
+          .join('\n');
+      _paragraph.text = (payload['paragraphParts'] as List<dynamic>? ?? [])
+          .join(' | ');
+      _categories.text = _asLines(payload['categories']);
+    });
+  }
+
+  String _asLines(dynamic value) =>
+      value is List ? value.map((item) => item.toString()).join('\n') : '';
+
+  Future<void> _saveExercise({required bool publish}) async {
+    if (_lessonId == null) return;
+    await _run(() async {
+      final payload = _exercisePayload();
+      final result = await widget.onRequest(
+        '/admin/content/exercises/save',
+        method: 'POST',
+        data: {
+          'lessonId': _lessonId,
+          if (_exerciseId != null) 'exerciseId': _exerciseId,
+          'language': _language,
+          'exerciseType': _exerciseType,
+          'payload': payload,
+          'publish': publish,
+        },
+      );
+      _exerciseId = result['id']?.toString();
+      await _loadLesson();
+      final exercises = (_lesson?['exercises'] as List<dynamic>? ?? [])
+          .cast<Map<String, dynamic>>();
+      final matching = exercises.where((item) => item['id'] == _exerciseId);
+      final saved = matching.isEmpty ? null : matching.first;
+      if (saved != null) _selectExercise(saved);
+      if (mounted)
+        setState(
+          () => _notice = publish
+              ? 'Exercise published.'
+              : 'Exercise draft saved.',
+        );
+    });
+  }
+
+  Future<void> _showRevisions(String entityType, String entityId) async {
+    try {
+      final result = await widget.onRequest(
+        '/admin/content/revisions?entityType=$entityType&entityId=${Uri.encodeQueryComponent(entityId)}&language=$_language',
+      );
+      final revisions = (result['revisions'] as List<dynamic>)
+          .cast<Map<String, dynamic>>();
+      if (!mounted) return;
+      await showDialog<void>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Published versions'),
+          content: SizedBox(
+            width: 520,
+            child: revisions.isEmpty
+                ? const Text('No published versions have been recorded yet.')
+                : ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: revisions.length,
+                    itemBuilder: (context, index) {
+                      final revision = revisions[index];
+                      final snapshot =
+                          revision['snapshot'] as Map<String, dynamic>? ?? {};
+                      final summary = entityType == 'exercise'
+                          ? snapshot['prompt']?.toString() ?? 'Exercise version'
+                          : snapshot['title']?.toString() ?? 'Lesson version';
+                      return ListTile(
+                        title: Text(
+                          'Version ${revision['number']} · $summary',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        subtitle: Text('${revision['createdAt'] ?? ''}'),
+                        trailing: IconButton(
+                          tooltip: 'Restore as draft',
+                          icon: const Icon(Icons.restore_rounded),
+                          onPressed: _busy
+                              ? null
+                              : () async {
+                                  Navigator.pop(dialogContext);
+                                  await _restoreRevision(
+                                    entityType,
+                                    entityId,
+                                    revision['id'].toString(),
+                                  );
+                                },
+                        ),
+                      );
+                    },
+                  ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Close'),
+            ),
+          ],
+        ),
+      );
+    } catch (error) {
+      if (mounted)
+        setState(
+          () => _error = error.toString().replaceFirst('Exception: ', ''),
+        );
+    }
+  }
+
+  Future<void> _restoreRevision(
+    String entityType,
+    String entityId,
+    String revisionId,
+  ) => _run(() async {
+    await widget.onRequest(
+      '/admin/content/revisions/restore',
+      method: 'POST',
+      data: {
+        'entityType': entityType,
+        'entityId': entityId,
+        'revisionId': revisionId,
+        'language': _language,
+      },
+    );
+    await _loadLesson();
+    if (_exerciseId != null) {
+      final exercises = (_lesson?['exercises'] as List<dynamic>? ?? [])
+          .cast<Map<String, dynamic>>();
+      final matching = exercises.where((item) => item['id'] == _exerciseId);
+      if (matching.isNotEmpty) _selectExercise(matching.first);
+    }
+    if (mounted)
+      setState(
+        () => _notice =
+            'Version restored as a draft. Review and publish when ready.',
+      );
+  });
+
+  Future<void> _changeTopic(String? value) => _run(() async {
+    _topicId = value;
+    await _loadLessons();
+    if (mounted) setState(() {});
+  });
+
+  Future<void> _changeLesson(String? value) => _run(() async {
+    _lessonId = value;
+    await _loadLesson();
+    if (mounted) setState(() {});
+  });
+
+  Future<void> _changeLanguage(String? value) => _run(() async {
+    if (value == null) return;
+    _language = value;
+    await _loadTopics();
+    if (mounted) setState(() {});
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (_state == null && _busy) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_state?['migrated'] != true) return _migrationPanel();
+    final selectedLesson = _lesson;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _toolbar(),
+        if (_error != null) _message(_error!, isError: true),
+        if (_notice != null) _message(_notice!),
+        Expanded(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              if (constraints.maxWidth < 900) {
+                return ListView(
+                  padding: const EdgeInsets.all(18),
+                  children: [
+                    _lessonPane(selectedLesson),
+                    const SizedBox(height: 16),
+                    _exercisePane(selectedLesson),
+                  ],
+                );
+              }
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SizedBox(width: 440, child: _lessonPane(selectedLesson)),
+                  const VerticalDivider(width: 1),
+                  Expanded(child: _exercisePane(selectedLesson)),
+                ],
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _migrationPanel() => Center(
+    child: ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 720),
+      child: Card(
+        margin: const EdgeInsets.all(24),
+        child: Padding(
+          padding: const EdgeInsets.all(28),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(
+                Icons.storage_rounded,
+                color: Color(0xFF7056D8),
+                size: 36,
+              ),
+              const SizedBox(height: 14),
+              const Text(
+                'Prepare the content database',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Legacy language rows found: ${(_state?['languages'] as List<dynamic>? ?? []).join(', ')}',
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'The one-time migration validates all five language trees, then copies '
+                'topics, lessons, and individually typed exercise JSONB records in one '
+                'database transaction. The original language rows are kept for rollback.',
+              ),
+              if (_error != null) ...[
+                const SizedBox(height: 14),
+                _message(_error!, isError: true),
+              ],
+              const SizedBox(height: 18),
+              FilledButton.icon(
+                onPressed: _busy ? null : _migrate,
+                icon: _busy
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.sync_rounded),
+                label: const Text('Migrate existing content once'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+
+  Widget _toolbar() => Container(
+    padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
+    color: Colors.white,
+    child: Wrap(
+      spacing: 12,
+      runSpacing: 10,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        const Text(
+          'Content studio',
+          style: TextStyle(fontSize: 19, fontWeight: FontWeight.w800),
+        ),
+        Text(
+          '${_state?['topics'] ?? 0} topics · ${_state?['lessons'] ?? 0} lesson records · ${_state?['exercises'] ?? 0} exercise records',
+          style: const TextStyle(color: Color(0xFF6D7584), fontSize: 12),
+        ),
+        SizedBox(
+          width: 170,
+          child: DropdownButtonFormField<String>(
+            initialValue: _language,
+            decoration: const InputDecoration(
+              labelText: 'Editing language',
+              isDense: true,
+            ),
+            items: _languages
+                .map(
+                  (code) => DropdownMenuItem(
+                    value: code,
+                    child: Text(code.toUpperCase()),
+                  ),
+                )
+                .toList(),
+            onChanged: _busy ? null : _changeLanguage,
+          ),
+        ),
+        OutlinedButton.icon(
+          onPressed: _busy ? null : _loadState,
+          icon: const Icon(Icons.refresh_rounded),
+          label: const Text('Refresh'),
+        ),
+      ],
+    ),
+  );
+
+  Widget _lessonPane(Map<String, dynamic>? lesson) => Container(
+    color: const Color(0xFFF8F9FC),
+    padding: const EdgeInsets.all(18),
+    child: ListView(
+      children: [
+        Row(
+          children: [
+            const Expanded(
+              child: Text(
+                'Lessons',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+              ),
+            ),
+            IconButton(
+              onPressed: _busy ? null : _createLesson,
+              tooltip: 'Add lesson',
+              icon: const Icon(Icons.add_circle_outline),
+            ),
+          ],
+        ),
+        DropdownButtonFormField<String>(
+          initialValue: _topicId,
+          decoration: const InputDecoration(labelText: 'Topic'),
+          isExpanded: true,
+          items: _topics
+              .map(
+                (topic) => DropdownMenuItem(
+                  value: topic['id'] as String,
+                  child: Text(
+                    '${List.filled(((topic['level'] as num?)?.toInt() ?? 1) - 1, '›').join(' ')} ${topic['question']}',
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              )
+              .toList(),
+          onChanged: _busy ? null : _changeTopic,
+        ),
+        const SizedBox(height: 10),
+        DropdownButtonFormField<String>(
+          initialValue: _lessonId,
+          decoration: const InputDecoration(labelText: 'Lesson'),
+          isExpanded: true,
+          items: _lessons
+              .map(
+                (item) => DropdownMenuItem(
+                  value: item['id'] as String,
+                  child: Text(
+                    'Lesson ${item['lessonNumber']} · ${item['title']} · ${item['status']}',
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              )
+              .toList(),
+          onChanged: _busy ? null : _changeLesson,
+        ),
+        const SizedBox(height: 16),
+        TextField(
+          controller: _lessonTitle,
+          decoration: const InputDecoration(labelText: 'Lesson title'),
+        ),
+        const SizedBox(height: 10),
+        TextField(
+          controller: _lessonContent,
+          minLines: 5,
+          maxLines: 12,
+          decoration: const InputDecoration(
+            labelText: 'Lesson content',
+            alignLabelWithHint: true,
+          ),
+        ),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 8,
+          children: [
+            OutlinedButton(
+              onPressed: _busy || lesson == null
+                  ? null
+                  : () => _saveLesson(publish: false),
+              child: const Text('Save lesson draft'),
+            ),
+            FilledButton(
+              onPressed: _busy || lesson == null
+                  ? null
+                  : () => _saveLesson(publish: true),
+              child: const Text('Publish lesson'),
+            ),
+            if (_lessonId != null)
+              IconButton(
+                onPressed: _busy
+                    ? null
+                    : () => _showRevisions('lesson', _lessonId!),
+                tooltip: 'Lesson versions',
+                icon: const Icon(Icons.history_rounded),
+              ),
+          ],
+        ),
+        const Divider(height: 28),
+        Row(
+          children: [
+            const Expanded(
+              child: Text(
+                'Exercises',
+                style: TextStyle(fontWeight: FontWeight.w800),
+              ),
+            ),
+            Text('${(lesson?['exercises'] as List<dynamic>? ?? []).length}'),
+          ],
+        ),
+        for (final item
+            in (lesson?['exercises'] as List<dynamic>? ?? [])
+                .cast<Map<String, dynamic>>())
+          Card(
+            child: ListTile(
+              dense: true,
+              title: Text(
+                item['payload']?['prompt']?.toString() ??
+                    _exerciseNames[item['type']] ??
+                    'Exercise',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              subtitle: Text(
+                '${_exerciseNames[item['type']]} · ${item['isFallback'] == true ? 'English source · add translation' : item['status']}${item['hasDraft'] == true ? ' · draft changes' : ''}',
+              ),
+              onTap: () => _selectExercise(item),
+            ),
+          ),
+        OutlinedButton.icon(
+          onPressed: _busy || lesson == null
+              ? null
+              : () => setState(_clearExercise),
+          icon: const Icon(Icons.add_rounded),
+          label: const Text('Add exercise'),
+        ),
+      ],
+    ),
+  );
+
+  Widget _exercisePane(Map<String, dynamic>? lesson) {
+    final type = _exerciseType;
+    final needsOptions = const {
+      'singleChoice',
+      'multipleSelect',
+      'orderSteps',
+      'matching',
+      'trueFalse',
+      'spotTheMistake',
+      'categorization',
+      'causeAndEffect',
+      'buildTheProcess',
+    }.contains(type);
+    final needsAnswers = const {
+      'singleChoice',
+      'multipleSelect',
+      'shortAnswer',
+      'trueFalse',
+      'spotTheMistake',
+    }.contains(type);
+    final needsOrder = const {
+      'orderSteps',
+      'fillInTheBlank',
+      'buildTheProcess',
+    }.contains(type);
+    final needsPairs = const {
+      'matching',
+      'categorization',
+      'causeAndEffect',
+      'compareAndContrast',
+    }.contains(type);
+    return Container(
+      padding: const EdgeInsets.all(20),
+      color: Colors.white,
+      child: ListView(
+        children: [
+          Text(
+            _exerciseId == null ? 'New exercise' : 'Edit exercise',
+            style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w800),
+          ),
+          const SizedBox(height: 12),
+          DropdownButtonFormField<String>(
+            initialValue: type,
+            decoration: const InputDecoration(labelText: 'Interaction type'),
+            items: _exerciseNames.entries
+                .map(
+                  (entry) => DropdownMenuItem(
+                    value: entry.key,
+                    child: Text(entry.value),
+                  ),
+                )
+                .toList(),
+            onChanged: _exerciseId != null || _busy
+                ? null
+                : (value) => setState(() => _exerciseType = value ?? type),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _prompt,
+            minLines: 2,
+            maxLines: 4,
+            decoration: const InputDecoration(
+              labelText: 'Question / instruction',
+            ),
+          ),
+          if (needsOptions) ...[
+            const SizedBox(height: 10),
+            _multiline(
+              _options,
+              type == 'orderSteps' || type == 'buildTheProcess'
+                  ? 'Draggable options (one per line)'
+                  : 'Choices (one per line)',
+            ),
+          ],
+          if (needsAnswers) ...[
+            const SizedBox(height: 10),
+            _multiline(
+              _answers,
+              type == 'shortAnswer'
+                  ? 'Accepted answers (one per line)'
+                  : 'Correct choice(s), exact text (one per line)',
+            ),
+          ],
+          if (needsOrder) ...[
+            const SizedBox(height: 10),
+            _multiline(
+              _order,
+              type == 'fillInTheBlank'
+                  ? 'Missing words, in order (one per line)'
+                  : 'Correct sequence (one per line)',
+            ),
+          ],
+          if (needsPairs) ...[
+            const SizedBox(height: 10),
+            _multiline(_pairs, 'Items / matches (one per line: left => right)'),
+          ],
+          if (type == 'fillInTheBlank') ...[
+            const SizedBox(height: 10),
+            _multiline(
+              _paragraph,
+              'Paragraph segments separated by | (one segment before, between, and after each blank)',
+            ),
+          ],
+          if (type == 'compareAndContrast') ...[
+            const SizedBox(height: 10),
+            _multiline(
+              _categories,
+              'Venn labels in order: A only, Both, B only',
+            ),
+          ],
+          const SizedBox(height: 10),
+          TextField(
+            controller: _explanation,
+            minLines: 2,
+            maxLines: 5,
+            decoration: const InputDecoration(
+              labelText: 'Explanation shown after answering',
+            ),
+          ),
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              OutlinedButton(
+                onPressed: _busy || lesson == null
+                    ? null
+                    : () => _saveExercise(publish: false),
+                child: const Text('Save draft'),
+              ),
+              FilledButton(
+                onPressed: _busy || lesson == null
+                    ? null
+                    : () => _saveExercise(publish: true),
+                child: const Text('Publish exercise'),
+              ),
+              if (_exerciseId != null)
+                IconButton(
+                  onPressed: _busy
+                      ? null
+                      : () => _showRevisions('exercise', _exerciseId!),
+                  tooltip: 'Exercise versions',
+                  icon: const Icon(Icons.history_rounded),
+                ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Published changes become visible in the app immediately. Drafts stay private. '
+            'An exercise’s interaction type is fixed after creation so its saved answers always match the Flutter interaction.',
+            style: TextStyle(color: Color(0xFF6D7584), fontSize: 12),
+          ),
+          if (lesson == null)
+            const Padding(
+              padding: EdgeInsets.only(top: 18),
+              child: Text('Choose a topic and lesson to edit content.'),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _multiline(TextEditingController controller, String label) =>
+      TextField(
+        controller: controller,
+        minLines: 2,
+        maxLines: 6,
+        decoration: InputDecoration(labelText: label, alignLabelWithHint: true),
+      );
+
+  Widget _message(String message, {bool isError = false}) => Container(
+    margin: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+    padding: const EdgeInsets.all(12),
+    decoration: BoxDecoration(
+      color: isError ? const Color(0xFFFFEDEC) : const Color(0xFFE9F7EF),
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Text(
+      message,
+      style: TextStyle(
+        color: isError ? Colors.red.shade800 : Colors.green.shade900,
+      ),
+    ),
+  );
+}
