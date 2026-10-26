@@ -1,3 +1,4 @@
+import {readFileSync} from 'node:fs';
 import {loadNormalizedLessonContent, normalizedContentExists} from './normalized_lesson_content.js';
 
 export const LESSON_LANGUAGES = Object.freeze({

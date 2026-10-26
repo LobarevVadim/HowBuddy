@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   LESSON_LANGUAGES,
+  ensureLessonContentSchema,
   getLessonContent,
   loadLessonContent,
   validateLessonContent,
@@ -51,6 +52,12 @@ test('loads published normalized content in English by default and localized con
 
 test('normalized content must exist before the API serves lesson data', async () => {
   await assert.rejects(() => loadLessonContent(normalizedPool({exists: false}), ['en']), /Normalized lesson content is empty/);
+});
+
+test('schema initializer reads and executes the content SQL file', async () => {
+  let executedSql = '';
+  await ensureLessonContentSchema({query: async (sql) => { executedSql = sql; }});
+  assert.match(executedSql, /CREATE TABLE IF NOT EXISTS content_topics/);
 });
 
 test('invalid lesson content is rejected', () => {
