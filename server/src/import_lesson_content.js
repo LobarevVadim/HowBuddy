@@ -1,9 +1,12 @@
+import dotenv from 'dotenv';
 import pg from 'pg';
 import {ensureLessonContentSchema, importLessonContent} from './lesson_content_store.js';
 
-const connectionString = process.env.CONTENT_DATABASE_URL || process.env.DATABASE_URL;
+dotenv.config();
+
+const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
-  throw new Error('Set CONTENT_DATABASE_URL (or DATABASE_URL) to the target PostgreSQL database.');
+  throw new Error('Set DATABASE_URL to the existing HowBuddy PostgreSQL database.');
 }
 
 const pool = new pg.Pool({connectionString});

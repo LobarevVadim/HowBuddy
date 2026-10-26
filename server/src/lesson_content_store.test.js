@@ -6,7 +6,6 @@ import {
   importLessonContent,
   loadLessonContent,
   readLessonContentSeeds,
-  seedMissingLessonContent,
   validateLessonContent,
 } from './lesson_content_store.js';
 
@@ -17,9 +16,6 @@ function memoryPool(initialRows = []) {
     async query(sql, params = []) {
       if (sql.includes('SELECT language_code, content')) {
         return {rowCount: rows.size, rows: [...rows.values()]};
-      }
-      if (sql.includes('SELECT language_code FROM')) {
-        return {rowCount: rows.size, rows: [...rows.values()].map(({language_code}) => ({language_code}))};
       }
       if (sql.includes('INSERT INTO lesson_content_by_language')) {
         const [language, encodedContent, sourceHash] = params;
@@ -47,13 +43,10 @@ test('seed files provide validated content for all five languages', () => {
   }
 });
 
-test('content is seeded once and loaded from database rows by language', async () => {
+test('content loads from database rows by language without reading seed files', async () => {
   const pool = memoryPool();
   const seeds = readLessonContentSeeds();
-  assert.equal(await seedMissingLessonContent(pool, seeds), 5);
-  assert.equal(pool.rows.size, 5);
-  assert.equal(await seedMissingLessonContent(pool, seeds), 0);
-  assert.equal(pool.rows.size, 5);
+  await importLessonContent(pool, seeds);
 
   const loaded = await loadLessonContent(pool);
   for (const language of Object.keys(LESSON_LANGUAGES)) {

@@ -22,10 +22,11 @@ import {
 import {createSupportInbox, verifyResendWebhook, SUPPORT_INBOXES} from './support_inbox.js';
 import {BoboError, createBoboTutor} from './bobo_service.js';
 import {
+  LESSON_LANGUAGES,
   ensureLessonContentSchema,
   getLessonContent as getStoredLessonContent,
+  importLessonContent,
   loadLessonContent,
-  seedMissingLessonContent,
 } from './lesson_content_store.js';
 
 dotenv.config();
@@ -38,10 +39,9 @@ const googleOAuthClient = new OAuth2Client();
 const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
 });
-const contentPool = new pg.Pool({
-  connectionString: process.env.CONTENT_DATABASE_URL || process.env.DATABASE_URL,
-  max: 2,
-});
+// Lesson content has its own table, but shares the existing PostgreSQL database
+// and connection pool with account and progress data.
+const contentPool = pool;
 const firebaseServiceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
 let pushMessaging = null;
 if (firebaseServiceAccountJson) {
@@ -103,6 +103,34 @@ app.use((request, response, next) => {
 app.get('/admin/session', requireAuth, requireAdmin, async (request, response) => {
   const result = await pool.query('SELECT full_name, email FROM accounts WHERE id = $1', [request.accountId]);
   return response.json({account: result.rows[0] ?? null, inboxes: SUPPORT_INBOXES});
+});
+
+// TEMPORARY: remove after importing lesson files into lesson_content_by_language.
+app.post('/admin/lesson-content/import-files', requireAuth, requireAdmin, async (_request, response) => {
+  try {
+    await ensureLessonContentSchema(contentPool);
+    await importLessonContent(contentPool);
+    const result = await contentPool.query(
+      `SELECT language_code
+       FROM lesson_content_by_language
+       WHERE language_code = ANY($1::text[])
+       ORDER BY language_code`,
+      [Object.keys(LESSON_LANGUAGES)],
+    );
+    const importedLanguages = result.rows.map((row) => row.language_code);
+    if (importedLanguages.length !== Object.keys(LESSON_LANGUAGES).length) {
+      throw new Error(`Expected five lesson languages; found ${importedLanguages.length}.`);
+    }
+    await loadLessonContentCache();
+    return response.json({
+      imported: true,
+      languages: importedLanguages,
+      source: 'server/data',
+    });
+  } catch (error) {
+    console.error('Temporary lesson content import failed:', error.message);
+    return response.status(500).json({message: 'Could not import lesson content.'});
+  }
 });
 
 app.get('/admin/overview', requireAuth, requireAdmin, async (_request, response) => {
@@ -1720,9 +1748,12 @@ function clientTimezoneOffset(request) {
 
 pool.query(readFileSync(new URL('../schema.sql', import.meta.url), 'utf8')).then(async () => {
   await ensureLessonContentSchema(contentPool);
-  await seedMissingLessonContent(contentPool);
-  await refreshLessonContentCache();
-  console.log(`Loaded lesson content from PostgreSQL (${lessonContentByLanguage.size} languages).`);
+  await loadLessonContentCache({allowMissing: true});
+  if (lessonContentByLanguage.size) {
+    console.log(`Loaded lesson content from PostgreSQL (${lessonContentByLanguage.size} languages).`);
+  } else {
+    console.warn('Lesson content table is empty; use the temporary admin import route to load it.');
+  }
   await seedLeaderboardDemoUsers();
   await applyStudyDayBackfill();
   if (sessionSecret.length < 32) {
@@ -1731,22 +1762,24 @@ pool.query(readFileSync(new URL('../schema.sql', import.meta.url), 'utf8')).then
   app.listen(port, () => {
     console.log(`HowBuddy auth API listening on http://localhost:${port}`);
   });
-  const contentRefresh = setInterval(() => {
-    refreshLessonContentCache().catch((error) => {
-      console.error('Could not refresh lesson content from PostgreSQL:', error.message);
-    });
-  }, 5 * 60 * 1000);
-  contentRefresh.unref();
   notificationScheduler.start();
 }).catch((error) => {
   console.error('Could not initialize the API database schema.', error);
   process.exitCode = 1;
 });
 
-async function refreshLessonContentCache() {
-  const nextContent = await loadLessonContent(contentPool);
-  lessonContentByLanguage = nextContent;
-  lessonContent = getLessonContent('en');
+async function loadLessonContentCache({allowMissing = false} = {}) {
+  try {
+    const nextContent = await loadLessonContent(contentPool);
+    lessonContentByLanguage = nextContent;
+    lessonContent = getLessonContent('en');
+  } catch (error) {
+    if (!allowMissing || error.message !== 'English lesson content is missing from the content database.') {
+      throw error;
+    }
+    lessonContentByLanguage = new Map();
+    lessonContent = null;
+  }
 }
 
 async function seedLeaderboardDemoUsers() {

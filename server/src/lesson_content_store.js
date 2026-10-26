@@ -49,30 +49,6 @@ export async function ensureLessonContentSchema(pool) {
   await pool.query(schema);
 }
 
-export async function seedMissingLessonContent(pool, seeds = null) {
-  const existing = await pool.query(
-    'SELECT language_code FROM lesson_content_by_language',
-  );
-  const existingLanguages = new Set(existing.rows.map((row) => row.language_code));
-  const missingLanguages = Object.keys(LESSON_LANGUAGES)
-    .filter((language) => !existingLanguages.has(language));
-  if (missingLanguages.length === 0) return 0;
-
-  const availableSeeds = seeds ?? readLessonContentSeeds();
-  let inserted = 0;
-  for (const seed of availableSeeds) {
-    if (!missingLanguages.includes(seed.language)) continue;
-    await pool.query(
-      `INSERT INTO lesson_content_by_language (language_code, content, source_sha256)
-       VALUES ($1, $2::jsonb, $3)
-       ON CONFLICT (language_code) DO NOTHING`,
-      [seed.language, JSON.stringify(seed.content), seed.sourceHash],
-    );
-    inserted++;
-  }
-  return inserted;
-}
-
 export async function importLessonContent(pool, seeds = readLessonContentSeeds()) {
   for (const seed of seeds) {
     await pool.query(

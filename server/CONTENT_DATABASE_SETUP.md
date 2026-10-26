@@ -1,48 +1,34 @@
-# Lesson content database
+# Lesson content table
 
-The API reads lesson content from PostgreSQL and keeps an in-memory snapshot for requests. It no longer reads lesson JSON files while serving routes. The files under `server/data/` are seed/import sources only.
+HowBuddy uses one PostgreSQL database. Account, progress, notification, and support data remain in their existing tables. Lesson content lives in a separate `lesson_content_by_language` table in that same database.
 
-The content database has one `lesson_content_by_language` table with one JSONB row per language (`en`, `fr`, `hi`, `es`, `ru`). This preserves the current lesson JSON structure and API responses without splitting nested exercises into many relational tables.
+The table has one JSONB row per language (`en`, `fr`, `hi`, `es`, `ru`). It preserves the existing lesson JSON structure, including the topic tree, lessons, and exercises. The API reads this table into memory once at startup and keeps that snapshot until the next API restart or redeploy. API startup and lesson requests do not read files from `server/data/`.
 
-## Render setup
+## Populate the table
 
-1. In Render, create a PostgreSQL database named `howbuddy-content-db` in the **same region** as `howbuddy-demo-api`.
-2. Copy its **Internal Database URL**.
-3. In the `howbuddy-demo-api` service, add `CONTENT_DATABASE_URL` and paste that URL.
-4. Save and redeploy the API.
-
-The API creates the content table on startup and inserts missing language rows from the five checked-in JSON seed files. Existing database rows are left intact. It reloads the cached content from PostgreSQL at startup and every five minutes. The normal lesson endpoints, language selection, notifications, and Bobo continue to receive the same JSON structure as before.
-
-If `CONTENT_DATABASE_URL` is empty, the API temporarily uses `DATABASE_URL` so an unset content database does not prevent deployment. Set `CONTENT_DATABASE_URL` to move content into the separate database.
-
-Render currently permits only one active Free Postgres database per workspace, and a Free database expires after 30 days. Since HowBuddy already has a Free account database, a second independent Render database requires choosing a paid database plan. Do not choose a paid plan unless you accept its cost. See [Render's current Free instance limits](https://render.com/docs/free).
-
-## Importing revised lesson files
-
-After editing one or more files under `server/data/`, run this from PowerShell:
+The importer creates the table if needed and imports all five current JSON files. From PowerShell:
 
 ```powershell
 cd C:\Users\Konst\OneDrive\Desktop\Codex\HowBuddy\server
-$env:CONTENT_DATABASE_URL = "PASTE THE CONTENT DATABASE EXTERNAL URL HERE"
 npm run content:import
-Remove-Item Env:CONTENT_DATABASE_URL
 ```
 
-The importer validates the JSON and upserts all five language records. It uses the external database URL because it runs on your laptop. Do not paste that URL into GitHub or commit it to `.env.example`. The API refreshes its in-memory snapshot within five minutes.
+The importer uses `DATABASE_URL` from `server/.env` (or the current environment). For the Render database, use its **External Database URL** temporarily in `server/.env` while running the import from your computer. Keep that file private and do not commit it. The import command updates the existing five language rows, so run it again whenever you change lesson content in the JSON files.
 
-For a local API, set `CONTENT_DATABASE_URL` in the ignored `server/.env` file. If it is omitted, local development uses `DATABASE_URL`.
+## Render
 
-## Verification
+No second database or `CONTENT_DATABASE_URL` variable is required. Render's existing `DATABASE_URL` points to `howbuddy-demo-db`. On API startup, the server ensures the content table exists and loads it. The table must be populated before deploying the code that requires database-backed lessons; otherwise startup reports that English lesson content is missing.
 
-- Check the API's `/health` endpoint to confirm the API remains online.
-- Open the Topics/tree page in each language and open a lesson; the existing `/lessons/tree` and `/lessons/exercises` responses remain unchanged.
-- To verify the database directly, connect to the content database and run:
+## Verify the content rows
+
+Connect to the existing `howbuddy-demo-db` and run:
 
 ```sql
-SELECT language_code, jsonb_array_length(content->'roots') AS root_count,
+SELECT language_code,
+       jsonb_array_length(content->'roots') AS root_count,
        updated_at
 FROM lesson_content_by_language
 ORDER BY language_code;
 ```
 
-Expect one row per language. The API cache refreshes from this table every five minutes.
+Expect five rows: `en`, `fr`, `hi`, `es`, and `ru`. Then open the Topics/tree page in each language and open a lesson. The API's existing lesson endpoints keep their response format.
