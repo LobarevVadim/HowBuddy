@@ -1,7 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {EXERCISE_TYPES, validateExercisePayload} from './normalized_lesson_content.js';
+import {
+  EXERCISE_TYPES,
+  projectPublishedLessons,
+  validateExercisePayload,
+} from './normalized_lesson_content.js';
 
 const samples = {
   singleChoice: {options: ['A', 'B'], correctAnswers: ['A']},
@@ -39,6 +43,19 @@ test('exercise validator rejects a mismatched type and incomplete fill-in blanks
     type: 'fillInTheBlank', prompt: 'Question?', explanation: 'Because.',
     correctOrder: ['cell'], paragraphParts: ['Only one segment'],
   }), /paragraph segment/);
+});
+
+test('published lesson projection ignores legacy numbering gaps and uses dense tree order', () => {
+  const projection = projectPublishedLessons([
+    {topic_id: 'brain', lesson_number: 1, material_topic_id: 'brain'},
+    {topic_id: 'brain', lesson_number: 2, material_topic_id: 'brain-2'},
+    {topic_id: 'brain', lesson_number: 3, material_topic_id: 'brain-3'},
+    {topic_id: 'brain', lesson_number: 8, material_topic_id: 'brain-8'},
+  ]);
+  assert.deepEqual(projection.get('brain'), {
+    lessonCount: 4,
+    extraLessons: ['brain-2', 'brain-3', 'brain-8'],
+  });
 });
 
 test('content schema removes the obsolete snapshots and draft tables', () => {

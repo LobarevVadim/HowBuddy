@@ -6,6 +6,23 @@ export const EXERCISE_TYPES = Object.freeze([
   'causeAndEffect', 'compareAndContrast', 'buildTheProcess',
 ]);
 
+export function projectPublishedLessons(lessonRows) {
+  const byTopic = new Map();
+  for (const lesson of lessonRows) {
+    if (!byTopic.has(lesson.topic_id)) byTopic.set(lesson.topic_id, []);
+    byTopic.get(lesson.topic_id).push(lesson);
+  }
+  const projection = new Map();
+  for (const [topicId, lessons] of byTopic) {
+    lessons.sort((a, b) => Number(a.lesson_number) - Number(b.lesson_number));
+    projection.set(topicId, {
+      lessonCount: lessons.length,
+      extraLessons: lessons.slice(1).map((lesson) => lesson.material_topic_id),
+    });
+  }
+  return projection;
+}
+
 function parseJson(value) {
   return typeof value === 'string' ? JSON.parse(value) : value;
 }
@@ -107,7 +124,8 @@ export async function loadNormalizedLessonContent(pool, language = 'en') {
          FROM content_lesson_translations
          WHERE lesson_id = l.id AND language_code = ANY($1::text[]) AND status = 'published'
          ORDER BY (language_code = $2) DESC LIMIT 1
-       ) tr ON true`, [languages, code]),
+       ) tr ON true
+       ORDER BY l.topic_id, l.lesson_number`, [languages, code]),
     pool.query(
       `SELECT id, lesson_id, language_code, position, exercise_type, exercise_json
        FROM content_exercises WHERE language_code = ANY($1::text[]) AND status = 'published'
@@ -148,6 +166,9 @@ export async function loadNormalizedLessonContent(pool, language = 'en') {
     const localized = exercisesByLessonAndLanguage.get(`${lesson.id}:${lesson.language_code}`) ?? [];
     const selectedExercises = localized.map((item) => item.exercise);
     if (number === 1 || !source.exercises.length) source.exercises = selectedExercises;
+  }
+  for (const [topicId, projection] of projectPublishedLessons(lessonResult.rows)) {
+    if (nodes[topicId]) Object.assign(nodes[topicId], projection);
   }
 
   let roots = rootsResult.rows.map((row) => row.topic_id);

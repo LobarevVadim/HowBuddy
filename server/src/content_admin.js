@@ -63,10 +63,12 @@ export async function listContentLessons(pool, topicId, language = 'en') {
        ON english.lesson_id = l.id AND english.language_code = 'en' AND english.status = 'published'
      WHERE l.topic_id = $1 AND (own.lesson_id IS NOT NULL OR english.lesson_id IS NOT NULL)
      ORDER BY l.lesson_number`, [topicId, lang]);
-  return result.rows.map((row) => ({
+  return result.rows.map((row, index) => ({
     id: row.id,
     topicId: row.topic_id,
-    lessonNumber: Number(row.lesson_number),
+    // Hide gaps left by legacy planned lesson slots; editor ordering follows
+    // the published lesson sequence that the learner sees.
+    lessonNumber: index + 1,
     materialTopicId: row.material_topic_id,
     title: row.title,
     content: row.content,
@@ -151,36 +153,22 @@ async function publishLessonLanguage(client, {lesson, language, title, content, 
     [lesson.topic_id, language]);
   if (!topicTranslation.rowCount) throw new Error(`The ${language.toUpperCase()} topic translation is missing.`);
   const treeData = parseJson(topicTranslation.rows[0].tree_data) ?? {};
-  const extraLessons = Array.isArray(treeData.extraLessons) ? [...treeData.extraLessons] : [];
+  const existingMaterial = await client.query(
+    `SELECT material_topic_id FROM content_lesson_translations
+     WHERE lesson_id = $1
+     ORDER BY (language_code = $2) DESC, (language_code = 'en') DESC
+     LIMIT 1`, [lesson.id, language]);
   const materialTopicId = Number(lesson.lesson_number) === 1
     ? lesson.topic_id
-    : current.rows[0]?.material_topic_id ?? extraLessons[Number(lesson.lesson_number) - 2] ?? sharedMaterialId;
+    : current.rows[0]?.material_topic_id ?? existingMaterial.rows[0]?.material_topic_id ?? sharedMaterialId;
   if (!materialTopicId) throw new Error('Could not resolve the lesson content node.');
-  if (Number(lesson.lesson_number) > 1) {
-    if (language !== 'en') {
-      const englishMappings = await client.query(
-        `SELECT l.lesson_number, tr.material_topic_id FROM content_lessons l
-         JOIN content_lesson_translations tr ON tr.lesson_id = l.id AND tr.language_code = 'en'
-         WHERE l.topic_id = $1 AND l.lesson_number < $2 ORDER BY l.lesson_number`,
-        [lesson.topic_id, lesson.lesson_number]);
-      for (const mapping of englishMappings.rows) {
-        const index = Number(mapping.lesson_number) - 2;
-        if (index >= 0 && extraLessons[index] == null) extraLessons[index] = mapping.material_topic_id;
-      }
-    }
-    extraLessons[Number(lesson.lesson_number) - 2] = materialTopicId;
-    treeData.extraLessons = extraLessons;
-    treeData.lessonCount = Math.max(Number(treeData.lessonCount) || 1, Number(lesson.lesson_number));
+  if (materialTopicId !== lesson.topic_id) {
     if (materialTopicId === sharedMaterialId) await client.query(
       `INSERT INTO content_topics(topic_id, parent_topic_id, tree_position, level, lesson_count,
         visible_in_tree, status, metadata)
        VALUES ($1, NULL, 0, $2, 1, false, 'published', '{"lessonMaterial":true}'::jsonb)
        ON CONFLICT (topic_id) DO NOTHING`,
       [materialTopicId, Number(lesson.level) + 1]);
-    await client.query(
-      `UPDATE content_topic_translations SET tree_data = $3::jsonb, updated_at = now()
-       WHERE topic_id = $1 AND language_code = $2`,
-      [lesson.topic_id, language, JSON.stringify(treeData)]);
     await client.query(
       `INSERT INTO content_topic_translations(topic_id, language_code, question, tree_data, status)
        VALUES ($1, $2, $3, $4::jsonb, 'published')
@@ -199,6 +187,19 @@ async function publishLessonLanguage(client, {lesson, language, title, content, 
        material_topic_id = EXCLUDED.material_topic_id, title = EXCLUDED.title,
        content = EXCLUDED.content, status = 'published', updated_at = now()`,
     [lesson.id, language, materialTopicId, title, content]);
+
+  const publishedLessons = await client.query(
+    `SELECT tr.material_topic_id
+     FROM content_lessons l
+     JOIN content_lesson_translations tr ON tr.lesson_id = l.id
+     WHERE l.topic_id = $1 AND tr.language_code = $2 AND tr.status = 'published'
+     ORDER BY l.lesson_number`, [lesson.topic_id, language]);
+  treeData.lessonCount = Math.max(1, publishedLessons.rowCount);
+  treeData.extraLessons = publishedLessons.rows.slice(1).map((row) => row.material_topic_id);
+  await client.query(
+    `UPDATE content_topic_translations SET tree_data = $3::jsonb, updated_at = now()
+     WHERE topic_id = $1 AND language_code = $2`,
+    [lesson.topic_id, language, JSON.stringify(treeData)]);
 }
 
 export async function saveLesson(pool, {lessonId, language, allLanguages, translationsByLanguage, title, content, accountId}) {

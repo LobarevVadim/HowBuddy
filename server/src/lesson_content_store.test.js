@@ -8,7 +8,7 @@ import {
   validateLessonContent,
 } from './lesson_content_store.js';
 
-function normalizedPool({exists = true} = {}) {
+function normalizedPool({exists = true, publishedLessons = []} = {}) {
   const requestedLanguages = [];
   return {
     requestedLanguages,
@@ -21,15 +21,29 @@ function normalizedPool({exists = true} = {}) {
         return {rowCount: 1, rows: [{topic_id: `${params[0]}-root`} ]};
       }
       if (sql.includes('SELECT t.topic_id, t.metadata')) {
-        return {rowCount: params[0].length, rows: params[0].map((language) => ({
-          topic_id: `${language}-root`,
-          metadata: {},
-          question: `Question ${language}`,
-          tree_data: {parentId: null, level: 1, children: [], lessonCount: 1, extraLessons: [], metadata: {}},
-          language_code: language,
-        }))};
+        const rows = params[0].flatMap((language) => {
+          const root = {
+            topic_id: `${language}-root`,
+            metadata: {},
+            question: `Question ${language}`,
+            tree_data: {parentId: null, level: 1, children: [], lessonCount: 7, extraLessons: [], metadata: {}},
+            language_code: language,
+          };
+          const materialIds = language === 'en'
+            ? [...new Set(publishedLessons.map((lesson) => lesson.material_topic_id))]
+                .filter((id) => id !== root.topic_id)
+            : [];
+          return [root, ...materialIds.map((topic_id) => ({
+            topic_id,
+            metadata: {},
+            question: `Lesson ${topic_id}`,
+            tree_data: {parentId: null, level: 2, children: [], lessonCount: 1, extraLessons: [], metadata: {}},
+            language_code: language,
+          }))];
+        });
+        return {rowCount: rows.length, rows};
       }
-      if (sql.includes('FROM content_lessons l')) return {rowCount: 0, rows: []};
+      if (sql.includes('FROM content_lessons l')) return {rowCount: publishedLessons.length, rows: publishedLessons};
       if (sql.includes('FROM content_exercises')) return {rowCount: 0, rows: []};
       throw new Error(`Unexpected SQL in content-store test: ${sql}`);
     },
@@ -52,6 +66,22 @@ test('loads published normalized content in English by default and localized con
 
 test('normalized content must exist before the API serves lesson data', async () => {
   await assert.rejects(() => loadLessonContent(normalizedPool({exists: false}), ['en']), /Normalized lesson content is empty/);
+});
+
+test('tree lesson count and links follow published lessons instead of stale planned counts', async () => {
+  const lessons = [1, 2, 3, 8].map((lesson_number) => ({
+    id: `lesson-${lesson_number}`,
+    topic_id: 'en-root',
+    lesson_number,
+    material_topic_id: lesson_number === 1 ? 'en-root' : `material-${lesson_number}`,
+    title: `Lesson ${lesson_number}`,
+    content: `Content ${lesson_number}`,
+    language_code: 'en',
+  }));
+  const content = await loadLessonContent(normalizedPool({publishedLessons: lessons}), ['en']);
+  const root = getLessonContent(content, 'en').nodes['en-root'];
+  assert.equal(root.lessonCount, 4);
+  assert.deepEqual(root.extraLessons, ['material-2', 'material-3', 'material-8']);
 });
 
 test('schema initializer reads and executes the content SQL file', async () => {
