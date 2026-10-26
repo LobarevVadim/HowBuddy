@@ -458,7 +458,15 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
     final ok = await _confirmDelete('lesson');
     if (!ok) return;
     await _run(() async {
-      await widget.onRequest('/admin/content/lessons/$id', method: 'DELETE');
+      final result = await widget.onRequest(
+        '/admin/content/lessons/$id',
+        method: 'DELETE',
+      );
+      if (result['deleted'] != true) {
+        throw const ApiSessionException(
+          'The API did not confirm deleting this lesson. Check that the admin panel and API have both finished deploying, then refresh the page.',
+        );
+      }
       await _loadLessons();
       _state = await widget.onRequest('/admin/content/state');
       if (mounted)
@@ -470,10 +478,15 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
     final ok = await _confirmDelete('exercise');
     if (!ok || _lessonId == null) return;
     await _run(() async {
-      await widget.onRequest(
+      final result = await widget.onRequest(
         '/admin/content/lessons/$_lessonId/exercises/$id',
         method: 'DELETE',
       );
+      if (result['deleted'] != true) {
+        throw const ApiSessionException(
+          'The API did not confirm deleting this exercise. Check that the admin panel and API have both finished deploying, then refresh the page.',
+        );
+      }
       await _loadLesson();
       if (mounted) setState(() => _notice = 'Exercise deleted.');
     });

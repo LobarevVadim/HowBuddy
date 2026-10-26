@@ -63,10 +63,22 @@ class _AdminPageState extends State<AdminPage> {
       'DELETE' => await http.delete(uri, headers: headers),
       _ => await http.get(uri, headers: headers),
     };
-    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    Map<String, dynamic>? body;
+    try {
+      final decoded = jsonDecode(response.body);
+      if (decoded is Map<String, dynamic>) body = decoded;
+    } on FormatException {
+      // Render/Express may return an HTML error page for an unsupported route.
+    }
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw ApiSessionException(
-        body['message']?.toString() ?? 'Request failed.',
+        body?['message']?.toString() ??
+            'The API returned HTTP ${response.statusCode} instead of JSON. Check that the admin panel and API have both finished deploying.',
+      );
+    }
+    if (body == null) {
+      throw ApiSessionException(
+        'The API returned an unexpected response. Check that the admin panel and API have both finished deploying.',
       );
     }
     return body;
