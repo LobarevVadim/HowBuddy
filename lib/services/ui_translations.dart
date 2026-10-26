@@ -373,6 +373,32 @@ class UiTranslations {
       'ru':
           '{count} \u0437\u0430\u043c\u043e\u0440\u043e\u0437\u043a\u0438 \u0441\u0435\u0440\u0438\u0438',
     },
+    'You earned a Streak Freeze!': {
+      'fr': 'Vous avez gagn\u00e9 un gel de s\u00e9rie !',
+      'es': '\u00a1Has ganado una protecci\u00f3n de racha!',
+      'hi':
+          '\u0906\u092a\u0928\u0947 \u090f\u0915 \u0938\u094d\u091f\u0940\u0915 \u092b\u094d\u0930\u0940\u091c \u092a\u093e\u092f\u093e!',
+      'ru':
+          '\u0412\u044b \u043f\u043e\u043b\u0443\u0447\u0438\u043b\u0438 \u0437\u0430\u043c\u043e\u0440\u043e\u0437\u043a\u0443 \u0441\u0435\u0440\u0438\u0438!',
+    },
+    '{count} Streak Freezes earned!': {
+      'fr': '{count} gels de s\u00e9rie gagn\u00e9s !',
+      'es': '\u00a1Has ganado {count} protecciones de racha!',
+      'hi':
+          '\u0906\u092a\u0928\u0947 {count} \u0938\u094d\u091f\u0940\u0915 \u092b\u094d\u0930\u0940\u091c \u092a\u093e\u090f!',
+      'ru':
+          '\u0412\u044b \u043f\u043e\u043b\u0443\u0447\u0438\u043b\u0438 {count} \u0437\u0430\u043c\u043e\u0440\u043e\u0437\u043e\u043a \u0441\u0435\u0440\u0438\u0438!',
+    },
+    'A Streak Freeze automatically protects your streak if you miss a day.': {
+      'fr':
+          'Un gel de s\u00e9rie prot\u00e8ge automatiquement votre s\u00e9rie si vous manquez une journ\u00e9e.',
+      'es':
+          'Una protecci\u00f3n de racha protege autom\u00e1ticamente tu racha si te pierdes un d\u00eda.',
+      'hi':
+          '\u0905\u0917\u0930 \u0906\u092a \u090f\u0915 \u0926\u093f\u0928 \u091a\u0942\u0915 \u091c\u093e\u0924\u0947 \u0939\u0948\u0902, \u0924\u094b \u0938\u094d\u091f\u094d\u0930\u0940\u0915 \u092b\u094d\u0930\u0940\u091c \u0906\u092a\u0915\u0940 \u0938\u094d\u091f\u094d\u0930\u0940\u0915 \u092c\u091a\u093e\u0924\u093e \u0939\u0948\u0964',
+      'ru':
+          '\u0417\u0430\u043c\u043e\u0440\u043e\u0437\u043a\u0430 \u0441\u0435\u0440\u0438\u0438 \u0430\u0432\u0442\u043e\u043c\u0430\u0442\u0438\u0447\u0435\u0441\u043a\u0438 \u0441\u043e\u0445\u0440\u0430\u043d\u0438\u0442 \u0432\u0430\u0448\u0443 \u0441\u0435\u0440\u0438\u044e, \u0435\u0441\u043b\u0438 \u0432\u044b \u043f\u0440\u043e\u043f\u0443\u0441\u0442\u0438\u0442\u0435 \u0434\u0435\u043d\u044c.',
+    },
     'Start my goal': {
       'fr': 'Commencer mon objectif',
       'es': 'Iniciar mi objetivo',

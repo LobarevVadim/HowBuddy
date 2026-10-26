@@ -308,6 +308,9 @@ class _LessonPageState extends State<LessonPage> {
         return;
       }
       setState(() => _earnedXp = completion.earnedXp);
+      if (completion.streakFreezesAwarded > 0) {
+        await _showStreakFreezeReward(completion.streakFreezesAwarded);
+      }
     } on AuthException catch (error) {
       _showMessage(error.message);
     } catch (_) {
@@ -324,6 +327,34 @@ class _LessonPageState extends State<LessonPage> {
       context,
     ).showSnackBar(SnackBar(content: Text(message)));
   }
+
+  Future<void> _showStreakFreezeReward(int awarded) => showDialog<void>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      icon: Icon(Icons.ac_unit_rounded, color: AppColors.primary, size: 36),
+      title: Text(
+        awarded == 1
+            ? uiText(context, 'You earned a Streak Freeze!')
+            : uiText(
+                context,
+                '{count} Streak Freezes earned!',
+                args: {'count': '$awarded'},
+              ),
+      ),
+      content: Text(
+        uiText(
+          context,
+          'A Streak Freeze automatically protects your streak if you miss a day.',
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(dialogContext),
+          child: Text(uiText(context, 'Continue')),
+        ),
+      ],
+    ),
+  );
 
   bool _usesFlowchart(LessonExerciseType type) =>
       type == LessonExerciseType.buildTheProcess;

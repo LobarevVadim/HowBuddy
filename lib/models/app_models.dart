@@ -69,17 +69,25 @@ class LessonCompletion {
     required this.topicCompleted,
     required this.earnedXp,
     required this.totalXp,
+    this.streakFreezesAwarded = 0,
+    this.streakFreezesRemaining = 0,
   });
 
   final bool topicCompleted;
   final int earnedXp;
   final int totalXp;
+  final int streakFreezesAwarded;
+  final int streakFreezesRemaining;
 
   factory LessonCompletion.fromJson(Map<String, dynamic> json) {
     return LessonCompletion(
       topicCompleted: json['topicCompleted'] == true,
       earnedXp: int.tryParse(json['earnedXp'].toString()) ?? 0,
       totalXp: int.tryParse(json['totalXp'].toString()) ?? 0,
+      streakFreezesAwarded:
+          int.tryParse(json['streakFreezesAwarded']?.toString() ?? '') ?? 0,
+      streakFreezesRemaining:
+          int.tryParse(json['streakFreezesRemaining']?.toString() ?? '') ?? 0,
     );
   }
 }

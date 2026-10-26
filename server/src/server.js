@@ -1104,18 +1104,22 @@ app.post('/lessons/complete', requireAuth, async (request, response) => {
     const freezeReward = new Map([[7, 1], [14, 3], [30, 7]]).get(
       streakState.streakGoalDays,
     );
+    let streakFreezesAwarded = 0;
     if (freezeReward && streakState.streakCount === streakState.streakGoalDays) {
-      await pool.query(
+      const awardResult = await pool.query(
         `UPDATE account_gamification
          SET streak_freezes_remaining = streak_freezes_remaining + $3,
              streak_goal_days = NULL,
              streak_goal_started_at = NULL
-         WHERE account_id = $1 AND streak_goal_days = $2`,
+         WHERE account_id = $1 AND streak_goal_days = $2
+         RETURNING streak_freezes_remaining`,
         [accountId, streakState.streakGoalDays, freezeReward],
       );
+      if (awardResult.rowCount === 1) streakFreezesAwarded = freezeReward;
     }
     const game = await pool.query(
-      'SELECT xp_boost_until > now() AS boost_active FROM account_gamification WHERE account_id = $1',
+      `SELECT xp_boost_until > now() AS boost_active, streak_freezes_remaining
+       FROM account_gamification WHERE account_id = $1`,
       [accountId],
     );
     const timeMultiplier = durationSeconds > 180 ? 0.8 : 1;
@@ -1138,6 +1142,8 @@ app.post('/lessons/complete', requireAuth, async (request, response) => {
       topicCompleted,
       earnedXp: awardedXp,
       totalXp: totals.rows[0].total_xp,
+      streakFreezesAwarded,
+      streakFreezesRemaining: game.rows[0].streak_freezes_remaining,
     });
   } catch (error) {
     console.error(error);
