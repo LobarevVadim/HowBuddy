@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app_style.dart';
+import '../../services/ui_translations.dart';
 import 'lesson_exercises.dart';
 
 class InlineFillBlankInteraction extends StatefulWidget {
@@ -384,7 +385,11 @@ class VennDiagramInteraction extends StatelessWidget {
   Widget build(BuildContext context) {
     final regions = exercise.categories.length >= 3
         ? exercise.categories.take(3).toList()
-        : const ['A only', 'Both', 'B only'];
+        : [
+            uiText(context, 'A only'),
+            uiText(context, 'Both'),
+            uiText(context, 'B only'),
+          ];
     return Column(
       children: [
         SizedBox(
@@ -558,7 +563,7 @@ class BuildProcessInteraction extends StatelessWidget {
                   Expanded(
                     child: slots[i] == null
                         ? Text(
-                            'Drag a component here',
+                            uiText(context, 'Drag a component here'),
                             style: TextStyle(
                               fontWeight: FontWeight.w700,
                               color: AppColors.mutedText,

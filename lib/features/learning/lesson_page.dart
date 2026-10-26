@@ -101,13 +101,16 @@ class _LessonPageState extends State<LessonPage> {
       if (!mounted) return;
       setState(() {
         _isLoadingExercises = false;
-        _exerciseLoadError = error.message;
+        _exerciseLoadError = uiText(context, error.message);
       });
     } catch (_) {
       if (!mounted) return;
       setState(() {
         _isLoadingExercises = false;
-        _exerciseLoadError = 'Could not load lesson exercises.';
+        _exerciseLoadError = uiText(
+          context,
+          'Could not load lesson exercises.',
+        );
       });
     }
   }
@@ -312,9 +315,16 @@ class _LessonPageState extends State<LessonPage> {
         await _showStreakFreezeReward(completion.streakFreezesAwarded);
       }
     } on AuthException catch (error) {
+      if (!mounted) return;
       _showMessage(error.message);
     } catch (_) {
-      _showMessage('Could not save your lesson progress. Please try again.');
+      if (!mounted) return;
+      _showMessage(
+        uiText(
+          context,
+          'Could not save your lesson progress. Please try again.',
+        ),
+      );
     } finally {
       if (mounted) {
         setState(() => _isCompleting = false);
@@ -325,7 +335,7 @@ class _LessonPageState extends State<LessonPage> {
   void _showMessage(String message) {
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    ).showSnackBar(SnackBar(content: Text(uiText(context, message))));
   }
 
   Future<void> _showStreakFreezeReward(int awarded) => showDialog<void>(
@@ -531,12 +541,19 @@ class _LessonPageState extends State<LessonPage> {
             children: [
               Text(
                 _isLoadingExercises
-                    ? 'Loading lesson'
+                    ? uiText(context, 'Loading lesson')
                     : _exerciseLoadError != null
-                    ? 'Lesson unavailable'
+                    ? uiText(context, 'Lesson unavailable')
                     : _isSummary
-                    ? 'Lesson complete'
-                    : 'Exercise ${_exerciseIndex + 1} of ${_exercises.length}',
+                    ? uiText(context, 'Lesson complete')
+                    : uiText(
+                        context,
+                        'Exercise {current} of {total}',
+                        args: {
+                          'current': '${_exerciseIndex + 1}',
+                          'total': '${_exercises.length}',
+                        },
+                      ),
                 style: const TextStyle(fontWeight: FontWeight.w700),
               ),
               const Spacer(),
@@ -634,7 +651,10 @@ class _LessonPageState extends State<LessonPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _answerWasCorrect! ? 'Correct!' : 'Good try!',
+                        uiText(
+                          context,
+                          _answerWasCorrect! ? 'Correct!' : 'Good try!',
+                        ),
                         style: TextStyle(
                           color: AppColors.primaryDark,
                           fontSize: 18,
@@ -665,8 +685,8 @@ class _LessonPageState extends State<LessonPage> {
                         )
                       : Text(
                           _answerWasCorrect != null
-                              ? 'Continue'
-                              : 'Check answer',
+                              ? uiText(context, 'Continue')
+                              : uiText(context, 'Check answer'),
                           style: const TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.w800,
@@ -729,9 +749,9 @@ class _LessonPageState extends State<LessonPage> {
           enabled: !locked,
           textInputAction: TextInputAction.done,
           onChanged: (_) => setState(() {}),
-          decoration: const InputDecoration(
-            labelText: 'Your answer',
-            hintText: 'Type your answer',
+          decoration: InputDecoration(
+            labelText: uiText(context, 'Your answer'),
+            hintText: uiText(context, 'Type your answer'),
           ),
         );
       case LessonExerciseType.orderSteps:
@@ -876,7 +896,7 @@ class _LessonPageState extends State<LessonPage> {
               ),
               const SizedBox(height: 14),
               Text(
-                'You did great!!!',
+                uiText(context, 'You did great!!!'),
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   color: AppColors.primaryDark,
@@ -885,7 +905,11 @@ class _LessonPageState extends State<LessonPage> {
               ),
               const SizedBox(height: 10),
               Text(
-                'You finished ${widget.level.title}. Keep up the great work!',
+                uiText(
+                  context,
+                  'You finished {lesson}. Keep up the great work!',
+                  args: {'lesson': widget.level.title},
+                ),
                 textAlign: TextAlign.center,
                 style: Theme.of(
                   context,
@@ -901,23 +925,26 @@ class _LessonPageState extends State<LessonPage> {
                 ),
                 child: Column(
                   children: [
-                    _statRow('Exercises completed', '${_exercises.length}'),
+                    _statRow(
+                      uiText(context, 'Exercises completed'),
+                      '${_exercises.length}',
+                    ),
                     const Divider(height: 24),
                     _statRow(
-                      'Answers correct',
+                      uiText(context, 'Answers correct'),
                       '$_correctAnswers / ${_exercises.length}',
                     ),
                     const Divider(height: 24),
-                    _statRow('Accuracy', '$accuracy%'),
+                    _statRow(uiText(context, 'Accuracy'), '$accuracy%'),
                     const Divider(height: 24),
                     _statRow(
                       _earnedXp == null
-                          ? 'XP estimate (without potion)'
-                          : 'XP earned',
+                          ? uiText(context, 'XP estimate (without potion)')
+                          : uiText(context, 'XP earned'),
                       '${_earnedXp ?? estimatedXp} XP',
                     ),
                     const Divider(height: 24),
-                    _statRow('Time', elapsed),
+                    _statRow(uiText(context, 'Time'), elapsed),
                   ],
                 ),
               ),
@@ -935,10 +962,10 @@ class _LessonPageState extends State<LessonPage> {
                       : const Icon(Icons.check_circle_outline_rounded),
                   label: Text(
                     _isCompleting
-                        ? 'Saving progressâ€¦'
+                        ? uiText(context, 'Saving progress...')
                         : _earnedXp == null
-                        ? 'Finish lesson'
-                        : 'Back to lessons',
+                        ? uiText(context, 'Finish lesson')
+                        : uiText(context, 'Back to lessons'),
                   ),
                 ),
               ),
@@ -990,7 +1017,7 @@ class _LessonPageState extends State<LessonPage> {
               const SizedBox(height: 16),
               FilledButton(
                 onPressed: _retryLoadingExercises,
-                child: const Text('Try again'),
+                child: Text(uiText(context, 'Try again')),
               ),
             ],
           ),
@@ -1063,7 +1090,7 @@ class DevelopmentPage extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.tabPagePadding),
           child: Text(
-            'More content is in development.',
+            uiText(context, 'More content is in development.'),
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
               color: AppColors.primaryDark,
