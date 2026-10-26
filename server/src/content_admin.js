@@ -132,6 +132,42 @@ export async function synchronizeTopicTranslations(pool, {topic, sourceLanguage,
            question = EXCLUDED.question, status = 'published', updated_at = now()`,
         [topic.id, language, localized.question, JSON.stringify(treeData)]);
 
+      const sourceLessonIds = localized.lessons.map((lesson) => lesson.id);
+      const extraLessons = await client.query(
+        `SELECT l.id, tr.material_topic_id, tr.title, tr.content
+         FROM content_lessons l
+         JOIN content_lesson_translations tr ON tr.lesson_id = l.id
+         WHERE l.topic_id = $1 AND tr.language_code = $2
+           AND NOT (l.id = ANY($3::uuid[]))
+         FOR UPDATE OF tr`, [topic.id, language, sourceLessonIds]);
+      const removableMaterialIds = [];
+      for (const extra of extraLessons.rows) {
+        const oldExercises = await client.query(
+          `SELECT id, exercise_json FROM content_exercises
+           WHERE lesson_id = $1 AND language_code = $2 FOR UPDATE`, [extra.id, language]);
+        for (const oldExercise of oldExercises.rows) {
+          await nextRevision(client, 'exercise', oldExercise.id, language,
+            parseJson(oldExercise.exercise_json), accountId);
+        }
+        await client.query(
+          'DELETE FROM content_exercises WHERE lesson_id = $1 AND language_code = $2',
+          [extra.id, language]);
+        await nextRevision(client, 'lesson', extra.id, language, extra, accountId);
+        await client.query(
+          'DELETE FROM content_lesson_translations WHERE lesson_id = $1 AND language_code = $2',
+          [extra.id, language]);
+        removableMaterialIds.push(extra.material_topic_id);
+      }
+      if (removableMaterialIds.length) {
+        await client.query(
+          `DELETE FROM content_topics t
+           WHERE t.topic_id = ANY($1::text[]) AND t.visible_in_tree = false
+             AND NOT EXISTS (
+               SELECT 1 FROM content_lesson_translations tr
+               WHERE tr.material_topic_id = t.topic_id
+             )`, [[...new Set(removableMaterialIds)]]);
+      }
+
       for (const lesson of localized.lessons) {
         const sourceLesson = topic.lessons.find((item) => item.id === lesson.id);
         if (!sourceLesson) throw new Error('Topic lesson list changed during synchronization.');
@@ -162,6 +198,16 @@ export async function synchronizeTopicTranslations(pool, {topic, sourceLanguage,
              content = EXCLUDED.content, status = 'published', updated_at = now()`,
           [lesson.id, language, materialTopicId, lesson.title, lesson.content]);
 
+        const desiredPositions = new Set(lesson.exercises.map((exercise) => exercise.position));
+        const targetExercises = await client.query(
+          `SELECT id, position, exercise_json FROM content_exercises
+           WHERE lesson_id = $1 AND language_code = $2 FOR UPDATE`, [lesson.id, language]);
+        for (const targetExercise of targetExercises.rows) {
+          if (desiredPositions.has(Number(targetExercise.position))) continue;
+          await nextRevision(client, 'exercise', targetExercise.id, language,
+            parseJson(targetExercise.exercise_json), accountId);
+          await client.query('DELETE FROM content_exercises WHERE id = $1', [targetExercise.id]);
+        }
         for (const exercise of lesson.exercises) {
           validateExercisePayload(exercise.type, exercise.payload);
           const current = await client.query(

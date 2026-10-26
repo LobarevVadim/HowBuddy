@@ -607,7 +607,7 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
       builder: (dialogContext) => AlertDialog(
         title: const Text('Translate this whole topic?'),
         content: Text(
-          'Use ${_language.toUpperCase()} as the source. Google Cloud Translation will translate the topic question and all published lessons and exercises into the other four languages. Existing matching translations will be replaced; review the results before learners use them.',
+          'Use ${_language.toUpperCase()} as the source. Google Cloud Translation will translate the topic question and all published lessons and exercises into the other four languages. Matching translations will be replaced, and lesson or exercise translations that exist only in another language will be deleted. Revision snapshots are retained. Review the results before learners use them.',
         ),
         actions: [
           TextButton(
