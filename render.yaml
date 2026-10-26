@@ -50,6 +50,8 @@ services:
         fromDatabase:
           name: howbuddy-demo-db
           property: connectionString
+      - key: CONTENT_DATABASE_URL
+        sync: false
       - key: SESSION_SECRET
         generateValue: true
       - key: NODE_ENV

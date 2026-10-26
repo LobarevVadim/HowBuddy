@@ -5,7 +5,7 @@ import express from 'express';
 import {OAuth2Client} from 'google-auth-library';
 import pg from 'pg';
 import {createHmac, timingSafeEqual} from 'node:crypto';
-import {existsSync, readFileSync} from 'node:fs';
+import {readFileSync} from 'node:fs';
 import {getApps, initializeApp, cert} from 'firebase-admin/app';
 import {getMessaging} from 'firebase-admin/messaging';
 import {createNotificationScheduler} from './notification_scheduler.js';
@@ -21,6 +21,12 @@ import {
 } from './streak_freeze_policy.js';
 import {createSupportInbox, verifyResendWebhook, SUPPORT_INBOXES} from './support_inbox.js';
 import {BoboError, createBoboTutor} from './bobo_service.js';
+import {
+  ensureLessonContentSchema,
+  getLessonContent as getStoredLessonContent,
+  loadLessonContent,
+  seedMissingLessonContent,
+} from './lesson_content_store.js';
 
 dotenv.config();
 
@@ -31,6 +37,10 @@ const googleWebClientId = process.env.GOOGLE_WEB_CLIENT_ID ?? '';
 const googleOAuthClient = new OAuth2Client();
 const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
+});
+const contentPool = new pg.Pool({
+  connectionString: process.env.CONTENT_DATABASE_URL || process.env.DATABASE_URL,
+  max: 2,
 });
 const firebaseServiceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
 let pushMessaging = null;
@@ -57,22 +67,15 @@ const notificationScheduler = createNotificationScheduler({
   getLessonContent,
   emailSender: notificationEmailSender,
 });
-const lessonContent = JSON.parse(
-  readFileSync(new URL('../data/lesson_exercises.json', import.meta.url), 'utf8'),
-);
-const lessonContentByLanguage = new Map([['en', lessonContent]]);
+let lessonContent = null;
+let lessonContentByLanguage = new Map();
 const boboTutor = createBoboTutor({pool, getLessonContent});
 
 function getLessonContent(language) {
-  const code = ['fr', 'es', 'hi', 'ru'].includes(String(language))
-    ? String(language)
-    : 'en';
-  if (lessonContentByLanguage.has(code)) return lessonContentByLanguage.get(code);
-  const fileUrl = new URL(`../data/lesson_exercises_${code}.json`, import.meta.url);
-  if (!existsSync(fileUrl)) return lessonContent;
-  const localized = JSON.parse(readFileSync(fileUrl, 'utf8'));
-  lessonContentByLanguage.set(code, localized);
-  return localized;
+  if (!lessonContentByLanguage.size) {
+    throw new Error('Lesson content database has not been initialized.');
+  }
+  return getStoredLessonContent(lessonContentByLanguage, language);
 }
 
 app.use(cors());
@@ -1716,6 +1719,10 @@ function clientTimezoneOffset(request) {
 }
 
 pool.query(readFileSync(new URL('../schema.sql', import.meta.url), 'utf8')).then(async () => {
+  await ensureLessonContentSchema(contentPool);
+  await seedMissingLessonContent(contentPool);
+  await refreshLessonContentCache();
+  console.log(`Loaded lesson content from PostgreSQL (${lessonContentByLanguage.size} languages).`);
   await seedLeaderboardDemoUsers();
   await applyStudyDayBackfill();
   if (sessionSecret.length < 32) {
@@ -1724,11 +1731,23 @@ pool.query(readFileSync(new URL('../schema.sql', import.meta.url), 'utf8')).then
   app.listen(port, () => {
     console.log(`HowBuddy auth API listening on http://localhost:${port}`);
   });
+  const contentRefresh = setInterval(() => {
+    refreshLessonContentCache().catch((error) => {
+      console.error('Could not refresh lesson content from PostgreSQL:', error.message);
+    });
+  }, 5 * 60 * 1000);
+  contentRefresh.unref();
   notificationScheduler.start();
 }).catch((error) => {
   console.error('Could not initialize the API database schema.', error);
   process.exitCode = 1;
 });
+
+async function refreshLessonContentCache() {
+  const nextContent = await loadLessonContent(contentPool);
+  lessonContentByLanguage = nextContent;
+  lessonContent = getLessonContent('en');
+}
 
 async function seedLeaderboardDemoUsers() {
   const xpAmounts = [9, 11, 21, 43, 55, 77, 89, 121, 165, 197, 233, 271, 319, 371, 424];
