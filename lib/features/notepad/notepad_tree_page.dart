@@ -74,6 +74,16 @@ class NotepadTreeCanvas extends StatefulWidget {
 class _NotepadTreeCanvasState extends State<NotepadTreeCanvas> {
   final TransformationController _transformationController =
       TransformationController();
+  static const _subjectKeys = <String>[
+    'Math',
+    'Biology',
+    'Geography',
+    'History',
+    'Physics',
+    'Chemistry',
+    'Geometry',
+  ];
+  String? _selectedSubject;
   bool _initialTransformApplied = false;
 
   @override
@@ -85,7 +95,26 @@ class _NotepadTreeCanvasState extends State<NotepadTreeCanvas> {
   @override
   Widget build(BuildContext context) {
     ThemePreferencesScope.watch(context);
-    final positionedNodes = _layoutTree(widget.root);
+    final isPopularQuestions = _selectedSubject == null;
+    final activeRoot = NotepadTreeNode(
+      id: 'active-root',
+      title: uiText(
+        context,
+        isPopularQuestions ? 'Popular Questions' : _selectedSubject!,
+      ),
+      isCompleted: isPopularQuestions && widget.root.isCompleted,
+      children: isPopularQuestions
+          ? widget.root.children
+          : [
+              const NotepadTreeNode(
+                id: 'under-development',
+                title: 'Content is currently under development',
+                children: [],
+                isCompleted: false,
+              ),
+            ],
+    );
+    final positionedNodes = _layoutTree(activeRoot, isPopularQuestions);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -140,7 +169,10 @@ class _NotepadTreeCanvasState extends State<NotepadTreeCanvas> {
                     width: node.width,
                     child: NotepadTreeCard(
                       node: node.node,
-                      onPressed: () => _openNode(context, node.node),
+                      labelOverride: node.labelOverride,
+                      onPressed: node.isPlaceholder
+                          ? null
+                          : () => _openNode(node),
                     ),
                   ),
               ],
@@ -151,38 +183,73 @@ class _NotepadTreeCanvasState extends State<NotepadTreeCanvas> {
     );
   }
 
-  void _openNode(BuildContext context, NotepadTreeNode node) {
-    if (node.id == 'main-tree') {
+  void _openNode(PositionedNotepadNode positionedNode) {
+    final subjectKey = positionedNode.subjectKey;
+    if (subjectKey != null) {
+      setState(() => _selectedSubject = subjectKey == 'Popular Questions'
+          ? null
+          : subjectKey);
       return;
     }
 
+    final node = positionedNode.node;
+    if (node.id == 'active-root') return;
     widget.onTopicSelected(node.id);
   }
 
-  List<PositionedNotepadNode> _layoutTree(NotepadTreeNode root) {
+  List<PositionedNotepadNode> _layoutTree(
+    NotepadTreeNode root,
+    bool isPopularQuestions,
+  ) {
+    final switcherKeys = isPopularQuestions
+        ? _subjectKeys
+        : [
+            ..._subjectKeys.where((key) => key != _selectedSubject),
+            'Popular Questions',
+          ];
+    const selectorXPositions = [260.0, 800.0, 1340.0, 1900.0, 2460.0, 3000.0, 3540.0];
     final nodes = <PositionedNotepadNode>[
+      for (var index = 0; index < switcherKeys.length; index++)
+        PositionedNotepadNode(
+          node: NotepadTreeNode(
+            id: 'subject-switch-$index',
+            title: uiText(context, switcherKeys[index]),
+            children: const [],
+            isCompleted: false,
+          ),
+          offset: Offset(selectorXPositions[index], 90),
+          width: switcherKeys[index] == 'Popular Questions' ? 250 : 210,
+          parentId: root.id,
+          subjectKey: switcherKeys[index],
+        ),
       PositionedNotepadNode(
         node: root,
-        offset: const Offset(1900, 90),
-        width: 240,
+        offset: const Offset(1900, 350),
+        width: 270,
         parentId: null,
       ),
     ];
 
-    final topicY = 330.0;
-    final questionY = 650.0;
-    final leafY = 1030.0;
+    final topicY = 610.0;
+    final questionY = 870.0;
+    final leafY = 1170.0;
     final topicXPositions = [720.0, 1900.0, 3080.0];
 
     for (var topicIndex = 0; topicIndex < root.children.length; topicIndex++) {
       final topic = root.children[topicIndex];
-      final topicX = topicXPositions[topicIndex];
+      final topicX = root.children.length == 1
+          ? 1900.0
+          : topicXPositions[topicIndex];
       nodes.add(
         PositionedNotepadNode(
           node: topic,
           offset: Offset(topicX, topicY),
           width: 300,
           parentId: root.id,
+          labelOverride: topic.id == 'under-development'
+              ? uiText(context, 'Content is currently under development')
+              : null,
+          isPlaceholder: topic.id == 'under-development',
         ),
       );
 
@@ -226,17 +293,23 @@ class _NotepadTreeCanvasState extends State<NotepadTreeCanvas> {
 }
 
 class PositionedNotepadNode {
+  final NotepadTreeNode node;
+  final Offset offset;
+  final double width;
+  final String? parentId;
+  final String? subjectKey;
+  final String? labelOverride;
+  final bool isPlaceholder;
+
   const PositionedNotepadNode({
     required this.node,
     required this.offset,
     required this.width,
     required this.parentId,
+    this.subjectKey,
+    this.labelOverride,
+    this.isPlaceholder = false,
   });
-
-  final NotepadTreeNode node;
-  final Offset offset;
-  final double width;
-  final String? parentId;
 }
 
 class NotepadTreePainter extends CustomPainter {
@@ -264,15 +337,17 @@ class NotepadTreePainter extends CustomPainter {
         continue;
       }
 
+      final upper = parent.offset.dy <= node.offset.dy ? parent : node;
+      final lower = identical(upper, parent) ? node : parent;
       final path = Path()
-        ..moveTo(parent.offset.dx, parent.offset.dy + 36)
+        ..moveTo(upper.offset.dx, upper.offset.dy + 36)
         ..cubicTo(
-          parent.offset.dx,
-          (parent.offset.dy + node.offset.dy) / 2,
-          node.offset.dx,
-          (parent.offset.dy + node.offset.dy) / 2,
-          node.offset.dx,
-          node.offset.dy - 36,
+          upper.offset.dx,
+          (upper.offset.dy + lower.offset.dy) / 2,
+          lower.offset.dx,
+          (upper.offset.dy + lower.offset.dy) / 2,
+          lower.offset.dx,
+          lower.offset.dy - 36,
         );
       canvas.drawPath(path, paint);
     }
@@ -287,12 +362,14 @@ class NotepadTreePainter extends CustomPainter {
 class NotepadTreeCard extends StatelessWidget {
   const NotepadTreeCard({
     required this.node,
+    this.labelOverride,
     required this.onPressed,
     super.key,
   });
 
   final NotepadTreeNode node;
-  final VoidCallback onPressed;
+  final String? labelOverride;
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -324,7 +401,7 @@ class NotepadTreeCard extends StatelessWidget {
             ],
           ),
           child: Text(
-            node.id == 'main-tree' ? uiText(context, 'Main Tree') : node.title,
+            labelOverride ?? node.title,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: AppColors.primaryDark,
