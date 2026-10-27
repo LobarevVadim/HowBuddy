@@ -63,7 +63,7 @@ const sessionSecret = process.env.SESSION_SECRET ?? '';
 const googleWebClientId = process.env.GOOGLE_WEB_CLIENT_ID ?? '';
 const LEGAL_POLICY_VERSIONS = Object.freeze({
   terms: '2026-10-26-v1',
-  privacy: '2026-10-26-v1',
+  privacy: '2026-10-27-v2',
   cookies: '2026-10-26-v1',
   refunds: '2026-10-26-v1',
 });
@@ -225,6 +225,29 @@ app.get('/admin/users', requireAuth, requireAdmin, async (request, response) => 
   } catch (error) {
     console.error('Could not search admin users:', error.message);
     return response.status(500).json({message: 'Could not load users.'});
+  }
+});
+
+app.delete('/admin/users/:id', requireAuth, requireAdmin, async (request, response) => {
+  const targetId = String(request.params.id ?? '').toLowerCase();
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(targetId)) {
+    return response.status(400).json({message: 'Choose a valid user account.'});
+  }
+  if (targetId === request.accountId) {
+    return response.status(400).json({message: 'Delete your own account from the HowBuddy profile page.'});
+  }
+  try {
+    const result = await pool.query(
+      `DELETE FROM accounts
+       WHERE id = $1 AND auth_provider <> 'demo'
+       RETURNING id`,
+      [targetId],
+    );
+    if (!result.rowCount) return response.status(404).json({message: 'User not found.'});
+    return response.json({deleted: true, accountId: result.rows[0].id});
+  } catch (error) {
+    console.error('Could not delete admin-selected account:', error.message);
+    return response.status(500).json({message: 'Could not delete this account.'});
   }
 });
 
@@ -999,6 +1022,20 @@ app.put('/account/avatar-emoji', requireAuth, async (request, response) => {
   } catch (error) {
     console.error(error);
     return response.status(500).json({message: 'Could not save your avatar emoji.'});
+  }
+});
+
+app.delete('/account', requireAuth, async (request, response) => {
+  try {
+    const result = await pool.query(
+      'DELETE FROM accounts WHERE id = $1 RETURNING id',
+      [request.accountId],
+    );
+    if (!result.rowCount) return response.status(404).json({message: 'Account not found.'});
+    return response.json({deleted: true});
+  } catch (error) {
+    console.error('Could not delete own account:', error.message);
+    return response.status(500).json({message: 'Could not delete your account.'});
   }
 });
 

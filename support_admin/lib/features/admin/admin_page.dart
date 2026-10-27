@@ -315,7 +315,10 @@ class _AdminPageState extends State<AdminPage> {
               )
             else if (_section == 1)
               Expanded(
-                child: AdminUsersSection(onRequest: (path) => _api(path)),
+                child: AdminUsersSection(
+                  onRequest: (path) => _api(path),
+                  onDelete: (path) => _api(path, method: 'DELETE'),
+                ),
               )
             else if (_section == 2)
               Expanded(

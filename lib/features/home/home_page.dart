@@ -684,6 +684,7 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
   bool _savingGlasses = false;
   bool _savingEmoji = false;
   bool _savingPreferences = false;
+  bool _deletingAccount = false;
 
   Future<void> _selectPalette(int paletteIndex) async {
     if (_savingPalette || paletteIndex == _paletteIndex) return;
@@ -816,6 +817,52 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
       );
     } finally {
       if (mounted) setState(() => _savingPreferences = false);
+    }
+  }
+
+  Future<void> _confirmDeleteAccount() async {
+    if (_deletingAccount) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(uiText(context, 'Permanently delete your account?')),
+        content: Text(
+          uiText(
+            context,
+            'This permanently deletes your account and all linked learning progress, rewards, and Bobo chats. This cannot be undone.',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(uiText(context, 'Cancel')),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.red.shade700,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(uiText(context, 'Delete account')),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    setState(() => _deletingAccount = true);
+    try {
+      await AuthApi().deleteOwnAccount();
+      if (mounted) widget.onLogout();
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            uiText(context, 'Could not delete your account. Please try again.'),
+          ),
+        ),
+      );
+      setState(() => _deletingAccount = false);
     }
   }
 
@@ -1218,6 +1265,21 @@ class _ProfileTabPageState extends State<ProfileTabPage> {
                   const LinearProgressIndicator(),
                 ],
                 const SizedBox(height: AppSpacing.profileLogoutGap),
+                OutlinedButton.icon(
+                  onPressed: _deletingAccount ? null : _confirmDeleteAccount,
+                  icon: const Icon(Icons.delete_forever_outlined),
+                  label: Text(uiText(context, 'Delete account permanently')),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.red.shade700,
+                    side: BorderSide(color: Colors.red.shade700),
+                    minimumSize: const Size.fromHeight(48),
+                  ),
+                ),
+                if (_deletingAccount) ...[
+                  const SizedBox(height: 8),
+                  const LinearProgressIndicator(),
+                ],
+                const SizedBox(height: 12),
                 PrimaryButton(
                   text: uiText(context, 'Logout'),
                   onPressed: widget.onLogout,

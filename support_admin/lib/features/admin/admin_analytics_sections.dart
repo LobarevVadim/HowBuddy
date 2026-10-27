@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 typedef AdminGet = Future<Map<String, dynamic>> Function(String path);
+typedef AdminDelete = Future<Map<String, dynamic>> Function(String path);
 
 const _ink = Color(0xFF20283A);
 const _muted = Color(0xFF778091);
@@ -8,9 +9,14 @@ const _accent = Color(0xFF7056D8);
 const _line = Color(0xFFE4E8EF);
 
 class AdminUsersSection extends StatefulWidget {
-  const AdminUsersSection({required this.onRequest, super.key});
+  const AdminUsersSection({
+    required this.onRequest,
+    required this.onDelete,
+    super.key,
+  });
 
   final AdminGet onRequest;
+  final AdminDelete onDelete;
 
   @override
   State<AdminUsersSection> createState() => _AdminUsersSectionState();
@@ -24,6 +30,7 @@ class _AdminUsersSectionState extends State<AdminUsersSection> {
   String? _error;
   int _total = 0;
   int _offset = 0;
+  final Set<String> _deletingUserIds = {};
   static const _pageSize = 25;
 
   @override
@@ -223,25 +230,87 @@ class _AdminUsersSectionState extends State<AdminUsersSection> {
       '${user['email'] ?? ''} · Joined ${_date(user['createdAt'])}',
       style: const TextStyle(color: _muted),
     ),
-    trailing: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.end,
+    trailing: Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        const Text(
-          'Last active',
-          style: TextStyle(fontSize: 10, color: _muted),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            const Text(
+              'Last active',
+              style: TextStyle(fontSize: 10, color: _muted),
+            ),
+            Text(
+              _date(user['lastActiveAt']),
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: _ink,
+              ),
+            ),
+          ],
         ),
-        Text(
-          _date(user['lastActiveAt']),
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: _ink,
-          ),
+        const SizedBox(width: 8),
+        IconButton(
+          tooltip: 'Delete account',
+          color: Colors.red.shade700,
+          onPressed: _deletingUserIds.contains(user['id'].toString())
+              ? null
+              : () => _confirmDeleteUser(user),
+          icon: const Icon(Icons.delete_outline_rounded),
         ),
       ],
     ),
   );
+
+  Future<void> _confirmDeleteUser(Map<String, dynamic> user) async {
+    final name = user['fullName']?.toString() ?? 'this user';
+    final email = user['email']?.toString() ?? '';
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Permanently delete this account?'),
+        content: Text(
+          'Delete $name ($email) and all account-linked progress, gamification data, and Bobo conversations? This cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.red.shade700,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Delete account'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    final userId = user['id'].toString();
+    setState(() => _deletingUserIds.add(userId));
+    try {
+      await widget.onDelete('/admin/users/${Uri.encodeComponent(userId)}');
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Account deleted.')));
+      if (_users.length == 1 && _offset > 0)
+        _offset = (_offset - _pageSize).clamp(0, _offset);
+      await _load();
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(_friendlyError(error))));
+    } finally {
+      if (mounted) setState(() => _deletingUserIds.remove(userId));
+    }
+  }
 }
 
 class AdminLearningAnalyticsSection extends StatefulWidget {
@@ -373,10 +442,7 @@ class _AdminLearningAnalyticsSectionState
         return bCount.compareTo(aCount);
       });
     if (topics.isEmpty) {
-      return const Text(
-        'No topics found.',
-        style: TextStyle(color: _muted),
-      );
+      return const Text('No topics found.', style: TextStyle(color: _muted));
     }
     final maxInterested = topics.fold<int>(0, (maximum, topic) {
       final count = topic['interestedUsers'] as int? ?? 0;
@@ -387,8 +453,8 @@ class _AdminLearningAnalyticsSectionState
         final label = topic['title']?.toString() ?? topic['id'].toString();
         final interested = topic['interestedUsers'] as int? ?? 0;
         final completed = topic['lastLessonUsers'] as int? ?? 0;
-        final completionRate =
-            (topic['completionRatePercent'] as num? ?? 0).toDouble();
+        final completionRate = (topic['completionRatePercent'] as num? ?? 0)
+            .toDouble();
         final relativeInterest = maxInterested > 0
             ? interested / maxInterested
             : 0.0;

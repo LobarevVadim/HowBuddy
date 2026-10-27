@@ -108,6 +108,15 @@ class AuthApi {
     _readBody(response);
   }
 
+  Future<void> deleteOwnAccount() async {
+    final response = await http.delete(
+      Uri.parse('$baseUrl/account'),
+      headers: ApiSession.authenticatedHeaders,
+    );
+    _readBody(response);
+    ApiSession.clear();
+  }
+
   Future<Account> register({
     required String fullName,
     required String email,

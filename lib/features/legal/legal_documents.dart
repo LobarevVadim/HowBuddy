@@ -45,7 +45,7 @@ const legalDocuments = <LegalDocument>[
     title: 'Privacy Policy',
     sections: [
       LegalSection('Who is responsible', [
-        'HowBuddy, operated under the HowBuddy name, is responsible for personal information handled through the app. Privacy questions or requests to access, correct, or delete information can be sent to hello@howbuddy.app. This policy is effective October 26, 2026.',
+        'HowBuddy, operated under the HowBuddy name, is responsible for personal information handled through the app. Privacy questions or requests to access, correct, or delete information can be sent to hello@howbuddy.app. This policy is effective October 27, 2026.',
       ]),
       LegalSection('Information we collect', [
         'Account information: name, email address, password hash (never the plain-text password), sign-in provider identifier for Google sign-in, and account creation and last-active times.',
@@ -69,7 +69,7 @@ const legalDocuments = <LegalDocument>[
         'The current notification-email code is restricted to the owner’s test email address. Support replies and inbound support handling may still use Resend. Update this notice if that test restriction is removed or email practices change.',
       ]),
       LegalSection('Retention and your choices', [
-        'Account, learning, and Bobo records remain in the database while the account is active. The app does not yet have a self-service account deletion control or a published automatic deletion schedule. Email hello@howbuddy.app to request access, correction, or deletion. We will verify the request and handle it under applicable law; limited records may remain where required for security, legal obligations, or backups until those copies expire.',
+        'You can permanently delete your account from the Profile page after confirming the request. Account-linked profile, learning, rewards, notification, and Bobo records are deleted with it. Independently stored support emails and messages, security records, and database backups may remain for their own retention periods or where required by law. You can also email hello@howbuddy.app to request access, correction, or deletion.',
         'You can change profile and notification settings in the app and can disable notifications through your device or browser. You may stop using Bobo at any time. You can withdraw optional notification permission in app settings or device settings.',
       ]),
       LegalSection('Children, security, and changes', [

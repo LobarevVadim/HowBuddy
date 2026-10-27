@@ -614,21 +614,104 @@ class UiTranslations {
     'Popular Questions': {
       'fr': 'Questions populaires',
       'es': 'Preguntas populares',
-      'hi': '\u{932}\u{94B}\u{915}\u{92A}\u{94D}\u{930}\u{93F}\u{92F} \u{92A}\u{94D}\u{930}\u{936}\u{94D}\u{928}',
-      'ru': '\u{41F}\u{43E}\u{43F}\u{443}\u{43B}\u{44F}\u{440}\u{43D}\u{44B}\u{435} \u{432}\u{43E}\u{43F}\u{440}\u{43E}\u{441}\u{44B}',
+      'hi':
+          '\u{932}\u{94B}\u{915}\u{92A}\u{94D}\u{930}\u{93F}\u{92F} \u{92A}\u{94D}\u{930}\u{936}\u{94D}\u{928}',
+      'ru':
+          '\u{41F}\u{43E}\u{43F}\u{443}\u{43B}\u{44F}\u{440}\u{43D}\u{44B}\u{435} \u{432}\u{43E}\u{43F}\u{440}\u{43E}\u{441}\u{44B}',
     },
-    'Math': {'fr': 'Math\u{E9}matiques', 'es': 'Matem\u{E1}ticas', 'hi': '\u{917}\u{923}\u{93F}\u{924}', 'ru': '\u{41C}\u{430}\u{442}\u{435}\u{43C}\u{430}\u{442}\u{438}\u{43A}\u{430}'},
-    'Biology': {'fr': 'Biologie', 'es': 'Biolog\u{ED}a', 'hi': '\u{91C}\u{940}\u{935}\u{935}\u{93F}\u{91C}\u{94D}\u{91E}\u{93E}\u{928}', 'ru': '\u{411}\u{438}\u{43E}\u{43B}\u{43E}\u{433}\u{438}\u{44F}'},
-    'Geography': {'fr': 'G\u{E9}ographie', 'es': 'Geograf\u{ED}a', 'hi': '\u{92D}\u{942}\u{917}\u{94B}\u{932}', 'ru': '\u{413}\u{435}\u{43E}\u{433}\u{440}\u{430}\u{444}\u{438}\u{44F}'},
-    'History': {'fr': 'Histoire', 'es': 'Historia', 'hi': '\u{907}\u{924}\u{93F}\u{939}\u{93E}\u{938}', 'ru': '\u{418}\u{441}\u{442}\u{43E}\u{440}\u{438}\u{44F}'},
-    'Physics': {'fr': 'Physique', 'es': '\u{F3}sica', 'hi': '\u{92D}\u{94C}\u{924}\u{93F}\u{915}\u{940}', 'ru': '\u{424}\u{438}\u{437}\u{438}\u{43A}\u{430}'},
-    'Chemistry': {'fr': 'Chimie', 'es': 'Qu\u{ED}mica', 'hi': '\u{930}\u{938}\u{93E}\u{92F}\u{928} \u{935}\u{93F}\u{91C}\u{94D}\u{91E}\u{93E}\u{928}', 'ru': '\u{425}\u{438}\u{43C}\u{438}\u{44F}'},
-    'Geometry': {'fr': 'G\u{E9}om\u{E9}trie', 'es': 'Geometr\u{ED}a', 'hi': '\u{91C}\u{94D}\u{92F}\u{93E}\u{92E}\u{93F}\u{924}\u{93F}', 'ru': '\u{413}\u{435}\u{43E}\u{43C}\u{435}\u{442}\u{440}\u{438}\u{44F}'},
+    'Math': {
+      'fr': 'Math\u{E9}matiques',
+      'es': 'Matem\u{E1}ticas',
+      'hi': '\u{917}\u{923}\u{93F}\u{924}',
+      'ru':
+          '\u{41C}\u{430}\u{442}\u{435}\u{43C}\u{430}\u{442}\u{438}\u{43A}\u{430}',
+    },
+    'Biology': {
+      'fr': 'Biologie',
+      'es': 'Biolog\u{ED}a',
+      'hi':
+          '\u{91C}\u{940}\u{935}\u{935}\u{93F}\u{91C}\u{94D}\u{91E}\u{93E}\u{928}',
+      'ru': '\u{411}\u{438}\u{43E}\u{43B}\u{43E}\u{433}\u{438}\u{44F}',
+    },
+    'Geography': {
+      'fr': 'G\u{E9}ographie',
+      'es': 'Geograf\u{ED}a',
+      'hi': '\u{92D}\u{942}\u{917}\u{94B}\u{932}',
+      'ru': '\u{413}\u{435}\u{43E}\u{433}\u{440}\u{430}\u{444}\u{438}\u{44F}',
+    },
+    'History': {
+      'fr': 'Histoire',
+      'es': 'Historia',
+      'hi': '\u{907}\u{924}\u{93F}\u{939}\u{93E}\u{938}',
+      'ru': '\u{418}\u{441}\u{442}\u{43E}\u{440}\u{438}\u{44F}',
+    },
+    'Physics': {
+      'fr': 'Physique',
+      'es': '\u{F3}sica',
+      'hi': '\u{92D}\u{94C}\u{924}\u{93F}\u{915}\u{940}',
+      'ru': '\u{424}\u{438}\u{437}\u{438}\u{43A}\u{430}',
+    },
+    'Chemistry': {
+      'fr': 'Chimie',
+      'es': 'Qu\u{ED}mica',
+      'hi':
+          '\u{930}\u{938}\u{93E}\u{92F}\u{928} \u{935}\u{93F}\u{91C}\u{94D}\u{91E}\u{93E}\u{928}',
+      'ru': '\u{425}\u{438}\u{43C}\u{438}\u{44F}',
+    },
+    'Geometry': {
+      'fr': 'G\u{E9}om\u{E9}trie',
+      'es': 'Geometr\u{ED}a',
+      'hi': '\u{91C}\u{94D}\u{92F}\u{93E}\u{92E}\u{93F}\u{924}\u{93F}',
+      'ru': '\u{413}\u{435}\u{43E}\u{43C}\u{435}\u{442}\u{440}\u{438}\u{44F}',
+    },
     'Content is currently under development': {
       'fr': 'Contenu en cours de d\u{E9}veloppement',
       'es': 'Contenido en desarrollo',
-      'hi': '\u{938}\u{93E}\u{92E}\u{917}\u{94D}\u{930}\u{940} \u{905}\u{92D}\u{940} \u{935}\u{93F}\u{915}\u{93E}\u{938} \u{915}\u{947} \u{924}\u{939}\u{924} \u{939}\u{948}',
-      'ru': '\u{421}\u{43E}\u{434}\u{435}\u{440}\u{436}\u{430}\u{43D}\u{438}\u{435} \u{432} \u{440}\u{430}\u{437}\u{440}\u{430}\u{431}\u{43E}\u{442}\u{43A}\u{435}',
+      'hi':
+          '\u{938}\u{93E}\u{92E}\u{917}\u{94D}\u{930}\u{940} \u{905}\u{92D}\u{940} \u{935}\u{93F}\u{915}\u{93E}\u{938} \u{915}\u{947} \u{924}\u{939}\u{924} \u{939}\u{948}',
+      'ru':
+          '\u{421}\u{43E}\u{434}\u{435}\u{440}\u{436}\u{430}\u{43D}\u{438}\u{435} \u{432} \u{440}\u{430}\u{437}\u{440}\u{430}\u{431}\u{43E}\u{442}\u{43A}\u{435}',
+    },
+    'Delete account permanently': {
+      'fr': 'Supprimer d\u{E9}finitivement le compte',
+      'es': 'Eliminar la cuenta permanentemente',
+      'hi':
+          '\u{916}\u{93E}\u{924}\u{947} \u{915}\u{94B} \u{938}\u{94D}\u{925}\u{93E}\u{92F}\u{940} \u{930}\u{942}\u{92A} \u{938}\u{947} \u{939}\u{91F}\u{93E}\u{90F}\u{901}',
+      'ru':
+          '\u{423}\u{434}\u{430}\u{43B}\u{438}\u{442}\u{44C} \u{430}\u{43A}\u{43A}\u{430}\u{443}\u{43D}\u{442} \u{43D}\u{430}\u{432}\u{441}\u{435}\u{433}\u{434}\u{430}',
+    },
+    'Permanently delete your account?': {
+      'fr': 'Supprimer d\u{E9}finitivement votre compte ?',
+      'es': '\u{BF}Eliminar tu cuenta permanentemente?',
+      'hi':
+          '\u{915}\u{94D}\u{92F}\u{93E} \u{905}\u{92A}\u{928}\u{93E} \u{916}\u{93E}\u{924}\u{93E} \u{938}\u{94D}\u{925}\u{93E}\u{92F}\u{940} \u{930}\u{942}\u{92A} \u{938}\u{947} \u{939}\u{91F}\u{93E}\u{90F}\u{901}?',
+      'ru':
+          '\u{41D}\u{430}\u{432}\u{441}\u{435}\u{433}\u{434}\u{430} \u{443}\u{434}\u{430}\u{43B}\u{438}\u{442}\u{44C} \u{432}\u{430}\u{448} \u{430}\u{43A}\u{43A}\u{430}\u{443}\u{43D}\u{442}?',
+    },
+    'This permanently deletes your account and all linked learning progress, rewards, and Bobo chats. This cannot be undone.': {
+      'fr':
+          'Cela supprimera d\u{E9}finitivement votre compte, votre progression, vos r\u{E9}compenses et vos conversations avec Bobo. Cette action est irr\u{E9}versible.',
+      'es':
+          'Esto eliminar\u{E1} permanentemente tu cuenta, tu progreso, tus recompensas y tus conversaciones con Bobo. No se puede deshacer.',
+      'hi':
+          '\u{907}\u{938}\u{938}\u{947} \u{906}\u{92A}\u{915}\u{93E} \u{916}\u{93E}\u{924}\u{93E}, \u{938}\u{940}\u{916}\u{928}\u{947} \u{915}\u{940} \u{92A}\u{94D}\u{930}\u{917}\u{924}\u{93F}, \u{907}\u{928}\u{93E}\u{92E} \u{914}\u{930} Bobo \u{915}\u{940} \u{92C}\u{93E}\u{924}\u{91A}\u{940}\u{924} \u{938}\u{94D}\u{925}\u{93E}\u{92F}\u{940} \u{930}\u{942}\u{92A} \u{938}\u{947} \u{939}\u{91F} \u{91C}\u{93E}\u{90F}\u{901}\u{917}\u{947}। \u{907}\u{938}\u{947} \u{92A}\u{932}\u{91F}\u{93E} \u{928}\u{939}\u{940}\u{902} \u{91C}\u{93E} \u{938}\u{915}\u{924}\u{93E}।',
+      'ru':
+          '\u{42D}\u{442}\u{43E} \u{43D}\u{430}\u{432}\u{441}\u{435}\u{433}\u{434}\u{430} \u{443}\u{434}\u{430}\u{43B}\u{438}\u{442} \u{432}\u{430}\u{448} \u{430}\u{43A}\u{43A}\u{430}\u{443}\u{43D}\u{442}, \u{443}\u{447}\u{435}\u{431}\u{43D}\u{44B}\u{439} \u{43F}\u{440}\u{43E}\u{433}\u{440}\u{435}\u{441}\u{441}, \u{43D}\u{430}\u{433}\u{440}\u{430}\u{434}\u{44B} \u{438} \u{447}\u{430}\u{442}\u{44B} \u{441} Bobo. \u{42D}\u{442}\u{43E} \u{43D}\u{435}\u{432}\u{43E}\u{437}\u{43C}\u{43E}\u{436}\u{43D}\u{43E} \u{43E}\u{442}\u{43C}\u{435}\u{43D}\u{438}\u{442}\u{44C}.',
+    },
+    'Delete account': {
+      'fr': 'Supprimer le compte',
+      'es': 'Eliminar cuenta',
+      'hi': '\u{916}\u{93E}\u{924}\u{93E} \u{939}\u{91F}\u{93E}\u{90F}\u{901}',
+      'ru':
+          '\u{423}\u{434}\u{430}\u{43B}\u{438}\u{442}\u{44C} \u{430}\u{43A}\u{43A}\u{430}\u{443}\u{43D}\u{442}',
+    },
+    'Could not delete your account. Please try again.': {
+      'fr': 'Impossible de supprimer votre compte. R\u{E9}essayez.',
+      'es': 'No se pudo eliminar la cuenta. Int\u{E9}ntalo de nuevo.',
+      'hi':
+          '\u{906}\u{92A}\u{915}\u{93E} \u{916}\u{93E}\u{924}\u{93E} \u{939}\u{91F}\u{93E}\u{92F}\u{93E} \u{928}\u{939}\u{940}\u{902} \u{91C}\u{93E} \u{938}\u{915}\u{93E}। \u{915}\u{943}\u{92A}\u{92F}\u{93E} \u{92B}\u{93F}\u{930} \u{938}\u{947} \u{915}\u{94B}\u{936}\u{93F}\u{936} \u{915}\u{930}\u{947}\u{902}।',
+      'ru':
+          '\u{41D}\u{435} \u{443}\u{434}\u{430}\u{43B}\u{43E}\u{441}\u{44C} \u{443}\u{434}\u{430}\u{43B}\u{438}\u{442}\u{44C} \u{430}\u{43A}\u{43A}\u{430}\u{443}\u{43D}\u{442}. \u{41F}\u{43E}\u{43F}\u{440}\u{43E}\u{431}\u{443}\u{439}\u{442}\u{435} \u{435}\u{449}\u{451} \u{440}\u{430}\u{437}.',
     },
     'Glasses accessory': {
       'fr': 'Accessoire lunettes',
