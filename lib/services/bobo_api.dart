@@ -40,12 +40,7 @@ class BoboApiException implements Exception {
 }
 
 class BoboTutorApi {
-  BoboTutorApi({
-    this.baseUrl = const String.fromEnvironment(
-      'API_URL',
-      defaultValue: 'http://localhost:3000',
-    ),
-  });
+  BoboTutorApi({this.baseUrl = ApiSession.baseUrl});
 
   final String baseUrl;
 
@@ -53,7 +48,7 @@ class BoboTutorApi {
     required String topicId,
     required String lessonId,
   }) async {
-    final response = await http.post(
+    final response = await ApiSession.client.post(
       Uri.parse('$baseUrl/bobo/conversations'),
       headers: ApiSession.authenticatedHeaders,
       body: jsonEncode({'topicId': topicId, 'lessonId': lessonId}),
@@ -65,7 +60,7 @@ class BoboTutorApi {
     required String topicId,
     required String lessonId,
   }) async {
-    final response = await http.get(
+    final response = await ApiSession.client.get(
       Uri.parse(
         '$baseUrl/bobo/attempts',
       ).replace(queryParameters: {'topicId': topicId, 'lessonId': lessonId}),
@@ -82,23 +77,31 @@ class BoboTutorApi {
     return result;
   }
 
-  Future<void> recordAttempt({
+  Future<bool> recordAttempt({
+    Object? response,
+    required String sessionId,
     required String topicId,
     required String lessonId,
     required int exerciseIndex,
     required String studentAnswer,
   }) async {
-    final response = await http.post(
+    final result = await ApiSession.client.post(
       Uri.parse('$baseUrl/bobo/attempts'),
       headers: ApiSession.authenticatedHeaders,
       body: jsonEncode({
+        'sessionId': sessionId,
         'topicId': topicId,
         'lessonId': lessonId,
         'exerciseIndex': exerciseIndex,
         'studentAnswer': studentAnswer,
+        'response': ?response,
       }),
     );
-    _decode(response);
+    final body = _decode(result);
+    if (body['correct'] is! bool) {
+      throw const BoboApiException('invalid_grade');
+    }
+    return body['correct'] as bool;
   }
 
   Future<String> sendMessage({
@@ -109,7 +112,7 @@ class BoboTutorApi {
     String? teachingAction,
     required String message,
   }) async {
-    final response = await http.post(
+    final response = await ApiSession.client.post(
       Uri.parse('$baseUrl/bobo/conversations/$conversationId/messages'),
       headers: ApiSession.authenticatedHeaders,
       body: jsonEncode({
@@ -127,7 +130,7 @@ class BoboTutorApi {
   }
 
   Future<void> clearConversation(String conversationId) async {
-    final response = await http.delete(
+    final response = await ApiSession.client.delete(
       Uri.parse('$baseUrl/bobo/conversations/$conversationId'),
       headers: ApiSession.authenticatedHeaders,
     );

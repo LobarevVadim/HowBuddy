@@ -1,12 +1,13 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 
 import '../../app_style.dart';
 import '../../models/app_models.dart';
 import '../../services/auth_api.dart';
-import '../../services/gamification_api.dart';
 import '../../shared/app_widgets.dart';
 import 'lesson_page.dart';
 import '../../services/theme_preferences.dart';
+import '../../services/ui_translations.dart';
 
 class TreeLessonsPage extends StatefulWidget {
   const TreeLessonsPage({
@@ -55,10 +56,15 @@ class _TreeLessonsPageState extends State<TreeLessonsPage> {
     widget.onTopicCompleted();
   }
 
-  Future<bool> _consumeLessonHeart() async {
-    final result = await GamificationApi().consumeLessonHeart(widget.accountId);
-    widget.onGameStateChanged(result.state);
-    return result.lessonAllowed;
+  Future<String?> _consumeLessonHeart(String lessonId, String requestId) async {
+    final body = await AuthApi().startLesson(
+      topicId: widget.topicId,
+      lessonId: lessonId,
+      requestId: requestId,
+    );
+    if (!mounted) return null;
+    widget.onGameStateChanged(GameState.fromJson(body));
+    return body['sessionId'] as String?;
   }
 
   Future<TreeData> _loadTreeData() => AuthApi().fetchTreeData(
@@ -169,16 +175,19 @@ class _TreeLessonsPageState extends State<TreeLessonsPage> {
                             ),
                           ),
                         ),
-                      if (treeData.isSelectableTopic) TreePanel(
-                        child: LessonTree(
-                          accountId: widget.accountId,
-                          topicId: widget.topicId,
-                          levels: _levelsWithLocalCompletions(treeData.levels),
-                          onHeartConsumption: _consumeLessonHeart,
-                          onNoHearts: widget.onNoHearts,
-                          onLessonCompleted: _handleLessonCompleted,
+                      if (treeData.isSelectableTopic)
+                        TreePanel(
+                          child: LessonTree(
+                            accountId: widget.accountId,
+                            topicId: widget.topicId,
+                            levels: _levelsWithLocalCompletions(
+                              treeData.levels,
+                            ),
+                            onHeartConsumption: _consumeLessonHeart,
+                            onNoHearts: widget.onNoHearts,
+                            onLessonCompleted: _handleLessonCompleted,
+                          ),
                         ),
-                      ),
                       const SizedBox(height: AppSpacing.sectionGap),
                       NextQuestionPanel(
                         questions: treeData.nextQuestions,
@@ -273,7 +282,7 @@ class LessonTree extends StatelessWidget {
   final String accountId;
   final String topicId;
   final List<LessonLevel> levels;
-  final Future<bool> Function() onHeartConsumption;
+  final Future<String?> Function(String lessonId, String requestId) onHeartConsumption;
   final VoidCallback onNoHearts;
   final ValueChanged<String> onLessonCompleted;
 
@@ -385,7 +394,7 @@ class LessonTreePainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-class LessonNode extends StatelessWidget {
+class LessonNode extends StatefulWidget {
   const LessonNode({
     required this.accountId,
     required this.topicId,
@@ -401,12 +410,29 @@ class LessonNode extends StatelessWidget {
   final String accountId;
   final String topicId;
   final LessonLevel level;
-  final Future<bool> Function() onHeartConsumption;
+  final Future<String?> Function(String lessonId, String requestId) onHeartConsumption;
   final VoidCallback onNoHearts;
   final double top;
   final bool isLeft;
   final ValueChanged<String> onLessonCompleted;
 
+  @override
+  State<LessonNode> createState() => _LessonNodeState();
+}
+
+class _LessonNodeState extends State<LessonNode> {
+  bool _opening = false;
+  String _startKey = _newStartKey();
+  static String _newStartKey() => '${DateTime.now().microsecondsSinceEpoch}-${Random.secure().nextInt(1 << 32)}';
+  String get accountId => widget.accountId;
+  String get topicId => widget.topicId;
+  LessonLevel get level => widget.level;
+  double get top => widget.top;
+  bool get isLeft => widget.isLeft;
+  Future<String?> Function(String, String) get onHeartConsumption =>
+      widget.onHeartConsumption;
+  VoidCallback get onNoHearts => widget.onNoHearts;
+  ValueChanged<String> get onLessonCompleted => widget.onLessonCompleted;
   @override
   Widget build(BuildContext context) {
     ThemePreferencesScope.watch(context);
@@ -429,26 +455,50 @@ class LessonNode extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(22),
-          onTap: level.isUnlocked
+          onTap: level.isUnlocked && !_opening
               ? () async {
-                  final hasHeart = await onHeartConsumption();
-                  if (!context.mounted) return;
-                  if (!hasHeart) {
-                    onNoHearts();
-                    return;
-                  }
-                  final completedLessonId = await Navigator.of(context)
-                      .push<String>(
-                        MaterialPageRoute(
-                          builder: (_) => LessonPage(
-                            accountId: accountId,
-                            topicId: topicId,
-                            level: level,
+                  setState(() => _opening = true);
+                  try {
+                    final sessionId = await onHeartConsumption(level.id, _startKey);
+                    if (!context.mounted) return;
+                    if (sessionId == null) {
+                      onNoHearts();
+                      return;
+                    }
+                    final completedLessonId = await Navigator.of(context)
+                        .push<String>(
+                          MaterialPageRoute(
+                            builder: (_) => LessonPage(
+                              sessionId: sessionId,
+                              accountId: accountId,
+                              topicId: topicId,
+                              level: level,
+                            ),
+                          ),
+                        );
+                    _startKey = _newStartKey();
+                    if (completedLessonId != null) {
+                      onLessonCompleted(completedLessonId);
+                    }
+                  } on AuthException catch (error) {
+                    if (!context.mounted) return;
+                    if (error.code == 'no_hearts') {
+                      onNoHearts();
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(uiText(context, error.message))));
+                    }
+                  } catch (_) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            uiText(context, 'Could not start the lesson. Please try again.'),
                           ),
                         ),
                       );
-                  if (completedLessonId != null) {
-                    onLessonCompleted(completedLessonId);
+                    }
+                  } finally {
+                    if (mounted) setState(() => _opening = false);
                   }
                 }
               : null,

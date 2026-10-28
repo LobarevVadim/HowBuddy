@@ -1,3 +1,4 @@
+import 'lesson_session_controller.dart';
 import 'package:flutter/material.dart';
 
 import '../../app_style.dart';
@@ -12,6 +13,8 @@ import 'bobo_chat.dart';
 
 class LessonPage extends StatefulWidget {
   const LessonPage({
+    this.controller,
+    required this.sessionId,
     required this.accountId,
     required this.topicId,
     required this.level,
@@ -19,6 +22,8 @@ class LessonPage extends StatefulWidget {
   });
 
   final String accountId;
+  final LessonSessionController? controller;
+  final String sessionId;
   final String topicId;
   final LessonLevel level;
 
@@ -28,101 +33,88 @@ class LessonPage extends StatefulWidget {
 
 class _LessonPageState extends State<LessonPage> {
   final _answerController = TextEditingController();
-  late DateTime _startedAt;
-  List<LessonExercise> _exercises = <LessonExercise>[];
-  String _lessonContent = '';
+  late final LessonSessionController _session;
+  List<LessonExercise> get _exercises => _session.lesson?.exercises ?? const [];
+  String get _lessonContent => _session.lesson?.content ?? '';
+  int get _correctAnswers => _session.correctCount;
+  Map<int, bool?> get _attemptedExerciseResults => _session.attemptedResults;
+  bool get _isCheckingAnswer => _session.isChecking;
+  bool get _isCompleting => _session.isCompleting;
+  int? get _earnedXp => _session.completion?.earnedXp;
+  bool get _isLoadingExercises => _session.loading;
+  String? get _exerciseLoadError =>
+      _session.loadError == null ? null : uiText(context, _session.loadError!);
   final Set<String> _selectedAnswers = <String>{};
   final Map<String, String> _selectedMatches = <String, String>{};
   List<String> _orderedAnswers = <String>[];
   List<String> _blankAnswers = <String>[];
   List<String?> _flowchartSlots = <String?>[];
   int _exerciseIndex = 0;
-  int _correctAnswers = 0;
   bool? _answerWasCorrect;
-  final Map<int, bool?> _attemptedExerciseResults = <int, bool?>{};
-  bool _isCheckingAnswer = false;
-  bool _isCompleting = false;
-  int? _earnedXp;
-  bool _isLoadingExercises = true;
-  String? _exerciseLoadError;
-
   @override
   void initState() {
     super.initState();
+    _session =
+        (widget.controller ??
+              LessonSessionController(
+                loadContent: () => AuthApi().fetchLessonExercises(
+                  topicId: widget.topicId,
+                  lessonId: widget.level.id,
+                ),
+                loadAttempts: () => BoboTutorApi().getAttemptedExercises(
+                  topicId: widget.topicId,
+                  lessonId: widget.level.id,
+                ),
+                recordAttempt: (index, answer) => BoboTutorApi().recordAttempt(
+                  sessionId: widget.sessionId,
+                  topicId: widget.topicId,
+                  lessonId: widget.level.id,
+                  exerciseIndex: index,
+                  studentAnswer: answer,
+                  response: _responseForExercise(index),
+                ),
+                complete: (correct, count, duration) =>
+                    AuthApi().completeLesson(
+                      completionId: widget.sessionId,
+                      accountId: widget.accountId,
+                      topicId: widget.topicId,
+                      lessonId: widget.level.id,
+                      correctAnswers: correct,
+                      exerciseCount: count,
+                      durationSeconds: duration,
+                    ),
+              ))
+          ..addListener(_sessionChanged);
     _fetchExercises();
   }
 
   @override
   void dispose() {
+    _session.removeListener(_sessionChanged);
+    if (widget.controller == null) _session.dispose();
     _answerController.dispose();
     super.dispose();
   }
 
+  void _sessionChanged() {
+    if (mounted) setState(() {});
+  }
+
   Future<void> _fetchExercises() async {
-    try {
-      final lesson = await AuthApi().fetchLessonExercises(
-        topicId: widget.topicId,
-        lessonId: widget.level.id,
-      );
-      if (lesson.exercises.isEmpty) {
-        throw AuthException('No exercises are available for this lesson yet.');
-      }
-      Map<int, bool?> attemptedExercises = <int, bool?>{};
-      try {
-        attemptedExercises = await BoboTutorApi().getAttemptedExercises(
-          topicId: widget.topicId,
-          lessonId: widget.level.id,
-        );
-      } catch (_) {
-        // A failed Bobo status lookup must not prevent the lesson itself loading.
-      }
-      if (!mounted) return;
-      _startedAt = DateTime.now();
-      setState(() {
-        _exercises = lesson.exercises;
-        _attemptedExerciseResults
-          ..clear()
-          ..addAll(attemptedExercises);
-        _lessonContent = lesson.content;
-        _orderedAnswers =
-            lesson.exercises.first.type == LessonExerciseType.orderSteps
-            ? List<String>.from(lesson.exercises.first.options)
-            : <String>[];
-        _flowchartSlots = _usesFlowchart(lesson.exercises.first.type)
-            ? List<String?>.filled(
-                lesson.exercises.first.correctOrder.length,
-                null,
-              )
-            : <String?>[];
-        _isLoadingExercises = false;
-        _exerciseLoadError = null;
-      });
-    } on AuthException catch (error) {
-      if (!mounted) return;
-      setState(() {
-        _isLoadingExercises = false;
-        _exerciseLoadError = uiText(context, error.message);
-      });
-    } catch (_) {
-      if (!mounted) return;
-      setState(() {
-        _isLoadingExercises = false;
-        _exerciseLoadError = uiText(
-          context,
-          'Could not load lesson exercises.',
-        );
-      });
-    }
-  }
-
-  void _retryLoadingExercises() {
+    final loaded = await _session.load();
+    if (!loaded || !mounted) return;
     setState(() {
-      _isLoadingExercises = true;
-      _exerciseLoadError = null;
+      final first = _exercises.first;
+      _orderedAnswers = first.type == LessonExerciseType.orderSteps
+          ? List.from(first.options)
+          : [];
+      _flowchartSlots = _usesFlowchart(first.type)
+          ? List<String?>.filled(first.correctOrder.length, null)
+          : [];
     });
-    _fetchExercises();
   }
 
+  void _retryLoadingExercises() => _fetchExercises();
   bool get _isSummary =>
       _exercises.isNotEmpty && _exerciseIndex >= _exercises.length;
 
@@ -180,91 +172,21 @@ class _LessonPageState extends State<LessonPage> {
   }
 
   Future<void> _checkAnswer() async {
-    if (!_hasAnswer || _isSummary || _isCheckingAnswer) {
-      return;
-    }
-
-    final exercise = _exercises[_exerciseIndex];
-    final isCorrect = switch (exercise.type) {
-      LessonExerciseType.shortAnswer => exercise.correctAnswers.any(
-        (answer) =>
-            answer.toLowerCase() == _answerController.text.trim().toLowerCase(),
-      ),
-      LessonExerciseType.fillInTheBlank =>
-        _blankAnswers.length == exercise.correctOrder.length &&
-            List.generate(exercise.correctOrder.length, (index) => index).every(
-              (index) =>
-                  _normalizeAnswer(_blankAnswers[index]) ==
-                  _normalizeAnswer(exercise.correctOrder[index]),
-            ),
-      LessonExerciseType.multipleSelect =>
-        _selectedAnswers.length == exercise.correctAnswers.length &&
-            _selectedAnswers.containsAll(exercise.correctAnswers),
-      LessonExerciseType.singleChoice =>
-        _selectedAnswers.firstOrNull == exercise.correctAnswers.firstOrNull,
-      LessonExerciseType.orderSteps =>
-        _orderedAnswers.join('\u0000') == exercise.correctOrder.join('\u0000'),
-      LessonExerciseType.matching ||
-      LessonExerciseType.categorization ||
-      LessonExerciseType.causeAndEffect ||
-      LessonExerciseType.compareAndContrast => exercise.pairs.every(
-        (pair) => _selectedMatches[pair.left] == pair.right,
-      ),
-      LessonExerciseType.singleChoice ||
-      LessonExerciseType.trueFalse ||
-      LessonExerciseType.spotTheMistake =>
-        _selectedAnswers.firstOrNull == exercise.correctAnswers.firstOrNull,
-      LessonExerciseType.buildTheProcess =>
-        _flowchartSlots.length == exercise.correctOrder.length &&
-            List.generate(exercise.correctOrder.length, (index) => index).every(
-              (index) => _flowchartSlots[index] == exercise.correctOrder[index],
-            ),
-    };
-
-    setState(() => _isCheckingAnswer = true);
+    if (!_hasAnswer || _isSummary || _isCheckingAnswer) return;
     try {
-      await BoboTutorApi().recordAttempt(
-        topicId: widget.topicId,
-        lessonId: widget.level.id,
-        exerciseIndex: _exerciseIndex,
-        studentAnswer: _answerForBobo(),
-      );
-    } on BoboApiException {
-      if (!mounted) return;
-      setState(() => _isCheckingAnswer = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            uiText(
-              context,
-              'Could not save this answer. Check your connection and try again.',
-            ),
-          ),
-        ),
-      );
-      return;
+      final correct = await _session.submit(_exerciseIndex, _answerForBobo());
+      if (mounted && correct != null) {
+        setState(() => _answerWasCorrect = correct);
+      }
     } catch (_) {
       if (!mounted) return;
-      setState(() => _isCheckingAnswer = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            uiText(
-              context,
-              'Could not save this answer. Check your connection and try again.',
-            ),
-          ),
+      _showMessage(
+        uiText(
+          context,
+          'Could not save this answer. Check your connection and try again.',
         ),
       );
-      return;
     }
-    if (!mounted) return;
-    setState(() {
-      _isCheckingAnswer = false;
-      _attemptedExerciseResults[_exerciseIndex] = isCorrect;
-      _answerWasCorrect = isCorrect;
-      if (isCorrect) _correctAnswers++;
-    });
   }
 
   void _continueLesson() {
@@ -297,37 +219,22 @@ class _LessonPageState extends State<LessonPage> {
       Navigator.of(context).pop(widget.level.id);
       return;
     }
-    setState(() => _isCompleting = true);
     try {
-      final completion = await AuthApi().completeLesson(
-        accountId: widget.accountId,
-        topicId: widget.topicId,
-        lessonId: widget.level.id,
-        correctAnswers: _correctAnswers,
-        exerciseCount: _exercises.length,
-        durationSeconds: DateTime.now().difference(_startedAt).inSeconds,
-      );
-      if (!mounted) {
-        return;
-      }
-      setState(() => _earnedXp = completion.earnedXp);
-      if (completion.streakFreezesAwarded > 0) {
-        await _showStreakFreezeReward(completion.streakFreezesAwarded);
+      final result = await _session.finish();
+      if (!mounted || result == null) return;
+      if (result.streakFreezesAwarded > 0) {
+        await _showStreakFreezeReward(result.streakFreezesAwarded);
       }
     } on AuthException catch (error) {
-      if (!mounted) return;
-      _showMessage(error.message);
+      if (mounted) _showMessage(error.message);
     } catch (_) {
-      if (!mounted) return;
-      _showMessage(
-        uiText(
-          context,
-          'Could not save your lesson progress. Please try again.',
-        ),
-      );
-    } finally {
       if (mounted) {
-        setState(() => _isCompleting = false);
+        _showMessage(
+          uiText(
+            context,
+            'Could not save your lesson progress. Please try again.',
+          ),
+        );
       }
     }
   }
@@ -369,9 +276,6 @@ class _LessonPageState extends State<LessonPage> {
   bool _usesFlowchart(LessonExerciseType type) =>
       type == LessonExerciseType.buildTheProcess;
 
-  String _normalizeAnswer(String value) =>
-      value.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
-
   String _answerForBobo() {
     if (_isSummary || _exercises.isEmpty) {
       return '';
@@ -397,6 +301,22 @@ class _LessonPageState extends State<LessonPage> {
     }
     return _selectedAnswers.join(', ');
   }
+
+  Object _responseForExercise(int index) => switch (_exercises[index].type) {
+    LessonExerciseType.shortAnswer => _answerController.text,
+    LessonExerciseType.multipleSelect => _selectedAnswers.toList(),
+    LessonExerciseType.fillInTheBlank => List<String>.from(_blankAnswers),
+    LessonExerciseType.orderSteps => List<String>.from(_orderedAnswers),
+    LessonExerciseType.buildTheProcess =>
+      _flowchartSlots.whereType<String>().toList(),
+    LessonExerciseType.matching ||
+    LessonExerciseType.categorization ||
+    LessonExerciseType.causeAndEffect ||
+    LessonExerciseType.compareAndContrast => Map<String, String>.from(
+      _selectedMatches,
+    ),
+    _ => _selectedAnswers.firstOrNull ?? '',
+  };
 
   void _openBobo() {
     final hasActiveExercise = !_isSummary && _exercises.isNotEmpty;
@@ -873,10 +793,7 @@ class _LessonPageState extends State<LessonPage> {
 
   Widget _buildSummary() {
     final accuracy = (_correctAnswers * 100 / _exercises.length).round();
-    final elapsedSeconds = DateTime.now().difference(_startedAt).inSeconds;
-    final rawXp =
-        (_correctAnswers * 5) + ((_exercises.length - _correctAnswers) * 2);
-    final estimatedXp = (rawXp * (elapsedSeconds > 180 ? 0.8 : 1)).round();
+    final elapsedSeconds = _session.elapsedSeconds;
     final elapsed =
         '${elapsedSeconds ~/ 60}:${(elapsedSeconds % 60).toString().padLeft(2, '0')}';
 
@@ -938,10 +855,8 @@ class _LessonPageState extends State<LessonPage> {
                     _statRow(uiText(context, 'Accuracy'), '$accuracy%'),
                     const Divider(height: 24),
                     _statRow(
-                      _earnedXp == null
-                          ? uiText(context, 'XP estimate (without potion)')
-                          : uiText(context, 'XP earned'),
-                      '${_earnedXp ?? estimatedXp} XP',
+                      uiText(context, 'XP earned'),
+                      _earnedXp == null ? '—' : '$_earnedXp XP',
                     ),
                     const Divider(height: 24),
                     _statRow(uiText(context, 'Time'), elapsed),
@@ -1025,7 +940,7 @@ class _LessonPageState extends State<LessonPage> {
       );
     } else {
       lessonBody = AnimatedSwitcher(
-        duration: const Duration(milliseconds: 180),
+        duration: AppMotion.duration(context),
         child: _isSummary
             ? KeyedSubtree(
                 key: const ValueKey('lesson-summary'),
@@ -1067,37 +982,6 @@ class _LessonPageState extends State<LessonPage> {
               ),
             ),
         ],
-      ),
-    );
-  }
-}
-
-class DevelopmentPage extends StatelessWidget {
-  const DevelopmentPage({required this.title, super.key});
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    ThemePreferencesScope.watch(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        backgroundColor: AppColors.pageBackground,
-        foregroundColor: AppColors.primaryDark,
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.tabPagePadding),
-          child: Text(
-            uiText(context, 'More content is in development.'),
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              color: AppColors.primaryDark,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-        ),
       ),
     );
   }

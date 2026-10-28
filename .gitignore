@@ -34,6 +34,7 @@ migrate_working_dir/
 /support_admin/build/
 /support_admin/.dart_tool/
 /coverage/
+**/node_modules/
 
 # Local credentials and configuration
 .env

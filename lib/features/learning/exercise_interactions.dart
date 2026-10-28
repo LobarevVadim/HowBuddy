@@ -74,6 +74,7 @@ class _InlineFillBlankInteractionState
                   _controllers.map((controller) => controller.text).toList(),
                 ),
                 decoration: InputDecoration(
+                  labelText: '${uiText(context, 'Answer')} ${i + 1}',
                   helperText: List.filled(
                     widget.wordLengths.elementAtOrNull(i) ?? 5,
                     '_',
@@ -130,22 +131,30 @@ class SpotMistakeInteraction extends StatelessWidget {
       runSpacing: 8,
       children: tokens.map((token) {
         final isSelected = selected == token;
-        return InkWell(
-          borderRadius: BorderRadius.circular(8),
-          onTap: locked ? null : () => onSelect(token),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 140),
-            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? AppColors.primaryLight.withValues(alpha: 0.55)
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(8),
-              border: isSelected ? Border.all(color: AppColors.primary) : null,
-            ),
-            child: Text(
-              token,
-              style: const TextStyle(fontSize: 17, height: 1.5),
+        return Semantics(
+          selected: isSelected,
+          button: true,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(8),
+            onTap: locked ? null : () => onSelect(token),
+            child: AnimatedContainer(
+              duration: AppMotion.duration(context),
+              constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+              alignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? AppColors.primaryLight.withValues(alpha: 0.55)
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(8),
+                border: isSelected
+                    ? Border.all(color: AppColors.primary)
+                    : null,
+              ),
+              child: Text(
+                token,
+                style: const TextStyle(fontSize: 17, height: 1.5),
+              ),
             ),
           ),
         );

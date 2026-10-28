@@ -308,9 +308,10 @@ class NotepadTreeNode {
 }
 
 class AuthException implements Exception {
-  AuthException(this.message);
+  AuthException(this.message, {this.code});
 
   final String message;
+  final String? code;
 
   @override
   String toString() => message;

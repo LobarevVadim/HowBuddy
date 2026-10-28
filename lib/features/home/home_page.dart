@@ -1,3 +1,9 @@
+export 'xp_tab_page.dart';
+import 'xp_tab_page.dart';
+export '../profile/profile_tab_page.dart';
+import '../profile/profile_tab_page.dart';
+import '../profile/optimistic_save_controller.dart';
+import '../../services/latest_request.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -7,13 +13,9 @@ import '../../services/auth_api.dart';
 import '../../services/gamification_api.dart';
 import '../../services/theme_preferences.dart';
 import '../../services/ui_translations.dart';
-import '../../shared/app_widgets.dart';
 import '../gamification/gamification_pages.dart';
 import '../learning/lesson_tree.dart';
 import '../notepad/notepad_tree_page.dart';
-import '../profile/avatar_palette.dart';
-import '../profile/notification_preferences_panel.dart';
-import '../auth/account_preferences_page.dart';
 import '../../services/notification_service.dart';
 
 class HomePage extends StatefulWidget {
@@ -22,6 +24,8 @@ class HomePage extends StatefulWidget {
     required this.onLogout,
     this.initialIndex = 0,
     this.topicId = 'heart',
+    this.savePreferences,
+    this.loadGameState,
     super.key,
   });
 
@@ -29,16 +33,33 @@ class HomePage extends StatefulWidget {
   final VoidCallback onLogout;
   final int initialIndex;
   final String topicId;
+  final Future<void> Function(String language, int age)? savePreferences;
+  final Future<GameState> Function(String accountId)? loadGameState;
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
+  final _gameRequests = LatestRequest();
   late int _selectedIndex = widget.initialIndex;
   late String _topicId = widget.topicId;
-  late String _preferredLanguage = widget.account.preferredLanguage ?? 'en';
-  late int _ageYears = widget.account.ageYears ?? 18;
+  late final _profilePreferences = OptimisticSaveController(
+    initialValue: (
+      language: widget.account.preferredLanguage ?? 'en',
+      age: widget.account.ageYears ?? 18,
+    ),
+    persist: (({String language, int age}) value) async {
+      await (widget.savePreferences?.call(value.language, value.age) ??
+          AuthApi().saveAccountPreferences(
+            preferredLanguage: value.language,
+            ageYears: value.age,
+          ));
+      return value;
+    },
+  );
+  String get _preferredLanguage => _profilePreferences.value.language;
+  int get _ageYears => _profilePreferences.value.age;
   int _notepadRefreshKey = 0;
   int _xpRefreshKey = 0;
   late int _avatarPaletteIndex = widget.account.avatarPaletteIndex;
@@ -64,10 +85,9 @@ class _HomePageState extends State<HomePage> {
         .listen(_onForegroundNotification);
     unawaited(NotificationService.instance.syncAccount(widget.account.id));
     UiTranslations.saveLanguage(_preferredLanguage);
-    _gameStateFuture = GamificationApi().fetchState(widget.account.id).then((
-      state,
-    ) {
-      _currentGameState = state;
+    final version = _gameRequests.begin();
+    _gameStateFuture = _loadGameState().then((state) {
+      if (mounted && _gameRequests.owns(version)) _currentGameState = state;
       return state;
     });
     _restoreLastTopic();
@@ -105,6 +125,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
+    _profilePreferences.dispose();
+    _gameRequests.invalidate();
     _notificationSubscription?.cancel();
     _foregroundNotificationSubscription?.cancel();
     super.dispose();
@@ -136,6 +158,7 @@ class _HomePageState extends State<HomePage> {
 
   void _setGameState(GameState state) {
     if (!mounted) return;
+    _gameRequests.invalidate();
     setState(() {
       _currentGameState = state;
       _gameStateFuture = Future.value(state);
@@ -143,12 +166,27 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _refreshGameState() async {
+    final version = _gameRequests.begin();
     try {
-      final state = await GamificationApi().fetchState(widget.account.id);
-      _setGameState(state);
+      final state = await _loadGameState();
+      if (_gameRequests.owns(version)) _setGameState(state);
     } catch (_) {
       // Keep the last displayed game state if a refresh is temporarily unavailable.
     }
+  }
+
+  Future<GameState> _loadGameState() =>
+      widget.loadGameState?.call(widget.account.id) ??
+      GamificationApi().fetchState(widget.account.id);
+
+  void _retryGameState() {
+    final version = _gameRequests.begin();
+    setState(() {
+      _gameStateFuture = _loadGameState().then((state) {
+        if (mounted && _gameRequests.owns(version)) _currentGameState = state;
+        return state;
+      });
+    });
   }
 
   Future<void> _openStreak(GameState state) async {
@@ -215,10 +253,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _setAccountPreferences(String language, int age) {
-    setState(() {
-      _preferredLanguage = language;
-      _ageYears = age;
-    });
+    if (!mounted) return;
+    setState(() {});
     UiTranslations.saveLanguage(language);
   }
 
@@ -259,6 +295,7 @@ class _HomePageState extends State<HomePage> {
       ),
       XpTabPage(key: ValueKey(_xpRefreshKey), accountId: widget.account.id),
       ProfileTabPage(
+        preferencesController: _profilePreferences,
         account: _accountWithPreferences,
         avatarPaletteIndex: _avatarPaletteIndex,
         glassesAccessoryIndex: _glassesAccessoryIndex,
@@ -318,8 +355,27 @@ class _HomePageState extends State<HomePage> {
       future: _gameStateFuture,
       builder: (context, snapshot) {
         final state = snapshot.data ?? _currentGameState;
+        if (state == null && snapshot.hasError) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(uiText(context, 'Could not load your progress.')),
+                ),
+                IconButton(
+                  key: const ValueKey('retry-game-state'),
+                  onPressed: _retryGameState,
+                  tooltip: uiText(context, 'Retry'),
+                  icon: const Icon(Icons.refresh_rounded),
+                ),
+              ],
+            ),
+          );
+        }
         if (state == null) {
           return const SizedBox(
+            key: ValueKey('game-state-loading'),
             height: 54,
             child: Center(child: LinearProgressIndicator(minHeight: 2)),
           );
@@ -374,7 +430,7 @@ class _HomePageState extends State<HomePage> {
         borderRadius: BorderRadius.circular(22),
         onTap: onTap,
         child: Container(
-          height: 40,
+          constraints: const BoxConstraints(minHeight: 48),
           padding: const EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(22),
@@ -395,897 +451,6 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class XpTabPage extends StatelessWidget {
-  const XpTabPage({required this.accountId, super.key});
-
-  final String accountId;
-
-  @override
-  Widget build(BuildContext context) {
-    ThemePreferencesScope.watch(context);
-    return FutureBuilder<XpWeeklySummary>(
-      future: AuthApi().fetchWeeklyXp(accountId),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState != ConnectionState.done) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasError) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.tabPagePadding),
-              child: Text(
-                uiText(
-                  context,
-                  'Could not load your XP. Please check your connection and try again.',
-                ),
-                textAlign: TextAlign.center,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyLarge?.copyWith(color: AppColors.mutedText),
-              ),
-            ),
-          );
-        }
-
-        final summary = snapshot.data!;
-        final maxXp = summary.days.fold<int>(
-          1,
-          (maximum, day) => day.xp > maximum ? day.xp : maximum,
-        );
-        return Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(AppSpacing.tabPagePadding),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 560),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    uiText(context, 'Your XP'),
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: AppColors.primaryDark,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    uiText(
-                      context,
-                      '{count} total XP',
-                      args: {'count': '${summary.totalXp}'},
-                    ),
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(height: 28),
-                  Text(
-                    uiText(context, 'Leaderboard'),
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: AppColors.authPanelBackground,
-                      borderRadius: BorderRadius.circular(AppRadii.heroImage),
-                      border: Border.all(color: AppColors.border),
-                    ),
-                    child: Column(
-                      children: [
-                        ...summary.leaderboard.map(
-                          (entry) => _leaderboardRow(context, entry),
-                        ),
-                        if (summary.yourPlace case final yourPlace?) ...[
-                          const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                            child: Divider(height: 18),
-                          ),
-                          _leaderboardRow(context, yourPlace),
-                        ],
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 28),
-                  Text(
-                    uiText(context, 'This week'),
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-                  Container(
-                    height: 240,
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-                    decoration: BoxDecoration(
-                      color: AppColors.authPanelBackground,
-                      borderRadius: BorderRadius.circular(AppRadii.heroImage),
-                      border: Border.all(color: AppColors.border),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: summary.days.map((day) {
-                        final fraction = day.xp / maxXp;
-                        final weekday = [
-                          uiText(context, 'Mon'),
-                          uiText(context, 'Tue'),
-                          uiText(context, 'Wed'),
-                          uiText(context, 'Thu'),
-                          uiText(context, 'Fri'),
-                          uiText(context, 'Sat'),
-                          uiText(context, 'Sun'),
-                        ][day.date.weekday - 1];
-                        return Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: Column(
-                              children: [
-                                SizedBox(
-                                  height: 22,
-                                  child: FittedBox(
-                                    child: Text(
-                                      '${day.xp}',
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Expanded(
-                                  child: Align(
-                                    alignment: Alignment.bottomCenter,
-                                    child: FractionallySizedBox(
-                                      heightFactor: fraction,
-                                      child: Container(
-                                        width: double.infinity,
-                                        decoration: BoxDecoration(
-                                          color: day.xp == 0
-                                              ? AppColors.border
-                                              : AppColors.success,
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 10),
-                                Text(
-                                  weekday,
-                                  style: TextStyle(
-                                    color: AppColors.mutedText,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    uiText(context, 'XP earned each day over the last 7 days'),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: AppColors.mutedText),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _leaderboardRow(BuildContext context, LeaderboardEntry entry) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 3),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
-      decoration: BoxDecoration(
-        color: entry.isYou ? AppColors.primary.withValues(alpha: 0.09) : null,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 42,
-            child: Text(
-              '#${entry.place}',
-              style: TextStyle(
-                color: entry.place <= 3
-                    ? AppColors.primary
-                    : AppColors.mutedText,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-          ),
-          const SizedBox(width: 4),
-          HowBuddyAvatar(
-            paletteIndex: entry.avatarPaletteIndex,
-            glassesAccessoryIndex: entry.glassesAccessoryIndex,
-            avatarEmoji: entry.avatarEmoji,
-            size: 32,
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              entry.isYou
-                  ? '${entry.name}${uiText(context, ' (you)')}'
-                  : entry.name,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontWeight: FontWeight.w700),
-            ),
-          ),
-          const SizedBox(width: 10),
-          Text(
-            '${entry.xp} XP',
-            style: TextStyle(
-              color: AppColors.primaryDark,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class ProfileTabPage extends StatefulWidget {
-  const ProfileTabPage({
-    required this.account,
-    required this.avatarPaletteIndex,
-    required this.glassesAccessoryIndex,
-    required this.avatarEmoji,
-    required this.onAvatarPaletteChanged,
-    required this.onGlassesAccessoryChanged,
-    required this.onAvatarEmojiChanged,
-    required this.onAccountPreferencesChanged,
-    required this.onLogout,
-    super.key,
-  });
-
-  final Account account;
-  final int avatarPaletteIndex;
-  final int glassesAccessoryIndex;
-  final String avatarEmoji;
-  final ValueChanged<int> onAvatarPaletteChanged;
-  final ValueChanged<int> onGlassesAccessoryChanged;
-  final ValueChanged<String> onAvatarEmojiChanged;
-  final void Function(String language, int age) onAccountPreferencesChanged;
-  final VoidCallback onLogout;
-
-  @override
-  State<ProfileTabPage> createState() => _ProfileTabPageState();
-}
-
-class _ProfileTabPageState extends State<ProfileTabPage> {
-  late int _paletteIndex = widget.avatarPaletteIndex;
-  late int _glassesIndex = widget.glassesAccessoryIndex;
-  late String _emoji = widget.avatarEmoji;
-  late String _preferredLanguage =
-      widget.account.preferredLanguage ?? accountLanguageOptions.first.code;
-  late int _ageYears = widget.account.ageYears ?? 18;
-  bool _savingPalette = false;
-  bool _savingGlasses = false;
-  bool _savingEmoji = false;
-  bool _savingPreferences = false;
-  bool _deletingAccount = false;
-
-  Future<void> _selectPalette(int paletteIndex) async {
-    if (_savingPalette || paletteIndex == _paletteIndex) return;
-    final previousIndex = _paletteIndex;
-    setState(() {
-      _paletteIndex = paletteIndex;
-      _savingPalette = true;
-    });
-    try {
-      final savedIndex = await AuthApi().saveAvatarPalette(paletteIndex);
-      if (mounted) {
-        setState(() => _paletteIndex = savedIndex);
-        widget.onAvatarPaletteChanged(savedIndex);
-      }
-    } catch (_) {
-      if (!mounted) return;
-      setState(() => _paletteIndex = previousIndex);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(uiText(context, 'Could not save your avatar colors.')),
-        ),
-      );
-    } finally {
-      if (mounted) setState(() => _savingPalette = false);
-    }
-  }
-
-  Future<void> _selectGlasses(int accessoryIndex) async {
-    if (_savingGlasses || accessoryIndex == _glassesIndex) return;
-    final previousIndex = _glassesIndex;
-    setState(() {
-      _glassesIndex = accessoryIndex;
-      _savingGlasses = true;
-    });
-    try {
-      final savedIndex = await AuthApi().saveAvatarGlasses(accessoryIndex);
-      if (mounted) {
-        setState(() => _glassesIndex = savedIndex);
-        widget.onGlassesAccessoryChanged(savedIndex);
-      }
-    } catch (_) {
-      if (!mounted) return;
-      setState(() => _glassesIndex = previousIndex);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(uiText(context, 'Could not save your glasses.')),
-        ),
-      );
-    } finally {
-      if (mounted) setState(() => _savingGlasses = false);
-    }
-  }
-
-  Future<void> _selectEmoji(String emoji) async {
-    if (_savingEmoji || emoji == _emoji) return;
-    final previousEmoji = _emoji;
-    setState(() {
-      _emoji = emoji;
-      _savingEmoji = true;
-    });
-    try {
-      final savedEmoji = await AuthApi().saveAvatarEmoji(emoji);
-      if (mounted) {
-        setState(() => _emoji = savedEmoji);
-        widget.onAvatarEmojiChanged(savedEmoji);
-      }
-    } catch (_) {
-      if (!mounted) return;
-      setState(() => _emoji = previousEmoji);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(uiText(context, 'Could not save your avatar emoji.')),
-        ),
-      );
-    } finally {
-      if (mounted) setState(() => _savingEmoji = false);
-    }
-  }
-
-  Future<void> _savePreferences({String? language, int? age}) async {
-    if (_savingPreferences) return;
-    final previousLanguage = _preferredLanguage;
-    final previousAge = _ageYears;
-    final nextLanguage = language ?? _preferredLanguage;
-    final nextAge = age ?? _ageYears;
-    if (language != null) {
-      UiTranslations.saveLanguage(nextLanguage);
-      widget.onAccountPreferencesChanged(nextLanguage, nextAge);
-    }
-    setState(() {
-      _preferredLanguage = nextLanguage;
-      _ageYears = nextAge;
-      _savingPreferences = true;
-    });
-    try {
-      await AuthApi().saveAccountPreferences(
-        preferredLanguage: nextLanguage,
-        ageYears: nextAge,
-      );
-      if (mounted) {
-        widget.onAccountPreferencesChanged(nextLanguage, nextAge);
-      }
-    } on AuthException catch (error) {
-      if (!mounted) return;
-      setState(() {
-        _preferredLanguage = previousLanguage;
-        _ageYears = previousAge;
-      });
-      if (language != null) {
-        UiTranslations.saveLanguage(previousLanguage);
-        widget.onAccountPreferencesChanged(previousLanguage, previousAge);
-      }
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(uiText(context, error.message))));
-    } catch (_) {
-      if (!mounted) return;
-      setState(() {
-        _preferredLanguage = previousLanguage;
-        _ageYears = previousAge;
-      });
-      if (language != null) {
-        UiTranslations.saveLanguage(previousLanguage);
-        widget.onAccountPreferencesChanged(previousLanguage, previousAge);
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(uiText(context, 'Could not save your preferences.')),
-        ),
-      );
-    } finally {
-      if (mounted) setState(() => _savingPreferences = false);
-    }
-  }
-
-  Future<void> _confirmDeleteAccount() async {
-    if (_deletingAccount) return;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(uiText(context, 'Permanently delete your account?')),
-        content: Text(
-          uiText(
-            context,
-            'This permanently deletes your account and all linked learning progress, rewards, and Bobo chats. This cannot be undone.',
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(uiText(context, 'Cancel')),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: Colors.red.shade700,
-              foregroundColor: Colors.white,
-            ),
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(uiText(context, 'Delete account')),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true || !mounted) return;
-    setState(() => _deletingAccount = true);
-    try {
-      await AuthApi().deleteOwnAccount();
-      if (mounted) widget.onLogout();
-    } catch (_) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            uiText(context, 'Could not delete your account. Please try again.'),
-          ),
-        ),
-      );
-      setState(() => _deletingAccount = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final themePreferences = ThemePreferencesScope.of(context);
-    return LayoutBuilder(
-      builder: (context, constraints) => SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.tabPagePadding),
-        child: ConstrainedBox(
-          constraints: BoxConstraints(minHeight: constraints.maxHeight),
-          child: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                HowBuddyAvatar(
-                  paletteIndex: _paletteIndex,
-                  glassesAccessoryIndex: _glassesIndex,
-                  avatarEmoji: _emoji,
-                  size: AppSizes.tabHeroIcon,
-                ),
-                const SizedBox(height: AppSpacing.tabIconGap),
-                Text(
-                  uiText(
-                    context,
-                    'Hi, {name}',
-                    args: {'name': widget.account.fullName},
-                  ),
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.tabTextGap),
-                Text(
-                  widget.account.email,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyLarge?.copyWith(color: AppColors.mutedText),
-                ),
-                const SizedBox(height: 18),
-                DropdownButtonFormField<String>(
-                  initialValue: _preferredLanguage,
-                  decoration: InputDecoration(
-                    labelText: uiText(context, 'Language preference'),
-                  ),
-                  items: [
-                    for (final language in accountLanguageOptions)
-                      DropdownMenuItem(
-                        value: language.code,
-                        child: Text(UiTranslations.languageName(language.code)),
-                      ),
-                  ],
-                  onChanged: _savingPreferences
-                      ? null
-                      : (value) {
-                          if (value != null) _savePreferences(language: value);
-                        },
-                ),
-                const SizedBox(height: AppSpacing.fieldGap),
-                DropdownButtonFormField<int>(
-                  initialValue: _ageYears,
-                  decoration: InputDecoration(
-                    labelText: uiText(context, 'Age'),
-                  ),
-                  items: [
-                    for (var age = 1; age <= 120; age++)
-                      DropdownMenuItem(value: age, child: Text('$age')),
-                  ],
-                  onChanged: _savingPreferences
-                      ? null
-                      : (value) {
-                          if (value != null) _savePreferences(age: value);
-                        },
-                ),
-                if (_savingPreferences) ...[
-                  const SizedBox(height: 8),
-                  const LinearProgressIndicator(),
-                ],
-                const SizedBox(height: 20),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    uiText(context, 'Notifications'),
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ),
-                NotificationPreferencesPanel(accountId: widget.account.id),
-                const SizedBox(height: 20),
-                SwitchListTile.adaptive(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                  secondary: Icon(
-                    themePreferences.isDarkMode
-                        ? Icons.dark_mode_rounded
-                        : Icons.light_mode_rounded,
-                    color: AppColors.primary,
-                  ),
-                  title: Text(
-                    uiText(context, 'Dark mode'),
-                    style: TextStyle(fontWeight: FontWeight.w700),
-                  ),
-                  subtitle: Text(
-                    uiText(context, themePreferences.isDarkMode ? 'On' : 'Off'),
-                    style: TextStyle(color: AppColors.mutedText),
-                  ),
-                  value: themePreferences.isDarkMode,
-                  onChanged: themePreferences.setDarkMode,
-                ),
-                const SizedBox(height: 20),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    uiText(context, 'Customize your buddy'),
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  uiText(
-                    context,
-                    'Choose a color palette. Your eyes, mouth, and background stay the same.',
-                  ),
-                  style: TextStyle(color: AppColors.mutedText),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 12),
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: avatarPalettes.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    mainAxisSpacing: 8,
-                    crossAxisSpacing: 8,
-                    childAspectRatio: 0.92,
-                  ),
-                  itemBuilder: (context, index) {
-                    final selected = index == _paletteIndex;
-                    return Semantics(
-                      button: true,
-                      selected: selected,
-                      label: uiText(
-                        context,
-                        '{name} avatar colors',
-                        args: {
-                          'name': uiText(
-                            context,
-                            index == 0 ? 'Original' : 'Palette {number}',
-                            args: {'number': '${index + 1}'},
-                          ),
-                        },
-                      ),
-                      child: InkWell(
-                        onTap: _savingPalette
-                            ? null
-                            : () => _selectPalette(index),
-                        borderRadius: BorderRadius.circular(14),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: selected
-                                ? AppColors.primary.withValues(alpha: 0.10)
-                                : AppColors.authPanelBackground,
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(
-                              color: selected
-                                  ? AppColors.primary
-                                  : AppColors.border,
-                              width: selected ? 2 : 1,
-                            ),
-                          ),
-                          padding: const EdgeInsets.all(6),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              HowBuddyAvatar(
-                                paletteIndex: index,
-                                glassesAccessoryIndex: _glassesIndex,
-                                avatarEmoji: _emoji,
-                                size: 48,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                uiText(
-                                  context,
-                                  index == 0 ? 'Original' : 'Palette {number}',
-                                  args: {'number': '${index + 1}'},
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: selected
-                                      ? FontWeight.w800
-                                      : FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                if (_savingPalette) ...[
-                  const SizedBox(height: 8),
-                  const LinearProgressIndicator(),
-                ],
-                const SizedBox(height: 20),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    uiText(context, 'Glasses accessory'),
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  uiText(context, 'Choose glasses to layer over your buddy.'),
-                  style: TextStyle(color: AppColors.mutedText),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 12),
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: 17,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 4,
-                    mainAxisSpacing: 8,
-                    crossAxisSpacing: 8,
-                    childAspectRatio: 0.95,
-                  ),
-                  itemBuilder: (context, index) {
-                    final selected = index == _glassesIndex;
-                    return Semantics(
-                      button: true,
-                      selected: selected,
-                      label: uiText(
-                        context,
-                        index == 0 ? 'No glasses' : 'Glasses {number}',
-                        args: {'number': '$index'},
-                      ),
-                      child: InkWell(
-                        onTap: _savingGlasses
-                            ? null
-                            : () => _selectGlasses(index),
-                        borderRadius: BorderRadius.circular(14),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: selected
-                                ? AppColors.primary.withValues(alpha: 0.10)
-                                : AppColors.authPanelBackground,
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(
-                              color: selected
-                                  ? AppColors.primary
-                                  : AppColors.border,
-                              width: selected ? 2 : 1,
-                            ),
-                          ),
-                          padding: const EdgeInsets.all(5),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              HowBuddyAvatar(
-                                paletteIndex: _paletteIndex,
-                                glassesAccessoryIndex: index,
-                                avatarEmoji: _emoji,
-                                size: 56,
-                              ),
-                              const SizedBox(height: 3),
-                              Text(
-                                index == 0
-                                    ? uiText(context, 'None')
-                                    : uiText(
-                                        context,
-                                        'Glasses {number}',
-                                        args: {'number': '$index'},
-                                      ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: selected
-                                      ? FontWeight.w800
-                                      : FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                if (_savingGlasses) ...[
-                  const SizedBox(height: 8),
-                  const LinearProgressIndicator(),
-                ],
-                const SizedBox(height: 20),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    uiText(context, 'Avatar emoji'),
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  uiText(
-                    context,
-                    'Choose an emoji or type one. It can overlap the avatar border.',
-                  ),
-                  style: TextStyle(color: AppColors.mutedText),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 12),
-                Wrap(
-                  alignment: WrapAlignment.center,
-                  spacing: 8,
-                  runSpacing: 8,
-                  children:
-                      [
-                            '\u{1F600}',
-                            '\u{1F970}',
-                            '\u{1F602}',
-                            '\u{1F60D}',
-                            '\u{1F60E}',
-                            '\u{1F973}',
-                            '\u{1F98B}',
-                            '\u{1F338}',
-                            '\u{2B50}',
-                            '\u{1F4A7}',
-                            '\u{1F340}',
-                            '\u{1F389}',
-                            '\u{1F525}',
-                            '\u{1F308}',
-                            '\u{1F438}',
-                            '\u{1F431}',
-                          ]
-                          .map(
-                            (emoji) => ChoiceChip(
-                              label: Text(
-                                emoji,
-                                style: const TextStyle(fontSize: 20),
-                              ),
-                              selected: _emoji == emoji,
-                              onSelected: _savingEmoji
-                                  ? null
-                                  : (_) => _selectEmoji(emoji),
-                            ),
-                          )
-                          .toList(),
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        key: ValueKey(_emoji),
-                        initialValue: _emoji,
-                        maxLength: 8,
-                        decoration: InputDecoration(
-                          labelText: uiText(context, 'Type an emoji'),
-                          counterText: '',
-                          prefixIcon: const Icon(Icons.emoji_emotions_outlined),
-                        ),
-                        onChanged: (value) {
-                          setState(() => _emoji = value);
-                        },
-                        onFieldSubmitted: _selectEmoji,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    IconButton.filledTonal(
-                      onPressed: _savingEmoji
-                          ? null
-                          : () => _selectEmoji(_emoji),
-                      icon: const Icon(Icons.check_rounded),
-                      tooltip: uiText(context, 'Save emoji'),
-                    ),
-                    IconButton(
-                      onPressed: _savingEmoji ? null : () => _selectEmoji(''),
-                      icon: const Icon(Icons.close_rounded),
-                      tooltip: uiText(context, 'Remove emoji'),
-                    ),
-                  ],
-                ),
-                if (_savingEmoji) ...[
-                  const SizedBox(height: 8),
-                  const LinearProgressIndicator(),
-                ],
-                const SizedBox(height: AppSpacing.profileLogoutGap),
-                OutlinedButton.icon(
-                  onPressed: _deletingAccount ? null : _confirmDeleteAccount,
-                  icon: const Icon(Icons.delete_forever_outlined),
-                  label: Text(uiText(context, 'Delete account permanently')),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.red.shade700,
-                    side: BorderSide(color: Colors.red.shade700),
-                    minimumSize: const Size.fromHeight(48),
-                  ),
-                ),
-                if (_deletingAccount) ...[
-                  const SizedBox(height: 8),
-                  const LinearProgressIndicator(),
-                ],
-                const SizedBox(height: 12),
-                PrimaryButton(
-                  text: uiText(context, 'Logout'),
-                  onPressed: widget.onLogout,
-                ),
-              ],
-            ),
           ),
         ),
       ),

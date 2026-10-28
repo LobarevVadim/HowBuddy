@@ -2,18 +2,28 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:flutter_timezone/flutter_timezone.dart';
+import 'api_transport.dart';
 
 class ApiSession {
   ApiSession._();
 
   static String? _token;
+  static int _generation = 0;
+  static int get generation => _generation;
+  static final http.Client client = ApiHttpClient(
+    sessionGeneration: () => _generation,
+    onUnauthorized: clear,
+  );
   static String _clientTimeZone = 'UTC';
-  static const _baseUrl = String.fromEnvironment(
+  static const baseUrl = String.fromEnvironment(
     'API_URL',
     defaultValue: 'http://localhost:3000',
   );
 
-  static void setToken(String token) => _token = token;
+  static void setToken(String token) {
+    _generation++;
+    _token = token;
+  }
 
   static Future<void> loadClientTimeZone() async {
     try {
@@ -23,7 +33,10 @@ class ApiSession {
     }
   }
 
-  static void clear() => _token = null;
+  static void clear() {
+    _generation++;
+    _token = null;
+  }
 
   static String get _localDate {
     final now = DateTime.now();
@@ -41,8 +54,8 @@ class ApiSession {
   };
 
   static Future<Map<String, dynamic>> getJson(String path) async {
-    final response = await http.get(
-      Uri.parse('$_baseUrl$path'),
+    final response = await ApiSession.client.get(
+      Uri.parse('$baseUrl$path'),
       headers: authenticatedHeaders,
     );
     return _decode(response);
@@ -52,8 +65,8 @@ class ApiSession {
     String path,
     Map<String, dynamic> body,
   ) async {
-    final response = await http.post(
-      Uri.parse('$_baseUrl$path'),
+    final response = await ApiSession.client.post(
+      Uri.parse('$baseUrl$path'),
       headers: authenticatedHeaders,
       body: jsonEncode(body),
     );
@@ -64,8 +77,8 @@ class ApiSession {
     String path,
     Map<String, dynamic> body,
   ) async {
-    final response = await http.put(
-      Uri.parse('$_baseUrl$path'),
+    final response = await ApiSession.client.put(
+      Uri.parse('$baseUrl$path'),
       headers: authenticatedHeaders,
       body: jsonEncode(body),
     );
@@ -76,8 +89,8 @@ class ApiSession {
     String path,
     Map<String, dynamic> body,
   ) async {
-    final response = await http.delete(
-      Uri.parse('$_baseUrl$path'),
+    final response = await ApiSession.client.delete(
+      Uri.parse('$baseUrl$path'),
       headers: authenticatedHeaders,
       body: jsonEncode(body),
     );
@@ -85,13 +98,11 @@ class ApiSession {
   }
 
   static Map<String, dynamic> _decode(http.Response response) {
-    final body = jsonDecode(response.body) as Map<String, dynamic>;
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw ApiSessionException(
-        body['message']?.toString() ?? 'Request failed.',
-      );
+    try {
+      return decodeApiBody(response);
+    } on ApiTransportException catch (error) {
+      throw ApiSessionException(error.message);
     }
-    return body;
   }
 }
 

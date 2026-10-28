@@ -283,12 +283,13 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
       await _loadLessons();
       _lessonId = result['id'] as String;
       await _loadLesson();
-      if (mounted)
+      if (mounted) {
         setState(
           () => _notice = allLanguages
               ? 'Translated and published in all five languages.'
               : 'Lesson published for ${_language.toUpperCase()}. Add its exercises.',
         );
+      }
     });
     title.dispose();
     content.dispose();
@@ -313,12 +314,13 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
         _lessonId = savedLessonId;
         await _loadLesson();
       }
-      if (mounted)
+      if (mounted) {
         setState(
           () => _notice = allLanguages
               ? 'Translated and published in all five languages.'
               : 'Lesson published for ${_language.toUpperCase()}.',
         );
+      }
     });
   }
 
@@ -353,11 +355,13 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
 
   Map<String, dynamic> _parseRawExercise() {
     final decoded = jsonDecode(_rawJson.text);
-    if (decoded is! Map)
+    if (decoded is! Map) {
       throw const FormatException('Exercise JSON must be an object.');
+    }
     final payload = Map<String, dynamic>.from(decoded);
-    if (payload['type'] is! String)
+    if (payload['type'] is! String) {
       throw const FormatException('Add a string "type" field to the JSON.');
+    }
     return payload;
   }
 
@@ -388,11 +392,12 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
         method: 'POST',
         data: {'exerciseType': type, 'payload': payload},
       );
-      if (mounted)
+      if (mounted) {
         setState(
           () => _notice =
               'JSON is valid for ${_exerciseNames[result['exerciseType']] ?? type}.',
         );
+      }
     });
   }
 
@@ -423,12 +428,13 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
       final matching = exercises.where((item) => item['id'] == _exerciseId);
       final saved = matching.isEmpty ? null : matching.first;
       if (saved != null) _selectExercise(saved);
-      if (mounted)
+      if (mounted) {
         setState(
           () => _notice = allLanguages
               ? 'Translated and published in all five languages.'
               : 'Exercise published for ${_language.toUpperCase()}.',
         );
+      }
     });
   }
 
@@ -469,8 +475,9 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
       }
       await _loadLessons();
       _state = await widget.onRequest('/admin/content/state');
-      if (mounted)
+      if (mounted) {
         setState(() => _notice = 'Lesson and its exercises deleted.');
+      }
     });
   }
 
@@ -574,10 +581,11 @@ class _ContentAdminSectionState extends State<ContentAdminSection> {
         ),
       );
     } catch (error) {
-      if (mounted)
+      if (mounted) {
         setState(
           () => _error = error.toString().replaceFirst('Exception: ', ''),
         );
+      }
     }
   }
 

@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 
 import 'api_session.dart';
+import 'async_resource_ownership.dart';
 import 'firebase_options.dart';
 import 'notification_navigation.dart';
 import 'notification_web_stub.dart'
@@ -74,26 +75,45 @@ class NotificationService with WidgetsBindingObserver {
   StreamSubscription<String>? _unregistrationSubscription;
   StreamSubscription<RemoteMessage>? _messageSubscription;
   StreamSubscription<RemoteMessage>? _openedSubscription;
-  String? _activeAccountId;
+  final _ownership = SessionWorkOwnership(
+    generation: () => ApiSession.generation,
+  );
+  String? get _activeAccountId => _ownership.current?.accountId;
+  int? get _activeGeneration => _ownership.current?.generation;
+  int get _accountEpoch => _ownership.epoch;
   String? _activeRegistrationId;
   Completer<String>? _registrationCompleter;
+  ({String accountId, int generation, int epoch})? _registrationScope;
+  final _registrationRuns =
+      SerialSingleFlight<
+        ({String accountId, int generation, int epoch}),
+        void
+      >();
   bool _initialized = false;
-  bool _initializing = false;
+  bool _disposed = false;
+  Future<bool>? _initializationFuture;
 
-  Future<bool> initialize() async {
-    if (_initialized) return true;
-    if (_initializing) return false;
-    _initializing = true;
+  Future<bool> initialize() {
+    if (_disposed) return Future.value(false);
+    if (_initialized) return Future.value(true);
+    return _initializationFuture ??= _initialize().whenComplete(() {
+      _initializationFuture = null;
+    });
+  }
+
+  Future<bool> _initialize() async {
     try {
       final options = HowBuddyFirebaseOptions.current;
       if (options == null) return false;
       if (Firebase.apps.isEmpty) await Firebase.initializeApp(options: options);
+      if (_disposed) return false;
       _messaging = FirebaseMessaging.instance;
       await _messaging!.setForegroundNotificationPresentationOptions(
         alert: true,
         badge: true,
         sound: true,
       );
+      if (_disposed) return false;
       _messageSubscription = FirebaseMessaging.onMessage.listen(
         _onForegroundMessage,
       );
@@ -107,12 +127,15 @@ class NotificationService with WidgetsBindingObserver {
         if (_activeRegistrationId == id) _activeRegistrationId = null;
       });
       final initialMessage = await _messaging!.getInitialMessage();
+      if (_disposed) return false;
       if (initialMessage != null) await _rememberTarget(initialMessage);
       await NotificationNavigation.restore();
+      if (_disposed) return false;
       if (kIsWeb) {
         final linkedTopic = Uri.base.queryParameters['notificationTopic'];
         await NotificationNavigation.restoreLinkedTopic(linkedTopic);
       }
+      if (_disposed) return false;
       WidgetsBinding.instance.addObserver(this);
       _initialized = true;
       return true;
@@ -121,54 +144,87 @@ class NotificationService with WidgetsBindingObserver {
       // while gracefully disabling remote delivery.
       return false;
     } finally {
-      _initializing = false;
+      if (!_initialized) await _cancelSubscriptions();
     }
   }
 
+  ({String accountId, int generation, int epoch}) _activate(String accountId) {
+    final previous = _ownership.current;
+    final scope = _ownership.activate(accountId);
+    if (scope != previous) _cancelRegistration();
+    return scope;
+  }
+
+  bool _isCurrent(({String accountId, int generation, int epoch}) scope) =>
+      !_disposed && _ownership.owns(scope);
+
+  void _cancelRegistration() {
+    final pending = _registrationCompleter;
+    if (pending != null && !pending.isCompleted) pending.complete('');
+  }
+
   Future<bool> enable(String accountId) async {
-    if (!await initialize() || _messaging == null) return false;
+    final scope = _activate(accountId);
+    if (!await initialize() || !_isCurrent(scope) || _messaging == null) {
+      return false;
+    }
     try {
       final permission = await _messaging!.requestPermission(
         alert: true,
         badge: true,
         sound: true,
       );
+      if (!_isCurrent(scope)) return false;
       if (permission.authorizationStatus != AuthorizationStatus.authorized &&
           permission.authorizationStatus != AuthorizationStatus.provisional) {
         return false;
       }
       if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
         for (var attempt = 0; attempt < 10; attempt++) {
-          if (await _messaging!.getAPNSToken() != null) break;
+          final token = await _messaging!.getAPNSToken();
+          if (!_isCurrent(scope)) return false;
+          if (token != null) break;
           await Future<void>.delayed(const Duration(milliseconds: 300));
+          if (!_isCurrent(scope)) return false;
         }
       }
-      _activeAccountId = accountId;
-      await _registerForPush();
-      return true;
+      await _registerForPush(scope);
+      return _isCurrent(scope);
     } catch (_) {
       return false;
     }
   }
 
   Future<void> syncAccount(String accountId) async {
+    final scope = _activate(accountId);
     await ApiSession.loadClientTimeZone();
-    if (!await initialize() || _messaging == null) return;
-    _activeAccountId = accountId;
+    if (!_isCurrent(scope) ||
+        !await initialize() ||
+        !_isCurrent(scope) ||
+        _messaging == null) {
+      return;
+    }
     try {
       final permission = await _messaging!.getNotificationSettings();
+      if (!_isCurrent(scope)) return;
       if (permission.authorizationStatus != AuthorizationStatus.authorized &&
           permission.authorizationStatus != AuthorizationStatus.provisional) {
         return;
       }
-      await _registerForPush();
+      await _registerForPush(scope);
     } catch (_) {
       // A temporary FCM/network failure should not block signing in.
     }
   }
 
-  Future<void> _registerToken(String accountId, String token) async {
+  Future<void> _registerToken(
+    ({String accountId, int generation, int epoch}) scope,
+    String token,
+  ) async {
     final zone = await FlutterTimezone.getLocalTimezone();
+    // Capture authentication only after confirming the original session still
+    // owns this operation; timezone lookup can outlive logout/account switch.
+    if (!_isCurrent(scope)) return;
     final platform = kIsWeb
         ? 'web'
         : defaultTargetPlatform == TargetPlatform.iOS
@@ -183,40 +239,70 @@ class NotificationService with WidgetsBindingObserver {
   }
 
   Future<void> _handleRegistration(String registrationId) async {
-    _activeRegistrationId = registrationId;
     final accountId = _activeAccountId;
-    if (accountId == null) return;
+    final generation = _activeGeneration;
+    if (accountId == null || generation == null) return;
+    final scope =
+        _registrationScope ??
+        (accountId: accountId, generation: generation, epoch: _accountEpoch);
+    final completer = _registrationCompleter;
+    if (!_isCurrent(scope)) return;
     try {
-      await _registerToken(accountId, registrationId);
-      final completer = _registrationCompleter;
+      await _registerToken(scope, registrationId);
+      if (!_isCurrent(scope)) return;
+      _activeRegistrationId = registrationId;
       if (completer != null && !completer.isCompleted) {
         completer.complete(registrationId);
       }
     } catch (error, stackTrace) {
-      final completer = _registrationCompleter;
+      if (!_isCurrent(scope)) return;
       if (completer != null && !completer.isCompleted) {
         completer.completeError(error, stackTrace);
       }
     }
   }
 
-  Future<void> _registerForPush() async {
+  Future<void> _registerForPush(
+    ({String accountId, int generation, int epoch}) scope,
+  ) => _registrationRuns.run(scope, () => _performRegistration(scope));
+
+  Future<void> _performRegistration(
+    ({String accountId, int generation, int epoch}) scope,
+  ) async {
+    if (!_isCurrent(scope)) return;
     final completer = Completer<String>();
     _registrationCompleter = completer;
+    _registrationScope = scope;
+    // Attach the listener before platform registration can synchronously emit
+    // an error. The deadline bounds both native registration and token upload.
+    final completed = completer.future.timeout(const Duration(seconds: 10));
     try {
-      await _messaging!.register(
-        vapidKey: kIsWeb ? HowBuddyFirebaseOptions.webVapidKey : null,
+      unawaited(
+        Future<void>.sync(
+          () => _messaging!.register(
+            vapidKey: kIsWeb ? HowBuddyFirebaseOptions.webVapidKey : null,
+          ),
+        ).catchError((Object error, StackTrace stack) {
+          if (!completer.isCompleted) completer.completeError(error, stack);
+        }),
       );
-      await completer.future.timeout(const Duration(seconds: 10));
+      await completed;
     } finally {
       if (identical(_registrationCompleter, completer)) {
         _registrationCompleter = null;
+        _registrationScope = null;
       }
     }
   }
 
   Future<void> unregister(String accountId) async {
-    _activeAccountId = null;
+    if (_activeAccountId != accountId ||
+        _activeGeneration != ApiSession.generation) {
+      return;
+    }
+    final generation = ApiSession.generation;
+    final epoch = _ownership.invalidate();
+    _cancelRegistration();
     try {
       final registrationId = _activeRegistrationId;
       if (registrationId != null) {
@@ -224,7 +310,17 @@ class NotificationService with WidgetsBindingObserver {
           'token': registrationId,
         });
       }
-      await _messaging?.unregister();
+      if (_accountEpoch != epoch || ApiSession.generation != generation) return;
+      await _registrationRuns.run(
+        (accountId: accountId, generation: generation, epoch: epoch),
+        () async {
+          if (_accountEpoch != epoch || ApiSession.generation != generation) {
+            return;
+          }
+          await _messaging?.unregister();
+        },
+      );
+      if (_accountEpoch == epoch) _activeRegistrationId = null;
     } catch (_) {
       // The session may already be offline; the server can expire stale FCM tokens.
     }
@@ -242,10 +338,11 @@ class NotificationService with WidgetsBindingObserver {
     final topicId = message.data['topicId']?.toString();
     if (topicId == null || topicId.isEmpty) return;
     await NotificationNavigation.remember(topicId);
-    _topicTaps.add(topicId);
+    if (!_topicTaps.isClosed) _topicTaps.add(topicId);
   }
 
   void _onForegroundMessage(RemoteMessage message) {
+    if (_disposed) return;
     final notification = message.notification;
     if (notification == null) return;
     final title = notification.title ?? 'HowBuddy';
@@ -267,12 +364,23 @@ class NotificationService with WidgetsBindingObserver {
   }
 
   Future<void> dispose() async {
+    _disposed = true;
+    _ownership.invalidate();
+    _cancelRegistration();
     WidgetsBinding.instance.removeObserver(this);
+    await _cancelSubscriptions();
+    await _topicTaps.close();
+    await _foregroundNotifications.close();
+  }
+
+  Future<void> _cancelSubscriptions() async {
     await _registrationSubscription?.cancel();
     await _unregistrationSubscription?.cancel();
     await _messageSubscription?.cancel();
     await _openedSubscription?.cancel();
-    await _topicTaps.close();
-    await _foregroundNotifications.close();
+    _registrationSubscription = null;
+    _unregistrationSubscription = null;
+    _messageSubscription = null;
+    _openedSubscription = null;
   }
 }

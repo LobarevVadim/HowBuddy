@@ -1,24 +1,36 @@
+import 'api_transport.dart';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-import '../features/learning/lesson_exercises.dart';
+import '../models/lesson_models.dart';
 import '../models/app_models.dart';
 import 'api_session.dart';
 import 'ui_translations.dart';
 
 class AuthApi {
   AuthApi({
-    this.baseUrl = const String.fromEnvironment(
-      'API_URL',
-      defaultValue: 'http://localhost:3000',
-    ),
+    this.baseUrl = ApiSession.baseUrl,
   });
 
   final String baseUrl;
 
+  Future<Map<String, dynamic>> startLesson({
+    required String requestId,
+    required String topicId,
+    required String lessonId,
+  }) async {
+    return _readBody(
+      await ApiSession.client.post(
+        Uri.parse('$baseUrl/lessons/start'),
+        headers: ApiSession.authenticatedHeaders,
+        body: jsonEncode({'topicId': topicId, 'lessonId': lessonId, 'requestId': requestId}),
+      ),
+    );
+  }
+
   Future<String?> fetchLastTopicId() async {
-    final response = await http.get(
+    final response = await ApiSession.client.get(
       Uri.parse('$baseUrl/account/last-topic'),
       headers: ApiSession.authenticatedHeaders,
     );
@@ -27,7 +39,7 @@ class AuthApi {
   }
 
   Future<void> saveLastTopicId(String topicId) async {
-    final response = await http.put(
+    final response = await ApiSession.client.put(
       Uri.parse('$baseUrl/account/last-topic'),
       headers: ApiSession.authenticatedHeaders,
       body: jsonEncode({'topicId': topicId}),
@@ -36,7 +48,7 @@ class AuthApi {
   }
 
   Future<int> saveAvatarPalette(int paletteIndex) async {
-    final response = await http.put(
+    final response = await ApiSession.client.put(
       Uri.parse('$baseUrl/account/avatar-palette'),
       headers: ApiSession.authenticatedHeaders,
       body: jsonEncode({'paletteIndex': paletteIndex}),
@@ -46,7 +58,7 @@ class AuthApi {
   }
 
   Future<int> saveAvatarGlasses(int accessoryIndex) async {
-    final response = await http.put(
+    final response = await ApiSession.client.put(
       Uri.parse('$baseUrl/account/avatar-glasses'),
       headers: ApiSession.authenticatedHeaders,
       body: jsonEncode({'accessoryIndex': accessoryIndex}),
@@ -56,7 +68,7 @@ class AuthApi {
   }
 
   Future<String> saveAvatarEmoji(String emoji) async {
-    final response = await http.put(
+    final response = await ApiSession.client.put(
       Uri.parse('$baseUrl/account/avatar-emoji'),
       headers: ApiSession.authenticatedHeaders,
       body: jsonEncode({'emoji': emoji}),
@@ -69,7 +81,7 @@ class AuthApi {
     required String preferredLanguage,
     required int ageYears,
   }) async {
-    final response = await http.put(
+    final response = await ApiSession.client.put(
       Uri.parse('$baseUrl/account/preferences'),
       headers: ApiSession.authenticatedHeaders,
       body: jsonEncode({
@@ -81,7 +93,7 @@ class AuthApi {
   }
 
   Future<bool> hasCurrentLegalAcceptance() async {
-    final response = await http.get(
+    final response = await ApiSession.client.get(
       Uri.parse('$baseUrl/account/legal-acceptance'),
       headers: ApiSession.authenticatedHeaders,
     );
@@ -95,7 +107,7 @@ class AuthApi {
     required bool cookiesAcknowledged,
     required bool refundsAcknowledged,
   }) async {
-    final response = await http.put(
+    final response = await ApiSession.client.put(
       Uri.parse('$baseUrl/account/legal-acceptance'),
       headers: ApiSession.authenticatedHeaders,
       body: jsonEncode({
@@ -109,7 +121,7 @@ class AuthApi {
   }
 
   Future<void> deleteOwnAccount() async {
-    final response = await http.delete(
+    final response = await ApiSession.client.delete(
       Uri.parse('$baseUrl/account'),
       headers: ApiSession.authenticatedHeaders,
     );
@@ -122,7 +134,7 @@ class AuthApi {
     required String email,
     required String password,
   }) async {
-    final response = await http.post(
+    final response = await ApiSession.client.post(
       Uri.parse('$baseUrl/auth/register'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
@@ -139,28 +151,10 @@ class AuthApi {
     required String identifier,
     required String password,
   }) async {
-    final response = await http.post(
+    final response = await ApiSession.client.post(
       Uri.parse('$baseUrl/auth/login'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'identifier': identifier, 'password': password}),
-    );
-
-    return _readAccount(response);
-  }
-
-  Future<Account> socialSignUp({
-    required String provider,
-    required String displayName,
-    required String email,
-  }) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/auth/social-signup'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'provider': provider,
-        'displayName': displayName,
-        'email': email,
-      }),
     );
 
     return _readAccount(response);
@@ -170,7 +164,7 @@ class AuthApi {
     required String idToken,
     required bool allowRegistration,
   }) async {
-    final response = await http.post(
+    final response = await ApiSession.client.post(
       Uri.parse('$baseUrl/auth/google'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
@@ -190,32 +184,11 @@ class AuthApi {
     );
   }
 
-  Future<List<LessonLevel>> fetchLessonLevels() async {
-    final response = await http.get(
-      Uri.parse(
-        '$baseUrl/lessons/tree',
-      ).replace(queryParameters: {'language': UiTranslations.languageCode}),
-      headers: ApiSession.authenticatedHeaders,
-    );
-    final Map<String, dynamic> body = jsonDecode(response.body);
-
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw AuthException(
-        body['message']?.toString() ?? 'Could not load lessons.',
-      );
-    }
-
-    final levels = body['levels'] as List<dynamic>;
-    return levels
-        .map((level) => LessonLevel.fromJson(level as Map<String, dynamic>))
-        .toList();
-  }
-
   Future<TreeData> fetchTreeData({
     required String topicId,
     required String accountId,
   }) async {
-    final response = await http.get(
+    final response = await ApiSession.client.get(
       Uri.parse('$baseUrl/lessons/tree').replace(
         queryParameters: {
           'topic': topicId,
@@ -225,13 +198,8 @@ class AuthApi {
       ),
       headers: ApiSession.authenticatedHeaders,
     );
-    final Map<String, dynamic> body = jsonDecode(response.body);
+    final Map<String, dynamic> body = _readBody(response);
 
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw AuthException(
-        body['message']?.toString() ?? 'Could not load lessons.',
-      );
-    }
 
     final levels = (body['levels'] as List<dynamic>)
         .map((level) => LessonLevel.fromJson(level as Map<String, dynamic>))
@@ -256,7 +224,7 @@ class AuthApi {
     required String topicId,
     required String lessonId,
   }) async {
-    final response = await http.get(
+    final response = await ApiSession.client.get(
       Uri.parse('$baseUrl/lessons/exercises').replace(
         queryParameters: {
           'topic': topicId,
@@ -265,13 +233,8 @@ class AuthApi {
         },
       ),
     );
-    final Map<String, dynamic> body = jsonDecode(response.body);
+    final Map<String, dynamic> body = _readBody(response);
 
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw AuthException(
-        body['message']?.toString() ?? 'Could not load lesson exercises.',
-      );
-    }
 
     final exercises = (body['exercises'] as List<dynamic>)
         .map(
@@ -286,6 +249,7 @@ class AuthApi {
   }
 
   Future<LessonCompletion> completeLesson({
+    required String completionId,
     required String accountId,
     required String topicId,
     required String lessonId,
@@ -293,10 +257,11 @@ class AuthApi {
     required int exerciseCount,
     required int durationSeconds,
   }) async {
-    final response = await http.post(
+    final response = await ApiSession.client.post(
       Uri.parse('$baseUrl/lessons/complete'),
       headers: ApiSession.authenticatedHeaders,
       body: jsonEncode({
+        'completionId': completionId,
         'accountId': accountId,
         'topicId': topicId,
         'lessonId': lessonId,
@@ -305,48 +270,33 @@ class AuthApi {
         'durationSeconds': durationSeconds,
       }),
     );
-    final Map<String, dynamic> body = jsonDecode(response.body);
+    final Map<String, dynamic> body = _readBody(response);
 
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw AuthException(
-        body['message']?.toString() ?? 'Could not complete lesson.',
-      );
-    }
 
     return LessonCompletion.fromJson(body);
   }
 
   Future<XpWeeklySummary> fetchWeeklyXp(String accountId) async {
-    final response = await http.get(
+    final response = await ApiSession.client.get(
       Uri.parse(
         '$baseUrl/xp/weekly',
       ).replace(queryParameters: {'accountId': accountId}),
       headers: ApiSession.authenticatedHeaders,
     );
-    final Map<String, dynamic> body = jsonDecode(response.body);
+    final Map<String, dynamic> body = _readBody(response);
 
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw AuthException(
-        body['message']?.toString() ?? 'Could not load your XP.',
-      );
-    }
 
     return XpWeeklySummary.fromJson(body);
   }
 
   Future<List<LessonTopic>> fetchOnboardingTopics() async {
-    final response = await http.get(
+    final response = await ApiSession.client.get(
       Uri.parse(
         '$baseUrl/onboarding/topics',
       ).replace(queryParameters: {'language': UiTranslations.languageCode}),
     );
-    final Map<String, dynamic> body = jsonDecode(response.body);
+    final Map<String, dynamic> body = _readBody(response);
 
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw AuthException(
-        body['message']?.toString() ?? 'Could not load onboarding.',
-      );
-    }
 
     final topics = body['topics'] as List<dynamic>;
     return topics
@@ -355,7 +305,7 @@ class AuthApi {
   }
 
   Future<NotepadTreeNode> fetchNotepadTree(String accountId) async {
-    final response = await http.get(
+    final response = await ApiSession.client.get(
       Uri.parse('$baseUrl/notepad/tree').replace(
         queryParameters: {
           'accountId': accountId,
@@ -364,13 +314,8 @@ class AuthApi {
       ),
       headers: ApiSession.authenticatedHeaders,
     );
-    final Map<String, dynamic> body = jsonDecode(response.body);
+    final Map<String, dynamic> body = _readBody(response);
 
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw AuthException(
-        body['message']?.toString() ?? 'Could not load notepad tree.',
-      );
-    }
 
     return NotepadTreeNode.fromJson(body['tree'] as Map<String, dynamic>);
   }
@@ -390,13 +335,11 @@ class AuthApi {
   }
 
   Map<String, dynamic> _readBody(http.Response response) {
-    final Map<String, dynamic> body = jsonDecode(response.body);
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw AuthException(
-        body['message']?.toString() ?? 'Something went wrong.',
-      );
+    try {
+      return decodeApiBody(response);
+    } on ApiTransportException catch (error) {
+      throw AuthException(error.message, code: error.code);
     }
-    return body;
   }
 }
 

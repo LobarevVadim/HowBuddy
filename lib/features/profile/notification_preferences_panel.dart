@@ -6,9 +6,14 @@ import '../../services/notification_service.dart';
 import '../../services/ui_translations.dart';
 
 class NotificationPreferencesPanel extends StatefulWidget {
-  const NotificationPreferencesPanel({required this.accountId, super.key});
+  const NotificationPreferencesPanel({
+    required this.accountId,
+    this.loadPreferences,
+    super.key,
+  });
 
   final String accountId;
+  final Future<NotificationPreferences> Function()? loadPreferences;
 
   @override
   State<NotificationPreferencesPanel> createState() =>
@@ -20,6 +25,8 @@ class _NotificationPreferencesPanelState
   NotificationPreferences? _preferences;
   bool _loading = true;
   bool _saving = false;
+  String? _loadError;
+  int _loadGeneration = 0;
 
   @override
   void initState() {
@@ -28,22 +35,45 @@ class _NotificationPreferencesPanelState
   }
 
   Future<void> _load() async {
+    final generation = ++_loadGeneration;
+    setState(() {
+      _loading = true;
+      _loadError = null;
+    });
     try {
-      final response = await ApiSession.getJson(
-        '/account/notifications/preferences',
-      );
-      final prefs = NotificationPreferences.fromJson(
-        response['preferences'] as Map<String, dynamic>,
-      );
-      if (!mounted) return;
+      final prefs =
+          await (widget.loadPreferences?.call() ?? _fetchPreferences());
+      if (!mounted || generation != _loadGeneration) return;
       setState(() => _preferences = prefs);
       if (prefs.enabled) {
         await NotificationService.instance.syncAccount(widget.accountId);
       }
     } catch (_) {
-      if (mounted) _message('Could not load notification preferences.');
+      if (mounted && generation == _loadGeneration) {
+        setState(() => _loadError = 'Could not load notification preferences.');
+      }
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (mounted && generation == _loadGeneration) {
+        setState(() => _loading = false);
+      }
+    }
+  }
+
+  Future<NotificationPreferences> _fetchPreferences() async {
+    final response = await ApiSession.getJson(
+      '/account/notifications/preferences',
+    );
+    return NotificationPreferences.fromJson(
+      response['preferences'] as Map<String, dynamic>,
+    );
+  }
+
+  @override
+  void didUpdateWidget(covariant NotificationPreferencesPanel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.accountId != widget.accountId) {
+      _preferences = null;
+      _load();
     }
   }
 
@@ -141,10 +171,32 @@ class _NotificationPreferencesPanelState
       color: AppColors.authPanelBackground,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
-        child: _loading || prefs == null
+        child: _loading
             ? const Padding(
                 padding: EdgeInsets.all(16),
                 child: LinearProgressIndicator(),
+              )
+            : prefs == null || _loadError != null
+            ? Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    Text(
+                      uiText(
+                        context,
+                        _loadError ??
+                            'Could not load notification preferences.',
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    TextButton.icon(
+                      onPressed: _load,
+                      icon: const Icon(Icons.refresh_rounded),
+                      label: Text(uiText(context, 'Retry')),
+                    ),
+                  ],
+                ),
               )
             : Column(
                 children: [

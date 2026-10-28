@@ -9,12 +9,14 @@ This repo contains a Flutter Android/iOS app and an Express API. The API stores 
 - XP totals and weekly XP history
 - Hearts, emeralds, XP boosts, study dates, and streak history
 
-The database schema is applied when `server/src/server.js` starts. `server/dev-server.js` is an in-memory local mock for accounts and progress; it reads lesson content from the PostgreSQL content table and must not be used for a shared demo.
+Database changes are explicit: run `npm run migrate` in `server/` before starting a new or upgraded API. Startup does not run schema changes or historical repairs. See [migration and compatibility notes](server/migrations/README.md). `server/dev-server.js` remains an intentional in-memory local mock; it is not the production API and does not implement the new lesson-session contract.
 
 ## Run locally
 
+The API now requires Node.js 22.12 or later in the Node 22 release line (see `server/.node-version`); the patched HTML sanitizer is incompatible with Node 20.
+
 1. Start PostgreSQL with `docker compose up -d postgres` from the repository root.
-2. In `HowBuddy/server`, copy `.env.example` to `.env`, set a random `SESSION_SECRET` (at least 32 characters), then run `npm install` and `npm start`.
+2. In `HowBuddy/server`, copy `.env.example` to `.env`, set a random `SESSION_SECRET` (at least 32 characters), then run `npm ci --ignore-scripts`, `npm run migrate`, and `npm start`. A fresh database also needs published normalized lesson content; the migration creates tables, not learning material.
 3. In the app, set `API_URL` for the device you're running: `http://10.0.2.2:3000` for the Android emulator, `http://localhost:3000` for the iOS simulator, or your computer's LAN IP address for a physical phone.
 
 ## Free shared demo deployment
@@ -23,7 +25,7 @@ Render can host the Flutter web app, Node API, and PostgreSQL database. This rep
 
 After the static site deploys, share `https://howbuddy.app`. Friends can open it in iPhone Safari and optionally choose **Share > Add to Home Screen**.
 
-The API creates or updates its PostgreSQL tables when it starts. After the API Web Service deploys, open `https://howbuddy-demo-api.onrender.com/health`. It should return `{"ok":true,"database":"connected"}`. Then build the phone app with that HTTPS URL:
+The API requires its explicit migration step before startup. After an authorized deployment, `/health` should return `{"ok":true,"database":"connected"}`. Then build the phone app with the intended API URL:
 
 ```sh
 flutter build apk --dart-define=API_URL=https://howbuddy-demo-api.onrender.com

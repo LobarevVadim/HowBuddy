@@ -61,6 +61,18 @@ class UiTranslations {
   }
 
   static const Map<String, Map<String, String>> _strings = {
+    'Could not load your progress.': {'fr': 'Impossible de charger votre progression.', 'es': 'No se pudo cargar tu progreso.', 'hi': 'आपकी प्रगति लोड नहीं हो सकी।', 'ru': 'Не удалось загрузить ваш прогресс.'},
+    'Could not start the lesson. Please try again.': {'fr': 'Impossible de commencer la leçon. Réessayez.', 'es': 'No se pudo iniciar la lección. Inténtalo de nuevo.', 'hi': 'पाठ शुरू नहीं हो सका। फिर से कोशिश करें।', 'ru': 'Не удалось начать урок. Попробуйте ещё раз.'},
+    'You': {'fr': 'Vous', 'es': 'Tú', 'hi': 'आप', 'ru': 'Вы'},
+    'Answer': {'fr': 'Réponse', 'es': 'Respuesta', 'hi': 'उत्तर', 'ru': 'Ответ'},
+    'Simulated ad (web demo)': {'fr': 'Publicité simulée (démo web)', 'es': 'Anuncio simulado (demo web)', 'hi': 'विज्ञापन का नमूना (वेब डेमो)', 'ru': 'Имитация рекламы (веб-демо)'},
+    'Complete demo ad': {'fr': 'Terminer la publicité de démonstration', 'es': 'Completar anuncio de demostración', 'hi': 'डेमो विज्ञापन पूरा करें', 'ru': 'Завершить демо-рекламу'},
+    'This is a demo screen, not a real advertisement. Complete it to preview how an ad reward works.': {
+      'fr': 'Ceci est une démonstration, pas une vraie publicité. Terminez-la pour découvrir comment fonctionne une récompense publicitaire.',
+      'es': 'Esta es una demostración, no un anuncio real. Complétala para ver cómo funciona una recompensa por anuncio.',
+      'hi': 'यह डेमो है, असली विज्ञापन नहीं। विज्ञापन का इनाम कैसे मिलता है, यह देखने के लिए इसे पूरा करें।',
+      'ru': 'Это демонстрация, а не настоящая реклама. Завершите её, чтобы увидеть, как работает награда за рекламу.',
+    },
     'Bobo is locked': {
       'fr': 'Bobo est verrouillé',
       'es': 'Bobo está bloqueado',

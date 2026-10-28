@@ -1,4 +1,7 @@
+import {gradeAnswer, gradeResponse, isCompleteAttempt} from './exercise_grading.js';
+export {gradeAnswer} from './exercise_grading.js';
 import {buildBoboLessonContext, formatBoboContext} from './bobo_context.js';
+import {lessonRevision} from './content_revision.js';
 import {BOBO_PROMPT_VERSION, BOBO_SYSTEM_PROMPT} from './bobo_prompt.js';
 import {createTutoringPlan, TEACHING_ACTIONS, tutorStateForStorage, tutoringDirective, validateTutorOutput} from './bobo_tutoring.js';
 
@@ -50,122 +53,6 @@ function estimateTokens(text) {
   return Math.ceil(text.length / 3.5);
 }
 
-function normalizeAnswer(value) {
-  return String(value).trim().toLowerCase().replace(/\s+/g, ' ');
-}
-
-function gradeAnswer(exercise, answer) {
-  const normalizeList = (values) => values.map(normalizeAnswer).sort();
-  const correctAnswers = exercise.correctAnswers ?? [];
-  const correctOrder = exercise.correctOrder ?? [];
-  const pairs = exercise.pairs ?? [];
-  const supplied = normalizeAnswer(answer);
-  if (!supplied) return {submitted: false, correct: null};
-  switch (exercise.type) {
-    case 'multipleSelect': {
-      const selected = answer.split(',').map(normalizeAnswer).filter(Boolean);
-      return {submitted: true, correct: JSON.stringify(normalizeList(selected)) === JSON.stringify(normalizeList(correctAnswers))};
-    }
-    case 'fillInTheBlank': {
-      const selected = answer.split('|').map(normalizeAnswer);
-      return {submitted: true, correct: JSON.stringify(selected) === JSON.stringify(correctOrder.map(normalizeAnswer))};
-    }
-    case 'orderSteps':
-    case 'buildTheProcess': {
-      const selected = answer.split(/\s*\u2192\s*/u).map(normalizeAnswer);
-      return {submitted: true, correct: JSON.stringify(selected) === JSON.stringify(correctOrder.map(normalizeAnswer))};
-    }
-    case 'matching':
-    case 'categorization':
-    case 'causeAndEffect':
-    case 'compareAndContrast': {
-      const selected = new Map(answer.split(';').map((entry) => {
-        const separator = entry.indexOf(':');
-        return separator < 0
-          ? ['', '']
-          : [normalizeAnswer(entry.slice(0, separator)), normalizeAnswer(entry.slice(separator + 1))];
-      }));
-      return {
-        submitted: true,
-        correct: pairs.length > 0 && pairs.every((pair) =>
-          selected.get(normalizeAnswer(pair.left)) === normalizeAnswer(pair.right)),
-      };
-    }
-    case 'diagramLabeling': {
-      const labels = exercise.correctLabels ?? {};
-      const selected = new Map(answer.split(';').map((entry) => {
-        const separator = entry.indexOf(':');
-        return separator < 0
-          ? ['', '']
-          : [entry.slice(0, separator).trim(), normalizeAnswer(entry.slice(separator + 1))];
-      }));
-      const required = Object.entries(labels);
-      return {
-        submitted: true,
-        correct: required.length > 0 && required.every(([id, label]) =>
-          selected.get(id) === normalizeAnswer(label)),
-      };
-    }
-    case 'singleChoice':
-    case 'trueFalse':
-    case 'spotTheMistake':
-      return {submitted: true, correct: correctAnswers.some((value) => normalizeAnswer(value) === supplied)};
-    case 'shortAnswer':
-    case 'scenarioBasedDecision':
-    case 'prediction':
-      return {submitted: true, correct: correctAnswers.length
-        ? correctAnswers.some((value) => normalizeAnswer(value) === supplied)
-        : null};
-    default:
-      return {submitted: true, correct: null};
-  }
-}
-
-function isCompleteAttempt(exercise, answer) {
-  if (typeof answer !== 'string' || !answer.trim()) return false;
-  const options = (exercise.options ?? []).map(normalizeAnswer);
-  const correctOrder = exercise.correctOrder ?? [];
-  const splitSequence = () => answer.split(/\s*\u2192\s*/u).map((part) => part.trim());
-  switch (exercise.type) {
-    case 'singleChoice':
-    case 'trueFalse':
-    case 'spotTheMistake':
-    case 'scenarioBasedDecision':
-    case 'prediction':
-      return options.includes(normalizeAnswer(answer));
-    case 'multipleSelect': {
-      const selected = answer.split(',').map(normalizeAnswer).filter(Boolean);
-      return selected.length > 0 && selected.every((item) => options.includes(item));
-    }
-    case 'shortAnswer':
-      return answer.trim().length <= 2000;
-    case 'fillInTheBlank': {
-      const words = answer.split('|').map((part) => part.trim());
-      return words.length === correctOrder.length && words.every(Boolean);
-    }
-    case 'orderSteps':
-    case 'buildTheProcess': {
-      const steps = splitSequence();
-      return steps.length === correctOrder.length && steps.every(Boolean) &&
-        (options.length === 0 || steps.every((step) => options.includes(normalizeAnswer(step))));
-    }
-    case 'matching':
-    case 'categorization':
-    case 'causeAndEffect':
-    case 'compareAndContrast': {
-      const selected = new Map(answer.split(';').map((entry) => {
-        const separator = entry.indexOf(':');
-        return separator < 0 ? ['', ''] : [entry.slice(0, separator).trim(), entry.slice(separator + 1).trim()];
-      }));
-      const expected = (exercise.pairs ?? []).map((pair) => pair.left);
-      return expected.length > 0 && selected.size === expected.length &&
-        expected.every((key) => selected.has(key) && Boolean(selected.get(key)));
-    }
-    default:
-      return false;
-  }
-}
-
 function validLessonRequest(body) {
   const topicId = typeof body.topicId === 'string' ? body.topicId.trim() : '';
   const lessonId = typeof body.lessonId === 'string' ? body.lessonId.trim() : '';
@@ -210,9 +97,11 @@ export function createBoboTutor({
       );
       if (!accountResult.rowCount) throw new BoboError('unauthorized', 401);
       let context;
+      let content;
       try {
+        content = await getLessonContent(accountResult.rows[0].preferred_language ?? 'en');
         context = buildBoboLessonContext({
-          content: await getLessonContent(accountResult.rows[0].preferred_language ?? 'en'),
+          content,
           topicId,
           lessonId,
           exerciseIndex,
@@ -226,24 +115,48 @@ export function createBoboTutor({
         if (error.status === 400 || error.status === 404) throw new BoboError('invalid_context', 400);
         throw error;
       }
-      if (!context.activeExercise || !isCompleteAttempt(context.activeExercise, answer)) {
+      if (!context.activeExercise || (body.response === undefined && !isCompleteAttempt(context.activeExercise, answer))) {
         throw new BoboError('invalid_answer', 400);
       }
-      const result = gradeAnswer(context.activeExercise, answer);
+      const result = body.response === undefined ? gradeAnswer(context.activeExercise, answer) : gradeResponse(context.activeExercise, body.response);
       if (!result.submitted) throw new BoboError('invalid_answer', 400);
-      await pool.query(
+      if (body.sessionId != null) {
+        if (typeof body.sessionId !== 'string' || !/^[a-f0-9-]{36}$/i.test(body.sessionId)) throw new BoboError('invalid_context', 400);
+        const session = await pool.query('SELECT 1 FROM lesson_sessions WHERE id=$1 AND account_id=$2 AND topic_id=$3 AND lesson_id=$4',
+          [body.sessionId, accountId, topicId, lessonId]);
+        if (!session.rowCount) throw new BoboError('invalid_context', 400);
+      }
+      const db = body.sessionId ? await pool.connect() : pool;
+      try {
+        if (body.sessionId) await db.query('BEGIN');
+        await db.query(
         `INSERT INTO bobo_exercise_tutoring_state
            (account_id, topic_id, lesson_id, exercise_index, student_answer,
-            answer_correct, attempt_count, attempted_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, 1, now(), now())
+            answer_correct, attempt_count, attempted_at, updated_at, content_revision, session_id)
+         VALUES ($1, $2, $3, $4, $5, $6, 1, now(), now(), $7, $8)
          ON CONFLICT (account_id, topic_id, lesson_id, exercise_index)
          DO UPDATE SET student_answer = EXCLUDED.student_answer,
            answer_correct = EXCLUDED.answer_correct,
            attempt_count = bobo_exercise_tutoring_state.attempt_count + 1,
-           attempted_at = now(), updated_at = now()`,
-        [accountId, topicId, lessonId, exerciseIndex, answer, result.correct],
+           attempted_at = now(), updated_at = now(), content_revision = EXCLUDED.content_revision, session_id = EXCLUDED.session_id`,
+        [accountId, topicId, lessonId, exerciseIndex, answer, result.correct,
+          lessonRevision(Number(lessonId.slice(7)) === 1 ? content.nodes[topicId] : content.nodes[content.nodes[topicId].extraLessons[Number(lessonId.slice(7)) - 2]]),
+          typeof body.sessionId === 'string' && /^[a-f0-9-]{36}$/i.test(body.sessionId) ? body.sessionId : null],
       );
-      return {recorded: true};
+        if (body.sessionId) {
+          const number = Number(lessonId.slice(7));
+          const lesson = number === 1 ? content.nodes[topicId] : content.nodes[content.nodes[topicId].extraLessons[number - 2]];
+          await db.query(`INSERT INTO lesson_session_attempts(session_id,exercise_index,student_answer,content_revision,answer_json)
+            VALUES($1,$2,$3,$4,$5::jsonb) ON CONFLICT(session_id,exercise_index) DO UPDATE
+            SET student_answer=EXCLUDED.student_answer,content_revision=EXCLUDED.content_revision,answer_json=EXCLUDED.answer_json`,
+            [body.sessionId, exerciseIndex, answer, lessonRevision(lesson), body.response === undefined ? null : JSON.stringify(body.response)]);
+          await db.query('COMMIT');
+        }
+      } catch (error) {
+        if (body.sessionId) await db.query('ROLLBACK');
+        throw error;
+      } finally { if (body.sessionId) db.release(); }
+      return {recorded: true, correct: result.correct};
     },
 
     async getAttemptedExercises(accountId, body) {

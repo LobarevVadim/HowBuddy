@@ -201,7 +201,7 @@ test('attempt API rejects incomplete answers and records a complete incorrect ch
   };
   await assert.rejects(tutor.recordAttempt('account-id', attempt), (error) =>
     error instanceof BoboError && error.code === 'invalid_answer');
-  assert.deepEqual(await tutor.recordAttempt('account-id', {...attempt, studentAnswer: 'rock'}), {recorded: true});
+  assert.deepEqual(await tutor.recordAttempt('account-id', {...attempt, studentAnswer: 'rock'}), {recorded: true, correct: false});
   const insert = pool.queries.find(({sql}) => sql.includes('INSERT INTO bobo_exercise_tutoring_state'));
   assert.equal(insert.params[4], 'rock');
   assert.equal(insert.params[5], false);

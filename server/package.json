@@ -3,9 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=22.12.0 <23"
+  },
   "scripts": {
     "start": "node src/server.js",
-    "test": "node --test src/notification_policy.test.js src/notification_scheduler.test.js src/streak_freeze_policy.test.js src/bobo_service.test.js src/bobo_tutoring.test.js src/lesson_content_store.test.js src/normalized_lesson_content.test.js src/content_admin.test.js src/google_translation.test.js"
+    "migrate": "node src/migrate.js",
+    "test": "node --test"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

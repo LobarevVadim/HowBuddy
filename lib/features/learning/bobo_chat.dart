@@ -1,3 +1,4 @@
+import 'bobo_message_bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -31,7 +32,7 @@ Future<void> showBoboChatSheet(
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 560),
-          child: _BoboChatPanel(
+          child: BoboChatPanel(
             lessonTitle: lessonTitle,
             exerciseIndex: exerciseIndex,
             answerSubmitted: answerSubmitted,
@@ -124,8 +125,9 @@ class BoboLessonButton extends StatelessWidget {
   );
 }
 
-class _BoboChatPanel extends StatefulWidget {
-  const _BoboChatPanel({
+class BoboChatPanel extends StatefulWidget {
+  const BoboChatPanel({
+    super.key,
     required this.lessonTitle,
     required this.exerciseIndex,
     required this.answerSubmitted,
@@ -149,11 +151,12 @@ class _BoboChatPanel extends StatefulWidget {
   final Future<BoboConversation> Function(String conversationId) onClear;
 
   @override
-  State<_BoboChatPanel> createState() => _BoboChatPanelState();
+  State<BoboChatPanel> createState() => BoboChatPanelState();
 }
 
-class _BoboChatPanelState extends State<_BoboChatPanel> {
+class BoboChatPanelState extends State<BoboChatPanel> {
   final _inputController = TextEditingController();
+  final _inputFocus = FocusNode();
   final _scrollController = ScrollController();
   final List<BoboChatTurn> _turns = [];
   bool _isSending = false;
@@ -170,6 +173,7 @@ class _BoboChatPanelState extends State<_BoboChatPanel> {
   @override
   void dispose() {
     _inputController.dispose();
+    _inputFocus.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -316,7 +320,11 @@ class _BoboChatPanelState extends State<_BoboChatPanel> {
 
   void _scrollToEnd() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_scrollController.hasClients) return;
+      if (!mounted || !_scrollController.hasClients) return;
+      if (MediaQuery.disableAnimationsOf(context)) {
+        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+        return;
+      }
       _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
         duration: const Duration(milliseconds: 180),
@@ -400,7 +408,9 @@ class _BoboChatPanelState extends State<_BoboChatPanel> {
               ),
             ),
             IconButton(
-              onPressed: _clearConversation,
+              onPressed: _isSending || _isLoadingConversation
+                  ? null
+                  : _clearConversation,
               tooltip: uiText(context, 'Clear conversation'),
               icon: Icon(
                 Icons.delete_outline_rounded,
@@ -440,27 +450,35 @@ class _BoboChatPanelState extends State<_BoboChatPanel> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    for (final turn in _turns) _BoboMessageBubble(turn: turn),
+                    for (final (index, turn) in _turns.indexed)
+                      BoboMessageBubble(
+                        key: ValueKey('message-$index'),
+                        turn: turn,
+                      ),
                     if (!_isSending) ...[
                       const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: _quickActions()
-                            .map(
-                              (entry) => ActionChip(
-                                label: Text(uiText(context, entry.$1)),
-                                onPressed:
-                                    _isLoadingConversation ||
-                                        _conversationId == null
-                                    ? null
-                                    : () => _send(
-                                        action: entry.$2,
-                                        presetMessage: entry.$1,
-                                      ),
-                              ),
-                            )
-                            .toList(),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: _quickActions()
+                              .map(
+                                (entry) => Padding(
+                                  padding: const EdgeInsets.only(right: 8),
+                                  child: ActionChip(
+                                    label: Text(uiText(context, entry.$1)),
+                                    onPressed:
+                                        _isLoadingConversation ||
+                                            _conversationId == null
+                                        ? null
+                                        : () => _send(
+                                            action: entry.$2,
+                                            presetMessage: entry.$1,
+                                          ),
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                        ),
                       ),
                     ],
                     if (_isSending)
@@ -485,7 +503,7 @@ class _BoboChatPanelState extends State<_BoboChatPanel> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _BoboMessageBubble(
+                          BoboMessageBubble(
                             turn: BoboChatTurn(
                               role: 'assistant',
                               content: uiText(context, _errorText(_errorCode!)),
@@ -509,6 +527,8 @@ class _BoboChatPanelState extends State<_BoboChatPanel> {
             Expanded(
               child: TextField(
                 controller: _inputController,
+                focusNode: _inputFocus,
+                onEditingComplete: () {},
                 enabled:
                     !_isSending &&
                     !_isLoadingConversation &&
@@ -538,10 +558,13 @@ class _BoboChatPanelState extends State<_BoboChatPanel> {
               ),
             ),
             const SizedBox(width: 8),
-            IconButton.filled(
-              onPressed: _isSending || _isLoadingConversation ? null : _send,
-              tooltip: uiText(context, 'Send message'),
-              icon: const Icon(Icons.send_rounded),
+            ValueListenableBuilder<TextEditingValue>(
+              valueListenable: _inputController,
+              builder: (context, value, _) => IconButton.filled(
+                onPressed: _isSending || _isLoadingConversation || _conversationId == null || value.text.trim().isEmpty ? null : _send,
+                tooltip: uiText(context, 'Send message'),
+                icon: const Icon(Icons.send_rounded),
+              ),
             ),
           ],
         ),
@@ -582,38 +605,5 @@ class _BoboChatPanelState extends State<_BoboChatPanel> {
       ('Explain this more simply', 'simplify'),
       ("I'm completely lost", 'lost'),
     ];
-  }
-}
-
-class _BoboMessageBubble extends StatelessWidget {
-  const _BoboMessageBubble({required this.turn, this.isError = false});
-
-  final BoboChatTurn turn;
-  final bool isError;
-
-  @override
-  Widget build(BuildContext context) {
-    final isUser = turn.role == 'user';
-    return Align(
-      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 420),
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: isError
-              ? AppColors.primaryLight.withValues(alpha: 0.16)
-              : isUser
-              ? AppColors.primaryLight.withValues(alpha: 0.25)
-              : AppColors.infoBackground,
-          borderRadius: BorderRadius.circular(AppRadii.input),
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Text(
-          turn.content,
-          style: TextStyle(color: AppColors.text, height: 1.4),
-        ),
-      ),
-    );
   }
 }

@@ -299,8 +299,9 @@ class _AdminUsersSectionState extends State<AdminUsersSection> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Account deleted.')));
-      if (_users.length == 1 && _offset > 0)
+      if (_users.length == 1 && _offset > 0) {
         _offset = (_offset - _pageSize).clamp(0, _offset);
+      }
       await _load();
     } catch (error) {
       if (!mounted) return;

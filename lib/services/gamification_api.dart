@@ -1,3 +1,4 @@
+import 'api_transport.dart';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
@@ -7,16 +8,13 @@ import 'api_session.dart';
 
 class GamificationApi {
   GamificationApi({
-    this.baseUrl = const String.fromEnvironment(
-      'API_URL',
-      defaultValue: 'http://localhost:3000',
-    ),
+    this.baseUrl = ApiSession.baseUrl,
   });
 
   final String baseUrl;
 
   Future<GameState> fetchState(String accountId) async {
-    final response = await http.get(
+    final response = await ApiSession.client.get(
       _uri('/gamification', accountId),
       headers: ApiSession.authenticatedHeaders,
     );
@@ -24,7 +22,7 @@ class GamificationApi {
   }
 
   Future<GameState> saveStreakGoal(String accountId, int goalDays) async {
-    final response = await http.post(
+    final response = await ApiSession.client.post(
       Uri.parse('$baseUrl/gamification/streak-goal'),
       headers: ApiSession.authenticatedHeaders,
       body: jsonEncode({'goalDays': goalDays}),
@@ -33,7 +31,7 @@ class GamificationApi {
   }
 
   Future<LessonHeartResult> consumeLessonHeart(String accountId) async {
-    final response = await http.post(
+    final response = await ApiSession.client.post(
       Uri.parse('$baseUrl/gamification/consume-heart'),
       headers: ApiSession.authenticatedHeaders,
       body: jsonEncode({'accountId': accountId}),
@@ -60,7 +58,7 @@ class GamificationApi {
   });
 
   Future<GameState> _postState(String path, Map<String, Object> payload) async {
-    final response = await http.post(
+    final response = await ApiSession.client.post(
       Uri.parse('$baseUrl$path'),
       headers: ApiSession.authenticatedHeaders,
       body: jsonEncode(payload),
@@ -72,13 +70,11 @@ class GamificationApi {
       Future.value(GameState.fromJson(_readBody(response)));
 
   Map<String, dynamic> _readBody(http.Response response) {
-    final Map<String, dynamic> body = jsonDecode(response.body);
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw AuthException(
-        body['message']?.toString() ?? 'Could not update your game progress.',
-      );
+    try {
+      return decodeApiBody(response);
+    } on ApiTransportException catch (error) {
+      throw AuthException(error.message);
     }
-    return body;
   }
 
   Uri _uri(String path, String accountId) => Uri.parse(

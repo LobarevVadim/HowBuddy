@@ -1,36 +1,72 @@
 import 'package:flutter/material.dart';
 
+class AppMotion {
+  const AppMotion._();
+  static const arrival = Duration(milliseconds: 180);
+  static Duration duration(BuildContext context) =>
+      MediaQuery.disableAnimationsOf(context) ? Duration.zero : arrival;
+}
+
+class AppPalette extends ThemeExtension<AppPalette> {
+  const AppPalette(this.brightness);
+  final Brightness brightness;
+  bool get isDarkMode => brightness == Brightness.dark;
+  static AppPalette of(BuildContext context) => Theme.of(context).extension<AppPalette>() ?? AppPalette(Theme.of(context).brightness);
+  @override
+  AppPalette copyWith({Brightness? brightness}) => AppPalette(brightness ?? this.brightness);
+  @override
+  AppPalette lerp(covariant AppPalette? other, double t) => other == null || t < 0.5 ? this : other;
+
+
+
+  Color get primary =>
+      isDarkMode ? const Color(0xFFE2A765) : const Color(0xFF995A2A);
+  Color get primaryDark =>
+      isDarkMode ? const Color(0xFFFFD9B0) : const Color(0xFF6F482C);
+  Color get primaryLight =>
+      isDarkMode ? const Color(0xFFD7A269) : const Color(0xFFA86B38);
+  Color get success =>
+      isDarkMode ? const Color(0xFFB6D878) : const Color(0xFF617C2A);
+  Color get text =>
+      isDarkMode ? const Color(0xFFF4E8DC) : const Color(0xFF65462F);
+  Color get mutedText =>
+      isDarkMode ? const Color(0xFFC1AD98) : const Color(0xFF76614D);
+  Color get pageBackground =>
+      isDarkMode ? const Color(0xFF1E1A17) : const Color(0xFFFFF8F2);
+  Color get loadingBackground =>
+      isDarkMode ? const Color(0xFF1E1A17) : const Color(0xFFFCF5EF);
+  Color get inputBackground =>
+      isDarkMode ? const Color(0xFF302923) : const Color(0xFFFFFCF8);
+  Color get border =>
+      isDarkMode ? const Color(0xFF8B735B) : const Color(0xFFA58D74);
+  Color get authPanelBackground =>
+      isDarkMode ? const Color(0xFF30261F) : const Color(0xFFFFF3E8);
+  Color get heroBackground =>
+      isDarkMode ? const Color(0xFF29221C) : const Color(0xFFFFF8F2);
+  Color get infoBackground =>
+      isDarkMode ? const Color(0xFF30271F) : const Color(0xFFFFF7EC);
+  static const google = Color(0xFF4285F4);
+  static const apple = Color(0xFF8B5CF6);
+}
+
 class AppColors {
   const AppColors._();
-
+  // Compatibility adapter while feature widgets move to AppPalette.of(context).
   static bool isDarkMode = false;
-
-  static Color get primary =>
-      isDarkMode ? const Color(0xFFE2A765) : const Color(0xFF995A2A);
-  static Color get primaryDark =>
-      isDarkMode ? const Color(0xFFFFD9B0) : const Color(0xFF6F482C);
-  static Color get primaryLight =>
-      isDarkMode ? const Color(0xFFD7A269) : const Color(0xFFA86B38);
-  static Color get success =>
-      isDarkMode ? const Color(0xFFB6D878) : const Color(0xFF617C2A);
-  static Color get text =>
-      isDarkMode ? const Color(0xFFF4E8DC) : const Color(0xFF65462F);
-  static Color get mutedText =>
-      isDarkMode ? const Color(0xFFC1AD98) : const Color(0xFF76614D);
-  static Color get pageBackground =>
-      isDarkMode ? const Color(0xFF1E1A17) : const Color(0xFFFFF8F2);
-  static Color get loadingBackground =>
-      isDarkMode ? const Color(0xFF1E1A17) : const Color(0xFFFCF5EF);
-  static Color get inputBackground =>
-      isDarkMode ? const Color(0xFF302923) : const Color(0xFFFFFCF8);
-  static Color get border =>
-      isDarkMode ? const Color(0xFF8B735B) : const Color(0xFFA58D74);
-  static Color get authPanelBackground =>
-      isDarkMode ? const Color(0xFF30261F) : const Color(0xFFFFF3E8);
-  static Color get heroBackground =>
-      isDarkMode ? const Color(0xFF29221C) : const Color(0xFFFFF8F2);
-  static Color get infoBackground =>
-      isDarkMode ? const Color(0xFF30271F) : const Color(0xFFFFF7EC);
+  static AppPalette get _palette => AppPalette(isDarkMode ? Brightness.dark : Brightness.light);
+  static Color get primary => _palette.primary;
+  static Color get primaryDark => _palette.primaryDark;
+  static Color get primaryLight => _palette.primaryLight;
+  static Color get success => _palette.success;
+  static Color get text => _palette.text;
+  static Color get mutedText => _palette.mutedText;
+  static Color get pageBackground => _palette.pageBackground;
+  static Color get loadingBackground => _palette.loadingBackground;
+  static Color get inputBackground => _palette.inputBackground;
+  static Color get border => _palette.border;
+  static Color get authPanelBackground => _palette.authPanelBackground;
+  static Color get heroBackground => _palette.heroBackground;
+  static Color get infoBackground => _palette.infoBackground;
   static const google = Color(0xFF4285F4);
   static const apple = Color(0xFF8B5CF6);
 }
@@ -109,27 +145,31 @@ class AppTheme {
   static ThemeData dark() => _build(Brightness.dark);
 
   static ThemeData _build(Brightness brightness) {
+    final colors = AppPalette(brightness);
     final inputBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(AppRadii.input),
-      borderSide: BorderSide(color: AppColors.border),
+      borderSide: BorderSide(color: colors.border),
     );
 
     return ThemeData(
+      extensions: [colors],
+      visualDensity: VisualDensity.standard,
+      materialTapTargetSize: MaterialTapTargetSize.padded,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: AppColors.primary,
+        seedColor: colors.primary,
         brightness: brightness,
       ),
-      scaffoldBackgroundColor: AppColors.pageBackground,
+      scaffoldBackgroundColor: colors.pageBackground,
       fontFamily: AppFonts.primary,
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.inputBackground,
+        fillColor: colors.inputBackground,
         labelStyle: TextStyle(
-          color: AppColors.mutedText,
+          color: colors.mutedText,
           fontWeight: FontWeight.w600,
         ),
-        prefixIconColor: AppColors.primary,
-        suffixIconColor: AppColors.mutedText,
+        prefixIconColor: colors.primary,
+        suffixIconColor: colors.mutedText,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 18,
           vertical: 20,
@@ -138,19 +178,19 @@ class AppTheme {
         enabledBorder: inputBorder,
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadii.input),
-          borderSide: BorderSide(color: AppColors.primary, width: 1.5),
+          borderSide: BorderSide(color: colors.primary, width: 1.5),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(foregroundColor: AppColors.primaryDark),
+        style: TextButton.styleFrom(foregroundColor: colors.primaryDark),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: AppColors.primary,
+          backgroundColor: colors.primary,
           foregroundColor: brightness == Brightness.dark
               ? const Color(0xFF231F20)
               : Colors.white,
-          disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.55),
+          disabledBackgroundColor: colors.primary.withValues(alpha: 0.55),
           disabledForegroundColor: brightness == Brightness.dark
               ? const Color(0xFF231F20)
               : Colors.white,
